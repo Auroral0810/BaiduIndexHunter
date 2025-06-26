@@ -1,0 +1,31 @@
+# Web框架
+fastapi>=0.100.0
+uvicorn>=0.20.0
+
+# 数据库
+sqlalchemy>=1.4.0
+pymysql>=1.0.2
+
+# 缓存
+redis>=3.5.0,<4.0.0  # 兼容 label-studio
+
+# HTTP客户端
+requests>=2.28.0
+
+# 爬虫相关
+selenium>=4.10.0
+webdriver-manager>=3.8.0
+
+# 任务调度
+apscheduler>=3.9.0
+
+# 数据验证 (兼容现有环境)
+pydantic>=1.10.0,<2.0.0
+python-dotenv>=0.20.0
+
+# 日志
+loguru>=0.6.0
+
+# 其他工具
+python-multipart>=0.0.5
+aiofiles>=0.8.0

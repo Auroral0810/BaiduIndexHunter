@@ -1,0 +1,26 @@
+{
+  "name": "baidu-index-hunter-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "axios": "^1.6.7",
+    "element-plus": "^2.4.3",
+    "file-saver": "^2.0.5",
+    "vue": "^3.4.19",
+    "vue-router": "^4.2.5",
+    "xlsx": "^0.18.5",
+    "echarts": "^5.4.3",
+    "pinia": "^2.1.7"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "sass": "^1.69.5",
+    "vite": "^5.1.4"
+  }
+}
