@@ -95,7 +95,8 @@ class BaiduIndexAPI:
         return cookie_dict
         
     @retry(max_retries=SPIDER_CONFIG['retry_times'])
-    def get_search_index(self, keyword, area=0, days=30, start_date=None, end_date=None, year=None):
+    def get_search_index(self, keyword, area=0, days=30, start_date=None, end_date=None, year=None, 
+                         data_frequency='week', data_source_type='all', data_type='all'):
         """
         获取搜索指数数据
         :param keyword: 关键词
@@ -104,6 +105,9 @@ class BaiduIndexAPI:
         :param start_date: 开始日期，格式：yyyy-MM-dd
         :param end_date: 结束日期，格式：yyyy-MM-dd
         :param year: 年份，用于数据处理
+        :param data_frequency: 数据频率，可选值：day, week, month, year
+        :param data_source_type: 数据源类型，可选值：all, pc, mobile
+        :param data_type: 数据类型，可选值：all, trend, map, portrait, news
         :return: 搜索指数数据
         """
         # 获取cookie
@@ -139,6 +143,16 @@ class BaiduIndexAPI:
         else:
             params['days'] = str(days)
             
+        # 添加数据频率、数据源类型和数据类型参数
+        if data_frequency and data_frequency != 'week':
+            params['type'] = data_frequency
+        
+        if data_source_type and data_source_type != 'all':
+            params['device'] = data_source_type
+            
+        if data_type and data_type != 'all':
+            params['dataType'] = data_type
+            
         # 生成Cipher-Text
         cipher_url = f"https://index.baidu.com/v2/main/index.html#/trend/{keyword}?words={keyword}"
         cipher_text = cipher_text_generator.generate(cipher_url)
@@ -146,7 +160,7 @@ class BaiduIndexAPI:
         # 构建请求头
         headers = self._get_headers(cipher_text)
             
-        # log.info(f"发送搜索指数请求: {keyword} 地区:{area} 年份")
+        log.info(f"发送搜索指数请求: {keyword} 地区:{area} 年份:{year} 频率:{data_frequency} 源类型:{data_source_type} 数据类型:{data_type}")
         
         try:
             # 等待适当的时间间隔
@@ -186,7 +200,15 @@ class BaiduIndexAPI:
                 year = int(start_date.split('-')[0])
             
             # 使用数据处理器处理数据
-            df = data_processor.process_search_index_data(data['data'], area, keyword, year)
+            df = data_processor.process_search_index_data(
+                data['data'], 
+                area, 
+                keyword, 
+                year, 
+                data_frequency=data_frequency,
+                data_source_type=data_source_type,
+                data_type=data_type
+            )
             return df
             
         except Exception as e:
@@ -194,7 +216,8 @@ class BaiduIndexAPI:
             return None
     
     @retry(max_retries=SPIDER_CONFIG['retry_times'])
-    def get_trend_index(self, keyword, area=0, days=30, start_date=None, end_date=None, year=None):
+    def get_trend_index(self, keyword, area=0, days=30, start_date=None, end_date=None, year=None,
+                        data_frequency='week', data_source_type='all', data_type='all'):
         """
         获取趋势指数数据
         :param keyword: 关键词
@@ -203,6 +226,9 @@ class BaiduIndexAPI:
         :param start_date: 开始日期，格式为YYYY-MM-DD
         :param end_date: 结束日期，格式为YYYY-MM-DD
         :param year: 年份，用于数据处理
+        :param data_frequency: 数据频率，可选值：day, week, month, year
+        :param data_source_type: 数据源类型，可选值：all, pc, mobile
+        :param data_type: 数据类型，可选值：all, trend, map, portrait, news
         :return: 处理后的DataFrame或None
         """
         # 获取Cookie
@@ -241,6 +267,16 @@ class BaiduIndexAPI:
                 params['endDate'] = end_date
             else:
                 params['days'] = str(days)
+                
+            # 添加数据频率、数据源类型和数据类型参数
+            if data_frequency and data_frequency != 'week':
+                params['type'] = data_frequency
+            
+            if data_source_type and data_source_type != 'all':
+                params['device'] = data_source_type
+                
+            if data_type and data_type != 'all':
+                params['dataType'] = data_type
             
             # 生成Cipher-Text
             url_cipher = f'https://index.baidu.com/v2/main/index.html#/trend/{keyword}?words={keyword}'
@@ -262,7 +298,7 @@ class BaiduIndexAPI:
                 BaiduIndexAPI._first_request_printed = True
             
             # 发送请求
-            log.info(f"发送趋势指数请求: {keyword} 地区:{area}")
+            log.info(f"发送趋势指数请求: {keyword} 地区:{area} 频率:{data_frequency} 源类型:{data_source_type} 数据类型:{data_type}")
             
             response = requests.get(
                 self.trend_url,
@@ -287,7 +323,15 @@ class BaiduIndexAPI:
                         year = int(start_date.split('-')[0])
                     
                     # 使用数据处理器处理数据
-                    df = data_processor.process_trend_index_data(data['data'], area, keyword, year)
+                    df = data_processor.process_trend_index_data(
+                        data['data'], 
+                        area, 
+                        keyword, 
+                        year,
+                        data_frequency=data_frequency,
+                        data_source_type=data_source_type,
+                        data_type=data_type
+                    )
                     return df
                 else:
                     error_msg = data.get('message', '未知错误')

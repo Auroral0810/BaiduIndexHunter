@@ -13,13 +13,17 @@ class BaiduIndexDataProcessor:
     def __init__(self):
         pass
     
-    def process_search_index_data(self, data, city_number, word, year=None):
+    def process_search_index_data(self, data, city_number, word, year=None, 
+                                 data_frequency='week', data_source_type='all', data_type='all'):
         """
         处理搜索指数数据
         :param data: API返回的原始数据
         :param city_number: 城市代码
         :param word: 搜索关键词
         :param year: 年份，如果为None则使用当前年份
+        :param data_frequency: 数据频率，可选值：day, week, month, year
+        :param data_source_type: 数据源类型，可选值：all, pc, mobile
+        :param data_type: 数据类型，可选值：all, trend, map, portrait, news
         :return: 处理后的DataFrame或None（如果处理失败）
         """
         try:
@@ -42,16 +46,21 @@ class BaiduIndexDataProcessor:
             df = pd.DataFrame({
                 '搜索关键词': [word],
                 '城市': [city_name],
+                '城市编号': [city_number],
                 '年份': [year],
                 '整体日均值': [generalRatio_all_avg],
                 '移动日均值': [generalRatio_wise_avg],
                 'PC日均值': [generalRatio_pc_avg],
                 '整体年总值': [generalRatio_all_avg * days_in_year],
                 '移动年总值': [generalRatio_wise_avg * days_in_year],
-                'PC年总值': [generalRatio_pc_avg * days_in_year]
+                'PC年总值': [generalRatio_pc_avg * days_in_year],
+                '数据频率': [data_frequency],
+                '数据源类型': [data_source_type],
+                '数据类型': [data_type],
+                '爬取时间': [datetime.now().strftime('%Y-%m-%d %H:%M:%S')]
             })
             
-            log.info(f"成功处理 {word} 在 {city_name} {year}年 的搜索指数数据")
+            log.info(f"成功处理 {word} 在 {city_name} {year}年 的搜索指数数据 (频率:{data_frequency}, 源类型:{data_source_type}, 数据类型:{data_type})")
             return df
             
         except (TypeError, KeyError) as e:
@@ -59,18 +68,22 @@ class BaiduIndexDataProcessor:
             log.debug(f"原始数据: {data}")
             return None
     
-    def process_trend_index_data(self, data, area, keyword, year=None):
+    def process_trend_index_data(self, data, area, keyword, year=None,
+                                data_frequency='week', data_source_type='all', data_type='all'):
         """
         处理趋势指数数据
         :param data: 原始数据
         :param area: 地区代码
         :param keyword: 关键词
         :param year: 年份
+        :param data_frequency: 数据频率，可选值：day, week, month, year
+        :param data_source_type: 数据源类型，可选值：all, pc, mobile
+        :param data_type: 数据类型，可选值：all, trend, map, portrait, news
         :return: 处理后的DataFrame
         """
         try:
             # 获取城市名称
-            city_name = self.city_manager.get_city_name(area)
+            city_name = city_manager.get_city_name(area) or f"未知城市({area})"
             
             # 获取统计数据
             generalRatio_all_avg = data['generalRatio'][0]['all']['avg']  # 整体日均值
@@ -78,34 +91,29 @@ class BaiduIndexDataProcessor:
             generalRatio_pc_avg = data['generalRatio'][0]['pc']['avg']  # PC日均值
             
             # 计算年份的天数
-            def get_days_in_year(year):
-                if year == datetime.now().year:  # 当前年份只统计到今天
-                    return (datetime.now() - datetime(year, 1, 1)).days + 1
-                elif year == 2025:  # 2025年只统计到6月23日
-                    return (datetime(2025, 6, 23) - datetime(2025, 1, 1)).days + 1
-                elif (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0):  # 闰年
-                    return 366
-                else:  # 平年
-                    return 365
-            
-            # 获取当前年份的天数
-            days_in_year = get_days_in_year(year) if year else 365
+            if year is None:
+                year = datetime.now().year
+            days_in_year = self._get_days_in_year(year)
             
             # 创建数据框
             df = pd.DataFrame({
                 '搜索关键词': [keyword],
                 '城市': [city_name],
                 '城市编号': [area],
-                '年份': [year] if year else [datetime.now().year],
+                '年份': [year],
                 '整体日均值': [generalRatio_all_avg],
                 '移动日均值': [generalRatio_wise_avg],
                 'PC日均值': [generalRatio_pc_avg],
                 '整体年总值': [generalRatio_all_avg * days_in_year],
                 '移动年总值': [generalRatio_wise_avg * days_in_year],
                 'PC年总值': [generalRatio_pc_avg * days_in_year],
+                '数据频率': [data_frequency],
+                '数据源类型': [data_source_type],
+                '数据类型': [data_type],
                 '爬取时间': [datetime.now().strftime('%Y-%m-%d %H:%M:%S')]
             })
             
+            log.info(f"成功处理 {keyword} 在 {city_name} {year}年 的趋势指数数据 (频率:{data_frequency}, 源类型:{data_source_type}, 数据类型:{data_type})")
             return df
             
         except Exception as e:

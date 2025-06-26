@@ -1,12 +1,60 @@
-<script setup>
-import { ref, reactive, computed, onMounted, watch } from 'vue'
+<script setup lang="ts">
+import { ref, reactive, computed, onMounted, watch, onUnmounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import axios from 'axios'
 import * as XLSX from 'xlsx'
 import { Delete, Search } from '@element-plus/icons-vue'
 
+// API服务配置
+const API_BASE_URL = 'http://localhost:4000/api'
+
+// 定义类型
+interface FormData {
+  keywords: string[];
+  manualKeywords: string;
+  timeRange: Date[];
+  startYear: number;
+  endYear: number;
+  cities: string[];
+  dataType: 'all' | 'trend' | 'map' | 'portrait' | 'news';
+  dataFrequency: 'day' | 'week';
+  dataSourceType: 'all' | 'pc' | 'mobile';
+  indexType: string[];
+  isCustomTimeRange: boolean;
+  selectedKeywords: string[];
+  isYearlyData: boolean;
+}
+
+interface CrawlerStatus {
+  isRunning: boolean;
+  progress: number;
+  completedTasks: number;
+  totalTasks: number;
+  successTasks: number;
+  failedTasks: number;
+  startTime: Date | null;
+  endTime: Date | null;
+  estimatedRemainingTime: number;
+}
+
+interface KeywordTableItem {
+  id: number;
+  keyword: string;
+  selected: boolean;
+}
+
+interface CityOption {
+  value: string;
+  label: string;
+}
+
+interface ProvinceOption {
+  value: string;
+  label: string;
+}
+
 // 表单数据
-const form = reactive({
+const form = reactive<FormData>({
   keywords: [],
   manualKeywords: '',
   timeRange: [],
@@ -18,18 +66,32 @@ const form = reactive({
   dataSourceType: 'all',
   indexType: ['overall_avg'],
   isCustomTimeRange: false,
-  selectedKeywords: []
+  selectedKeywords: [],
+  isYearlyData: false // 添加年度数据选项
+})
+
+// 爬虫状态
+const crawlerStatus = reactive<CrawlerStatus>({
+  isRunning: false,
+  progress: 0,
+  completedTasks: 0,
+  totalTasks: 0,
+  successTasks: 0,
+  failedTasks: 0,
+  startTime: null,
+  endTime: null,
+  estimatedRemainingTime: 0
 })
 
 // 关键词文件上传相关
-const fileList = ref([])
-const uploadRef = ref(null)
-const keywordTableData = ref([])
+const fileList = ref<any[]>([])
+const uploadRef = ref<any>(null)
+const keywordTableData = ref<KeywordTableItem[]>([])
 const selectAll = ref(false)
 const includeFirstRow = ref(false)
 
 // 城市数据结构
-const provinceList = ref([
+const provinceList = ref<ProvinceOption[]>([
   { value: 'all', label: '全国' },
   { value: 'beijing', label: '北京' },
   { value: 'tianjin', label: '天津' },
@@ -65,7 +127,7 @@ const provinceList = ref([
 ])
 
 // 城市数据映射
-const cityMap = {
+const cityMap: Record<string, string> = {
   '1': '济南', '2': '贵阳', '4': '六盘水', '5': '南昌', '6': '九江', '7': '鹰潭', '8': '抚州',
   '9': '上饶', '10': '赣州', '11': '重庆', '13': '包头', '14': '鄂尔多斯', '15': '巴彦淖尔',
   '16': '乌海', '20': '呼和浩特', '21': '赤峰', '22': '通辽', '25': '呼伦贝尔', '28': '武汉',
@@ -115,22 +177,355 @@ const cityMap = {
 }
 
 // 城市与省份的映射关系
-const cityProvinceMap = {
+const cityProvinceMap: Record<string, string> =  {
   '0': 'all', // 全国
+
+  // 北京 (直辖市)
   '514': 'beijing', // 北京
+
+  // 天津 (直辖市)
   '164': 'tianjin', // 天津
-  '141': 'hebei', '143': 'hebei', '144': 'hebei', '145': 'hebei', '146': 'hebei', '147': 'hebei', '148': 'hebei', '259': 'hebei', '261': 'hebei', '292': 'hebei', '293': 'hebei',
-  // ... 其他城市与省份的映射关系
-}
+
+  // 河北
+  '141': 'hebei', // 石家庄
+  '143': 'hebei', // 衡水
+  '144': 'hebei', // 张家口
+  '145': 'hebei', // 承德
+  '146': 'hebei', // 秦皇岛
+  '147': 'hebei', // 廊坊
+  '148': 'hebei', // 沧州
+  '259': 'hebei', // 保定
+  '261': 'hebei', // 唐山
+  '292': 'hebei', // 邯郸
+  '293': 'hebei', // 邢台
+
+  // 山西
+  '228': 'shanxi', // 长治
+  '229': 'shanxi', // 忻州
+  '230': 'shanxi', // 晋中
+  '235': 'shanxi', // 朔州
+  '236': 'shanxi', // 阳泉
+  '237': 'shanxi', // 吕梁
+
+  // 内蒙古
+  '13': 'neimenggu', // 包头
+  '14': 'neimenggu', // 鄂尔多斯
+  '15': 'neimenggu', // 巴彦淖尔
+  '16': 'neimenggu', // 乌海
+  '20': 'neimenggu', // 呼和浩特
+  '21': 'neimenggu', // 赤峰
+  '22': 'neimenggu', // 通辽
+  '25': 'neimenggu', // 呼伦贝尔
+
+  // 辽宁
+  '29': 'liaoning', // 大连
+  '150': 'liaoning', // 沈阳
+  '151': 'liaoning', // 盘锦
+  '215': 'liaoning', // 鞍山
+  '216': 'liaoning', // 朝阳
+  '217': 'liaoning', // 锦州
+  '218': 'liaoning', // 铁岭
+  '219': 'liaoning', // 丹东
+  '220': 'liaoning', // 本溪
+  '221': 'liaoning', // 营口
+  '222': 'liaoning', // 抚顺
+  '223': 'liaoning', // 阜新
+  '224': 'liaoning', // 辽阳
+  '225': 'liaoning', // 葫芦岛
+
+  // 吉林
+  '154': 'jilin', // 长春
+  '155': 'jilin', // 四平
+  '191': 'jilin', // 辽源
+  '194': 'jilin', // 松原
+  '270': 'jilin', // 吉林
+  '407': 'jilin', // 通化
+  '408': 'jilin', // 白山
+
+  // 黑龙江
+  '152': 'heilongjiang', // 哈尔滨
+  '153': 'heilongjiang', // 大庆
+  '295': 'heilongjiang', // 伊春
+  '300': 'heilongjiang', // 黑河
+  '301': 'heilongjiang', // 鹤岗
+  '302': 'heilongjiang', // 七台河
+  '319': 'heilongjiang', // 齐齐哈尔
+  '320': 'heilongjiang', // 佳木斯
+  '322': 'heilongjiang', // 牡丹江
+  '323': 'heilongjiang', // 鸡西
+  '324': 'heilongjiang', // 绥化
+  '359': 'heilongjiang', // 双鸭山
+
+  // 上海 (直辖市)
+  '57': 'shanghai', // 上海
+
+  // 江苏
+  '125': 'jiangsu', // 南京
+  '126': 'jiangsu', // 苏州
+  '127': 'jiangsu', // 无锡
+  '156': 'jiangsu', // 连云港
+  '157': 'jiangsu', // 淮安
+  '158': 'jiangsu', // 扬州
+  '159': 'jiangsu', // 泰州
+  '161': 'jiangsu', // 徐州
+  '162': 'jiangsu', // 常州
+  '163': 'jiangsu', // 南通
+  '169': 'jiangsu', // 镇江
+  '172': 'jiangsu', // 宿迁
+
+  // 浙江
+  '134': 'zhejiang', // 丽水
+  '135': 'zhejiang', // 金华
+  '138': 'zhejiang', // 杭州
+  '149': 'zhejiang', // 温州
+  '287': 'zhejiang', // 台州
+  '288': 'zhejiang', // 衢州
+  '289': 'zhejiang', // 宁波
+  '303': 'zhejiang', // 绍兴
+  '304': 'zhejiang', // 嘉兴
+  '305': 'zhejiang', // 湖州
+  '306': 'zhejiang', // 舟山
+
+  // 安徽
+  '173': 'anhui', // 铜陵
+  '174': 'anhui', // 黄山
+  '175': 'anhui', // 池州
+  '178': 'anhui', // 淮南
+  '179': 'anhui', // 宿州
+  '181': 'anhui', // 六安
+  '182': 'anhui', // 滁州
+  '183': 'anhui', // 淮北
+  '184': 'anhui', // 阜阳
+  '185': 'anhui', // 马鞍山
+  '186': 'anhui', // 安庆
+  '187': 'anhui', // 蚌埠
+  '188': 'anhui', // 芜湖
+  '189': 'anhui', // 合肥
+  '391': 'anhui', // 亳州
+
+  // 福建
+  '50': 'fujian', // 福州
+  '51': 'fujian', // 莆田
+  '52': 'fujian', // 三明
+  '53': 'fujian', // 龙岩
+  '54': 'fujian', // 厦门
+  '55': 'fujian', // 泉州
+  '56': 'fujian', // 漳州
+  '87': 'fujian', // 宁德
+  '253': 'fujian', // 南平
+
+  // 江西
+  '5': 'jiangxi', // 南昌
+  '6': 'jiangxi', // 九江
+  '7': 'jiangxi', // 鹰潭
+  '8': 'jiangxi', // 抚州
+  '9': 'jiangxi', // 上饶
+  '10': 'jiangxi', // 赣州
+  '115': 'jiangxi', // 吉安
+  '136': 'jiangxi', // 萍乡
+  '137': 'jiangxi', // 景德镇
+  '246': 'jiangxi', // 新余
+  '256': 'jiangxi', // 宜春
+
+  // 山东
+  '1': 'shandong', // 济南
+  '77': 'shandong', // 青岛
+  '78': 'shandong', // 烟台
+  '79': 'shandong', // 临沂
+  '80': 'shandong', // 潍坊
+  '81': 'shandong', // 淄博
+  '82': 'shandong', // 东营
+  '84': 'shandong', // 菏泽
+  '85': 'shandong', // 枣庄
+  '86': 'shandong', // 德州
+  '88': 'shandong', // 威海
+  '352': 'shandong', // 济宁
+  '353': 'shandong', // 泰安
+  '366': 'shandong', // 日照
+
+  // 河南
+  '168': 'henan', // 郑州
+  '262': 'henan', // 南阳
+  '263': 'henan', // 新乡
+  '264': 'henan', // 开封
+  '265': 'henan', // 焦作
+  '266': 'henan', // 平顶山
+  '268': 'henan', // 许昌
+  '370': 'henan', // 安阳
+  '371': 'henan', // 驻马店
+  '373': 'henan', // 信阳
+  '374': 'henan', // 鹤壁
+  '375': 'henan', // 周口
+  '376': 'henan', // 商丘
+  '378': 'henan', // 洛阳
+  '379': 'henan', // 漯河
+  '380': 'henan', // 濮阳
+  '381': 'henan', // 三门峡
+
+  // 湖北
+  '28': 'hubei', // 武汉
+  '30': 'hubei', // 黄石
+  '31': 'hubei', // 荆州
+  '32': 'hubei', // 襄阳
+  '33': 'hubei', // 黄冈
+  '34': 'hubei', // 荆门
+  '35': 'hubei', // 宜昌
+  '36': 'hubei', // 十堰
+  '37': 'hubei', // 随州
+  '39': 'hubei', // 鄂州
+  '40': 'hubei', // 咸宁
+  '41': 'hubei', // 孝感
+
+  // 湖南
+  '43': 'hunan', // 长沙
+  '44': 'hunan', // 岳阳
+  '45': 'hunan', // 衡阳
+  '46': 'hunan', // 株洲
+  '47': 'hunan', // 湘潭
+  '48': 'hunan', // 益阳
+  '49': 'hunan', // 郴州
+  '66': 'hunan', // 娄底
+  '67': 'hunan', // 怀化
+  '68': 'hunan', // 常德
+  '226': 'hunan', // 张家界
+  '269': 'hunan', // 永州
+  '405': 'hunan', // 邵阳
+
+  // 广东
+  '94': 'guangdong', // 深圳
+  '95': 'guangdong', // 广州
+  '133': 'guangdong', // 东莞
+  '195': 'guangdong', // 云浮
+  '196': 'guangdong', // 佛山
+  '197': 'guangdong', // 湛江
+  '198': 'guangdong', // 江门
+  '199': 'guangdong', // 惠州
+  '200': 'guangdong', // 珠海
+  '201': 'guangdong', // 韶关
+  '202': 'guangdong', // 阳江
+  '203': 'guangdong', // 茂名
+  '204': 'guangdong', // 潮州
+  '205': 'guangdong', // 揭阳
+  '207': 'guangdong', // 中山
+  '208': 'guangdong', // 清远
+  '209': 'guangdong', // 肇庆
+  '210': 'guangdong', // 河源
+  '211': 'guangdong', // 梅州
+  '212': 'guangdong', // 汕头
+  '213': 'guangdong', // 汕尾
+
+  // 广西
+  '89': 'guangxi', // 柳州
+  '90': 'guangxi', // 南宁
+  '91': 'guangxi', // 桂林
+  '92': 'guangxi', // 贺州
+  '93': 'guangxi', // 贵港
+  '118': 'guangxi', // 玉林
+  '119': 'guangxi', // 河池
+  '128': 'guangxi', // 北海
+  '129': 'guangxi', // 钦州
+  '130': 'guangxi', // 防城港
+  '131': 'guangxi', // 百色
+  '132': 'guangxi', // 梧州
+  '506': 'guangxi', // 来宾
+  '665': 'guangxi', // 崇左
+
+  // 海南
+  '239': 'hainan', // 海口
+  '243': 'hainan', // 三亚
+
+  // 重庆 (直辖市)
+  '11': 'chongqing', // 重庆
+
+  // 四川
+  '96': 'sichuan', // 宜宾
+  '97': 'sichuan', // 成都
+  '98': 'sichuan', // 绵阳
+  '99': 'sichuan', // 广元
+  '100': 'sichuan', // 遂宁
+  '101': 'sichuan', // 巴中
+  '102': 'sichuan', // 内江
+  '103': 'sichuan', // 泸州
+  '104': 'sichuan', // 南充
+  '106': 'sichuan', // 德阳
+  '107': 'sichuan', // 乐山
+  '108': 'sichuan', // 广安
+  '109': 'sichuan', // 资阳
+  '111': 'sichuan', // 自贡
+  '112': 'sichuan', // 攀枝花
+  '113': 'sichuan', // 达州
+  '114': 'sichuan', // 雅安
+  '291': 'sichuan', // 眉山
+
+  // 贵州
+  '2': 'guizhou', // 贵阳
+  '4': 'guizhou', // 六盘水
+  '59': 'guizhou', // 遵义
+  '422': 'guizhou', // 铜仁
+  '424': 'guizhou', // 安顺
+  '426': 'guizhou', // 毕节
+
+  // 云南
+  '117': 'yunnan', // 昆明
+  '123': 'yunnan', // 玉溪
+  '335': 'yunnan', // 昭通
+  '339': 'yunnan', // 曲靖
+  '342': 'yunnan', // 丽江
+  '350': 'yunnan', // 临沧
+  '438': 'yunnan', // 保山
+  '666': 'yunnan', // 普洱
+
+  // 西藏
+  '466': 'xizang', // 拉萨
+
+  // 陕西
+  '165': 'shaanxi', // 西安
+  '271': 'shaanxi', // 铜川
+  '272': 'shaanxi', // 安康
+  '273': 'shaanxi', // 宝鸡
+  '274': 'shaanxi', // 商洛
+  '275': 'shaanxi', // 渭南
+  '276': 'shaanxi', // 汉中
+  '277': 'shaanxi', // 咸阳
+  '278': 'shaanxi', // 榆林
+  '401': 'shaanxi', // 延安
+
+  // 甘肃
+  '166': 'gansu', // 兰州
+  '282': 'gansu', // 定西
+  '283': 'gansu', // 武威
+  '284': 'gansu', // 酒泉
+  '285': 'gansu', // 张掖
+  '286': 'gansu', // 嘉峪关
+  '307': 'gansu', // 平凉
+  '308': 'gansu', // 天水
+  '309': 'gansu', // 白银
+  '343': 'gansu', // 金昌
+  '344': 'gansu', // 陇南
+
+  // 青海
+  '139': 'qinghai', // 西宁
+
+  // 宁夏
+  '140': 'ningxia', // 银川
+  '395': 'ningxia', // 吴忠
+  '396': 'ningxia', // 固原
+  '472': 'ningxia', // 石嘴山
+  '480': 'ningxia', // 中卫
+
+  // 新疆
+  '317': 'xinjiang', // 克拉玛依
+  '467': 'xinjiang', // 乌鲁木齐
+};
 
 // 按省份分组的城市列表
-const citiesByProvince = ref({})
+const citiesByProvince = ref<Record<string, CityOption[]>>({})
 const selectedProvince = ref('all')
 
 // 加载城市数据并按省份分组
 const loadCitiesGroupByProvince = () => {
   // 创建省份和城市的映射
-  const provinceMap = {}
+  const provinceMap: Record<string, CityOption[]> = {}
   
   // 遍历城市，按省份分组
   Object.keys(cityMap).forEach(cityId => {
@@ -185,11 +580,13 @@ const isAllCitiesSelected = computed(() => {
 })
 
 const canUseDaily = computed(() => {
+  if (form.isYearlyData) return false // 年度数据模式下不能使用日度数据
+  
   if (form.isCustomTimeRange) {
     if (!form.timeRange || form.timeRange.length !== 2) return false
     const startDate = new Date(form.timeRange[0])
     const endDate = new Date(form.timeRange[1])
-    const diff = Math.abs(endDate - startDate) / (1000 * 60 * 60 * 24 * 365)
+    const diff = Math.abs(Number(endDate) - Number(startDate)) / (1000 * 60 * 60 * 24 * 365)
     return diff <= 1
   } else {
     return form.endYear - form.startYear <= 1
@@ -230,31 +627,45 @@ const toggleAllIndexTypes = () => {
 
 // 关键词表格相关
 const updateKeywordTable = () => {
-  keywordTableData.value = form.keywords.map((keyword, index) => ({
-    id: index + 1,
-    keyword,
-    selected: form.selectedKeywords.includes(keyword)
-  }))
+  const tableData: KeywordTableItem[] = []
+  form.keywords.forEach((keyword, index) => {
+    tableData.push({
+      id: index + 1,
+      keyword,
+      selected: form.selectedKeywords.includes(keyword)
+    })
+  })
+  keywordTableData.value = tableData
 }
 
-// 方法
-const handleKeywordFileUpload = (file) => {
+// 处理TextDecoder解码的问题
+const safeTextDecode = (data: ArrayBuffer | string | null): string => {
+  if (data instanceof ArrayBuffer) {
+    return new TextDecoder().decode(new Uint8Array(data))
+  } else if (data) {
+    return String(data)
+  }
+  return ''
+}
+
+// 修改文件上传处理函数
+const handleKeywordFileUpload = (file: any) => {
   const reader = new FileReader()
   
-  reader.onload = (e) => {
+  reader.onload = (e: ProgressEvent<FileReader>) => {
     if (!e.target) return
     
     try {
       const data = e.target.result
       const filename = file.name.toLowerCase()
-      let keywords = []
+      let keywords: string[] = []
       
       // 根据文件类型处理
       if (filename.endsWith('.xlsx') || filename.endsWith('.xls')) {
         // Excel文件
         const workbook = XLSX.read(data, { type: 'array' })
         const firstSheet = workbook.Sheets[workbook.SheetNames[0]]
-        const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 })
+        const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 }) as any[][]
         
         // 如果不包含首行，则跳过第一行
         if (!includeFirstRow.value && rows.length > 0) {
@@ -262,10 +673,10 @@ const handleKeywordFileUpload = (file) => {
         }
         
         // 提取每行第一列作为关键词
-        keywords = rows.map(row => row[0]?.toString().trim()).filter(Boolean)
+        keywords = rows.map(row => row[0]?.toString().trim()).filter(Boolean) as string[]
       } else if (filename.endsWith('.csv') || filename.endsWith('.txt')) {
         // CSV/TXT文件
-        const text = new TextDecoder().decode(data instanceof ArrayBuffer ? new Uint8Array(data) : data)
+        const text = safeTextDecode(data as ArrayBuffer)
         const lines = text.split(/\r?\n/).filter(Boolean)
         
         // 如果不包含首行，则跳过第一行
@@ -279,10 +690,10 @@ const handleKeywordFileUpload = (file) => {
             return line.split(',')[0]?.trim()
           }
           return line.trim()
-        }).filter(Boolean)
+        }).filter(Boolean) as string[]
       } else if (filename.endsWith('.json')) {
-        // JSON文件
-        const text = new TextDecoder().decode(data instanceof ArrayBuffer ? new Uint8Array(data) : data)
+        // JSON文件处理逻辑
+        const text = safeTextDecode(data as ArrayBuffer)
         const jsonData = JSON.parse(text)
         
         // 处理JSON数据，支持多种格式
@@ -290,17 +701,17 @@ const handleKeywordFileUpload = (file) => {
           // 如果是数组，直接使用或提取关键词字段
           if (typeof jsonData[0] === 'string') {
             // ["关键词1", "关键词2", ...]
-            keywords = jsonData
+            keywords = jsonData as string[]
           } else if (typeof jsonData[0] === 'object') {
             // [{"关键词": "值"}, {"关键词": "值"}, ...]
             // 尝试常见的字段名称
             const possibleFields = ['keyword', 'name', 'text', 'value', 'title', 'term', '关键词']
             const keyField = possibleFields.find(field => jsonData[0][field] !== undefined) || Object.keys(jsonData[0])[0]
-            keywords = jsonData.map(item => item[keyField]?.toString().trim()).filter(Boolean)
+            keywords = jsonData.map(item => item[keyField]?.toString().trim()).filter(Boolean) as string[]
           }
         } else if (typeof jsonData === 'object') {
           // 如果是对象，尝试提取值
-          keywords = Object.values(jsonData).map(val => val?.toString().trim()).filter(Boolean)
+          keywords = Object.values(jsonData).map(val => val?.toString().trim()).filter(Boolean) as string[]
         }
         
         // 如果不包含首行，则跳过第一个关键词
@@ -343,7 +754,14 @@ const handleManualKeywords = () => {
     .filter(Boolean)
     .map(k => k.trim())
   
-  form.keywords = [...new Set([...form.keywords, ...newKeywords])]
+  // 使用Set去重后转回数组
+  const combinedKeywords = [...form.keywords]
+  newKeywords.forEach(keyword => {
+    if (!combinedKeywords.includes(keyword)) {
+      combinedKeywords.push(keyword)
+    }
+  })
+  form.keywords = combinedKeywords
   form.manualKeywords = ''
   
   // 更新关键词表格
@@ -352,7 +770,7 @@ const handleManualKeywords = () => {
   ElMessage.success(`成功添加 ${newKeywords.length} 个关键词`)
 }
 
-const removeKeyword = (keyword) => {
+const removeKeyword = (keyword: string) => {
   const index = form.keywords.indexOf(keyword)
   if (index !== -1) {
     form.keywords.splice(index, 1)
@@ -378,12 +796,10 @@ const handleSelectAllKeywords = () => {
   }
   
   // 更新表格数据的选中状态
-  keywordTableData.value.forEach(item => {
-    item.selected = selectAll.value
-  })
+  updateKeywordTable()
 }
 
-const handleKeywordSelect = (keyword, selected) => {
+const handleKeywordSelect = (keyword: string, selected: boolean) => {
   if (selected) {
     if (!form.selectedKeywords.includes(keyword)) {
       form.selectedKeywords.push(keyword)
@@ -478,8 +894,43 @@ const validateForm = () => {
   return true
 }
 
+// 格式化时间（秒转为分钟和秒）
+const formatTime = (seconds: number): string => {
+  if (seconds <= 0) return '计算中...';
+  
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.floor(seconds % 60);
+  
+  if (minutes > 0) {
+    return `${minutes}分${remainingSeconds}秒`;
+  } else {
+    return `${remainingSeconds}秒`;
+  }
+};
+
+// 定时获取爬虫状态
+let statusCheckInterval: number | null = null;
+
+const startStatusChecking = () => {
+  // 清除可能存在的定时器
+  if (statusCheckInterval) {
+    clearInterval(statusCheckInterval);
+  }
+  
+  // 设置新的定时器，每3秒查询一次状态
+  statusCheckInterval = setInterval(fetchCrawlerStatus, 3000);
+};
+
+const stopStatusChecking = () => {
+  if (statusCheckInterval) {
+    clearInterval(statusCheckInterval);
+    statusCheckInterval = null;
+  }
+};
+
+// 修改提交表单函数，启动爬虫后开始状态检查
 const submitForm = async () => {
-  if (!validateForm()) return
+  if (!validateForm()) return;
   
   // 确认对话框
   try {
@@ -491,42 +942,221 @@ const submitForm = async () => {
         cancelButtonText: '取消',
         type: 'warning',
       }
-    )
+    );
     
     // 用户确认，开始采集
-    startCollection()
+    startCollection();
+    
+    // 开始状态检查
+    startStatusChecking();
   } catch {
     // 用户取消，不执行任何操作
   }
+};
+
+// 修改startCollection函数，确保正确处理年度数据
+const startCollection = async () => {
+  try {
+    // 准备请求参数
+    const requestData = {
+      keywords: form.keywords,
+      areas: form.cities.map(city => city), // 确保城市ID是字符串
+      years: form.isCustomTimeRange 
+        ? getYearsFromDateRange(form.timeRange[0], form.timeRange[1])
+        : [form.startYear, form.endYear],
+      index_types: form.indexType,
+      max_workers: 8, // 可配置的并发数
+      batch_size: 10, // 批处理大小
+      data_frequency: form.isYearlyData ? 'year' : form.dataFrequency, // 年度数据或其他频率
+      data_source_type: form.dataSourceType,
+      data_type: form.dataType
+    };
+    
+    // 发送请求到后端API
+    const response = await axios.post(`${API_BASE_URL}/start_crawler`, requestData);
+    
+    if (response.data.success) {
+      ElMessage.success('采集任务已成功提交');
+      // 更新爬虫状态
+      updateCrawlerStatus(response.data.status);
+    } else {
+      ElMessage.error(`采集任务提交失败: ${response.data.message}`);
+    }
+    
+    console.log('API响应:', response.data);
+  } catch (error: any) {
+    console.error('API错误:', error);
+    ElMessage.error(`启动采集任务失败: ${error.message || '未知错误'}`);
+    stopStatusChecking(); // 出错时停止状态检查
+  }
+};
+
+// 从日期范围获取年份列表
+const getYearsFromDateRange = (startDate: Date, endDate: Date): number[] => {
+  const start = new Date(startDate).getFullYear()
+  const end = new Date(endDate).getFullYear()
+  const years = []
+  
+  for (let year = start; year <= end; year++) {
+    years.push(year)
+  }
+  
+  return years
 }
 
-const startCollection = async () => {
-  ElMessage.success('开始采集数据，请在任务管理中查看进度')
-  
-  // 这里应该调用后端API来启动采集任务
-  // 在实际应用中，这里会发送采集请求到后端
-  console.log('采集表单数据:', form)
-  
-  /*
-  try {
-    const response = await axios.post('/api/collection/start', {
-      keywords: form.keywords,
-      startDate: form.timeRange[0],
-      endDate: form.timeRange[1],
-      cities: form.cities,
-      dataType: form.dataType,
-      dataFrequency: form.dataFrequency,
-      dataSourceType: form.dataSourceType,
-      indexType: form.indexType
-    })
-    
-    console.log('API响应:', response.data)
-  } catch (error) {
-    ElMessage.error('启动采集任务失败')
-    console.error('API错误:', error)
+// 轮询爬虫状态
+let statusPollingInterval = null
+
+const startStatusPolling = () => {
+  // 清除可能存在的轮询
+  if (statusPollingInterval) {
+    clearInterval(statusPollingInterval)
   }
-  */
+  
+  // 设置新的轮询，每3秒查询一次状态
+  statusPollingInterval = setInterval(fetchCrawlerStatus, 3000)
 }
+
+const stopStatusPolling = () => {
+  if (statusPollingInterval) {
+    clearInterval(statusPollingInterval)
+    statusPollingInterval = null
+  }
+}
+
+// 获取爬虫状态
+const fetchCrawlerStatus = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/crawler_status`)
+    
+    if (response.data.success) {
+      updateCrawlerStatus(response.data.crawler_status)
+      
+      // 如果爬虫已完成，停止轮询
+      if (!response.data.crawler_status.is_running) {
+        stopStatusPolling()
+      }
+    }
+  } catch (error) {
+    console.error('获取爬虫状态失败:', error)
+    // 出错时也停止轮询
+    stopStatusPolling()
+  }
+}
+
+// 更新爬虫状态
+const updateCrawlerStatus = (status: CrawlerStatus) => {
+  if (!status) return
+  
+  crawlerStatus.isRunning = status.is_running || false
+  crawlerStatus.progress = status.current_progress || 0
+  crawlerStatus.completedTasks = status.completed_tasks || 0
+  crawlerStatus.totalTasks = status.total_tasks || 0
+  crawlerStatus.successTasks = status.success_tasks || 0
+  crawlerStatus.failedTasks = status.failed_tasks || 0
+  crawlerStatus.startTime = status.start_time || null
+  crawlerStatus.endTime = status.end_time || null
+  crawlerStatus.estimatedRemainingTime = status.estimated_remaining_time || 0
+}
+
+// 停止爬虫
+const stopCrawler = async () => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/stop_crawler`)
+    
+    if (response.data.success) {
+      ElMessage.success('已发送停止爬虫信号')
+    } else {
+      ElMessage.warning(response.data.message)
+    }
+  } catch (error) {
+    console.error('停止爬虫失败:', error)
+    ElMessage.error(`停止爬虫失败: ${error.message || '未知错误'}`)
+  }
+}
+
+// 获取Cookie状态
+const fetchCookieStatus = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/cookie_status`)
+    
+    if (response.data.success) {
+      // 处理Cookie状态信息
+      console.log('Cookie状态:', response.data.cookie_status)
+      return response.data.cookie_status
+    }
+  } catch (error) {
+    console.error('获取Cookie状态失败:', error)
+    ElMessage.error(`获取Cookie状态失败: ${error.message || '未知错误'}`)
+  }
+  
+  return null
+}
+
+// 同步Cookie状态
+const syncCookies = async () => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/sync_cookies`)
+    
+    if (response.data.success) {
+      ElMessage.success('Cookie状态同步成功')
+    } else {
+      ElMessage.warning(response.data.message)
+    }
+  } catch (error) {
+    console.error('同步Cookie状态失败:', error)
+    ElMessage.error(`同步Cookie状态失败: ${error.message || '未知错误'}`)
+  }
+}
+
+// 获取采集结果
+const fetchResults = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/get_results`)
+    
+    if (response.data.success) {
+      // 处理结果数据
+      console.log('采集结果:', response.data)
+      return response.data
+    } else {
+      ElMessage.warning(response.data.message)
+    }
+  } catch (error) {
+    console.error('获取采集结果失败:', error)
+    ElMessage.error(`获取采集结果失败: ${error.message || '未知错误'}`)
+  }
+  
+  return null
+}
+
+// 检查API健康状态
+const checkApiHealth = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/health`)
+    return response.data.status === 'ok'
+  } catch (error) {
+    console.error('API健康检查失败:', error)
+    return false
+  }
+}
+
+// 组件挂载时检查API状态
+onMounted(async () => {
+  loadCitiesGroupByProvince()
+  setYearRange() // 设置默认年份范围
+  
+  // 检查API健康状态
+  const apiHealthy = await checkApiHealth()
+  if (!apiHealthy) {
+    ElMessage.warning('API服务不可用，请确保后端服务已启动')
+  }
+})
+
+// 组件卸载时清除定时器
+onUnmounted(() => {
+  stopStatusPolling()
+  stopStatusChecking()
+})
 
 // 生命周期钩子
 onMounted(() => {
@@ -537,7 +1167,7 @@ onMounted(() => {
 // 处理城市数据转换为级联选择需要的格式
 const provinceOptions = computed(() => {
   // 全国选项单独处理
-  const options = [
+  const options: ProvinceOption[] = [
     {
       value: 'all',
       label: '全国',
@@ -561,7 +1191,7 @@ const provinceOptions = computed(() => {
 })
 
 // 处理级联选择的输出，确保只有城市被选中
-const handleCascaderChange = (values) => {
+const handleCascaderChange = (values: string[]) => {
   // 过滤掉所有省级选项
   const provinceValues = provinceList.value.map(p => p.value)
   form.cities = values.filter(val => !provinceValues.includes(val))
@@ -579,12 +1209,12 @@ const updateSelectedCities = () => {
 }
 
 // 根据城市ID获取城市名称
-const getCityName = (cityId) => {
+const getCityName = (cityId: string) => {
   return cityMap[cityId] || cityId
 }
 
 // 从已选城市中移除指定城市
-const removeCity = (cityId) => {
+const removeCity = (cityId: string) => {
   const index = form.cities.indexOf(cityId)
   if (index !== -1) {
     form.cities.splice(index, 1)
@@ -601,11 +1231,11 @@ const handleStartYearChange = () => {
 }
 
 // 增加城市选择的方法
-const isCitySelected = (cityId) => {
+const isCitySelected = (cityId: string) => {
   return form.cities.includes(cityId)
 }
 
-const toggleCitySelection = (cityId) => {
+const toggleCitySelection = (cityId: string) => {
   const index = form.cities.indexOf(cityId)
   if (index === -1) {
     // 添加城市
@@ -616,15 +1246,16 @@ const toggleCitySelection = (cityId) => {
   }
 }
 
-const selectCity = (cityId) => {
+const selectCity = (cityId: string) => {
   // 如果是全国，则清空其他选择，只选择全国
   if (cityId === '0') {
     form.cities = ['0']
   } 
   // 如果当前包含全国，但要选择其他城市，则移除全国
   else if (form.cities.includes('0')) {
-    form.cities = form.cities.filter(id => id !== '0')
-    form.cities.push(cityId)
+    const newCities = form.cities.filter(id => id !== '0')
+    newCities.push(cityId)
+    form.cities = newCities
   }
   // 否则正常添加
   else if (!form.cities.includes(cityId)) {
@@ -642,6 +1273,7 @@ const resetForm = () => {
   form.cities = []
   form.dataType = 'all'
   form.dataFrequency = 'week'
+  form.isYearlyData = false // 重置年度数据选项
   form.dataSourceType = 'all'
   form.indexType = ['overall_avg']
   form.isCustomTimeRange = false
@@ -664,6 +1296,25 @@ const handleSelectAllCities = () => {
     form.cities = [...allCityIds]
   }
 }
+
+// 添加watch监听isYearlyData变化，禁用不兼容的选项
+watch(() => form.isYearlyData, (newValue) => {
+  if (newValue) {
+    // 如果选择了年度数据，禁用自定义日期范围
+    if (form.isCustomTimeRange) {
+      form.isCustomTimeRange = false;
+      ElMessage.warning('年度数据只支持按年份选择');
+    }
+  }
+});
+
+// 添加watch监听isCustomTimeRange变化，禁用不兼容的选项
+watch(() => form.isCustomTimeRange, (newValue) => {
+  if (newValue && form.isYearlyData) {
+    form.isYearlyData = false;
+    ElMessage.warning('自定义日期范围不支持年度数据');
+  }
+});
 </script>
 
 <template>
@@ -671,22 +1322,52 @@ const handleSelectAllCities = () => {
     <h1 class="page-title">数据采集</h1>
     
     <el-card class="collection-form-card">
+      <!-- 爬虫状态显示 -->
+      <div v-if="crawlerStatus.isRunning" class="crawler-status-panel">
+        <el-alert
+          title="爬虫正在运行中"
+          type="info"
+          :closable="false"
+          show-icon
+        >
+          <div class="crawler-progress">
+            <div class="progress-info">
+              <span>进度: {{ Math.round(crawlerStatus.progress) }}%</span>
+              <span>完成任务: {{ crawlerStatus.completedTasks }}/{{ crawlerStatus.totalTasks }}</span>
+              <span>成功: {{ crawlerStatus.successTasks }}</span>
+              <span>失败: {{ crawlerStatus.failedTasks }}</span>
+              <span v-if="crawlerStatus.estimatedRemainingTime">
+                预计剩余时间: {{ formatTime(crawlerStatus.estimatedRemainingTime) }}
+              </span>
+            </div>
+            <el-progress :percentage="crawlerStatus.progress" :format="format => `${Math.round(format)}%`"></el-progress>
+            <div class="crawler-actions">
+              <el-button type="danger" size="small" @click="stopCrawler">停止爬虫</el-button>
+            </div>
+          </div>
+        </el-alert>
+      </div>
+      
       <el-form :model="form" label-position="top">
         <!-- 关键词选择 -->
         <el-form-item label="关键词">
           <div class="keyword-section">
-            <div class="keyword-input">
+            <!-- 左侧输入区域 -->
+            <div class="keyword-input-section">
               <el-input
                 v-model="form.manualKeywords"
                 type="textarea"
                 :rows="4"
                 placeholder="输入关键词，用逗号、空格或换行分隔"
               ></el-input>
-              <el-button type="primary" @click="handleManualKeywords">添加关键词</el-button>
+              <div class="button-container">
+                <el-button type="primary" @click="handleManualKeywords">添加关键词</el-button>
+              </div>
             </div>
             
-            <div class="keyword-upload">
-              <div class="upload-options">
+            <!-- 右侧上传区域 -->
+            <div class="keyword-upload-section">
+              <div class="upload-header">
                 <el-checkbox v-model="includeFirstRow">包含首行</el-checkbox>
               </div>
               <el-upload
@@ -710,11 +1391,11 @@ const handleSelectAllCities = () => {
             </div>
           </div>
           
-          <!-- 关键词表格 - 横向卡片布局 -->
-          <div v-if="form.keywords.length > 0" class="keyword-cards-section">
-            <div class="keyword-cards-header">
-              <div class="cards-title">已添加的关键词 ({{ form.keywords.length }})</div>
-              <div class="cards-actions">
+          <!-- 关键词表格区域 -->
+          <div v-if="form.keywords.length > 0" class="keyword-table-section">
+            <div class="keyword-table-header">
+              <div class="table-title">已添加的关键词 ({{ form.keywords.length }})</div>
+              <div class="table-actions">
                 <el-button
                   type="primary"
                   size="small"
@@ -733,14 +1414,13 @@ const handleSelectAllCities = () => {
               </div>
             </div>
             
-            <div class="keyword-cards-container">
-              <div v-for="(keyword, index) in form.keywords" :key="index" class="keyword-card">
-                <div class="keyword-card-content">
+            <div class="keyword-table-container">
+              <div v-for="(keyword, index) in form.keywords" :key="index" class="keyword-item">
+                <div class="keyword-item-content">
                   <el-checkbox
                     v-model="form.selectedKeywords" 
                     :label="keyword"
                   ></el-checkbox>
-                  <div class="keyword-text" :title="keyword">{{ keyword }}</div>
                   <el-button
                     type="danger"
                     size="small"
@@ -888,13 +1568,28 @@ const handleSelectAllCities = () => {
         
         <!-- 数据类型选择 -->
         <el-form-item label="数据频率">
-          <el-radio-group v-model="form.dataFrequency">
+          <el-radio-group v-model="form.isYearlyData" class="yearly-option">
+            <el-radio :label="false">常规数据</el-radio>
+            <el-radio :label="true" :disabled="form.isCustomTimeRange">年度数据</el-radio>
+          </el-radio-group>
+          
+          <el-radio-group v-model="form.dataFrequency" v-if="!form.isYearlyData" class="frequency-option">
             <el-radio label="day" :disabled="!canUseDaily">日度数据</el-radio>
             <el-radio label="week">周度数据</el-radio>
           </el-radio-group>
+          
           <div v-if="!canUseDaily && form.dataFrequency === 'day'" class="frequency-warning">
             <el-alert
               title="日度数据仅支持一年以内的时间范围"
+              type="warning"
+              :closable="false"
+              show-icon
+            ></el-alert>
+          </div>
+          
+          <div v-if="form.isYearlyData && form.isCustomTimeRange" class="frequency-warning">
+            <el-alert
+              title="年度数据只支持按年份选择"
               type="warning"
               :closable="false"
               show-icon
@@ -936,8 +1631,8 @@ const handleSelectAllCities = () => {
         <!-- 提交按钮 -->
         <el-form-item>
           <div class="form-actions">
-            <el-button type="primary" @click="submitForm" size="large">开始采集</el-button>
-            <el-button @click="resetForm" size="large">重置</el-button>
+            <el-button type="primary" @click="submitForm" size="large" :disabled="crawlerStatus.isRunning">开始采集</el-button>
+            <el-button @click="resetForm" size="large" :disabled="crawlerStatus.isRunning">重置</el-button>
           </div>
         </el-form-item>
       </el-form>
@@ -995,14 +1690,14 @@ const handleSelectAllCities = () => {
   margin-bottom: 25px;
 }
 
-.keyword-input {
+.keyword-input-section {
   flex: 2;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.keyword-upload {
+.keyword-upload-section {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -1011,6 +1706,13 @@ const handleSelectAllCities = () => {
   padding: 15px;
   border-radius: 8px;
   border: 1px dashed #dcdfe6;
+}
+
+.upload-header {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .keyword-tags {
@@ -1035,11 +1737,11 @@ const handleSelectAllCities = () => {
   background-color: #fcfcfc;
 }
 
-.keyword-cards-section {
+.keyword-table-section {
   margin-top: 25px;
 }
 
-.keyword-cards-header {
+.keyword-table-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1047,18 +1749,18 @@ const handleSelectAllCities = () => {
   padding: 0 10px;
 }
 
-.cards-title {
+.table-title {
   font-weight: 600;
   font-size: 16px;
   color: #2c3e50;
 }
 
-.cards-actions {
+.table-actions {
   display: flex;
   gap: 12px;
 }
 
-.keyword-cards-container {
+.keyword-table-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   gap: 15px;
@@ -1071,20 +1773,20 @@ const handleSelectAllCities = () => {
   scrollbar-width: thin;
 }
 
-.keyword-cards-container::-webkit-scrollbar {
+.keyword-table-container::-webkit-scrollbar {
   width: 8px;
 }
 
-.keyword-cards-container::-webkit-scrollbar-thumb {
+.keyword-table-container::-webkit-scrollbar-thumb {
   background-color: #c0c4cc;
   border-radius: 4px;
 }
 
-.keyword-cards-container::-webkit-scrollbar-track {
+.keyword-table-container::-webkit-scrollbar-track {
   background-color: #f9fafc;
 }
 
-.keyword-card {
+.keyword-item {
   background-color: #fff;
   border-radius: 8px;
   padding: 12px 15px;
@@ -1093,12 +1795,12 @@ const handleSelectAllCities = () => {
   border: 1px solid #ebeef5;
 }
 
-.keyword-card:hover {
+.keyword-item:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
 }
 
-.keyword-card-content {
+.keyword-item-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1180,13 +1882,6 @@ const handleSelectAllCities = () => {
   padding: 15px;
   background-color: #f9fafc;
   border: 1px solid #e4e7ed;
-}
-
-.upload-options {
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
 }
 
 .el-form-item__label {
@@ -1308,5 +2003,41 @@ const handleSelectAllCities = () => {
 
 :deep(.el-tabs__active-bar) {
   height: 3px;
+}
+
+/* 添加爬虫状态面板样式 */
+.crawler-status-panel {
+  margin-bottom: 25px;
+}
+
+.crawler-progress {
+  margin-top: 10px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #606266;
+}
+
+.crawler-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.yearly-option {
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #f0f9eb;
+  border-radius: 8px;
+  border: 1px solid #e1f3d8;
+  display: block;
+}
+
+.frequency-option {
+  margin-top: 10px;
 }
 </style> 

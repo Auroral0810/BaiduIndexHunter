@@ -37,6 +37,11 @@ class ParallelCrawler:
         self.progress = self._load_progress()
         self.data_batches_dir = os.path.join('data', 'data_batches')
         
+        # 数据频率、数据源类型和数据类型
+        self.data_frequency = 'week'  # 默认周度数据
+        self.data_source_type = 'all'  # 默认所有终端
+        self.data_type = 'all'  # 默认所有类型
+        
         # 确保输出目录存在
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         os.makedirs(self.data_batches_dir, exist_ok=True)
@@ -220,7 +225,10 @@ class ParallelCrawler:
                     area=area, 
                     start_date=start_date, 
                     end_date=end_date, 
-                    year=year
+                    year=year,
+                    data_frequency=self.data_frequency,
+                    data_source_type=self.data_source_type,
+                    data_type=self.data_type
                 )
             elif index_type == 'trend':
                 df = baidu_index_api.get_trend_index(
@@ -228,7 +236,10 @@ class ParallelCrawler:
                     area=area,
                     start_date=start_date, 
                     end_date=end_date,
-                    year=year
+                    year=year,
+                    data_frequency=self.data_frequency,
+                    data_source_type=self.data_source_type,
+                    data_type=self.data_type
                 )
             else:
                 log.error(f"未知的指数类型: {index_type}")
