@@ -107,8 +107,12 @@ class BaiduIndexAPI:
             if result.get('status') != 0:
                 error_msg = result.get('message', '未知错误')
                 log.error(f"API返回错误: {error_msg}")
+                # 如果是"not login"错误，将cookie标记为永久不可用
+                if error_msg == "not login":
+                    log.warning(f"账号 {account_id} 未登录，标记为永久不可用")
+                    cookie_rotator.report_cookie_status(account_id, False, permanent=True)
                 # 只有在状态码为10001且消息为'request block'时才标记cookie为无效
-                if result.get('status') == 10001 and result.get('message') == 'request block':
+                elif result.get('status') == 10001 and result.get('message') == 'request block':
                     cookie_rotator.report_cookie_status(account_id, False)
                 return None
             
@@ -199,8 +203,12 @@ class BaiduIndexAPI:
             if result.get('status') != 0:
                 error_msg = result.get('message', '未知错误')
                 log.error(f"API返回错误: {error_msg}")
+                # 如果是"not login"错误，将cookie标记为永久不可用
+                if error_msg == "not login":
+                    log.warning(f"账号 {account_id} 未登录，标记为永久不可用")
+                    cookie_rotator.report_cookie_status(account_id, False, permanent=True)
                 # 只有在状态码为10001且消息为'request block'时才标记cookie为无效
-                if result.get('status') == 10001 and result.get('message') == 'request block':
+                elif result.get('status') == 10001 and result.get('message') == 'request block':
                     cookie_rotator.report_cookie_status(account_id, False)
                 return None
             

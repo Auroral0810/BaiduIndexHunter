@@ -502,11 +502,12 @@ class CookieRotator:
         """
         return self.cookies_available_event.wait(timeout)
     
-    def report_cookie_status(self, account_id, is_valid):
+    def report_cookie_status(self, account_id, is_valid, permanent=False):
         """
         报告Cookie的状态
         :param account_id: 账号ID
         :param is_valid: 是否有效
+        :param permanent: 是否永久不可用，True表示永久不可用，不会被解锁
         """
         if not account_id:
             return
@@ -515,8 +516,15 @@ class CookieRotator:
             if not is_valid:
                 # 标记账号为锁定状态
                 self.blocked_accounts.add(account_id)
-                self.block_times[account_id] = time.time()
-                log.warning(f"账号 {account_id} 的Cookie已被锁定，设置冷却时间 {COOKIE_BLOCK_COOLDOWN} 秒")
+                
+                if permanent:
+                    # 永久不可用，设置一个特殊值表示永久锁定
+                    self.block_times[account_id] = -1
+                    log.warning(f"账号 {account_id} 的Cookie已被永久锁定，不会自动解锁")
+                else:
+                    # 临时锁定，设置冷却时间
+                    self.block_times[account_id] = time.time()
+                    log.warning(f"账号 {account_id} 的Cookie已被锁定，设置冷却时间 {COOKIE_BLOCK_COOLDOWN} 秒")
                 
                 # 在Redis中标记cookie为锁定状态
                 redis_manager.mark_cookie_locked(account_id)
@@ -583,6 +591,10 @@ class CookieRotator:
         # 检查每个被锁定的账号
         for account_id in list(self.blocked_accounts):
             if account_id in self.block_times:
+                # 跳过永久锁定的cookie
+                if self.block_times[account_id] == -1:
+                    continue
+                    
                 # 计算已冷却时间
                 cooldown_time = current_time - self.block_times[account_id]
                 
