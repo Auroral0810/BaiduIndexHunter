@@ -24,7 +24,7 @@ def test_load_cookies_from_db():
         redis_manager.remove_cookie(cookie_id)
     
     # 调用私有方法加载Cookie
-    cookie_rotator._load_cookies_from_db()
+    cookie_rotator._refresh_cookies_from_db()
     
     # 检查加载结果
     cached_ids = redis_manager.get_all_cached_cookie_ids()
@@ -42,7 +42,8 @@ def test_get_cookie():
     
     if cookie_id and cookie_value:
         log.info(f"获取到Cookie: ID={cookie_id}")
-        log.debug(f"Cookie值: {cookie_value[:30]}...")  # 只显示前30个字符
+        cookie_str = str(cookie_value)
+        log.debug(f"Cookie值: {cookie_str[:30]}...")  # 转换为字符串后只显示前30个字符
         return True
     else:
         log.warning("未获取到可用的Cookie")
@@ -79,7 +80,7 @@ def test_select_best_cookie():
     # 多次选择最佳Cookie，检查分布
     selection_counts = {}
     for _ in range(20):
-        best_id = cookie_rotator._select_best_cookie(cached_ids)
+        best_id = cookie_rotator._select_least_used_cookie(cached_ids)
         selection_counts[best_id] = selection_counts.get(best_id, 0) + 1
     
     log.info(f"20次选择的分布: {selection_counts}")

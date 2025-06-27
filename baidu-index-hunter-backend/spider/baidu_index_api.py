@@ -107,13 +107,15 @@ class BaiduIndexAPI:
             if result.get('status') != 0:
                 error_msg = result.get('message', '未知错误')
                 log.error(f"API返回错误: {error_msg}")
-                cookie_rotator.report_cookie_status(account_id, False)
+                # 只有在状态码为10001且消息为'request block'时才标记cookie为无效
+                if result.get('status') == 10001 and result.get('message') == 'request block':
+                    cookie_rotator.report_cookie_status(account_id, False)
                 return None
             
             # 检查数据是否完整
             if 'data' not in result or 'generalRatio' not in result['data'] or not result['data']['generalRatio']:
                 log.error(f"返回数据不完整: {result}")
-                cookie_rotator.report_cookie_status(account_id, False)
+                # 不再将数据不完整的情况标记为cookie无效
                 return None
             
             # 如果请求成功，标记cookie为有效
@@ -124,8 +126,8 @@ class BaiduIndexAPI:
             
         except Exception as e:
             log.error(f"获取搜索指数数据失败: {e}")
-            # 如果是因为cookie问题，将其标记为无效
-            if account_id:
+            # 只有在请求被阻止的情况下才标记cookie为无效
+            if account_id and ("request block" in str(e) or "SSLError" in str(e) or "timeout" in str(e)):
                 cookie_rotator.report_cookie_status(account_id, False)
             return None
     
@@ -197,13 +199,15 @@ class BaiduIndexAPI:
             if result.get('status') != 0:
                 error_msg = result.get('message', '未知错误')
                 log.error(f"API返回错误: {error_msg}")
-                cookie_rotator.report_cookie_status(account_id, False)
+                # 只有在状态码为10001且消息为'request block'时才标记cookie为无效
+                if result.get('status') == 10001 and result.get('message') == 'request block':
+                    cookie_rotator.report_cookie_status(account_id, False)
                 return None
             
             # 检查数据是否完整
             if 'data' not in result or 'index' not in result['data'] or not result['data']['index']:
                 log.error(f"返回数据不完整: {result}")
-                cookie_rotator.report_cookie_status(account_id, False)
+                # 不再将数据不完整的情况标记为cookie无效
                 return None
             
             # 如果请求成功，标记cookie为有效
@@ -214,8 +218,8 @@ class BaiduIndexAPI:
             
         except Exception as e:
             log.error(f"获取趋势指数数据失败: {e}")
-            # 如果是因为cookie问题，将其标记为无效
-            if account_id:
+            # 只有在请求被阻止的情况下才标记cookie为无效
+            if account_id and ("request block" in str(e) or "SSLError" in str(e) or "timeout" in str(e)):
                 cookie_rotator.report_cookie_status(account_id, False)
             return None
 

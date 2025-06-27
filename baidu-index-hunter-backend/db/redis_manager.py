@@ -91,11 +91,28 @@ class RedisManager:
         从缓存中移除cookie
         :param account_id: cookie的账号ID
         """
-        key = f"{self.cookie_key_prefix}{account_id}"
         try:
-            self.client.delete(key)
-            self.client.srem(self.cookie_list_key, account_id)
-            log.debug(f"账号 {account_id} 的Cookie已从Redis缓存移除")
+            # 删除cookie数据
+            self.client.delete(f"cookie:{account_id}")
+            
+            # 从cookie_ids集合中移除
+            self.client.srem("cookie_ids", account_id)
+            
+            # 删除状态数据
+            self.client.hdel("cookie_status", account_id)
+            self.client.hdel("cookie_lock_time", account_id)
+            self.client.hdel("cookie_last_updated", account_id)
+            
+            # 删除使用统计数据
+            usage_key = f"{self.cookie_usage_key_prefix}{account_id}"
+            success_key = f"{self.cookie_success_key_prefix}{account_id}:success"
+            fail_key = f"{self.cookie_success_key_prefix}{account_id}:fail"
+            
+            self.client.delete(usage_key)
+            self.client.delete(success_key)
+            self.client.delete(fail_key)
+            
+            log.debug(f"账号 {account_id} 的Cookie已从Redis缓存完全移除")
             return True
         except Exception as e:
             log.error(f"从Redis移除Cookie失败: {e}")

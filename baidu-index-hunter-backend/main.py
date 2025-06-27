@@ -5,6 +5,7 @@ import os
 import argparse
 import json
 import time
+import threading
 from pathlib import Path
 from utils.logger import log
 from spider.task_manager import task_manager
@@ -35,7 +36,8 @@ def init_database():
         log.error("Redis数据库连接失败")
         return False
     
-    # 初始化Cookie状态
+    # 强制同步Cookie状态，确保Redis和MySQL数据一致
+    log.info("强制同步MySQL和Redis中的Cookie数据...")
     cookie_rotator._sync_cookie_status()
     
     # 检查可用cookie数量
@@ -47,7 +49,72 @@ def init_database():
     
     log.info(f"已初始化数据库连接，可用Cookie数量: {available_count}/{len(all_ids)}")
     
+    # 验证Redis和MySQL的一致性
+    verify_db_consistency()
+    
     return True
+
+
+def verify_db_consistency():
+    """验证Redis和MySQL数据一致性"""
+    try:
+        log.info("验证Redis和MySQL数据一致性...")
+        
+        # 获取MySQL中的所有cookie状态
+        with mysql_manager.get_cursor() as cursor:
+            cursor.execute("""
+                SELECT account_id, is_available 
+                FROM cookies
+            """)
+            mysql_cookies = {row['account_id']: row['is_available'] == 1 for row in cursor.fetchall()}
+        
+        # 获取Redis中的所有cookie ID
+        redis_ids = set(redis_manager.get_all_cached_cookie_ids())
+        
+        # 获取Redis中的锁定状态
+        redis_status = {}
+        for account_id in redis_ids:
+            redis_status[account_id] = not redis_manager.is_cookie_locked(account_id)
+        
+        # 检查MySQL中存在但Redis中不存在的cookie
+        mysql_only = set(mysql_cookies.keys()) - redis_ids
+        if mysql_only:
+            log.warning(f"发现 {len(mysql_only)} 个账号在MySQL中存在但Redis中不存在")
+            
+        # 检查Redis中存在但MySQL中不存在的cookie
+        redis_only = redis_ids - set(mysql_cookies.keys())
+        if redis_only:
+            log.warning(f"发现 {len(redis_only)} 个账号在Redis中存在但MySQL中不存在，将从Redis中移除")
+            for account_id in redis_only:
+                redis_manager.remove_cookie(account_id)
+        
+        # 检查状态不一致的cookie
+        inconsistent = []
+        for account_id in set(mysql_cookies.keys()) & redis_ids:
+            if mysql_cookies[account_id] != redis_status.get(account_id, False):
+                inconsistent.append(account_id)
+        
+        if inconsistent:
+            log.warning(f"发现 {len(inconsistent)} 个账号的状态在MySQL和Redis中不一致，将进行修复")
+            # 修复不一致的cookie状态
+            for account_id in inconsistent:
+                is_available = mysql_cookies[account_id]
+                if is_available:
+                    redis_manager.mark_cookie_available(account_id)
+                    if account_id in cookie_rotator.blocked_accounts:
+                        cookie_rotator.blocked_accounts.remove(account_id)
+                        if account_id in cookie_rotator.block_times:
+                            del cookie_rotator.block_times[account_id]
+                else:
+                    redis_manager.mark_cookie_locked(account_id)
+                    cookie_rotator.blocked_accounts.add(account_id)
+                    cookie_rotator.block_times[account_id] = time.time()
+            
+        log.info("Redis和MySQL数据一致性验证完成")
+        return len(inconsistent) == 0
+    except Exception as e:
+        log.error(f"验证数据一致性失败: {e}")
+        return False
 
 
 def load_keywords_from_excel(keywords_file=None):
@@ -224,6 +291,9 @@ def main():
         log.error("数据库初始化失败，程序退出")
         return
     
+    # 启动定期数据一致性检查
+    start_periodic_consistency_check()
+    
     # 加载关键词
     keywords = load_keywords(args.keywords_file, args.keywords)
     if not keywords:
@@ -291,6 +361,25 @@ def main():
     # 关闭数据库连接
     mysql_manager.close()
     log.info("程序执行完成")
+
+
+def start_periodic_consistency_check():
+    """启动定期数据一致性检查"""
+    def consistency_check_task():
+        while True:
+            try:
+                # 每30分钟检查一次数据一致性
+                time.sleep(1800)
+                log.info("执行定期MySQL和Redis数据一致性检查...")
+                verify_db_consistency()
+            except Exception as e:
+                log.error(f"定期数据一致性检查任务出错: {e}")
+                time.sleep(60)  # 出错后等待1分钟再重试
+    
+    # 启动检查线程
+    check_thread = threading.Thread(target=consistency_check_task, daemon=True)
+    check_thread.start()
+    log.info("已启动定期MySQL和Redis数据一致性检查任务")
 
 
 if __name__ == "__main__":
