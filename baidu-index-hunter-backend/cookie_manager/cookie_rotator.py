@@ -261,7 +261,7 @@ class CookieRotator:
         :return: 是否在等待后有可用cookie
         """
         current_time = time.time()
-        wait_time = 1200  # 20分钟，单位秒
+        wait_time = 1800  # 30分钟，单位秒
         
         # 如果是首次发现所有cookie被锁定，记录时间
         if self.all_cookies_blocked_time is None:
@@ -486,7 +486,7 @@ class CookieRotator:
             
             # 添加所有cookie被锁定的等待状态
             all_blocked_wait_info = None
-            wait_time = 1200  # 20分钟，单位秒
+            wait_time = 1800  # 30分钟，单位秒
             if self.all_cookies_blocked_time is not None:
                 elapsed = current_time - self.all_cookies_blocked_time
                 remaining = max(0, wait_time - elapsed)
