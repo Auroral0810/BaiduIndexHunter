@@ -64,7 +64,17 @@ class BaiduIndexAPI:
             account_id, cookie_dict = cookie_rotator.get_cookie()
             if not cookie_dict:
                 log.warning(f"无法获取可用Cookie进行请求 [{keyword}, {area}, {start_date}~{end_date}]，所有Cookie可能都被锁定")
-                return None
+                # 等待有可用的cookie (最多等待30秒)
+                if cookie_rotator.wait_for_available_cookie(timeout=30):
+                    log.info(f"检测到有可用Cookie，重试获取 [{keyword}, {area}, {start_date}~{end_date}]")
+                    # 重新尝试获取cookie
+                    account_id, cookie_dict = cookie_rotator.get_cookie()
+                    if not cookie_dict:
+                        log.error(f"尽管收到可用Cookie通知，但仍无法获取Cookie，放弃请求 [{keyword}, {area}, {start_date}~{end_date}]")
+                        return None
+                else:
+                    log.error(f"等待可用Cookie超时，放弃请求 [{keyword}, {area}, {start_date}~{end_date}]")
+                    return None
             
             # 构建请求URL
             encoded_keyword = keyword.replace(' ', '%20')
@@ -97,8 +107,13 @@ class BaiduIndexAPI:
             # 检查响应状态
             if response.status_code != 200:
                 log.error(f"请求失败，状态码: {response.status_code}, 响应内容: {response.text}")
-                cookie_rotator.report_cookie_status(account_id, False)
-                return None
+                # 超时或网络错误不锁定Cookie
+                if 'timeout' in str(response).lower() or 'connection' in str(response).lower():
+                    log.warning(f"请求超时或网络错误，不锁定Cookie")
+                    return None
+                else:
+                    cookie_rotator.report_cookie_status(account_id, False)
+                    return None
             
             # 解析响应内容
             result = response.json()
@@ -107,13 +122,31 @@ class BaiduIndexAPI:
             if result.get('status') != 0:
                 error_msg = result.get('message', '未知错误')
                 log.error(f"API返回错误: {error_msg}")
-                cookie_rotator.report_cookie_status(account_id, False)
-                return None
+                
+                # 如果是"not login"错误，将cookie标记为永久封禁
+                if error_msg == "not login":
+                    log.error(f"检测到'not login'错误，账号 {account_id} 的Cookie已失效，将被永久封禁")
+                    cookie_rotator.report_cookie_status(account_id, False, permanent=True)
+                    
+                    # 等待看是否有其他可用Cookie
+                    if cookie_rotator.wait_for_available_cookie(timeout=10):
+                        log.info(f"检测到有其他可用Cookie，重试获取 [{keyword}, {area}, {start_date}~{end_date}]")
+                        # 递归调用自身重试
+                        return self.get_search_index(keyword, area, start_date, end_date)
+                    return None
+                # 如果是请求频率限制错误（状态码10001），临时锁定cookie
+                elif result.get('status') == 10001:
+                    log.warning(f"检测到请求频率限制错误(10001)，账号 {account_id} 的Cookie被临时锁定")
+                    cookie_rotator.report_cookie_status(account_id, False)
+                    return None
+                else:
+                    # 其他错误，不锁定cookie
+                    log.warning(f"API返回其他错误: {error_msg}，不锁定Cookie")
+                    return None
             
             # 检查数据是否完整
             if 'data' not in result or 'generalRatio' not in result['data'] or not result['data']['generalRatio']:
                 log.error(f"返回数据不完整: {result}")
-                cookie_rotator.report_cookie_status(account_id, False)
                 return None
             
             # 如果请求成功，标记cookie为有效
@@ -124,8 +157,8 @@ class BaiduIndexAPI:
             
         except Exception as e:
             log.error(f"获取搜索指数数据失败: {e}")
-            # 如果是因为cookie问题，将其标记为无效
-            if account_id:
+            # 如果是超时或网络错误，不锁定cookie
+            if account_id and not ('timeout' in str(e).lower() or 'connection' in str(e).lower() or 'read timed out' in str(e).lower()):
                 cookie_rotator.report_cookie_status(account_id, False)
             return None
     
@@ -154,7 +187,17 @@ class BaiduIndexAPI:
             account_id, cookie_dict = cookie_rotator.get_cookie()
             if not cookie_dict:
                 log.warning(f"无法获取可用Cookie进行请求 [{keyword}, {area}, {start_date}~{end_date}]，所有Cookie可能都被锁定")
-                return None
+                # 等待有可用的cookie (最多等待30秒)
+                if cookie_rotator.wait_for_available_cookie(timeout=30):
+                    log.info(f"检测到有可用Cookie，重试获取 [{keyword}, {area}, {start_date}~{end_date}]")
+                    # 重新尝试获取cookie
+                    account_id, cookie_dict = cookie_rotator.get_cookie()
+                    if not cookie_dict:
+                        log.error(f"尽管收到可用Cookie通知，但仍无法获取Cookie，放弃请求 [{keyword}, {area}, {start_date}~{end_date}]")
+                        return None
+                else:
+                    log.error(f"等待可用Cookie超时，放弃请求 [{keyword}, {area}, {start_date}~{end_date}]")
+                    return None
             
             # 构建请求URL
             encoded_keyword = keyword.replace(' ', '%20')
@@ -187,8 +230,13 @@ class BaiduIndexAPI:
             # 检查响应状态
             if response.status_code != 200:
                 log.error(f"请求失败，状态码: {response.status_code}, 响应内容: {response.text}")
-                cookie_rotator.report_cookie_status(account_id, False)
-                return None
+                # 超时或网络错误不锁定Cookie
+                if 'timeout' in str(response).lower() or 'connection' in str(response).lower():
+                    log.warning(f"请求超时或网络错误，不锁定Cookie")
+                    return None
+                else:
+                    cookie_rotator.report_cookie_status(account_id, False)
+                    return None
             
             # 解析响应内容
             result = response.json()
@@ -197,13 +245,31 @@ class BaiduIndexAPI:
             if result.get('status') != 0:
                 error_msg = result.get('message', '未知错误')
                 log.error(f"API返回错误: {error_msg}")
-                cookie_rotator.report_cookie_status(account_id, False)
-                return None
+                
+                # 如果是"not login"错误，将cookie标记为永久封禁
+                if error_msg == "not login":
+                    log.error(f"检测到'not login'错误，账号 {account_id} 的Cookie已失效，将被永久封禁")
+                    cookie_rotator.report_cookie_status(account_id, False, permanent=True)
+                    
+                    # 等待看是否有其他可用Cookie
+                    if cookie_rotator.wait_for_available_cookie(timeout=10):
+                        log.info(f"检测到有其他可用Cookie，重试获取 [{keyword}, {area}, {start_date}~{end_date}]")
+                        # 递归调用自身重试
+                        return self.get_trend_index(keyword, area, start_date, end_date)
+                    return None
+                # 如果是请求频率限制错误（状态码10001），临时锁定cookie
+                elif result.get('status') == 10001:
+                    log.warning(f"检测到请求频率限制错误(10001)，账号 {account_id} 的Cookie被临时锁定")
+                    cookie_rotator.report_cookie_status(account_id, False)
+                    return None
+                else:
+                    # 其他错误，不锁定cookie
+                    log.warning(f"API返回其他错误: {error_msg}，不锁定Cookie")
+                    return None
             
             # 检查数据是否完整
             if 'data' not in result or 'index' not in result['data'] or not result['data']['index']:
                 log.error(f"返回数据不完整: {result}")
-                cookie_rotator.report_cookie_status(account_id, False)
                 return None
             
             # 如果请求成功，标记cookie为有效
@@ -214,8 +280,8 @@ class BaiduIndexAPI:
             
         except Exception as e:
             log.error(f"获取趋势指数数据失败: {e}")
-            # 如果是因为cookie问题，将其标记为无效
-            if account_id:
+            # 如果是超时或网络错误，不锁定cookie
+            if account_id and not ('timeout' in str(e).lower() or 'connection' in str(e).lower() or 'read timed out' in str(e).lower()):
                 cookie_rotator.report_cookie_status(account_id, False)
             return None
 

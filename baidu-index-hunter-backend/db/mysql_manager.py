@@ -155,7 +155,7 @@ class MySQLManager:
                     # 永久封禁，设置last_updated为9999年
                     cursor.execute("""
                         UPDATE cookies 
-                        SET is_available = %s, last_updated = '9999-12-31 23:59:59' 
+                        SET is_available = %s, last_updated = '2030-06-11 23:59:59' 
                         WHERE account_id = %s
                     """, (status_int, account_id))
                     log.info(f"账号 {account_id} 的Cookie被永久封禁")
