@@ -1,5 +1,5 @@
 """
-Cipher-Text生成模块，用于生成百度指数API请求所需的加密参数
+Cipher-Text生成模块，用于生成百度指数API请求所需的加密参数，正确
 """
 import os
 import execjs

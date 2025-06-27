@@ -1,5 +1,5 @@
 """
-Cookie验证模块，用于检查cookie的有效性
+Cookie验证模块，用于检查cookie的有效性（未使用）
 """
 import requests
 import time
@@ -49,7 +49,7 @@ class CookieValidator:
                 params=params,
                 headers=headers,
                 cookies=cookie_dict,
-                timeout=10
+                timeout=30
             )
             
             # 解析响应

@@ -1,245 +1,289 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
-百度指数爬虫主程序
+百度指数爬取主程序
 """
 import os
-import sys
 import argparse
-import pandas as pd
-from datetime import datetime
+import json
+import time
+from pathlib import Path
 from utils.logger import log
-from spider.parallel_crawler import parallel_crawler
-from utils.merge_batch_results import merge_excel_files
-from utils.deduplicate import deduplicate_and_update_progress
-from config.settings import SPIDER_CONFIG
+from spider.task_manager import task_manager
+from cookie_manager.cookie_rotator import cookie_rotator
 from utils.city_manager import city_manager
+from db.mysql_manager import mysql_manager
+from db.redis_manager import redis_manager
 
 
-def parse_arguments():
+# 定义全局路径配置
+PATHS = {
+    'cities_file': '/Users/auroral/ProjectDevelopment/BaiduIndexHunter/baidu-index-hunter-backend/data/275个城市及代码.xlsx',
+    'keywords_file': '/Users/auroral/ProjectDevelopment/BaiduIndexHunter/baidu-index-hunter-backend/data/数字设备和服务关键词.xlsx',
+    'progress_file': '/Users/auroral/ProjectDevelopment/BaiduIndexHunter/baidu-index-hunter-backend/data/crawler_progress.json',
+    'data_batches_dir': '/Users/auroral/ProjectDevelopment/BaiduIndexHunter/baidu-index-hunter-backend/data/data_batches'
+}
+
+
+def init_database():
+    """初始化数据库连接"""
+    # 连接MySQL数据库
+    if not mysql_manager.connect():
+        log.error("MySQL数据库连接失败")
+        return False
+    
+    # 连接Redis数据库
+    if not redis_manager.connect():
+        log.error("Redis数据库连接失败")
+        return False
+    
+    # 初始化Cookie状态
+    cookie_rotator._sync_cookie_status()
+    
+    # 检查可用cookie数量
+    all_ids = redis_manager.get_all_cached_cookie_ids()
+    
+    # 获取锁定的Cookie ID集合
+    locked_ids = set(cookie_rotator.blocked_accounts)
+    available_count = len([aid for aid in all_ids if aid not in locked_ids])
+    
+    log.info(f"已初始化数据库连接，可用Cookie数量: {available_count}/{len(all_ids)}")
+    
+    return True
+
+
+def load_keywords_from_excel(keywords_file=None):
+    """
+    从Excel文件加载关键词列表
+    :param keywords_file: 关键词文件路径
+    :return: 关键词列表
+    """
+    try:
+        import pandas as pd
+        # 使用指定或默认的关键词文件
+        if not keywords_file:
+            keywords_file = PATHS['keywords_file']
+        
+        # 如果文件不存在
+        if not os.path.exists(keywords_file):
+            log.error(f"关键词Excel文件不存在: {keywords_file}")
+            return []
+        
+        # 读取Excel文件
+        df = pd.read_excel(keywords_file)
+        
+        # 获取第一列数据作为关键词
+        if len(df.columns) > 0:
+            keywords_col = df.iloc[:, 0]
+            keywords = [str(keyword).strip() for keyword in keywords_col if str(keyword).strip()]
+            log.info(f"已从Excel文件加载 {len(keywords)} 个关键词: {keywords_file}")
+            return keywords
+        else:
+            log.error(f"关键词Excel文件格式错误: {keywords_file}")
+            return []
+    except Exception as e:
+        log.error(f"加载Excel关键词文件失败: {e}")
+        return []
+
+
+def load_keywords(keywords_file=None, keywords_list=None):
+    """
+    加载关键词列表
+    :param keywords_file: 关键词文件路径
+    :param keywords_list: 直接传入的关键词列表
+    :return: 关键词列表
+    """
+    if keywords_list:
+        return keywords_list
+    
+    # 如果关键词文件是Excel文件，使用Excel加载方法
+    if keywords_file and keywords_file.endswith(('.xlsx', '.xls')):
+        return load_keywords_from_excel(keywords_file)
+    
+    # 使用默认Excel关键词文件
+    if not keywords_file and os.path.exists(PATHS['keywords_file']):
+        return load_keywords_from_excel(PATHS['keywords_file'])
+    
+    # 使用默认文本关键词文件
+    if not keywords_file:
+        keywords_file = Path(__file__).parent / 'data' / 'keywords.txt'
+    
+    # 如果文件不存在
+    if not os.path.exists(keywords_file):
+        log.error(f"关键词文件不存在: {keywords_file}")
+        return []
+    
+    try:
+        with open(keywords_file, 'r', encoding='utf-8') as f:
+            keywords = [line.strip() for line in f if line.strip()]
+        log.info(f"已从文件加载 {len(keywords)} 个关键词: {keywords_file}")
+        return keywords
+    except Exception as e:
+        log.error(f"加载关键词文件失败: {e}")
+        return []
+
+
+def load_areas(areas_file=None, areas_list=None):
+    """
+    加载地区代码列表
+    :param areas_file: 地区代码文件路径
+    :param areas_list: 直接传入的地区代码列表
+    :return: 地区代码列表
+    """
+    if areas_list:
+        return [int(area) for area in areas_list]
+    
+    # 从城市配置文件加载
+    if not areas_file and os.path.exists(PATHS['cities_file']):
+        # 更新城市管理器的城市文件
+        city_manager.city_file = PATHS['cities_file']
+        city_manager.load_city_data()
+        
+        # 获取所有城市代码
+        all_areas = city_manager.get_all_city_codes()
+        log.info(f"已从城市配置文件加载 {len(all_areas)} 个城市代码")
+        return all_areas
+    
+    # 使用默认地区代码文件
+    if not areas_file:
+        areas_file = Path(__file__).parent / 'data' / 'areas.txt'
+    
+    # 如果文件不存在，使用全国代码
+    if not os.path.exists(areas_file):
+        log.warning(f"地区代码文件不存在: {areas_file}，使用默认值（全国）")
+        return [0]
+    
+    try:
+        with open(areas_file, 'r', encoding='utf-8') as f:
+            areas = [int(line.strip()) for line in f if line.strip() and line.strip().isdigit()]
+        
+        # 检查地区代码是否存在对应的城市名称
+        valid_areas = []
+        for area in areas:
+            city_name = city_manager.get_city_name(area)
+            if city_name:
+                valid_areas.append(area)
+            else:
+                log.warning(f"未知的地区代码: {area}，跳过")
+        
+        log.info(f"已从文件加载 {len(valid_areas)} 个有效地区代码: {areas_file}")
+        return valid_areas
+    except Exception as e:
+        log.error(f"加载地区代码文件失败: {e}")
+        return [0]  # 默认返回全国
+
+
+def parse_args():
     """解析命令行参数"""
-    parser = argparse.ArgumentParser(description='百度指数爬虫')
+    parser = argparse.ArgumentParser(description='百度指数数据爬虫')
     
-    # 添加子命令
-    subparsers = parser.add_subparsers(dest='command', help='子命令')
+    # 基本参数
+    parser.add_argument('-k', '--keywords', nargs='+', help='关键词列表，多个关键词用空格分隔')
+    parser.add_argument('-kf', '--keywords-file', help='关键词文件路径，每行一个关键词')
+    parser.add_argument('-a', '--areas', nargs='+', help='地区代码列表，多个地区用空格分隔')
+    parser.add_argument('-af', '--areas-file', help='地区代码文件路径，每行一个地区代码')
+    parser.add_argument('-y', '--years', nargs='+', type=int, default=[2016, 2025], 
+                        help='年份列表，多个年份用空格分隔，默认为2016和2025年')
+    parser.add_argument('-t', '--index-types', nargs='+', default=['search'], 
+                        choices=['search', 'trend'], help='指数类型，可选值：search, trend，默认为search')
     
-    # 爬取命令
-    crawl_parser = subparsers.add_parser('crawl', help='爬取百度指数数据')
-    crawl_parser.add_argument('-k', '--keywords_file', type=str, default='data/数字设备和服务关键词.xlsx',
-                            help='关键词文件路径，默认为data/数字设备和服务关键词.xlsx')
-    crawl_parser.add_argument('-c', '--city_file', type=str, default='data/275个城市及代码.xlsx',
-                            help='城市代码文件路径，默认为data/275个城市及代码.xlsx')
-    crawl_parser.add_argument('-y', '--years', type=str, default=str(datetime.now().year),
-                            help='年份，多个年份用逗号分隔，默认为当前年份')
-    crawl_parser.add_argument('-t', '--types', type=str, default='search',
-                            help='指数类型，多个类型用逗号分隔，可选值: search, trend，默认为search')
-    crawl_parser.add_argument('-w', '--workers', type=int, default=SPIDER_CONFIG.get('max_workers', 5),
-                            help=f'工作线程数，默认为{SPIDER_CONFIG.get("max_workers", 5)}')
-    crawl_parser.add_argument('-b', '--batch_size', type=int, default=10,
-                            help='每个批次的任务数量，默认为10')
-    
-    # 合并命令
-    merge_parser = subparsers.add_parser('merge', help='合并批次结果')
-    
-    # 去重复命令
-    dedup_parser = subparsers.add_parser('deduplicate', help='去除重复数据并更新进度文件')
-    
-    # 测试命令
-    test_parser = subparsers.add_parser('test', help='测试爬虫')
-    test_parser.add_argument('-k', '--keyword', type=str, default='百度',
-                           help='测试用的关键词，默认为"百度"')
+    # 系统参数
+    parser.add_argument('-w', '--workers', type=int, help='最大工作线程数，默认根据CPU核心数和可用Cookie数量自动设置')
+    parser.add_argument('-o', '--output', help='输出目录，默认为output')
+    parser.add_argument('-v', '--verbose', action='store_true', help='输出详细日志')
+    parser.add_argument('-p', '--progress-file', help='爬取进度文件路径')
+    parser.add_argument('-b', '--batch-dir', help='批次数据目录路径')
     
     return parser.parse_args()
 
 
-def load_cities(city_file):
-    """
-    从Excel文件加载城市代码
-    :param city_file: 城市代码文件路径
-    :return: 城市代码列表
-    """
-    try:
-        df = pd.read_excel(city_file)
-        if 'citycode' in df.columns and 'city' in df.columns:
-            city_codes = df['citycode'].astype(int).tolist()
-            # log.info(f"从 {city_file} 加载了 {len(city_codes)} 个城市代码")
-            return city_codes
-        else:
-            log.error(f"城市代码文件格式不正确，需要包含'citycode'和'city'列")
-            return [0]  # 默认返回全国代码
-    except Exception as e:
-        log.error(f"加载城市代码文件失败: {e}")
-        return [0]  # 默认返回全国代码
-
-
-def print_progress_info(progress_file):
-    """
-    打印爬取进度信息
-    :param progress_file: 进度文件路径
-    """
-    import json
-    import os
-    
-    if not os.path.exists(progress_file):
-        log.info(f"进度文件 {progress_file} 不存在，将创建新的进度文件")
-        return
-    
-    try:
-        # 获取文件大小
-        file_size = os.path.getsize(progress_file) / (1024 * 1024)  # 转换为MB
-        # log.info(f"进度文件大小: {file_size:.2f} MB")
-        
-        # 读取进度文件的前10行和后10行来估计总任务数
-        with open(progress_file, 'r', encoding='utf-8') as f:
-            # 读取文件的第一行和最后一行来判断文件格式
-            first_line = f.readline().strip()
-            
-            # 如果是空文件或只有{}，则没有进度
-            if first_line == "{}" or not first_line:
-                log.info("进度文件为空，没有已完成的任务")
-                return
-            
-            # 重新打开文件计算任务数
-            completed_tasks = 0
-            successful_tasks = 0
-            with open(progress_file, 'r', encoding='utf-8') as f:
-                try:
-                    progress_data = json.load(f)
-                    completed_tasks = len(progress_data)
-                    
-                    # 统计成功的任务数量
-                    for key, task_info in progress_data.items():
-                        if task_info.get('status') == 'success':
-                            successful_tasks += 1
-                            
-                    log.info(f"已完成任务数: {completed_tasks}")
-                    log.info(f"其中成功任务数: {successful_tasks}")
-                except json.JSONDecodeError:
-                    log.error("进度文件格式错误，无法解析")
-                    return
-        
-        return successful_tasks  # 返回成功的任务数量，而不是总任务数
-    except Exception as e:
-        log.error(f"读取进度文件失败: {e}")
-        return None
-
-
 def main():
     """主函数"""
-    args = parse_arguments()
+    # 解析命令行参数
+    args = parse_args()
     
-    if args.command == 'crawl':
-        # 爬取百度指数数据
-        log.info("开始爬取百度指数数据")
-        
-        # 解析参数
-        keywords_file = args.keywords_file
-        city_file = args.city_file
-        
-        # 解析年份，支持多年份爬取
-        years_input = args.years.split(',')
-        years = []
-        for year_str in years_input:
-            year_str = year_str.strip()
-            # 检查是否是范围（例如：2016-2025）
-            if '-' in year_str:
-                start_year, end_year = map(int, year_str.split('-'))
-                years.extend(range(start_year, end_year + 1))
-            else:
-                years.append(int(year_str))
-        
-        index_types = [t.strip() for t in args.types.split(',')]
-        
-        # 检查关键词文件是否存在
-        if not os.path.exists(keywords_file):
-            log.error(f"关键词文件不存在: {keywords_file}")
-            return
-            
-        # 检查城市代码文件是否存在
-        if not os.path.exists(city_file):
-            log.error(f"城市代码文件不存在: {city_file}")
-            return
-        
-        # 加载城市代码
-        areas = load_cities(city_file)
-        if not areas:
-            log.error("未加载到城市代码，请检查城市代码文件")
-            return
-        
-        # 加载关键词
-        keywords = parallel_crawler.load_keywords(keywords_file)
-        if not keywords:
-            log.error("未加载到关键词，请检查关键词文件")
-            return
-        
-        # 打印进度信息
-        progress_file = os.path.join('data', 'crawler_progress.json')
-        completed_tasks = print_progress_info(progress_file)
-        
-        # 计算理论总任务数
-        total_tasks = len(keywords) * len(areas) * len(years) * len(index_types)
-        log.info(f"理论总任务数: {total_tasks}")
-        
-        if completed_tasks is not None:
-            remaining_tasks = total_tasks - completed_tasks
-            progress_percentage = (completed_tasks / total_tasks) * 100 if total_tasks > 0 else 0
-            # log.info(f"剩余任务数: {remaining_tasks}")
-            log.info(f"当前进度: {progress_percentage:.2f}%")
-        
-        # 设置并行爬虫参数
-        parallel_crawler.max_workers = args.workers
-        parallel_crawler.batch_size = args.batch_size
-        
-        # 创建任务
-        task_count = parallel_crawler.create_tasks(keywords, areas, years, index_types)
-        if task_count == 0:
-            log.warning("没有需要爬取的任务，可能所有任务已完成")
-            return
-        
-        # 运行爬虫
-        parallel_crawler.run()
-        
-        log.info("爬取完成")
-        
-    elif args.command == 'merge':
-        # 合并批次结果
-        log.info("开始合并批次结果")
-        merge_excel_files()
-        log.info("合并完成")
-        
-    elif args.command == 'deduplicate':
-        # 去除重复数据并更新进度文件
-        log.info("开始去除重复数据并更新进度文件")
-        kept, removed, progress_count = deduplicate_and_update_progress()
-        log.info(f"去重完成，保留 {kept} 条记录，删除 {removed} 条重复记录，进度文件包含 {progress_count} 条记录")
-        
-    elif args.command == 'test':
-        # 测试爬虫
-        from spider.baidu_index_api import baidu_index_api
-        
-        log.info(f"测试爬取关键词: {args.keyword}")
-        
-        # 获取当前年份
-        current_year = datetime.now().year
-        
-        # 测试搜索指数API
-        df = baidu_index_api.get_search_index(args.keyword, area=0, days=30)
-        if df is not None and not df.empty:
-            log.info(f"搜索指数API测试成功，获取到 {len(df)} 条数据")
-        else:
-            log.error("搜索指数API测试失败")
-        
+    # 设置日志级别
+    if args.verbose:
+        log.setLevel('DEBUG')
+    
+    # 设置进度文件路径
+    if args.progress_file:
+        progress_file = args.progress_file
     else:
-        # 显示帮助信息
-        log.info("使用 -h 或 --help 查看帮助信息")
+        progress_file = PATHS['progress_file']
+    
+    # 初始化进度管理器，使用自定义进度文件路径
+    from spider.progress_manager import ProgressManager
+    progress_manager = ProgressManager(progress_file)
+    log.info(f"使用进度文件: {progress_file}")
+    
+    # 设置批次数据目录
+    batch_dir = args.batch_dir or PATHS['data_batches_dir']
+    os.makedirs(batch_dir, exist_ok=True)
+    
+    # 初始化数据库连接
+    if not init_database():
+        log.error("数据库初始化失败，程序退出")
+        return
+    
+    # 加载关键词
+    keywords = load_keywords(args.keywords_file, args.keywords)
+    if not keywords:
+        log.error("未指定关键词，程序退出")
+        return
+    
+    # 加载地区代码
+    areas = load_areas(args.areas_file, args.areas)
+    if not areas:
+        log.error("未指定有效地区代码，程序退出")
+        return
+    
+    # 设置年份
+    years = args.years
+    log.info(f"设置爬取年份: {years}")
+    
+    # 设置指数类型
+    index_types = args.index_types
+    log.info(f"设置爬取指数类型: {index_types}")
+    
+    # 设置最大工作线程数
+    if args.workers:
+        task_manager.max_workers = args.workers
+        log.info(f"设置最大工作线程数: {args.workers}")
+    
+    # 设置输出目录
+    if args.output:
+        output_dir = args.output
+    else:
+        output_dir = os.path.join(batch_dir, "final_output")
+    
+    task_manager.output_dir = Path(output_dir)
+    os.makedirs(task_manager.output_dir, exist_ok=True)
+    log.info(f"设置输出目录: {output_dir}")
+    
+    # 设置批次数据目录
+    task_manager.batch_dir = Path(batch_dir)
+    log.info(f"设置批次数据目录: {batch_dir}")
+    
+    # 启动爬取任务
+    log.info(f"开始爬取 {len(keywords)} 个关键词, {len(areas)} 个地区, {len(years)} 个年份, {len(index_types)} 种指数类型")
+    if task_manager.start(keywords, areas, years, index_types):
+        # 等待任务完成，并处理键盘中断
+        try:
+            # 打印初始状态
+            time.sleep(2)  # 等待任务初始化
+            
+            # 等待任务完成
+            while task_manager.running:
+                time.sleep(5)
+            
+            log.info("所有爬取任务已完成")
+        except KeyboardInterrupt:
+            log.info("收到中断信号，正在停止爬取...")
+            task_manager.stop()
+    
+    # 关闭数据库连接
+    mysql_manager.close()
+    log.info("程序执行完成")
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        log.info("程序被用户中断")
-        sys.exit(0)
-    except Exception as e:
-        log.error(f"程序异常: {e}")
-        sys.exit(1)
+    main() 

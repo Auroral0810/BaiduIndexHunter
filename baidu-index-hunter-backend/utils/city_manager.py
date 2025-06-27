@@ -1,9 +1,13 @@
 """
-城市代码管理模块
+城市代码管理模块，正确
 """
 import os
 import pandas as pd
 from pathlib import Path
+import sys
+
+# 添加项目根目录到Python路径
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils.logger import log
 
 # 默认城市代码文件路径
@@ -152,7 +156,17 @@ class CityManager:
         :param city_name: 城市名称
         :return: 城市代码，如果不存在则返回None
         """
-        return self.city_name_dict.get(city_name)
+        # 直接匹配
+        if city_name in self.city_name_dict:
+            return self.city_name_dict[city_name]
+        
+        # 处理城市名称可能带"市"或不带"市"的情况
+        if city_name.endswith("市"):
+            # 如果输入带"市"，尝试不带"市"查找
+            return self.city_name_dict.get(city_name[:-1])
+        else:
+            # 如果输入不带"市"，尝试带"市"查找
+            return self.city_name_dict.get(f"{city_name}市")
     
     def get_all_cities(self):
         """
@@ -174,7 +188,14 @@ class CityManager:
         :return: 城市代码列表
         """
         return list(self.city_dict.keys())
-
+    def test(self):
+        '''假设测试从文件中读取城市，并测试其他函数'''
+        print(self.get_city_name(1))
+        print(self.get_city_code("济南"))
+        print(self.get_all_cities())
+        print(self.get_all_city_names())
+        print(self.get_all_city_codes())
 
 # 创建城市管理器单例
 city_manager = CityManager() 
+# city_manager.test()

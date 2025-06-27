@@ -1,5 +1,5 @@
 """
-日志工具模块
+日志工具模块，正确
 """
 import sys
 from pathlib import Path

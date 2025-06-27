@@ -1,108 +1,74 @@
-# 百度指数爬虫项目 (BaiduIndexHunter)
+# 百度指数爬虫 - 账号分配系统
 
-## 项目简介
+本项目是一个基于账号分配的百度指数数据爬虫系统，根据可用cookie数量自动分配爬取任务。
 
-BaiduIndexHunter 是一个专门用于爬取百度指数数据的项目，提供了完善的 Cookie 池管理功能。项目特点包括：
+## 功能特点
 
-- 自动登录获取新 Cookie
-- 定期检测 Cookie 有效性
-- 智能轮换分配 Cookie
-- Cookie 失效监控告警
+- **账号分配**：根据可用的cookie账户数量自动分配爬取任务
+- **限流控制**：每个请求至少间隔1秒，避免过快请求导致账号被锁定
+- **并发爬取**：每个账号最多使用5个线程并发爬取，提高效率
+- **错误处理**：检测账号锁定状态，自动将被锁定的账号冷却30分钟后再尝试
+- **进度管理**：自动将爬取进度保存到crawler_progress.json文件
+- **批次处理**：将爬取结果按批次保存，并在任务结束后合并所有批次数据
 
-## 技术架构
+## 使用方法
 
-- **后端语言**: Python 3.8+
-- **数据库**: MySQL (存储 Cookie 基础信息)
-- **缓存**: Redis (存储活跃 Cookie)
-- **定时任务**: APScheduler
-- **日志管理**: Loguru
+### 1. 准备环境
 
-## 模块说明
-
-### 配置模块 (config)
-
-- **settings.py**: 全局配置文件，包含数据库连接、Redis缓存、任务调度和百度指数 API 等配置
-
-### 数据库模块 (db)
-
-- **mysql_manager.py**: MySQL 数据库管理器，负责 Cookie 的持久化存储和查询
-- **redis_manager.py**: Redis 缓存管理器，用于缓存活跃 Cookie 并记录使用情况
-
-### Cookie 管理模块 (cookie_manager)
-
-- **cookie_validator.py**: Cookie 验证器，检测百度指数 Cookie 是否有效
-- **cookie_rotator.py**: Cookie 轮换器，根据使用频率和成功率智能分配 Cookie
-- **health_checker.py**: Cookie 健康检查器，定期检查所有 Cookie 的有效性
-
-### 爬虫模块 (spider)
-
-- **baidu_index_api.py**: 百度指数 API 封装，提供搜索指数和趋势数据获取接口
-
-### 调度模块 (scheduler)
-
-- **task_scheduler.py**: 任务调度器，管理 Cookie 更新、健康检查等定时任务
-
-### 工具模块 (utils)
-
-- **logger.py**: 日志工具，统一日志格式和输出
-
-## 安装与配置
-
-### 环境要求
-
-- Python 3.8+
-- MySQL 5.7+
-- Redis 5.0+
-
-### 安装依赖
+确保已安装所需依赖：
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 配置文件
+### 2. 准备数据
 
-项目使用 `.env` 文件进行配置，主要包含：
+- 关键词文件：`数字设备和服务关键词.xlsx`，至少包含一个"关键词"列
+- 确保cookie数据库中有可用cookie
 
-- 数据库连接信息
-- Redis 连接信息
-- 任务调度间隔
-- 日志级别
+### 3. 运行爬虫
 
-## 使用方法
-
-### 初始化数据库
-
-项目使用以下数据库结构：
-
-```sql
-CREATE DATABASE cookie_pool;
-USE cookie_pool;
-
-CREATE TABLE cookies (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    account_id VARCHAR(50) NOT NULL,
-    cookie_name VARCHAR(255) NOT NULL,
-    cookie_value TEXT NOT NULL,
-    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    expire_time TIMESTAMP NULL,
-    is_available BOOLEAN DEFAULT TRUE
-);
-```
-
-### 启动项目
+执行以下命令启动爬虫：
 
 ```bash
-python main.py
+python run_account_crawler.py
 ```
 
-## 开发计划
+## 工作原理
 
-- [ ] 前端增加cookie设置的接口设计
-- [ ] 增加计费功能
-- [ ] 前端增加爬取进度的展示和历史任务的展示
-- [ ] 后端添加历史爬取数据统计功能，在前端进行数据的可视化
-- [ ] 增加登录注册功能，实现vip会员功能
-- [ ] 实现免费使用爬取5个关键词+1年+所有城市使用功能
-- [ ] 添加管理界面对cookie进行统一管理。
-- [ ] 后端接受请求参数正确区分年度、周度、日度数据以及区分PC+移动端、移动端、PC端三种以及区分指数类型和数据类型
+1. **系统启动**：从数据库加载所有可用的cookie
+2. **任务分配**：根据可用cookie数量平均分配爬取任务
+3. **并发控制**：每个账号创建一个独立的线程，最多使用5个子线程同时爬取
+4. **限流机制**：每个请求间隔至少1秒
+5. **锁定处理**：检测到账号被锁定时，自动暂停该账号的爬取任务，并设置30分钟的冷却时间
+6. **解锁重试**：冷却时间结束后，系统会自动尝试重新使用该账号
+7. **进度保存**：爬取结果实时保存到crawler_progress.json文件中
+8. **数据存储**：爬取结果按批次保存，完成后合并为一个完整的Excel文件
+
+## 目录结构
+
+```
+baidu-index-hunter-backend/
+├── config/                 # 配置文件目录
+├── cookie_manager/         # cookie管理模块
+├── db/                     # 数据库管理模块
+├── data/                   # 数据存储目录
+│   ├── data_batches/       # 批次数据
+│   └── crawler_progress.json # 爬取进度记录
+├── output/                 # 输出目录
+│   └── merged_results/     # 合并后的数据
+├── spider/                 # 爬虫核心模块
+│   ├── baidu_index_api.py  # 百度指数API封装
+│   ├── parallel_crawler.py # 原并行爬虫
+│   └── account_based_crawler.py # 新的账号分配爬虫
+├── utils/                  # 工具类
+└── run_account_crawler.py  # 爬虫入口脚本
+```
+
+## 注意事项
+
+1. 系统会自动从数据库加载所有可用的cookie
+2. 每个账号被锁定后会自动冷却30分钟再重试
+3. 如果所有账号都被锁定，系统会等待冷却时间结束后继续爬取
+4. 爬取进度会实时保存，中断后再次启动可以从上次中断的地方继续爬取
+5. 每个账号最多使用5个线程，避免单个账号过度使用导致封禁

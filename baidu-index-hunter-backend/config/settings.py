@@ -42,17 +42,17 @@ LOG_DIR.mkdir(exist_ok=True)
 
 # Cookie相关配置
 # 注意：百度指数Cookie不会过期，只会被锁住
-COOKIE_MIN_AVAILABLE_COUNT = 5  # 最小可用Cookie数量，低于此值触发告警
+COOKIE_MIN_AVAILABLE_COUNT = 3  # 最小可用Cookie数量，低于此值触发告警
 MAX_LOGIN_RETRY = 2  # 登录重试最大次数
 COOKIE_BLOCK_COOLDOWN = 1800  # Cookie被锁后的冷却时间（秒），默认30分钟
 COOKIE_EXPIRATION_BUFFER = 3600  # Cookie过期前的缓冲时间（秒），默认1小时
 
 # 百度指数API配置
 BAIDU_INDEX_API = {
-    'search_url': 'https://index.baidu.com/api/SearchApi/index',
+    'search_url': 'https://index.baidu.com/api/SearchApi/index', #搜索指数的url
     'trend_url': 'https://index.baidu.com/api/FeedSearchApi/getFeedIndex',
     'user_agent': useragent,
-    'referer': 'https://index.baidu.com/v2/main/index.html',
+    'referer': 'https://index.baidu.com/v2/main/index.html', # 构造cipher-text的url
 }
 
 # 爬虫配置
@@ -62,7 +62,7 @@ SPIDER_CONFIG = {
     'default_interval': 1.0,  # 默认请求间隔秒数
     'retry_times': 2,  # 请求失败重试次数
     'timeout': 10,     # 请求超时时间（秒）
-    'max_workers': min(20, multiprocessing.cpu_count() * 2),  # 最大工作线程数
+    'max_workers': min(20, multiprocessing.cpu_count() * 2),  # 最大工作线程数，16
     'max_consecutive_failures': 2,  # 最大连续失败次数
     'failure_multiplier': 1.2,  # 失败后等待时间倍数
 }

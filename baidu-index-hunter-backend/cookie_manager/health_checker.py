@@ -1,5 +1,5 @@
 """
-Cookie健康检查模块，定期检查Cookie的有效性
+Cookie健康检查模块，定期检查Cookie的有效性（未使用）
 """
 from datetime import datetime, timedelta
 from utils.logger import log

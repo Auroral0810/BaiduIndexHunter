@@ -154,13 +154,21 @@ class CookieRotator:
                     # 清除事件标志，通知所有线程cookie不可用
                     self.cookies_available_event.clear()
                     
-                    # 调用等待方法，等待20分钟
-                    if not self._wait_if_all_cookies_blocked():
-                        # 如果等待方法返回False，表示已经在等待中或刚等待过，短暂等待避免频繁重试
-                        time.sleep(10)
+                    # 尝试等待一段较短的时间，而不是直接返回None
+                    log.warning("所有Cookie都已被锁定，等待60秒后重试")
+                    time.sleep(60)
                     
-                    log.error("没有可用的Cookie")
-                    return None, None
+                    # 再次尝试解除已冷却的Cookie
+                    self._try_unblock_cookies(force=True)
+                    
+                    # 重新检查是否有可用的Cookie
+                    available_ids = [aid for aid in redis_manager.client.smembers("cookie_ids") if aid not in self.blocked_accounts]
+                    if not available_ids:
+                        log.error("等待后仍无可用Cookie，返回None")
+                        return None, None
+                    else:
+                        log.info(f"等待后有 {len(available_ids)} 个可用Cookie")
+                        self.cookies_available_event.set()  # 设置事件标志，通知所有线程cookie已可用
                 else:
                     # 如果刷新后有可用cookie，设置事件标志
                     self.cookies_available_event.set()
@@ -189,6 +197,10 @@ class CookieRotator:
                 # 短暂等待避免频繁重试
                 time.sleep(5)
                 return None, None
+            
+            # 将account_id添加到cookie字典中，以便API调用时能够识别cookie属于哪个账号
+            if cookie_dict:
+                cookie_dict[f'account_id={account_id}'] = account_id
                     
             # 记录使用情况
             redis_manager.record_cookie_usage(account_id)
@@ -199,10 +211,13 @@ class CookieRotator:
             # 重置所有cookie被锁定的时间
             self.all_cookies_blocked_time = None
             
-            # 确保事件标志设置为可用状态
-            self.cookies_available_event.set()
+            # 如果是首次获取cookie，打印详细信息
+            if not self.first_cookie_printed:
+                log.info(f"首次获取Cookie: 账号ID={account_id}, Cookie={cookie_dict}")
+                self.first_cookie_printed = True
+            else:
+                log.debug(f"获取Cookie: 账号ID={account_id}")
             
-            log.info(f"成功获取账号 {account_id} 的Cookie (已使用 {self.usage_counts.get(account_id, 0)} 次)")
             return account_id, cookie_dict
     
     def _select_least_used_cookie(self, available_ids):
@@ -558,6 +573,48 @@ class CookieRotator:
                     stats['std_dev'] = variance ** 0.5
             
             return stats
+    
+    def refresh_cookies_from_db(self):
+        """
+        从数据库刷新Cookie缓存的公共方法
+        """
+        self._refresh_cookies_from_db()
+        
+    def get_all_valid_cookies(self):
+        """
+        获取所有有效的cookies
+        :return: 所有有效的cookie字典，格式为 {account_id: cookie_dict}
+        """
+        with self.lock:
+            # 获取所有可用的账号ID
+            available_ids = redis_manager.client.smembers("cookie_ids")
+            if not available_ids:
+                log.warning("Redis中没有缓存的Cookie，尝试从数据库刷新")
+                self._refresh_cookies_from_db()
+                available_ids = redis_manager.client.smembers("cookie_ids")
+                
+                if not available_ids:
+                    log.error("没有可用的cookie")
+                    return {}
+            
+            # 过滤掉被锁定的账号ID
+            available_ids = [aid for aid in available_ids if aid not in self.blocked_accounts]
+            
+            # 如果没有可用cookie
+            if not available_ids:
+                log.warning("所有cookie都已被锁定")
+                return {}
+                
+            # 获取所有可用cookie
+            result = {}
+            for account_id in available_ids:
+                cookie_dict = redis_manager.get_cookie(account_id)
+                if cookie_dict:
+                    result[account_id] = cookie_dict
+                    # 添加account_id到cookie字典中
+                    cookie_dict[f'account_id={account_id}'] = account_id
+            
+            return result
 
 
 # 创建Cookie轮换管理器单例

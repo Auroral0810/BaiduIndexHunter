@@ -1,13 +1,13 @@
 """
-合并批次结果脚本，用于合并所有批次的数据
+合并批次结果脚本，用于合并所有批次的数据，正确
 """
 import os
 import pandas as pd
 import glob
 from datetime import datetime
-# import sys
+import sys
 # 添加项目根目录到Python路径
-# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from utils.logger import log
 from config.settings import OUTPUT_DIR
