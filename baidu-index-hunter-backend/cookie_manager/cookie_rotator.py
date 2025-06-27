@@ -543,7 +543,7 @@ class CookieRotator:
                 redis_manager.mark_cookie_locked(account_id)
                 
                 # 在MySQL中更新cookie的可用状态
-                mysql_manager.update_cookie_status(account_id, False)
+                mysql_manager.update_cookie_status(account_id, False, permanent=permanent)
                 
                 # 检查是否所有cookie都被锁定
                 self._check_if_all_cookies_blocked()

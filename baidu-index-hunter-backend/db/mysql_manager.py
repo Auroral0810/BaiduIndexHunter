@@ -138,11 +138,12 @@ class MySQLManager:
         log.info(f"从数据库获取并组装了 {len(assembled_cookies)} 个完整cookie")
         return assembled_cookies
     
-    def update_cookie_status(self, account_id, is_available):
+    def update_cookie_status(self, account_id, is_available, permanent=False):
         """
         更新Cookie的可用状态
         :param account_id: 账号ID
         :param is_available: 是否可用
+        :param permanent: 是否永久封禁，如果为True且is_available为False，则设置last_updated为9999年
         :return: 是否更新成功
         """
         try:
@@ -150,11 +151,21 @@ class MySQLManager:
                 # 将布尔值转换为整数
                 status_int = 1 if is_available else 0
                 
-                cursor.execute("""
-                    UPDATE cookies 
-                    SET is_available = %s, last_updated = NOW() 
-                    WHERE account_id = %s
-                """, (status_int, account_id))
+                if not is_available and permanent:
+                    # 永久封禁，设置last_updated为9999年
+                    cursor.execute("""
+                        UPDATE cookies 
+                        SET is_available = %s, last_updated = '9999-12-31 23:59:59' 
+                        WHERE account_id = %s
+                    """, (status_int, account_id))
+                    log.info(f"账号 {account_id} 的Cookie被永久封禁")
+                else:
+                    # 普通更新
+                    cursor.execute("""
+                        UPDATE cookies 
+                        SET is_available = %s, last_updated = NOW() 
+                        WHERE account_id = %s
+                    """, (status_int, account_id))
                 
                 affected_rows = cursor.rowcount
                 log.info(f"更新账号 {account_id} 的Cookie状态为 {'可用' if is_available else '锁定'}，影响 {affected_rows} 行")

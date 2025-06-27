@@ -179,6 +179,86 @@ class BaiduIndexDataProcessor:
             log.error(f"处理趋势指数数据失败: {e}")
             return pd.DataFrame()  # 返回空DataFrame表示处理失败
     
+    def process_word_graph_data(self, data, keyword, datelist):
+        """
+        处理需求图谱数据
+        :param data: API返回的原始数据
+        :param keyword: 关键词
+        :param datelist: 日期，格式为YYYYMMDD
+        :return: 处理后的DataFrame或None（如果处理失败）
+        """
+        try:
+            # 检查数据是否为空
+            if data is None:
+                log.error(f"处理需求图谱数据失败: 接收到的数据为None")
+                return pd.DataFrame()
+            
+            # 检查数据结构是否完整
+            if 'status' not in data or data['status'] != 0:
+                error_msg = data.get('message', '未知错误') if data else '未知错误'
+                log.error(f"处理需求图谱数据失败: API返回错误: {error_msg}")
+                return pd.DataFrame()
+            
+            if 'data' not in data:
+                log.error(f"处理需求图谱数据失败: 数据中缺少'data'字段")
+                return pd.DataFrame()
+            
+            # 获取数据
+            api_data = data['data']
+            period = api_data.get('period', '')
+            
+            # 初始化结果列表
+            results = []
+            
+            # 处理每个关键词的数据
+            for word_item in api_data.get('wordlist', []):
+                item_keyword = word_item.get('keyword', keyword)
+                word_graph = word_item.get('wordGraph', [])
+                
+                # 如果没有相关词数据，添加一个空行
+                if not word_graph:
+                    results.append({
+                        '关键词': item_keyword,
+                        '相关词': '',
+                        '搜索量': 0,
+                        '变化率': 0,
+                        '相关度': 0,
+                        '数据周期': period,
+                        '日期': datelist,
+                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    })
+                    continue
+                
+                # 处理每个相关词
+                for item in word_graph:
+                    related_word = item.get('word', '')
+                    pv = item.get('pv', 0)
+                    ratio = item.get('ratio', 0)
+                    sim = item.get('sim', 0)
+                    
+                    results.append({
+                        '关键词': item_keyword,
+                        '相关词': related_word,
+                        '搜索量': pv,
+                        '变化率': ratio,
+                        '相关度': sim,
+                        '数据周期': period,
+                        '日期': datelist,
+                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    })
+            
+            # 创建DataFrame
+            df = pd.DataFrame(results)
+            
+            # 打印日志
+            log.info(f"成功处理 {keyword} 的需求图谱数据，共 {len(df)} 条相关词记录")
+            
+            return df
+            
+        except Exception as e:
+            log.error(f"处理需求图谱数据失败: {e}")
+            return pd.DataFrame()  # 返回空DataFrame表示处理失败
+    
     def _get_days_in_year(self, year):
         """
         计算指定年份的天数
@@ -230,6 +310,46 @@ class BaiduIndexDataProcessor:
             return True
         except Exception as e:
             log.error(f"追加数据到Excel失败: {e}")
+            return False
+    
+    def save_to_csv(self, df, output_file='百度指数数据.csv'):
+        """
+        将数据保存到CSV文件
+        :param df: 要保存的DataFrame
+        :param output_file: 输出文件名
+        :return: 是否保存成功
+        """
+        try:
+            df.to_csv(output_file, index=False, encoding='utf-8-sig')
+            log.info(f"数据已保存到 {output_file}")
+            return True
+        except Exception as e:
+            log.error(f"保存数据到CSV失败: {e}")
+            return False
+    
+    def append_to_csv(self, df, output_file='百度指数数据.csv'):
+        """
+        将数据追加到现有CSV文件
+        :param df: 要追加的DataFrame
+        :param output_file: 输出文件名
+        :return: 是否保存成功
+        """
+        try:
+            # 尝试读取现有文件
+            try:
+                existing_df = pd.read_csv(output_file, encoding='utf-8-sig')
+                # 合并数据
+                combined_df = pd.concat([existing_df, df], ignore_index=True)
+            except FileNotFoundError:
+                # 如果文件不存在，直接使用新数据
+                combined_df = df
+            
+            # 保存合并后的数据
+            combined_df.to_csv(output_file, index=False, encoding='utf-8-sig')
+            log.info(f"数据已追加到 {output_file}")
+            return True
+        except Exception as e:
+            log.error(f"追加数据到CSV失败: {e}")
             return False
 
 
