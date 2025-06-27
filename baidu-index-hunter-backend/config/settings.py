@@ -51,6 +51,10 @@ COOKIE_EXPIRATION_BUFFER = 3600  # Cookie过期前的缓冲时间（秒），默
 BAIDU_INDEX_API = {
     'search_url': 'https://index.baidu.com/api/SearchApi/index', #搜索指数的url
     'trend_url': 'https://index.baidu.com/api/FeedSearchApi/getFeedIndex',
+    'word_graph_url': 'https://index.baidu.com/api/WordGraph/multi',
+    'social_api_url': 'https://index.baidu.com/api/SocialApi/baseAttributes',
+    'region_api_url': 'https://index.baidu.com/api/SearchApi/region',
+    'interest_api_url': 'https://index.baidu.com/api/SocialApi/interest',
     'user_agent': useragent,
     'referer': 'https://index.baidu.com/v2/main/index.html', # 构造cipher-text的url
 }

@@ -260,9 +260,12 @@ class CookieRotator:
                     self.cookies_available_event.clear()
                     
                     # 使用_wait_if_all_cookies_blocked方法等待
-                    if not self._wait_if_all_cookies_blocked():
+                    log.warning("开始等待Cookie冷却...")
+                    wait_result = self._wait_if_all_cookies_blocked()
+                    
+                    if not wait_result:
                         # 如果等待方法返回False，表示已经在等待中或刚等待过，短暂等待避免频繁重试
-                        log.info("get_search_index 等待Cookie可用...")
+                        log.debug("等待中或刚等待过，短暂休眠10秒")
                         time.sleep(10)
                     
                     # 重新检查是否有可用的Cookie
@@ -369,6 +372,8 @@ class CookieRotator:
         # 如果是首次发现所有cookie被锁定，记录时间
         if self.all_cookies_blocked_time is None:
             self.all_cookies_blocked_time = current_time
+            
+            # 打印清晰的提示信息
             log.warning(f"所有Cookie都已被锁定，将等待30分钟后重试")
             
             # 清除事件标志，通知所有线程cookie不可用
@@ -421,8 +426,10 @@ class CookieRotator:
                     return False
             else:
                 # 如果距离上次等待不足30分钟，不再等待
+                remaining_mins = int((wait_time-elapsed)/60)
+                remaining_secs = int((wait_time-elapsed)%60)
                 log.warning(f"所有Cookie仍被锁定，距离上次等待已过 {int(elapsed/60)} 分钟 {int(elapsed%60)} 秒，"
-                           f"将在 {int((wait_time-elapsed)/60)} 分钟 {int((wait_time-elapsed)%60)} 秒后重试")
+                           f"将在 {remaining_mins} 分钟 {remaining_secs} 秒后重试")
                 return False
                 
     def _display_wait_progress(self, wait_time):
@@ -435,6 +442,12 @@ class CookieRotator:
         
         # 进度条长度
         bar_length = 50
+        
+        # 先清空当前行
+        print("\r" + " " * 100, end="\r", flush=True)
+        
+        # 显示等待开始信息
+        print(f"所有Cookie都被锁定，需要等待 {int(wait_time/60)} 分钟后重试...", flush=True)
         
         try:
             while time.time() < end_time:
@@ -453,7 +466,7 @@ class CookieRotator:
                 mins = int(remaining // 60)
                 secs = int(remaining % 60)
                 
-                # 打印进度条
+                # 打印进度条，确保清除整行
                 print(f"\r等待Cookie冷却: [{arrow}{spaces}] {progress*100:.1f}% 剩余时间: {mins}分{secs}秒", end='', flush=True)
                 
                 # 每秒更新一次
@@ -461,11 +474,11 @@ class CookieRotator:
                 
                 # 检查是否有可用cookie
                 if self._check_for_available_cookies():
-                    print("\r等待Cookie冷却: 检测到可用Cookie，中断等待" + " " * 50)
+                    print("\r等待Cookie冷却: 检测到可用Cookie，中断等待" + " " * 50, flush=True)
                     return
                 
             # 完成后打印100%进度
-            print(f"\r等待Cookie冷却: [{'=' * bar_length}] 100% 完成" + " " * 20)
+            print(f"\r等待Cookie冷却: [{'=' * bar_length}] 100% 完成" + " " * 20, flush=True)
         except Exception as e:
             log.error(f"显示等待进度条时出错: {e}")
             # 出错时也需要等待，但不显示进度条

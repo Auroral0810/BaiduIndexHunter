@@ -202,6 +202,20 @@ class TaskManager:
                         log.info("收到停止信号，中断任务执行")
                         break
                     
+                    # 检查是否所有Cookie都被锁定
+                    cookie_status = cookie_rotator.get_status()
+                    all_cookies_blocked = cookie_status.get('available', 0) == 0 and cookie_status.get('blocked', 0) > 0
+                    
+                    if all_cookies_blocked:
+                        # 如果所有Cookie都被锁定，等待Cookie可用
+                        wait_info = cookie_status.get('all_blocked_wait_info')
+                        if wait_info:
+                            remaining_mins = wait_info.get('remaining_minutes', 0)
+                            if remaining_mins > 0:
+                                log.info(f"所有Cookie都被锁定，任务执行暂停，等待Cookie冷却... 剩余约 {remaining_mins} 分钟")
+                                # 等待Cookie可用，最多等待10秒
+                                cookie_rotator.wait_for_available_cookie(timeout=10)
+                    
                     task = future_to_task[future]
                     try:
                         result = future.result()
@@ -441,7 +455,21 @@ class TaskManager:
         
         interval = 60  # 默认60秒汇总一次
         while self.running and not self.stop_event.is_set():
-            self._print_summary()
+            # 检查是否所有Cookie都被锁定
+            cookie_status = cookie_rotator.get_status()
+            all_cookies_blocked = cookie_status.get('available', 0) == 0 and cookie_status.get('blocked', 0) > 0
+            
+            # 只有在有可用Cookie时才打印进度摘要
+            if not all_cookies_blocked:
+                self._print_summary()
+            else:
+                # 如果所有Cookie都被锁定，只打印简短的状态信息
+                wait_info = cookie_status.get('all_blocked_wait_info')
+                if wait_info:
+                    remaining_mins = wait_info.get('remaining_minutes', 0)
+                    if remaining_mins > 0:
+                        log.info(f"所有Cookie都被锁定，等待中... 剩余约 {remaining_mins} 分钟")
+            
             # 等待下一次汇总
             for _ in range(interval):
                 if self.stop_event.is_set():
