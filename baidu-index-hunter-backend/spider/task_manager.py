@@ -56,13 +56,45 @@ class TaskManager:
             index_types = ['search']
         
         tasks = []
+        skipped = 0
+        total = len(keywords) * len(areas) * len(years) * len(index_types)
+        
+        log.info(f"正在创建爬取任务，理论总数: {total}...")
+
+        # 先重新加载进度文件，确保读取最新进度
+        from spider.progress_manager import progress_manager
+        progress_manager.load_progress()
+        log.info(f"已从文件重新加载进度数据: {progress_manager.progress_file}")
+        
+        # 获取进度记录中成功状态的数量
+        success_count = sum(1 for v in progress_manager.progress.values() if v.get('status') == 'success')
+        log.info(f"进度文件中成功状态的任务数: {success_count}")
+        
+        # 获取进度文件中的一些键作为样本
+        sample_keys = list(progress_manager.progress.keys())[:5]
+        sample_values = [progress_manager.progress[k] for k in sample_keys[:5]]
+        log.info(f"进度文件中的部分key示例: {sample_keys}")
+        log.info(f"进度文件中的部分value示例: {sample_values}")
+
+        # 检查每个任务是否已完成
+        debug_samples = 0
         for keyword in keywords:
             for area in areas:
                 for year in years:
                     for index_type in index_types:
+                        # 如果需要调试，检查前几个任务的完成状态
+                        if debug_samples < 5:
+                            is_completed = progress_manager.is_completed(keyword, area, year, index_type)
+                            key_with_type = f"{keyword}_{area}_{year}_{index_type}" 
+                            key_without_type = f"{keyword}_{area}_{year}"
+                            log.info(f"检查任务: {key_with_type}, 完成状态: {is_completed}")
+                            log.info(f"  - 新格式key在进度中: {key_with_type in progress_manager.progress}")
+                            log.info(f"  - 旧格式key在进度中: {key_without_type in progress_manager.progress}")
+                            debug_samples += 1
+                        
                         # 检查任务是否已完成
                         if progress_manager.is_completed(keyword, area, year, index_type):
-                            log.debug(f"任务已完成，跳过: {keyword}, 城市: {area}, 年份: {year}, 类型: {index_type}")
+                            skipped += 1
                             continue
                         
                         # 添加到任务列表
@@ -74,6 +106,7 @@ class TaskManager:
                         }
                         tasks.append(task)
         
+        log.info(f"任务创建完成，理论总任务: {total}，已完成跳过: {skipped}，待执行: {len(tasks)}")
         return tasks
     
     def start(self, keywords, areas, years, index_types=None):
@@ -117,7 +150,6 @@ class TaskManager:
         # 在新线程中启动爬取任务
         threading.Thread(target=self._execute_tasks).start()
         
-        log.info(f"已启动爬取任务，总计 {total_tasks} 个任务")
         return True
     
     def stop(self):
@@ -205,8 +237,6 @@ class TaskManager:
         index_type = task.get('index_type', 'search')
         
         try:
-            log.info(f"开始处理任务: {keyword}, 城市: {area}, 年份: {year}, 类型: {index_type}")
-            
             # 设置日期范围
             if year == datetime.now().year:
                 start_date = f"{year}-01-01"
@@ -235,15 +265,13 @@ class TaskManager:
                             self.results.append(df)
                         # 标记任务完成
                         progress_manager.mark_completed(keyword, area, year, index_type, status='success')
-                        log.info(f"成功完成任务: {keyword}, 城市: {area}, 年份: {year}, 类型: {index_type}")
+                        log.info(f"完成: {keyword}, 城市: {area}, 年份: {year}, 剩余: {len(self.tasks) - (self.completed_tasks + self.failed_tasks)}")
                         return df
                     else:
-                        log.error(f"数据处理结果为空: {keyword}, 城市: {area}, 年份: {year}, 类型: {index_type}")
                         # 标记任务失败
                         progress_manager.mark_completed(keyword, area, year, index_type, status='failed')
                         return None
                 else:
-                    log.error(f"获取数据失败: {keyword}, 城市: {area}, 年份: {year}, 类型: {index_type}")
                     # 标记任务失败
                     progress_manager.mark_completed(keyword, area, year, index_type, status='failed')
                     return None
@@ -259,27 +287,23 @@ class TaskManager:
                             self.results.append(df)
                         # 标记任务完成
                         progress_manager.mark_completed(keyword, area, year, index_type, status='success')
-                        log.info(f"成功完成任务: {keyword}, 城市: {area}, 年份: {year}, 类型: {index_type}")
+                        log.info(f"完成: {keyword}, 城市: {area}, 年份: {year}, 剩余: {len(self.tasks) - (self.completed_tasks + self.failed_tasks)}")
                         return df
                     else:
-                        log.error(f"数据处理结果为空: {keyword}, 城市: {area}, 年份: {year}, 类型: {index_type}")
                         # 标记任务失败
                         progress_manager.mark_completed(keyword, area, year, index_type, status='failed')
                         return None
                 else:
-                    log.error(f"获取数据失败: {keyword}, 城市: {area}, 年份: {year}, 类型: {index_type}")
                     # 标记任务失败
                     progress_manager.mark_completed(keyword, area, year, index_type, status='failed')
                     return None
             
             else:
-                log.error(f"不支持的指数类型: {index_type}")
                 # 标记任务失败
                 progress_manager.mark_completed(keyword, area, year, index_type, status='failed')
                 return None
         
         except Exception as e:
-            log.error(f"处理任务异常: {keyword}, 城市: {area}, 年份: {year}, 类型: {index_type}, 错误: {e}")
             # 标记任务失败
             progress_manager.mark_completed(keyword, area, year, index_type, status='failed')
             return None

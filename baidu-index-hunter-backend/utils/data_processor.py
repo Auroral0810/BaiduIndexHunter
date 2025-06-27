@@ -95,7 +95,7 @@ class BaiduIndexDataProcessor:
                 self._first_df_printed = True
             
             # 简化日志输出格式
-            log.info(f"成功处理 {word} 在 {city_name} {year}年 的搜索指数数据")
+            # log.info(f"成功处理 {word} 在 {city_name} {year}年 的搜索指数数据")
             
             return df
             
@@ -171,7 +171,7 @@ class BaiduIndexDataProcessor:
                 self._first_df_printed = True
             
             # 简化日志输出格式
-            log.info(f"成功处理 {keyword} 在 {city_name} {year}年 的趋势指数数据")
+            # log.info(f"成功处理 {keyword} 在 {city_name} {year}年 的趋势指数数据")
             
             return df
             

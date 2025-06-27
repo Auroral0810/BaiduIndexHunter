@@ -38,7 +38,6 @@ class RateLimiter:
         wait_time = max(0, delay - elapsed)
         
         if wait_time > 0:
-            log.debug(f"频率限制: 等待 {wait_time:.2f} 秒")
             time.sleep(wait_time)
         
         self.last_request_time = time.time()

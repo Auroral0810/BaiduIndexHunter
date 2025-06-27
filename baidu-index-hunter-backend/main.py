@@ -208,7 +208,7 @@ def main():
     if args.progress_file:
         progress_file = args.progress_file
     else:
-        progress_file = PATHS['progress_file']
+        progress_file = '/Users/auroral/ProjectDevelopment/BaiduIndexHunter/baidu-index-hunter-backend/data/crawler_progress.json'
     
     # 初始化进度管理器，使用自定义进度文件路径
     from spider.progress_manager import ProgressManager
@@ -238,11 +238,19 @@ def main():
     
     # 设置年份
     years = args.years
+    if len(years) == 2:
+        # 如果只有起止年份，生成完整年份列表
+        years = list(range(min(years), max(years) + 1))
     log.info(f"设置爬取年份: {years}")
     
     # 设置指数类型
     index_types = args.index_types
     log.info(f"设置爬取指数类型: {index_types}")
+    
+    # 确保全局progress_manager的实例与当前实例一致
+    from spider.progress_manager import progress_manager as global_progress_manager
+    global_progress_manager.progress = progress_manager.progress
+    global_progress_manager.progress_file = progress_manager.progress_file
     
     # 设置最大工作线程数
     if args.workers:

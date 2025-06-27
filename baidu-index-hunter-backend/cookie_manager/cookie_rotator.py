@@ -211,12 +211,6 @@ class CookieRotator:
             # 重置所有cookie被锁定的时间
             self.all_cookies_blocked_time = None
             
-            # 如果是首次获取cookie，打印详细信息
-            if not self.first_cookie_printed:
-                log.info(f"首次获取Cookie: 账号ID={account_id}, Cookie={cookie_dict}")
-                self.first_cookie_printed = True
-            else:
-                log.debug(f"获取Cookie: 账号ID={account_id}")
             
             return account_id, cookie_dict
     

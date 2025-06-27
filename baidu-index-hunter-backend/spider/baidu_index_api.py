@@ -86,7 +86,7 @@ class BaiduIndexAPI:
             rate_limiter.wait()
             
             # 发送请求
-            log.info(f"请求搜索指数: {keyword}, 城市: {area}, 时间: {start_date} 至 {end_date}")
+            # log.info(f"请求搜索指数: {keyword}, 城市: {area}, 时间: {start_date} 至 {end_date}")
             response = requests.get(
                 url=url,
                 headers=headers,
@@ -119,7 +119,7 @@ class BaiduIndexAPI:
             # 如果请求成功，标记cookie为有效
             cookie_rotator.report_cookie_status(account_id, True)
             
-            log.info(f"成功获取 {keyword} 在 {area} 地区的搜索指数数据")
+            # log.info(f"成功获取 {keyword} 在 {area} 地区的搜索指数数据")
             return result
             
         except Exception as e:
@@ -176,7 +176,7 @@ class BaiduIndexAPI:
             rate_limiter.wait()
             
             # 发送请求
-            log.info(f"请求趋势指数: {keyword}, 城市: {area}, 时间: {start_date} 至 {end_date}")
+            # log.info(f"请求趋势指数: {keyword}, 城市: {area}, 时间: {start_date} 至 {end_date}")
             response = requests.get(
                 url=url,
                 headers=headers,
@@ -209,7 +209,7 @@ class BaiduIndexAPI:
             # 如果请求成功，标记cookie为有效
             cookie_rotator.report_cookie_status(account_id, True)
             
-            log.info(f"成功获取 {keyword} 在 {area} 地区的趋势指数数据")
+            # log.info(f"成功获取 {keyword} 在 {area} 地区的趋势指数数据")
             return result
             
         except Exception as e:
