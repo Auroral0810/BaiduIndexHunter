@@ -453,6 +453,98 @@ class BaiduIndexDataProcessor:
             log.error(f"处理人群属性数据失败: {e}")
             return pd.DataFrame()  # 返回空DataFrame表示处理失败
     
+    def process_interest_profile_data(self, data, specific_typeid=None):
+        """
+        处理兴趣分布数据
+        :param data: API返回的原始数据
+        :param specific_typeid: 特定的兴趣类型ID，用于日志记录
+        :return: 处理后的数据记录DataFrame
+        """
+        try:
+            # 检查数据是否为空或结构不完整
+            if data is None or 'status' not in data or data['status'] != 0:
+                log.error(f"处理兴趣分布数据失败: 数据为空或API返回错误")
+                return pd.DataFrame()
+            
+            if 'data' not in data or 'result' not in data['data']:
+                log.error(f"处理兴趣分布数据失败: 数据结构不完整")
+                return pd.DataFrame()
+            
+            # 获取数据
+            api_data = data['data']
+            result = api_data.get('result', [])
+            start_date = api_data.get('startDate', '')
+            end_date = api_data.get('endDate', '')
+            period = f"{start_date} 至 {end_date}"
+            
+            # 初始化结果列表
+            data_records = []
+            
+            # 分离关键词数据和全网分布数据
+            keyword_items = []
+            overall_item = None
+            
+            for item in result:
+                if item.get('word') == "全网分布":
+                    overall_item = item
+                else:
+                    keyword_items.append(item)
+            
+            # 处理关键词数据
+            for item in keyword_items:
+                word = item.get('word', '')
+                
+                # 处理兴趣分布
+                interest_data = item.get('interest', [])
+                for interest in interest_data:
+                    desc = interest.get('desc', '')
+                    tgi = interest.get('tgi', '')
+                    rate = interest.get('rate', 0)
+                    type_id = interest.get('typeId', '')
+                    
+                    data_records.append({
+                        '关键词': word,
+                        '兴趣类型': desc,
+                        '比例': rate,
+                        'TGI': tgi,
+                        '类型ID': type_id,
+                        '数据周期': period,
+                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    })
+            
+            # 处理全网分布数据（如果有）
+            if overall_item:
+                # 处理兴趣分布
+                interest_data = overall_item.get('interest', [])
+                for interest in interest_data:
+                    desc = interest.get('desc', '')
+                    tgi = interest.get('tgi', '')
+                    rate = interest.get('rate', 0)
+                    type_id = interest.get('typeId', '')
+                    
+                    data_records.append({
+                        '关键词': '全网分布',
+                        '兴趣类型': desc,
+                        '比例': rate,
+                        'TGI': tgi,
+                        '类型ID': type_id,
+                        '数据周期': period,
+                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    })
+            
+            # 创建DataFrame
+            df = pd.DataFrame(data_records)
+            
+            # 打印日志
+            type_info = f"类型ID: {specific_typeid}" if specific_typeid else "所有兴趣类型"
+            log.info(f"成功处理兴趣分布数据，{type_info}，共 {len(df)} 条记录")
+            
+            return df
+            
+        except Exception as e:
+            log.error(f"处理兴趣分布数据失败: {e}")
+            return pd.DataFrame()  # 返回空DataFrame表示处理失败
+    
     def _get_days_in_year(self, year):
         """
         计算指定年份的天数
