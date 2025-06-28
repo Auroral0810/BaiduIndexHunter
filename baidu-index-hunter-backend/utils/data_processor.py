@@ -545,6 +545,159 @@ class BaiduIndexDataProcessor:
             log.error(f"处理兴趣分布数据失败: {e}")
             return pd.DataFrame()  # 返回空DataFrame表示处理失败
     
+    def process_region_distribution_data(self, data, region_code=0):
+        """
+        处理地域分布数据
+        :param data: API返回的原始数据
+        :param region_code: 地区代码，0表示全国
+        :return: 处理后的DataFrame
+        """
+        try:
+            # 检查数据是否为空或结构不完整
+            if data is None or 'status' not in data or data['status'] != 0:
+                log.error(f"处理地域分布数据失败: 数据为空或API返回错误")
+                return pd.DataFrame()
+            
+            if 'data' not in data or 'region' not in data['data']:
+                log.error(f"处理地域分布数据失败: 数据结构不完整")
+                return pd.DataFrame()
+            
+            # 获取数据
+            region_data = data['data']['region']
+            
+            # 初始化结果列表
+            results = []
+            
+            # 处理每个关键词的数据
+            for item in region_data:
+                keyword = item.get('key', '')
+                period = item.get('period', '')
+                area = item.get('area', region_code)
+                area_name = item.get('areaName', self._get_region_name(region_code))
+                
+                # 处理省份数据（如果有）
+                if 'prov' in item and item['prov']:
+                    prov_data = item['prov']
+                    prov_real_data = item.get('provReal', {}) or item.get('prov_real', {})
+                    
+                    for prov_code, value in prov_data.items():
+                        real_value = prov_real_data.get(prov_code, value)
+                        prov_name = self._get_province_name(prov_code)
+                        
+                        results.append({
+                            '关键词': keyword,
+                            '地区类型': '省份',
+                            '地区代码': prov_code,
+                            '地区名称': prov_name,
+                            '指数值': value,
+                            '真实指数值': real_value,
+                            '所属地区代码': area,
+                            '所属地区名称': area_name,
+                            '数据周期': period,
+                            '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        })
+                
+                # 处理城市数据（如果有）
+                if 'city' in item and item['city']:
+                    city_data = item['city']
+                    city_real_data = item.get('cityReal', {}) or item.get('city_real', {})
+                    
+                    for city_code, value in city_data.items():
+                        real_value = city_real_data.get(city_code, value)
+                        city_name = city_manager.get_city_name(city_code) or f"未知城市({city_code})"
+                        
+                        results.append({
+                            '关键词': keyword,
+                            '地区类型': '城市',
+                            '地区代码': city_code,
+                            '地区名称': city_name,
+                            '指数值': value,
+                            '真实指数值': real_value,
+                            '所属地区代码': area,
+                            '所属地区名称': area_name,
+                            '数据周期': period,
+                            '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        })
+            
+            # 创建DataFrame
+            df = pd.DataFrame(results)
+            
+            # 打印日志
+            log.info(f"成功处理地域分布数据，地区代码: {region_code}，共 {len(df)} 条记录")
+            
+            return df
+            
+        except Exception as e:
+            log.error(f"处理地域分布数据失败: {e}")
+            return pd.DataFrame()  # 返回空DataFrame表示处理失败
+    
+    def _get_region_name(self, region_code):
+        """
+        获取地区名称
+        :param region_code: 地区代码
+        :return: 地区名称
+        """
+        if region_code == 0:
+            return "全国"
+        
+        # 尝试从city_manager获取省份名称
+        province_name = self._get_province_name(region_code)
+        if province_name:
+            return province_name
+        
+        # 尝试从city_manager获取城市名称
+        city_name = city_manager.get_city_name(region_code)
+        if city_name:
+            return city_name
+        
+        return f"未知地区({region_code})"
+    
+    def _get_province_name(self, prov_code):
+        """
+        获取省份名称
+        :param prov_code: 省份代码
+        :return: 省份名称
+        """
+        # 省份代码到名称的映射
+        province_map = {
+            '901': '北京',
+            '902': '上海',
+            '903': '天津',
+            '904': '重庆',
+            '905': '广东',
+            '906': '福建',
+            '907': '浙江',
+            '908': '江苏',
+            '909': '湖南',
+            '910': '湖北',
+            '911': '河南',
+            '912': '河北',
+            '913': '山东',
+            '914': '山西',
+            '915': '陕西',
+            '916': '安徽',
+            '917': '江西',
+            '918': '广西',
+            '919': '海南',
+            '920': '四川',
+            '921': '云南',
+            '922': '贵州',
+            '923': '青海',
+            '924': '甘肃',
+            '925': '宁夏',
+            '926': '内蒙古',
+            '927': '黑龙江',
+            '928': '吉林',
+            '929': '辽宁',
+            '930': '西藏',
+            '931': '新疆',
+            '932': '香港',
+            '933': '澳门',
+            '934': '台湾'
+        }
+        
+        return province_map.get(str(prov_code), f"未知省份({prov_code})")
+    
     def _get_days_in_year(self, year):
         """
         计算指定年份的天数
