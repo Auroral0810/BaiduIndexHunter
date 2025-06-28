@@ -259,6 +259,200 @@ class BaiduIndexDataProcessor:
             log.error(f"处理需求图谱数据失败: {e}")
             return pd.DataFrame()  # 返回空DataFrame表示处理失败
     
+    def process_demographic_data(self, data, query_keyword=None):
+        """
+        处理人群属性数据
+        :param data: API返回的原始数据
+        :param query_keyword: 查询的关键词，用于日志记录
+        :return: 处理后的数据记录DataFrame
+        """
+        try:
+            # 检查数据是否为空或结构不完整
+            if data is None or 'status' not in data or data['status'] != 0:
+                log.error(f"处理人群属性数据失败: 数据为空或API返回错误")
+                return pd.DataFrame()
+            
+            if 'data' not in data or 'result' not in data['data']:
+                log.error(f"处理人群属性数据失败: 数据结构不完整")
+                return pd.DataFrame()
+            
+            # 获取数据
+            api_data = data['data']
+            result = api_data.get('result', [])
+            start_date = api_data.get('startDate', '')
+            end_date = api_data.get('endDate', '')
+            period = f"{start_date} 至 {end_date}"
+            
+            # 初始化结果列表
+            data_records = []
+            
+            # 分离关键词数据和全网分布数据
+            keyword_items = []
+            overall_item = None
+            
+            for item in result:
+                if item.get('word') == "全网分布":
+                    overall_item = item
+                else:
+                    keyword_items.append(item)
+            
+            # 处理关键词数据
+            for item in keyword_items:
+                word = item.get('word', query_keyword)
+                
+                # 处理性别分布
+                gender_data = item.get('gender', [])
+                for gender in gender_data:
+                    desc = gender.get('desc', '')
+                    tgi = gender.get('tgi', '')
+                    rate = gender.get('rate', 0)
+                    
+                    data_records.append({
+                        '关键词': word,
+                        '属性类型': '性别',
+                        '属性值': desc,
+                        '比例': rate,
+                        'TGI': tgi,
+                        '数据周期': period,
+                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    })
+                
+                # 处理年龄分布
+                age_data = item.get('age', [])
+                for age in age_data:
+                    desc = age.get('desc', '')
+                    tgi = age.get('tgi', '')
+                    rate = age.get('rate', 0)
+                    
+                    data_records.append({
+                        '关键词': word,
+                        '属性类型': '年龄',
+                        '属性值': f"{desc}岁",
+                        '比例': rate,
+                        'TGI': tgi,
+                        '数据周期': period,
+                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    })
+                
+                # 处理学历分布（如果有）
+                education_data = item.get('education', [])
+                for edu in education_data:
+                    desc = edu.get('desc', '')
+                    tgi = edu.get('tgi', '')
+                    rate = edu.get('rate', 0)
+                    
+                    data_records.append({
+                        '关键词': word,
+                        '属性类型': '学历',
+                        '属性值': desc,
+                        '比例': rate,
+                        'TGI': tgi,
+                        '数据周期': period,
+                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    })
+                
+                # 处理兴趣分布（如果有）
+                interest_data = item.get('interest', [])
+                for interest in interest_data:
+                    desc = interest.get('desc', '')
+                    tgi = interest.get('tgi', '')
+                    rate = interest.get('rate', 0)
+                    
+                    data_records.append({
+                        '关键词': word,
+                        '属性类型': '兴趣',
+                        '属性值': desc,
+                        '比例': rate,
+                        'TGI': tgi,
+                        '数据周期': period,
+                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    })
+            
+            # 处理全网分布数据（如果有）
+            if overall_item:
+                # 处理性别分布
+                gender_data = overall_item.get('gender', [])
+                for gender in gender_data:
+                    desc = gender.get('desc', '')
+                    tgi = gender.get('tgi', '')
+                    rate = gender.get('rate', 0)
+                    
+                    data_records.append({
+                        '关键词': '全网分布',
+                        '属性类型': '性别',
+                        '属性值': desc,
+                        '比例': rate,
+                        'TGI': tgi,
+                        '数据周期': period,
+                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    })
+                
+                # 处理年龄分布
+                age_data = overall_item.get('age', [])
+                for age in age_data:
+                    desc = age.get('desc', '')
+                    tgi = age.get('tgi', '')
+                    rate = age.get('rate', 0)
+                    
+                    data_records.append({
+                        '关键词': '全网分布',
+                        '属性类型': '年龄',
+                        '属性值': f"{desc}岁",
+                        '比例': rate,
+                        'TGI': tgi,
+                        '数据周期': period,
+                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    })
+                
+                # 处理学历分布（如果有）
+                education_data = overall_item.get('education', [])
+                for edu in education_data:
+                    desc = edu.get('desc', '')
+                    tgi = edu.get('tgi', '')
+                    rate = edu.get('rate', 0)
+                    
+                    data_records.append({
+                        '关键词': '全网分布',
+                        '属性类型': '学历',
+                        '属性值': desc,
+                        '比例': rate,
+                        'TGI': tgi,
+                        '数据周期': period,
+                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    })
+                
+                # 处理兴趣分布（如果有）
+                interest_data = overall_item.get('interest', [])
+                for interest in interest_data:
+                    desc = interest.get('desc', '')
+                    tgi = interest.get('tgi', '')
+                    rate = interest.get('rate', 0)
+                    
+                    data_records.append({
+                        '关键词': '全网分布',
+                        '属性类型': '兴趣',
+                        '属性值': desc,
+                        '比例': rate,
+                        'TGI': tgi,
+                        '数据周期': period,
+                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    })
+            
+            # 创建DataFrame
+            df = pd.DataFrame(data_records)
+            
+            # 打印日志
+            if query_keyword:
+                log.info(f"成功处理 {query_keyword} 的人群属性数据，共 {len(df)} 条记录")
+            else:
+                log.info(f"成功处理人群属性数据，共 {len(df)} 条记录")
+            
+            return df
+            
+        except Exception as e:
+            log.error(f"处理人群属性数据失败: {e}")
+            return pd.DataFrame()  # 返回空DataFrame表示处理失败
+    
     def _get_days_in_year(self, year):
         """
         计算指定年份的天数
