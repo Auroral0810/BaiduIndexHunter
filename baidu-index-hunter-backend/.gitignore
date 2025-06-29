@@ -83,6 +83,18 @@ output/merged_results/
 *.xls
 *.csv
 *.json
+*.pkl
+*.pickle
+*.bak
+*.dat
+*.dump
+*.bin
+*.parquet
+*.feather
+*.h5
+*.hdf5
+*.npy
+*.npz
 
 # IDE文件
 .idea/

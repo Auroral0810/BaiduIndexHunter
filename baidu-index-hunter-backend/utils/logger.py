@@ -29,27 +29,27 @@ class LoggerWithCache:
     
     def info(self, message, *args, **kwargs):
         self._message_cache.append(("INFO", message))
-        self._check_and_clear_console()
+        # self._check_and_clear_console()
         return self._logger.info(message, *args, **kwargs)
     
     def debug(self, message, *args, **kwargs):
         self._message_cache.append(("DEBUG", message))
-        self._check_and_clear_console()
+        # self._check_and_clear_console()
         return self._logger.debug(message, *args, **kwargs)
     
     def warning(self, message, *args, **kwargs):
         self._message_cache.append(("WARNING", message))
-        self._check_and_clear_console()
+        # self._check_and_clear_console()
         return self._logger.warning(message, *args, **kwargs)
     
     def error(self, message, *args, **kwargs):
         self._message_cache.append(("ERROR", message))
-        self._check_and_clear_console()
+        # self._check_and_clear_console()
         return self._logger.error(message, *args, **kwargs)
     
     def critical(self, message, *args, **kwargs):
         self._message_cache.append(("CRITICAL", message))
-        self._check_and_clear_console()
+        # self._check_and_clear_console()
         return self._logger.critical(message, *args, **kwargs)
     
     def last_message(self, level=None):

@@ -2,6 +2,7 @@
 百度指数数据处理模块
 """
 import pandas as pd
+import os
 from datetime import datetime, timedelta
 from utils.logger import log
 from utils.city_manager import city_manager
@@ -88,13 +89,7 @@ class BaiduIndexDataProcessor:
                 '爬取时间': [datetime.now().strftime('%Y-%m-%d %H:%M:%S')]
             })
             
-            # 打印第一次处理的DataFrame
-            if self._first_data_printed and not hasattr(self, '_first_df_printed'):
-                log.info("第一次处理的DataFrame:")
-                log.info(f"\n{df.to_string()}")
-                self._first_df_printed = True
-            
-            # 简化日志输出格式
+            # 简化日志输出，减少IO操作
             # log.info(f"成功处理 {word} 在 {city_name} {year}年 的搜索指数数据")
             
             return df
@@ -164,13 +159,7 @@ class BaiduIndexDataProcessor:
                 '爬取时间': [datetime.now().strftime('%Y-%m-%d %H:%M:%S')]
             })
             
-            # 打印第一次处理的DataFrame
-            if self._first_data_printed and not hasattr(self, '_first_df_printed'):
-                log.info("第一次处理的DataFrame:")
-                log.info(f"\n{df.to_string()}")
-                self._first_df_printed = True
-            
-            # 简化日志输出格式
+            # 简化日志输出，减少IO操作
             # log.info(f"成功处理 {keyword} 在 {city_name} {year}年 的趋势指数数据")
             
             return df
@@ -774,17 +763,11 @@ class BaiduIndexDataProcessor:
         :return: 是否保存成功
         """
         try:
-            # 尝试读取现有文件
-            try:
-                existing_df = pd.read_csv(output_file, encoding='utf-8-sig')
-                # 合并数据
-                combined_df = pd.concat([existing_df, df], ignore_index=True)
-            except FileNotFoundError:
-                # 如果文件不存在，直接使用新数据
-                combined_df = df
+            # 检查文件是否存在，决定是否写入表头
+            file_exists = os.path.exists(output_file) and os.path.getsize(output_file) > 0
             
-            # 保存合并后的数据
-            combined_df.to_csv(output_file, index=False, encoding='utf-8-sig')
+            # 追加到CSV文件
+            df.to_csv(output_file, mode='a', header=not file_exists, index=False, encoding='utf-8-sig')
             log.info(f"数据已追加到 {output_file}")
             return True
         except Exception as e:

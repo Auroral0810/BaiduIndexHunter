@@ -19,8 +19,9 @@ from db.redis_manager import redis_manager
 PATHS = {
     'cities_file': '/Users/auroral/ProjectDevelopment/BaiduIndexHunter/baidu-index-hunter-backend/data/275个城市及代码.xlsx',
     'keywords_file': '/Users/auroral/ProjectDevelopment/BaiduIndexHunter/baidu-index-hunter-backend/data/数字设备和服务关键词.xlsx',
-    'progress_file': '/Users/auroral/ProjectDevelopment/BaiduIndexHunter/baidu-index-hunter-backend/data/crawler_progress.json',
-    'data_batches_dir': '/Users/auroral/ProjectDevelopment/BaiduIndexHunter/baidu-index-hunter-backend/data/data_batches'
+    'progress_file': '/Users/auroral/ProjectDevelopment/BaiduIndexHunter/baidu-index-hunter-backend/data/crawler_progress.csv',
+    'result_file': '/Users/auroral/ProjectDevelopment/BaiduIndexHunter/baidu-index-hunter-backend/data/result_data.csv',
+    'output_dir': '/Users/auroral/ProjectDevelopment/BaiduIndexHunter/baidu-index-hunter-backend/output'
 }
 
 
@@ -257,7 +258,6 @@ def parse_args():
     parser.add_argument('-o', '--output', help='输出目录，默认为output')
     parser.add_argument('-v', '--verbose', action='store_true', help='输出详细日志')
     parser.add_argument('-p', '--progress-file', help='爬取进度文件路径')
-    parser.add_argument('-b', '--batch-dir', help='批次数据目录路径')
     
     return parser.parse_args()
 
@@ -275,16 +275,19 @@ def main():
     if args.progress_file:
         progress_file = args.progress_file
     else:
-        progress_file = '/Users/auroral/ProjectDevelopment/BaiduIndexHunter/baidu-index-hunter-backend/data/crawler_progress.json'
+        progress_file = PATHS['progress_file']
+    
+    # 确保数据目录存在
+    os.makedirs(os.path.dirname(progress_file), exist_ok=True)
     
     # 初始化进度管理器，使用自定义进度文件路径
     from spider.progress_manager import ProgressManager
     progress_manager = ProgressManager(progress_file)
     log.info(f"使用进度文件: {progress_file}")
     
-    # 设置批次数据目录
-    batch_dir = args.batch_dir or PATHS['data_batches_dir']
-    os.makedirs(batch_dir, exist_ok=True)
+    # 设置输出目录
+    output_dir = args.output or PATHS['output_dir']
+    os.makedirs(output_dir, exist_ok=True)
     
     # 初始化数据库连接
     if not init_database():
@@ -319,7 +322,7 @@ def main():
     
     # 确保全局progress_manager的实例与当前实例一致
     from spider.progress_manager import progress_manager as global_progress_manager
-    global_progress_manager.progress = progress_manager.progress
+    global_progress_manager.progress_df = progress_manager.progress_df
     global_progress_manager.progress_file = progress_manager.progress_file
     
     # 设置最大工作线程数
@@ -328,18 +331,13 @@ def main():
         log.info(f"设置最大工作线程数: {args.workers}")
     
     # 设置输出目录
-    if args.output:
-        output_dir = args.output
-    else:
-        output_dir = os.path.join(batch_dir, "final_output")
-    
     task_manager.output_dir = Path(output_dir)
     os.makedirs(task_manager.output_dir, exist_ok=True)
     log.info(f"设置输出目录: {output_dir}")
     
-    # 设置批次数据目录
-    task_manager.batch_dir = Path(batch_dir)
-    log.info(f"设置批次数据目录: {batch_dir}")
+    # 确保结果文件路径正确
+    task_manager.results_file = Path(PATHS['result_file'])
+    log.info(f"设置结果文件: {task_manager.results_file}")
     
     # 启动爬取任务
     log.info(f"开始爬取 {len(keywords)} 个关键词, {len(areas)} 个地区, {len(years)} 个年份, {len(index_types)} 种指数类型")

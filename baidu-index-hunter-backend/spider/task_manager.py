@@ -32,15 +32,20 @@ class TaskManager:
         self.completed_tasks = 0
         self.failed_tasks = 0
         self.start_time = None
-        self.results = []
+        self.results_buffer = []
         self.progress_summary_thread = None
         self.output_dir = Path(__file__).parent.parent / 'output'
         os.makedirs(self.output_dir, exist_ok=True)
-        self.batch_dir = Path(__file__).parent.parent / 'data/data_batches'
-        os.makedirs(self.batch_dir, exist_ok=True)
-        self.batch_size = 200  # 每个批次的数据量
-        self.current_batch = []
-        self.batch_number = 0
+        self.batch_size = 500  # 增加批量写入的大小，从100增加到500
+        
+        # 固定CSV结果文件路径
+        self.results_file = Path('/Users/auroral/ProjectDevelopment/BaiduIndexHunter/baidu-index-hunter-backend/data/result_data.csv')
+        
+        # 确保data目录存在
+        os.makedirs(os.path.dirname(self.results_file), exist_ok=True)
+        
+        # 是否需要写入CSV文件头
+        self.need_header = not os.path.exists(self.results_file) or os.path.getsize(self.results_file) == 0
     
     def create_tasks(self, keywords, areas, years, index_types=None):
         """
@@ -56,7 +61,6 @@ class TaskManager:
             index_types = ['search']
         
         tasks = []
-        skipped = 0
         total = len(keywords) * len(areas) * len(years) * len(index_types)
         
         log.info(f"正在创建爬取任务，理论总数: {total}...")
@@ -66,46 +70,32 @@ class TaskManager:
         progress_manager.load_progress()
         log.info(f"已从文件重新加载进度数据: {progress_manager.progress_file}")
         
-        # 获取进度记录中成功状态的数量
-        success_count = sum(1 for v in progress_manager.progress.values() if v.get('status') == 'success')
-        log.info(f"进度文件中成功状态的任务数: {success_count}")
+        # 直接从缓存获取所有已完成的任务，避免重复查询
+        completed_tasks = progress_manager.completed_tasks_cache
         
-        # 获取进度文件中的一些键作为样本
-        sample_keys = list(progress_manager.progress.keys())[:5]
-        sample_values = [progress_manager.progress[k] for k in sample_keys[:5]]
-        log.info(f"进度文件中的部分key示例: {sample_keys}")
-        log.info(f"进度文件中的部分value示例: {sample_values}")
-
-        # 检查每个任务是否已完成
-        debug_samples = 0
+        # 批量创建任务
         for keyword in keywords:
+            keyword_tasks = []
+            
             for area in areas:
                 for year in years:
                     for index_type in index_types:
-                        # 如果需要调试，检查前几个任务的完成状态
-                        if debug_samples < 5:
-                            is_completed = progress_manager.is_completed(keyword, area, year, index_type)
-                            key_with_type = f"{keyword}_{area}_{year}_{index_type}" 
-                            key_without_type = f"{keyword}_{area}_{year}"
-                            log.info(f"检查任务: {key_with_type}, 完成状态: {is_completed}")
-                            log.info(f"  - 新格式key在进度中: {key_with_type in progress_manager.progress}")
-                            log.info(f"  - 旧格式key在进度中: {key_without_type in progress_manager.progress}")
-                            debug_samples += 1
-                        
-                        # 检查任务是否已完成
-                        if progress_manager.is_completed(keyword, area, year, index_type):
-                            skipped += 1
-                            continue
-                        
-                        # 添加到任务列表
-                        task = {
-                            'keyword': keyword,
-                            'area': area,
-                            'year': year,
-                            'index_type': index_type
-                        }
-                        tasks.append(task)
+                        # 使用缓存快速检查任务是否已完成
+                        key = (keyword, area, year, index_type)
+                        if key not in completed_tasks:
+                            # 添加到任务列表
+                            task = {
+                                'keyword': keyword,
+                                'area': area,
+                                'year': year,
+                                'index_type': index_type
+                            }
+                            keyword_tasks.append(task)
+            
+            # 添加当前关键词的所有未完成任务
+            tasks.extend(keyword_tasks)
         
+        skipped = total - len(tasks)
         log.info(f"任务创建完成，理论总任务: {total}，已完成跳过: {skipped}，待执行: {len(tasks)}")
         return tasks
     
@@ -125,9 +115,7 @@ class TaskManager:
         # 初始化状态
         self.completed_tasks = 0
         self.failed_tasks = 0
-        self.results = []
-        self.current_batch = []
-        self.batch_number = self._get_max_batch_number() + 1
+        self.results_buffer = []
         self.stop_event.clear()
         
         # 创建任务列表
@@ -164,13 +152,9 @@ class TaskManager:
         if self.progress_summary_thread and self.progress_summary_thread.is_alive():
             self.progress_summary_thread.join(timeout=2)
         
-        # 保存剩余的批次数据
-        if self.current_batch:
-            self._save_current_batch()
-        
-        # 保存最终结果
-        if self.results:
-            self._save_results()
+        # 保存缓冲区中的数据
+        if self.results_buffer:
+            self._flush_results_buffer()
         
         self.running = False
         log.info("爬取任务已停止")
@@ -189,7 +173,8 @@ class TaskManager:
             cookies_count = max(1, cookies_count)
             
             # 根据可用cookie数量调整线程池大小
-            workers = min(available_workers, cookies_count * 2)  # 每个cookie最多2个线程
+            # 每个cookie可以支持多个线程，增加到8个线程/cookie
+            workers = min(available_workers, cookies_count * 2)
             log.info(f"可用Cookie数量: {cookies_count}, 设置线程池大小为: {workers}")
             
             with ThreadPoolExecutor(max_workers=workers) as executor:
@@ -220,18 +205,19 @@ class TaskManager:
                     try:
                         result = future.result()
                         if result is not None and not result.empty:
-                            self._add_to_batch(result)
+                            with self.lock:
+                                self.results_buffer.append(result)
+                                # 检查是否需要将缓冲区的数据写入文件
+                                if len(self.results_buffer) >= self.batch_size:
+                                    self._flush_results_buffer()
                         self.completed_tasks += 1
                     except Exception as exc:
                         log.error(f"任务执行失败: {task}, 异常: {exc}")
                         self.failed_tasks += 1
             
-            # 保存剩余的批次数据
-            if self.current_batch:
-                self._save_current_batch()
-            
-            # 保存最终结果
-            self._save_results()
+            # 保存缓冲区中剩余的数据
+            if self.results_buffer:
+                self._flush_results_buffer()
             
             log.info(f"爬取任务执行完成，共完成 {self.completed_tasks} 个任务，失败 {self.failed_tasks} 个任务")
         except Exception as e:
@@ -275,18 +261,15 @@ class TaskManager:
                     df = data_processor.process_search_index_data(data, area, keyword, year)
                     
                     if not df.empty:
-                        with self.lock:
-                            self.results.append(df)
                         # 标记任务完成
                         progress_manager.mark_completed(keyword, area, year, index_type, status='success')
-                        # log.info(f"完成: {keyword}, 城市: {area}, 年份: {year}, 剩余: {len(self.tasks) - (self.completed_tasks + self.failed_tasks)}")
                         return df
                     else:
                         # 标记任务失败
                         progress_manager.mark_completed(keyword, area, year, index_type, status='failed')
                         return None
                 else:
-                    # 标记任务失败
+                    # 标记任务失败，但不记录详细日志
                     progress_manager.mark_completed(keyword, area, year, index_type, status='failed')
                     return None
             
@@ -297,18 +280,15 @@ class TaskManager:
                     df = data_processor.process_trend_index_data(data, area, keyword, year)
                     
                     if not df.empty:
-                        with self.lock:
-                            self.results.append(df)
                         # 标记任务完成
                         progress_manager.mark_completed(keyword, area, year, index_type, status='success')
-                        # log.info(f"完成: {keyword}, 城市: {area}, 年份: {year}, 剩余: {len(self.tasks) - (self.completed_tasks + self.failed_tasks)}")
                         return df
                     else:
                         # 标记任务失败
                         progress_manager.mark_completed(keyword, area, year, index_type, status='failed')
                         return None
                 else:
-                    # 标记任务失败
+                    # 标记任务失败，但不记录详细日志
                     progress_manager.mark_completed(keyword, area, year, index_type, status='failed')
                     return None
             
@@ -318,136 +298,34 @@ class TaskManager:
                 return None
         
         except Exception as e:
+            # 只记录关键错误，减少日志量
+            if 'timeout' not in str(e).lower() and 'connection' not in str(e).lower():
+                log.error(f"处理任务失败: {keyword}, {area}, {year}, {index_type}, 错误: {e}")
             # 标记任务失败
             progress_manager.mark_completed(keyword, area, year, index_type, status='failed')
             return None
     
-    def _get_max_batch_number(self):
-        """
-        获取当前最大的批次号
-        :return: 最大批次号
-        """
-        try:
-            batch_files = list(self.batch_dir.glob('batch_*.xlsx'))
-            if not batch_files:
-                return 0
-                
-            # 从文件名中提取批次号
-            batch_numbers = []
-            for file_path in batch_files:
-                try:
-                    filename = file_path.name
-                    # 文件名格式为 batch_NUMBER.xlsx
-                    if filename.startswith('batch_') and filename.endswith('.xlsx'):
-                        batch_number = int(filename[6:-5])  # 去掉 'batch_' 和 '.xlsx'
-                        batch_numbers.append(batch_number)
-                except (ValueError, IndexError):
-                    continue
-                    
-            return max(batch_numbers) if batch_numbers else 0
-        except Exception as e:
-            log.error(f"获取最大批次号失败: {e}")
-            return 0
-    
-    def _add_to_batch(self, df):
-        """
-        添加数据到当前批次
-        :param df: 数据DataFrame
-        """
-        with self.lock:
-            self.current_batch.append(df)
-            
-            # 检查是否达到批次大小
-            if len(self.current_batch) >= self.batch_size:
-                self._save_current_batch()
-    
-    def _save_current_batch(self):
-        """保存当前批次数据"""
-        if not self.current_batch:
-            return
-            
-        try:
-            # 合并当前批次的所有DataFrame
-            batch_df = pd.concat(self.current_batch, ignore_index=True)
-            
-            # 生成批次文件名
-            batch_file = self.batch_dir / f"batch_{self.batch_number}.xlsx"
-            
-            # 保存到Excel
-            batch_df.to_excel(batch_file, index=False)
-            log.info(f"已将 {len(batch_df)} 条结果保存到批次文件: {batch_file}")
-            
-            # 更新状态
-            self.batch_number += 1
-            self.current_batch = []
-            
-        except Exception as e:
-            log.error(f"保存批次数据失败: {e}")
-    
-    def _save_results(self):
-        """保存结果到Excel文件"""
-        if not self.results:
-            log.info("没有结果需要保存")
+    def _flush_results_buffer(self):
+        """将缓冲区中的数据追加到CSV文件"""
+        if not self.results_buffer:
             return
         
         try:
-            # 合并所有DataFrame
-            all_df = pd.concat(self.results, ignore_index=True)
+            # 合并缓冲区中的所有DataFrame
+            buffer_df = pd.concat(self.results_buffer, ignore_index=True)
             
-            # 生成文件名
-            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-            filename = f"baidu_index_{timestamp}.xlsx"
-            file_path = self.output_dir / filename
+            # 追加到CSV文件
+            buffer_df.to_csv(self.results_file, mode='a', header=self.need_header, index=False)
+            log.info(f"已将 {len(buffer_df)} 条结果追加到CSV文件: {self.results_file}")
             
-            # 保存到Excel
-            all_df.to_excel(file_path, index=False)
-            log.info(f"已将 {len(all_df)} 条结果保存到文件: {file_path}")
+            # 首次写入后不再需要写入文件头
+            self.need_header = False
             
-            # 清空结果列表
-            self.results = []
-            
-            # 尝试合并所有批次数据
-            self._merge_all_batches(file_path)
+            # 清空缓冲区
+            self.results_buffer = []
             
         except Exception as e:
-            log.error(f"保存结果时发生错误: {e}")
-    
-    def _merge_all_batches(self, output_file):
-        """
-        合并所有批次数据
-        :param output_file: 输出文件路径
-        """
-        try:
-            # 查找所有批次文件
-            batch_files = list(self.batch_dir.glob('batch_*.xlsx'))
-            if not batch_files:
-                log.info("没有批次文件需要合并")
-                return
-                
-            # 合并所有批次文件
-            dfs = []
-            for batch_file in batch_files:
-                try:
-                    df = pd.read_excel(batch_file)
-                    dfs.append(df)
-                    log.debug(f"已读取批次文件: {batch_file}")
-                except Exception as e:
-                    log.error(f"读取批次文件 {batch_file} 失败: {e}")
-            
-            if not dfs:
-                log.warning("没有有效的批次数据可合并")
-                return
-                
-            # 合并所有DataFrame
-            merged_df = pd.concat(dfs, ignore_index=True)
-            
-            # 保存合并后的数据
-            merged_file = self.output_dir / "all_data_merged.xlsx"
-            merged_df.to_excel(merged_file, index=False)
-            log.info(f"已将所有批次数据 ({len(merged_df)} 条记录) 合并到文件: {merged_file}")
-            
-        except Exception as e:
-            log.error(f"合并批次数据失败: {e}")
+            log.error(f"追加数据到CSV文件失败: {e}")
     
     def _progress_summary_loop(self):
         """进度汇总循环"""
@@ -511,8 +389,31 @@ class TaskManager:
             available_cookies = cookie_status.get('available', 0)
             blocked_cookies = cookie_status.get('blocked', 0)
             
-            # 计算已保存的批次数量
-            saved_batches = self.batch_number - (1 if self.current_batch else 0)
+            # 获取当前缓冲区大小和已写入数据量
+            buffer_size = len(self.results_buffer)
+            try:
+                # 获取已写入的数据量
+                file_size = os.path.getsize(self.results_file) if os.path.exists(self.results_file) else 0
+                file_size_mb = file_size / (1024 * 1024)  # 转换为MB
+                
+                # 如果文件存在且不为空，尝试读取前几行以估算记录数
+                record_count = "未知"
+                if file_size > 0:
+                    try:
+                        # 只读取文件的前部分来估算行数
+                        with open(self.results_file, 'rb') as f:
+                            chunk = f.read(min(1024*1024, file_size))  # 读取最多1MB
+                            lines = chunk.count(b'\n')
+                            if file_size > 1024*1024:
+                                # 估算总行数
+                                estimated_lines = int(lines * (file_size / len(chunk)))
+                                record_count = f"估计 {estimated_lines} 条记录"
+                            else:
+                                record_count = f"{lines} 条记录"
+                    except Exception:
+                        record_count = "无法读取"
+            except Exception:
+                file_size_mb = 0
             
             # 打印摘要
             summary = (
@@ -523,7 +424,8 @@ class TaskManager:
                 f"已耗时: {elapsed_hours}小时 {elapsed_minutes}分钟 {elapsed_seconds}秒\n"
                 f"处理速度: {speed:.2f} 任务/分钟\n"
                 f"预计剩余时间: {remaining_hours}小时 {remaining_minutes}分钟\n"
-                f"已保存批次: {saved_batches}, 当前批次数据量: {len(self.current_batch)}\n"
+                f"当前缓冲区: {buffer_size} 条数据\n"
+                f"结果文件: {self.results_file}, 大小: {file_size_mb:.2f}MB, {record_count}\n"
                 f"Cookie状态: {available_cookies}个可用, {blocked_cookies}个锁定\n"
                 f"================================\n"
             )
