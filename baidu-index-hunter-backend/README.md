@@ -1,74 +1,142 @@
-# 百度指数爬虫 - 账号分配系统
+# 百度指数爬虫 - 搜索指数模块
 
-本项目是一个基于账号分配的百度指数数据爬虫系统，根据可用cookie数量自动分配爬取任务。
+## 功能介绍
 
-## 功能特点
+搜索指数爬虫模块是百度指数爬虫系统的核心组件之一，用于抓取百度搜索指数的各类数据，包括：
 
-- **账号分配**：根据可用的cookie账户数量自动分配爬取任务
-- **限流控制**：每个请求至少间隔1秒，避免过快请求导致账号被锁定
-- **并发爬取**：每个账号最多使用5个线程并发爬取，提高效率
-- **错误处理**：检测账号锁定状态，自动将被锁定的账号冷却30分钟后再尝试
-- **进度管理**：自动将爬取进度保存到crawler_progress.json文件
-- **批次处理**：将爬取结果按批次保存，并在任务结束后合并所有批次数据
+1. **日度数据**：每天的搜索指数变化
+2. **周度数据**：每周的搜索指数变化（当时间跨度较大时）
+3. **统计数据**：包括整体日均值、移动日均值、整体同比、整体环比、移动同比、移动环比等
 
-## 使用方法
+## 主要特点
 
-### 1. 准备环境
+- **统一数据存储**：所有爬取的数据保存在以任务ID命名的单一文件中
+- **检查点管理**：支持断点续爬，可以从上次中断的位置继续爬取
+- **自动保存**：每爬取100条记录自动保存一次，防止数据丢失
+- **中断处理**：优雅处理用户中断和程序崩溃，自动保存当前进度
+- **多种输入方式**：支持直接输入关键词列表、从文件加载关键词等多种方式
+- **灵活的时间设置**：支持预定义天数（7/30/90/180天）或自定义日期范围
+- **多城市支持**：可以指定爬取全国或特定城市的数据
+- **Cookie管理**：从MySQL和Redis获取Cookie，自动处理Cookie锁定情况
 
-确保已安装所需依赖：
-
-```bash
-pip install -r requirements.txt
-```
-
-### 2. 准备数据
-
-- 关键词文件：`数字设备和服务关键词.xlsx`，至少包含一个"关键词"列
-- 确保cookie数据库中有可用cookie
-
-### 3. 运行爬虫
-
-执行以下命令启动爬虫：
+## 安装依赖
 
 ```bash
-python run_account_crawler.py
+pip install pandas requests fake_useragent python-dotenv
 ```
 
-## 工作原理
+## 基本用法
 
-1. **系统启动**：从数据库加载所有可用的cookie
-2. **任务分配**：根据可用cookie数量平均分配爬取任务
-3. **并发控制**：每个账号创建一个独立的线程，最多使用5个子线程同时爬取
-4. **限流机制**：每个请求间隔至少1秒
-5. **锁定处理**：检测到账号被锁定时，自动暂停该账号的爬取任务，并设置30分钟的冷却时间
-6. **解锁重试**：冷却时间结束后，系统会自动尝试重新使用该账号
-7. **进度保存**：爬取结果实时保存到crawler_progress.json文件中
-8. **数据存储**：爬取结果按批次保存，完成后合并为一个完整的Excel文件
+### 示例1：爬取单个关键词的最近30天数据
 
-## 目录结构
+```python
+from spider.search_index_crawler import search_index_crawler
 
+keywords = ["电脑"]
+search_index_crawler.crawl(keywords=keywords)
 ```
-baidu-index-hunter-backend/
-├── config/                 # 配置文件目录
-├── cookie_manager/         # cookie管理模块
-├── db/                     # 数据库管理模块
-├── data/                   # 数据存储目录
-│   ├── data_batches/       # 批次数据
-│   └── crawler_progress.json # 爬取进度记录
-├── output/                 # 输出目录
-│   └── merged_results/     # 合并后的数据
-├── spider/                 # 爬虫核心模块
-│   ├── baidu_index_api.py  # 百度指数API封装
-│   ├── parallel_crawler.py # 原并行爬虫
-│   └── account_based_crawler.py # 新的账号分配爬虫
-├── utils/                  # 工具类
-└── run_account_crawler.py  # 爬虫入口脚本
+
+### 示例2：爬取多个关键词的数据
+
+```python
+keywords = ["电脑", "手机", "平板"]
+search_index_crawler.crawl(keywords=keywords)
 ```
+
+### 示例3：自定义日期范围
+
+```python
+keywords = ["电脑"]
+date_ranges = [("2023-01-01", "2023-12-31")]
+search_index_crawler.crawl(keywords=keywords, date_ranges=date_ranges)
+```
+
+### 示例4：多城市数据
+
+```python
+keywords = ["电脑"]
+cities = {0: "全国", 514: "北京", 57: "上海", 95: "广州", 94: "深圳"}
+search_index_crawler.crawl(keywords=keywords, cities=cities)
+```
+
+### 示例5：按年份范围爬取
+
+```python
+keywords = ["电脑"]
+year_range = (2022, 2023)  # 爬取2022年到2023年的数据
+search_index_crawler.crawl(keywords=keywords, year_range=year_range)
+```
+
+### 示例6：使用预定义天数
+
+```python
+keywords = ["电脑"]
+days = 90  # 爬取最近90天的数据
+search_index_crawler.crawl(keywords=keywords, days=days)
+```
+
+### 示例7：恢复中断的任务
+
+```python
+task_id = "20240101123456"  # 替换为实际的任务ID
+search_index_crawler.resume_task(task_id)
+```
+
+### 示例8：列出所有任务及其状态
+
+```python
+tasks = search_index_crawler.list_tasks()
+for task in tasks:
+    print(f"任务ID: {task['task_id']}, 进度: {task['progress']}")
+```
+
+### 示例9：从文件加载关键词和城市
+
+```python
+search_index_crawler.crawl(
+    keywords_file="data/keywords.txt",
+    cities_file="data/cities.csv",
+    days=30
+)
+```
+
+### 示例10：综合示例
+
+```python
+keywords = ["电脑", "手机", "平板"]
+cities = {0: "全国", 514: "北京", 57: "上海"}
+date_ranges = [
+    ("2023-01-01", "2023-06-30"),
+    ("2023-07-01", "2023-12-31")
+]
+search_index_crawler.crawl(
+    keywords=keywords,
+    cities=cities,
+    date_ranges=date_ranges
+)
+```
+
+## 输出文件
+
+爬虫会在 `output/search_index` 目录下生成两类文件：
+
+1. **{task_id}_daily_data.csv**：包含日度/周度搜索指数数据
+2. **{task_id}_stats_data.csv**：包含统计数据（日均值、同比、环比等）
+
+检查点文件保存在 `output/checkpoints/{task_id}_checkpoint.pkl`
 
 ## 注意事项
 
-1. 系统会自动从数据库加载所有可用的cookie
-2. 每个账号被锁定后会自动冷却30分钟再重试
-3. 如果所有账号都被锁定，系统会等待冷却时间结束后继续爬取
-4. 爬取进度会实时保存，中断后再次启动可以从上次中断的地方继续爬取
-5. 每个账号最多使用5个线程，避免单个账号过度使用导致封禁
+1. 当所有Cookie被锁定时，程序会等待30分钟后重试
+2. 爬取大量数据时请注意控制速率，避免IP被封
+3. 任务ID格式为YYYYMMDDHHmmss，可用于恢复特定任务
+
+## 高级配置
+
+可以在 `config/settings.py` 中调整以下参数：
+
+- `SPIDER_CONFIG['min_interval']`：请求间隔最小秒数
+- `SPIDER_CONFIG['max_interval']`：请求间隔最大秒数
+- `SPIDER_CONFIG['retry_times']`：请求失败重试次数
+- `SPIDER_CONFIG['timeout']`：请求超时时间
+- `COOKIE_BLOCK_COOLDOWN`：Cookie被锁后的冷却时间

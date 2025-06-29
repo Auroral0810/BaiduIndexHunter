@@ -38,7 +38,7 @@ class TaskManager:
         os.makedirs(self.output_dir, exist_ok=True)
         self.batch_dir = Path(__file__).parent.parent / 'data/data_batches'
         os.makedirs(self.batch_dir, exist_ok=True)
-        self.batch_size = 100  # 每个批次的数据量
+        self.batch_size = 200  # 每个批次的数据量
         self.current_batch = []
         self.batch_number = 0
     
@@ -279,7 +279,7 @@ class TaskManager:
                             self.results.append(df)
                         # 标记任务完成
                         progress_manager.mark_completed(keyword, area, year, index_type, status='success')
-                        log.info(f"完成: {keyword}, 城市: {area}, 年份: {year}, 剩余: {len(self.tasks) - (self.completed_tasks + self.failed_tasks)}")
+                        # log.info(f"完成: {keyword}, 城市: {area}, 年份: {year}, 剩余: {len(self.tasks) - (self.completed_tasks + self.failed_tasks)}")
                         return df
                     else:
                         # 标记任务失败
@@ -301,7 +301,7 @@ class TaskManager:
                             self.results.append(df)
                         # 标记任务完成
                         progress_manager.mark_completed(keyword, area, year, index_type, status='success')
-                        log.info(f"完成: {keyword}, 城市: {area}, 年份: {year}, 剩余: {len(self.tasks) - (self.completed_tasks + self.failed_tasks)}")
+                        # log.info(f"完成: {keyword}, 城市: {area}, 年份: {year}, 剩余: {len(self.tasks) - (self.completed_tasks + self.failed_tasks)}")
                         return df
                     else:
                         # 标记任务失败

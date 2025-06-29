@@ -2,7 +2,7 @@
 百度指数数据处理模块
 """
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 from utils.logger import log
 from utils.city_manager import city_manager
 import json
@@ -790,6 +790,212 @@ class BaiduIndexDataProcessor:
         except Exception as e:
             log.error(f"追加数据到CSV失败: {e}")
             return False
+    
+    def process_search_index_daily_data(self, data, cookie, keyword, city_code, city_name, start_date, end_date, decrypted_all, decrypted_wise, decrypted_pc):
+        """
+        处理搜索指数的日度数据和统计数据
+        :param data: API返回的原始数据
+        :param cookie: 用于请求的cookie
+        :param keyword: 关键词
+        :param city_code: 城市代码
+        :param city_name: 城市名称
+        :param start_date: 开始日期
+        :param end_date: 结束日期
+        :param decrypted_all: 解密后的全部指数数据
+        :param decrypted_wise: 解密后的移动指数数据
+        :param decrypted_pc: 解密后的PC指数数据
+        :return: (daily_data, stats_record) 元组，分别为日度数据列表和统计数据记录
+        """
+        try:
+            if not data or not data.get('data') or not data['data'].get('userIndexes'):
+                log.warning(f"数据为空或格式不正确: {data}")
+                return None, None
+                
+            # 获取统计数据
+            general_ratio = data['data']['generalRatio'][0]
+            all_stats = general_ratio['all']
+            wise_stats = general_ratio['wise']
+            pc_stats = general_ratio['pc']
+            
+            # 将解密后的数据转换为列表
+            all_values = decrypted_all.split(',')
+            wise_values = decrypted_wise.split(',')
+            pc_values = decrypted_pc.split(',')
+            
+            # 计算日期间隔
+            start = datetime.strptime(start_date, '%Y-%m-%d')
+            end = datetime.strptime(end_date, '%Y-%m-%d')
+            total_days = (end - start).days + 1
+            
+            # 判断数据粒度
+            data_length = len(all_values)
+            
+            # 确定数据间隔
+            if data_length == total_days:
+                # 每天一个数据点 - 日度数据
+                interval = 1
+                data_type = '日度'
+            elif abs(total_days - data_length * 7) <= 7:
+                # 每周一个数据点 - 周度数据
+                interval = 7
+                data_type = '周度'
+            else:
+                # 其他间隔 - 可能是月度数据或自定义间隔
+                interval = total_days // data_length if data_length > 0 else 1
+                data_type = '自定义'
+                
+            log.info(f"{city_name} - {keyword} 数据粒度: {data_type}数据 (每{interval}天一个数据点)")
+            
+            # 生成日期列表
+            date_range = []
+            for i in range(data_length):
+                current_date = (start + timedelta(days=i*interval)).strftime('%Y-%m-%d')
+                date_range.append(current_date)
+                
+            # 准备日度/周度数据
+            daily_data = []
+            for i in range(len(date_range)):
+                daily_record = {
+                    '关键词': keyword,
+                    '城市代码': city_code,
+                    '城市': city_name,
+                    '日期': date_range[i],
+                    '数据类型': data_type,
+                    '数据间隔(天)': interval,
+                    '所属年份': date_range[i][:4],
+                    'PC+移动指数': all_values[i],
+                    '移动指数': wise_values[i],
+                    'PC指数': pc_values[i],
+                    '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                }
+                daily_data.append(daily_record)
+                
+            # 准备统计数据
+            stats_record = {
+                '关键词': keyword,
+                '城市代码': city_code,
+                '城市': city_name,
+                '时间范围': f"{start_date} 至 {end_date}",
+                '整体日均值': all_stats['avg'],
+                '整体同比': all_stats['yoy'],
+                '整体环比': all_stats['qoq'],
+                '移动日均值': wise_stats['avg'],
+                '移动同比': wise_stats['yoy'],
+                '移动环比': wise_stats['qoq'],
+                'PC日均值': pc_stats['avg'],
+                'PC同比': pc_stats['yoy'],
+                'PC环比': pc_stats['qoq'],
+                '整体总值': sum(int(v) for v in all_values if v.isdigit()),
+                '移动总值': sum(int(v) for v in wise_values if v.isdigit()),
+                'PC总值': sum(int(v) for v in pc_values if v.isdigit()),
+                '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            }
+            
+            return daily_data, stats_record
+            
+        except Exception as e:
+            log.error(f"处理搜索指数日度数据时出错: {str(e)}")
+            return None, None
+    
+    def process_feed_index_data(self, data, cookie, keyword, city_code, city_name, start_date, end_date, decrypted_data, data_type='day'):
+        """
+        处理资讯指数数据
+        :param data: API返回的原始数据
+        :param cookie: 用于请求的cookie
+        :param keyword: 关键词
+        :param city_code: 城市代码
+        :param city_name: 城市名称
+        :param start_date: 开始日期
+        :param end_date: 结束日期
+        :param decrypted_data: 解密后的数据
+        :param data_type: 数据类型，'day'或'week'
+        :return: (daily_data, stats_record) 元组，分别为日度数据列表和统计数据记录
+        """
+        try:
+            if not data or not data.get('data') or not data['data'].get('index'):
+                log.warning(f"数据为空或格式不正确: {data}")
+                return None, None
+                
+            # 获取统计数据
+            index_data = data['data']['index'][0]
+            general_ratio = index_data.get('generalRatio', {})
+            
+            # 获取均值、同比、环比数据
+            avg_value = general_ratio.get('avg', 0)
+            yoy_value = general_ratio.get('yoy', '-')  # 同比
+            qoq_value = general_ratio.get('qoq', '-')  # 环比
+            
+            # 获取起止日期
+            api_start_date = index_data.get('startDate', start_date)
+            api_end_date = index_data.get('endDate', end_date)
+            
+            # 将解密后的数据转换为列表
+            values = decrypted_data.split(',')
+            
+            # 计算日期间隔
+            start = datetime.strptime(api_start_date, '%Y-%m-%d')
+            end = datetime.strptime(api_end_date, '%Y-%m-%d')
+            total_days = (end - start).days + 1
+            
+            # 判断数据粒度
+            data_length = len(values)
+            
+            # 确定数据间隔
+            if data_type == 'day' or (data_length == total_days):
+                # 每天一个数据点 - 日度数据
+                interval = 1
+                data_frequency = '日度'
+            elif data_type == 'week' or abs(total_days - data_length * 7) <= 7:
+                # 每周一个数据点 - 周度数据
+                interval = 7
+                data_frequency = '周度'
+            else:
+                # 其他间隔 - 可能是月度数据或自定义间隔
+                interval = total_days // data_length if data_length > 0 else 1
+                data_frequency = '自定义'
+                
+            log.info(f"{city_name} - {keyword} 数据粒度: {data_frequency}数据 (每{interval}天一个数据点)")
+            
+            # 生成日期列表
+            date_range = []
+            for i in range(data_length):
+                current_date = (start + timedelta(days=i*interval)).strftime('%Y-%m-%d')
+                date_range.append(current_date)
+                
+            # 准备日度/周度数据
+            daily_data = []
+            for i in range(len(date_range)):
+                daily_record = {
+                    '关键词': keyword,
+                    '城市代码': city_code,
+                    '城市': city_name,
+                    '日期': date_range[i],
+                    '数据类型': data_frequency,
+                    '数据间隔(天)': interval,
+                    '所属年份': date_range[i][:4],
+                    '资讯指数': values[i],
+                    '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                }
+                daily_data.append(daily_record)
+                
+            # 准备统计数据
+            stats_record = {
+                '关键词': keyword,
+                '城市代码': city_code,
+                '城市': city_name,
+                '时间范围': f"{api_start_date} 至 {api_end_date}",
+                '资讯日均值': avg_value,
+                '资讯同比': yoy_value,
+                '资讯环比': qoq_value,
+                '资讯总值': sum(int(v) for v in values if v.isdigit()),
+                '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            }
+            
+            return daily_data, stats_record
+            
+        except Exception as e:
+            log.error(f"处理资讯指数日度数据时出错: {str(e)}")
+            return None, None
 
 
 # 创建数据处理器单例

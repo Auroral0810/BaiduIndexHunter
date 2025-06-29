@@ -61,9 +61,9 @@ BAIDU_INDEX_API = {
 
 # 爬虫配置
 SPIDER_CONFIG = {
-    'min_interval': 1.8,  # 请求间隔最小秒数
-    'max_interval': 2,  # 请求间隔最大秒数
-    'default_interval': 1.8,  # 默认请求间隔秒数
+    'min_interval': 1,  # 请求间隔最小秒数
+    'max_interval': 1.2,  # 请求间隔最大秒数
+    'default_interval': 1,  # 默认请求间隔秒数
     'retry_times': 2,  # 请求失败重试次数
     'timeout': 15,     # 请求超时时间（秒）
     'max_workers': min(10, multiprocessing.cpu_count()),  # 最大工作线程数，减少为10个
