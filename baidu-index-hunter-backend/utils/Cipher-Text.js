@@ -788,12 +788,12 @@ var window =  global;
         cb);
     } ();
 })()
-function ascToken(url){
+function ascToken(url,ua){
     // 部分参数直接写死了，不同网站参数值不同，如果在项目中使用，请灵活处理
     var a0 = 'ayuwieamuaaaiwqo';
     var a1 = '1234567887654321';
     var ae = (new Date).getTime();
-    var a2 = '{"ua":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36","url":"'+url+'","platform":"MacIntel","clientTs":'+ae+',"version":"1.0.0.5"}';
+    var a2 = '{"ua":"'+ua+'","url":"'+url+'","platform":"MacIntel","clientTs":'+ae+',"version":"1.0.0.5"}';
     // 这里开头的时间戳写死了，如果请求失败请更新这个值
     return '1750651558786_' + ae + '_' + window.aes_encrypt(a2, a0, a1);
 }

@@ -6,8 +6,10 @@ import execjs
 from pathlib import Path
 from utils.logger import log
 from config.settings import CIPHER_TEXT_JS_PATH
+from fake_useragent import UserAgent
 
-
+ua = UserAgent()
+useragent=ua.random#随机生成useragent
 class CipherTextGenerator:
     """Cipher-Text生成器，调用JS脚本生成加密参数"""
     
@@ -45,7 +47,7 @@ class CipherTextGenerator:
                 return None
         
         try:
-            cipher_text = self.js_context.call('ascToken', url)
+            cipher_text = self.js_context.call('ascToken', url, useragent)
             log.debug(f"生成Cipher-Text成功: {cipher_text[:20]}...")
             return cipher_text
         except Exception as e:

@@ -63,14 +63,29 @@ class BaiduIndexAPI:
             # 获取一个可用的cookie
             account_id, cookie_dict = cookie_rotator.get_cookie()
             if not cookie_dict:
-                # 等待有可用的cookie (最多等待10秒，减少等待时间)
-                if cookie_rotator.wait_for_available_cookie(timeout=10):
-                    # 重新尝试获取cookie
+                # 检查是否有可用cookie，如果有则立即使用，不等待
+                available_count = cookie_rotator.get_status().get('available', 0)
+                if available_count > 0:
+                    log.info(f"检测到有 {available_count} 个可用Cookie，立即重新获取")
                     account_id, cookie_dict = cookie_rotator.get_cookie()
-                    if not cookie_dict:
+                    if cookie_dict:
+                        log.info(f"成功获取到可用Cookie: {account_id}")
+                    else:
+                        log.warning(f"尽管显示有可用Cookie，但获取失败")
+                
+                # 如果仍然没有获取到cookie，等待短暂时间后重试
+                if not cookie_dict:
+                    log.info(f"get_search_index 等待Cookie可用...")
+                    # 等待有可用的cookie (最多等待5秒，减少等待时间)
+                    if cookie_rotator.wait_for_available_cookie(timeout=5):
+                        # 重新尝试获取cookie
+                        account_id, cookie_dict = cookie_rotator.get_cookie()
+                        if not cookie_dict:
+                            log.warning(f"get_search_index 等待Cookie超时，跳过等待继续尝试")
+                            return None
+                    else:
+                        log.warning(f"get_search_index 等待Cookie超时，跳过等待继续尝试")
                         return None
-                else:
-                    return None
             
             # 构建请求URL
             encoded_keyword = keyword.replace(' ', '%20')
@@ -117,6 +132,12 @@ class BaiduIndexAPI:
                 # 如果是"not login"错误，将cookie标记为永久封禁
                 if error_msg == "not login":
                     cookie_rotator.report_cookie_status(account_id, False, permanent=True)
+                    
+                    # 检查是否有可用cookie，如果有则立即使用，不等待
+                    available_count = cookie_rotator.get_status().get('available', 0)
+                    if available_count > 0:
+                        log.info(f"检测到有 {available_count} 个可用Cookie，立即重新获取")
+                        return self.get_search_index(keyword, area, start_date, end_date)
                     
                     # 等待看是否有其他可用Cookie
                     if cookie_rotator.wait_for_available_cookie(timeout=5):
@@ -170,14 +191,29 @@ class BaiduIndexAPI:
             # 获取一个可用的cookie
             account_id, cookie_dict = cookie_rotator.get_cookie()
             if not cookie_dict:
-                # 等待有可用的cookie (最多等待10秒，减少等待时间)
-                if cookie_rotator.wait_for_available_cookie(timeout=10):
-                    # 重新尝试获取cookie
+                # 检查是否有可用cookie，如果有则立即使用，不等待
+                available_count = cookie_rotator.get_status().get('available', 0)
+                if available_count > 0:
+                    log.info(f"检测到有 {available_count} 个可用Cookie，立即重新获取")
                     account_id, cookie_dict = cookie_rotator.get_cookie()
-                    if not cookie_dict:
+                    if cookie_dict:
+                        log.info(f"成功获取到可用Cookie: {account_id}")
+                    else:
+                        log.warning(f"尽管显示有可用Cookie，但获取失败")
+                
+                # 如果仍然没有获取到cookie，等待短暂时间后重试
+                if not cookie_dict:
+                    log.info(f"get_trend_index 等待Cookie可用...")
+                    # 等待有可用的cookie (最多等待5秒，减少等待时间)
+                    if cookie_rotator.wait_for_available_cookie(timeout=5):
+                        # 重新尝试获取cookie
+                        account_id, cookie_dict = cookie_rotator.get_cookie()
+                        if not cookie_dict:
+                            log.warning(f"get_trend_index 等待Cookie超时，跳过等待继续尝试")
+                            return None
+                    else:
+                        log.warning(f"get_trend_index 等待Cookie超时，跳过等待继续尝试")
                         return None
-                else:
-                    return None
             
             # 构建请求URL
             encoded_keyword = keyword.replace(' ', '%20')
@@ -224,6 +260,12 @@ class BaiduIndexAPI:
                 # 如果是"not login"错误，将cookie标记为永久封禁
                 if error_msg == "not login":
                     cookie_rotator.report_cookie_status(account_id, False, permanent=True)
+                    
+                    # 检查是否有可用cookie，如果有则立即使用，不等待
+                    available_count = cookie_rotator.get_status().get('available', 0)
+                    if available_count > 0:
+                        log.info(f"检测到有 {available_count} 个可用Cookie，立即重新获取")
+                        return self.get_trend_index(keyword, area, start_date, end_date)
                     
                     # 等待看是否有其他可用Cookie
                     if cookie_rotator.wait_for_available_cookie(timeout=5):

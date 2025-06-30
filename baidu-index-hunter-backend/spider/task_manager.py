@@ -173,7 +173,6 @@ class TaskManager:
             cookies_count = max(1, cookies_count)
             
             # 根据可用cookie数量调整线程池大小
-            # 每个cookie可以支持多个线程，增加到8个线程/cookie
             workers = min(available_workers, cookies_count * 2)
             log.info(f"可用Cookie数量: {cookies_count}, 设置线程池大小为: {workers}")
             
@@ -198,8 +197,15 @@ class TaskManager:
                             remaining_mins = wait_info.get('remaining_minutes', 0)
                             if remaining_mins > 0:
                                 log.info(f"所有Cookie都被锁定，任务执行暂停，等待Cookie冷却... 剩余约 {remaining_mins} 分钟")
-                                # 等待Cookie可用，最多等待10秒
-                                cookie_rotator.wait_for_available_cookie(timeout=10)
+                                # 等待Cookie可用，最多等待5秒
+                                if cookie_rotator.wait_for_available_cookie(timeout=5):
+                                    # 检查是否真的有可用cookie
+                                    available_count = cookie_rotator.get_status().get('available', 0)
+                                    if available_count > 0:
+                                        log.info(f"检测到有 {available_count} 个可用Cookie，继续执行任务")
+                                        # 不需要额外等待，立即继续执行任务
+                                    else:
+                                        log.warning("虽然等待事件被触发，但实际没有可用Cookie，继续检查")
                     
                     task = future_to_task[future]
                     try:

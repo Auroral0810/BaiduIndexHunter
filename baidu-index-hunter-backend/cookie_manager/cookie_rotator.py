@@ -225,8 +225,8 @@ class CookieRotator:
             
             log.debug(f"当前可用Cookie数量: {len(available_ids)}/{len(redis_manager.client.smembers('cookie_ids'))}")
             
+            # 如果没有可用的Cookie，尝试从数据库刷新
             if not available_ids:
-                # 如果Redis中没有可用Cookie，尝试从MySQL获取
                 log.warning("所有Cookie都已被锁定，尝试从数据库刷新")
                 self._refresh_cookies_from_db()
                 
@@ -234,7 +234,11 @@ class CookieRotator:
                 available_ids = redis_manager.client.smembers("cookie_ids")
                 available_ids = [aid for aid in available_ids if aid not in self.blocked_accounts]
                 
-                if not available_ids:
+                # 如果刷新后有可用cookie，立即设置事件标志并使用
+                if available_ids:
+                    log.info(f"刷新后发现 {len(available_ids)} 个可用Cookie，立即使用")
+                    self.cookies_available_event.set()
+                else:
                     # 所有cookie都被锁定，等待一段时间
                     log.warning(f"刷新后仍无可用Cookie，共有 {len(redis_manager.client.smembers('cookie_ids'))} 个Cookie全部被锁定")
                     
@@ -276,9 +280,6 @@ class CookieRotator:
                     else:
                         log.info(f"等待后有 {len(available_ids)} 个可用Cookie")
                         self.cookies_available_event.set()  # 设置事件标志，通知所有线程cookie已可用
-                else:
-                    # 如果刷新后有可用cookie，设置事件标志
-                    self.cookies_available_event.set()
             
             # 使用负载均衡策略选择账号ID
             account_id = self._select_least_used_cookie(available_ids)
