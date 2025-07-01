@@ -5,8 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ffc61ac2-aff1-4d92-a630-60ecc81ee81f" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/DemographicAttributesTask.vue" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/DemographicAttributesTask.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/views/Privacy.vue" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/views/Privacy.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/RegionDistributionTask.vue" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/RegionDistributionTask.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

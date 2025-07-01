@@ -172,14 +172,6 @@
           </div>
         </el-form-item>
         
-        <el-form-item label="数据类型">
-          <el-radio-group v-model="formData.dataType">
-            <el-radio label="all">整体趋势</el-radio>
-            <el-radio label="pc">PC趋势</el-radio>
-            <el-radio label="wise">移动趋势</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        
         <!-- 输出设置 -->
         <el-divider content-position="left">输出设置</el-divider>
         
@@ -306,7 +298,6 @@ const regionStore = useRegionStore()
 const formData = reactive({
   keywords: [] as { value: string }[],
   regionLevel: 'province',
-  dataType: 'all',
   days: 30,
   start_date: '',
   end_date: '',
@@ -608,7 +599,6 @@ const submitTask = async () => {
       parameters: {
         keywords: formData.keywords.map(k => k.value),
         regionLevel: formData.regionLevel,
-        dataType: formData.dataType,
         output_format: formData.output_format,
         resume: formData.resume,
         regions: selectedRegions.value
@@ -651,7 +641,6 @@ const submitTask = async () => {
 const resetForm = () => {
   formData.keywords = []
   formData.regionLevel = 'province'
-  formData.dataType = 'all'
   formData.days = 30
   formData.start_date = ''
   formData.end_date = ''

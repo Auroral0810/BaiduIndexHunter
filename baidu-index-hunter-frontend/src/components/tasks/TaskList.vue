@@ -32,6 +32,7 @@
         <el-option label="执行中" value="running" />
         <el-option label="已完成" value="completed" />
         <el-option label="失败" value="failed" />
+        <el-option label="已取消" value="cancelled" />
       </el-select>
       <el-button type="primary" @click="loadTasks">搜索</el-button>
       <el-button @click="resetFilters">重置</el-button>
@@ -62,22 +63,55 @@
         </el-table-column>
         <el-table-column label="参数">
           <template #default="scope">
-            <div v-if="scope.row.parameters">
+            <div v-if="scope.row.parameters" class="task-parameters">
+              <!-- 关键词 - 所有任务类型都有 -->
               <div v-if="scope.row.parameters.keywords">
                 <strong>关键词:</strong> 
-                {{ Array.isArray(scope.row.parameters.keywords) 
-                  ? scope.row.parameters.keywords.join(', ') 
-                  : scope.row.parameters.keywords 
-                }}
+                {{ formatKeywords(scope.row.parameters.keywords) }}
               </div>
-              <div v-if="scope.row.parameters.cityCode">
-                <strong>城市:</strong> {{ scope.row.parameters.cityCode }}
+              
+              <!-- 城市/地区 - 搜索指数、资讯指数和地域分布有 -->
+              <div v-if="scope.row.parameters.cities">
+                <strong>地区:</strong> 
+                {{ formatCities(scope.row.parameters.cities) }}
               </div>
-              <div v-if="scope.row.parameters.startDate || scope.row.parameters.endDate">
+              <div v-if="scope.row.parameters.regions">
+                <strong>地区:</strong> 
+                {{ formatRegions(scope.row.parameters.regions) }}
+              </div>
+              
+              <!-- 日期 - 不同任务类型有不同的日期参数 -->
+              <div v-if="scope.row.parameters.date_ranges">
                 <strong>时间范围:</strong> 
-                {{ scope.row.parameters.startDate || '-' }} 
-                至 
-                {{ scope.row.parameters.endDate || '-' }}
+                {{ formatDateRanges(scope.row.parameters.date_ranges) }}
+              </div>
+              <div v-if="scope.row.parameters.days">
+                <strong>时间范围:</strong> 最近{{ scope.row.parameters.days }}天
+              </div>
+              <div v-if="scope.row.parameters.year_range">
+                <strong>年份范围:</strong> 
+                {{ scope.row.parameters.year_range[0] }} 至 {{ scope.row.parameters.year_range[1] }}
+              </div>
+              <div v-if="scope.row.parameters.start_date && scope.row.parameters.end_date">
+                <strong>时间范围:</strong> 
+                {{ scope.row.parameters.start_date }} 至 {{ scope.row.parameters.end_date }}
+              </div>
+              
+              <!-- 需求图谱特有的日期列表 -->
+              <div v-if="scope.row.parameters.datelists">
+                <strong>日期列表:</strong> 
+                {{ formatDatelists(scope.row.parameters.datelists) }}
+              </div>
+              
+              <!-- 批处理大小 - 人群属性和兴趣分析有 -->
+              <div v-if="scope.row.parameters.batch_size">
+                <strong>批处理大小:</strong> {{ scope.row.parameters.batch_size }}
+              </div>
+              
+              <!-- 输出格式 - 所有任务类型都有 -->
+              <div v-if="scope.row.parameters.output_format">
+                <strong>输出格式:</strong> 
+                {{ scope.row.parameters.output_format === 'csv' ? 'CSV' : 'Excel' }}
               </div>
             </div>
           </template>
@@ -91,26 +125,32 @@
             />
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="150">
+        <el-table-column label="操作" width="180">
           <template #default="scope">
             <el-button 
-              type="text" 
+              type="primary"
+              size="small"
               @click="viewTaskDetail(scope.row)" 
               :disabled="scope.row.status === 'pending'"
+              plain
             >
               详情
             </el-button>
             <el-button 
-              type="text" 
+              type="success"
+              size="small"
               @click="restartTask(scope.row)" 
-              v-if="scope.row.status === 'failed'"
+              v-if="scope.row.status === 'failed' || scope.row.status === 'cancelled'"
+              plain
             >
               重试
             </el-button>
             <el-button 
-              type="text" 
+              type="danger"
+              size="small"
               @click="cancelTask(scope.row)" 
               v-if="scope.row.status === 'pending' || scope.row.status === 'running'"
+              plain
             >
               取消
             </el-button>
@@ -167,8 +207,51 @@
         
         <h3>任务参数</h3>
         <el-descriptions bordered :column="1">
-          <el-descriptions-item v-for="(value, key) in selectedTask.parameters" :key="key" :label="translateParamKey(key)">
-            {{ formatParamValue(key, value) }}
+          <!-- 关键词 -->
+          <el-descriptions-item v-if="selectedTask.parameters.keywords" label="关键词">
+            {{ formatKeywords(selectedTask.parameters.keywords) }}
+          </el-descriptions-item>
+          
+          <!-- 城市/地区 -->
+          <el-descriptions-item v-if="selectedTask.parameters.cities" label="地区">
+            {{ formatCities(selectedTask.parameters.cities) }}
+          </el-descriptions-item>
+          <el-descriptions-item v-if="selectedTask.parameters.regions" label="地区">
+            {{ formatRegions(selectedTask.parameters.regions) }}
+          </el-descriptions-item>
+          
+          <!-- 日期参数 -->
+          <el-descriptions-item v-if="selectedTask.parameters.date_ranges" label="时间范围">
+            {{ formatDateRanges(selectedTask.parameters.date_ranges) }}
+          </el-descriptions-item>
+          <el-descriptions-item v-if="selectedTask.parameters.days" label="时间范围">
+            最近{{ selectedTask.parameters.days }}天
+          </el-descriptions-item>
+          <el-descriptions-item v-if="selectedTask.parameters.year_range" label="年份范围">
+            {{ selectedTask.parameters.year_range[0] }} 至 {{ selectedTask.parameters.year_range[1] }}
+          </el-descriptions-item>
+          <el-descriptions-item v-if="selectedTask.parameters.start_date && selectedTask.parameters.end_date" label="时间范围">
+            {{ selectedTask.parameters.start_date }} 至 {{ selectedTask.parameters.end_date }}
+          </el-descriptions-item>
+          
+          <!-- 需求图谱特有的日期列表 -->
+          <el-descriptions-item v-if="selectedTask.parameters.datelists" label="日期列表">
+            {{ formatDatelists(selectedTask.parameters.datelists) }}
+          </el-descriptions-item>
+          
+          <!-- 批处理大小 -->
+          <el-descriptions-item v-if="selectedTask.parameters.batch_size" label="批处理大小">
+            {{ selectedTask.parameters.batch_size }}
+          </el-descriptions-item>
+          
+          <!-- 输出格式 -->
+          <el-descriptions-item v-if="selectedTask.parameters.output_format" label="输出格式">
+            {{ selectedTask.parameters.output_format === 'csv' ? 'CSV' : 'Excel' }}
+          </el-descriptions-item>
+          
+          <!-- 优先级 -->
+          <el-descriptions-item v-if="selectedTask.priority" label="优先级">
+            {{ getPriorityLabel(selectedTask.priority) }}
           </el-descriptions-item>
         </el-descriptions>
         
@@ -186,6 +269,14 @@
           </el-timeline>
           <el-empty v-else description="暂无日志" />
         </div>
+        
+        <!-- 任务结果 -->
+        <div v-if="selectedTask.status === 'completed'" class="task-results">
+          <h3>任务结果</h3>
+          <el-button type="primary" @click="downloadTaskResult" :loading="downloading">
+            <el-icon><Download /></el-icon>下载结果
+          </el-button>
+        </div>
       </div>
     </el-dialog>
   </div>
@@ -195,6 +286,7 @@
 import { ref, reactive, onMounted, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import axios from 'axios'
+import { Download } from '@element-plus/icons-vue'
 
 // 定义任务和日志的接口
 interface TaskLog {
@@ -206,14 +298,19 @@ interface TaskLog {
 }
 
 interface TaskParameter {
-  keywords?: string[];
-  cityCode?: string;
-  startDate?: string;
-  endDate?: string;
-  dataType?: string;
-  regionLevel?: string;
-  attributeType?: string;
-  interestType?: string;
+  keywords?: string[] | { value: string }[];
+  cities?: Record<string, any>;
+  regions?: string[];
+  date_ranges?: string[][];
+  days?: number;
+  year_range?: string[];
+  start_date?: string;
+  end_date?: string;
+  datelists?: string[];
+  batch_size?: number;
+  output_format?: string;
+  resume?: boolean;
+  task_id?: string;
   [key: string]: any;
 }
 
@@ -225,10 +322,11 @@ interface Task {
   parameters: TaskParameter;
   createdAt: string;
   updatedAt: string;
+  priority: number;
   [key: string]: any;
 }
 
-const API_BASE_URL = 'http://localhost:4000/api'
+const API_BASE_URL = 'http://127.0.0.1:5001/api'
 
 // 任务列表数据
 const tasks = ref<Task[]>([])
@@ -236,6 +334,7 @@ const loading = ref(false)
 const total = ref(0)
 const currentPage = ref(1)
 const pageSize = ref(10)
+const downloading = ref(false)
 
 // 搜索和筛选
 const searchKeyword = ref('')
@@ -248,7 +347,7 @@ const selectedTask = ref<Task | null>(null)
 const taskLogs = ref<TaskLog[]>([])
 
 // 加载任务列表
-const loadTasks = async () => {
+let loadTasks = async () => {
   loading.value = true
   try {
     const params = {
@@ -296,14 +395,14 @@ const handleCurrentChange = (page: number) => {
 }
 
 // 查看任务详情
-const viewTaskDetail = async (task: any) => {
+const viewTaskDetail = async (task: Task) => {
   selectedTask.value = task
   taskDetailDialogVisible.value = true
   await loadTaskLogs(task.taskId)
 }
 
 // 加载任务日志
-const loadTaskLogs = async (taskId: string) => {
+let loadTaskLogs = async (taskId: string) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/task/${taskId}/logs`)
     if (response.data.code === 0) {
@@ -319,7 +418,7 @@ const loadTaskLogs = async (taskId: string) => {
 }
 
 // 重试任务
-const restartTask = async (task: any) => {
+let restartTask = async (task: Task) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/task/${task.taskId}/restart`)
     
@@ -336,7 +435,7 @@ const restartTask = async (task: any) => {
 }
 
 // 取消任务
-const cancelTask = async (task: any) => {
+let cancelTask = async (task: Task) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/task/${task.taskId}/cancel`)
     
@@ -349,6 +448,40 @@ const cancelTask = async (task: any) => {
   } catch (error) {
     ElMessage.error('取消任务失败，请检查网络连接')
     console.error('取消任务错误:', error)
+  }
+}
+
+// 下载任务结果
+let downloadTaskResult = async () => {
+  if (!selectedTask.value) return
+  
+  downloading.value = true
+  try {
+    const response = await axios.get(`${API_BASE_URL}/task/${selectedTask.value.taskId}/download`, {
+      responseType: 'blob'
+    })
+    
+    // 创建下载链接
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    
+    // 设置文件名
+    const taskType = translateTaskType(selectedTask.value.taskType)
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+    const extension = selectedTask.value.parameters.output_format === 'csv' ? 'csv' : 'xlsx'
+    link.setAttribute('download', `${taskType}_${timestamp}.${extension}`)
+    
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    
+    ElMessage.success('下载成功')
+  } catch (error) {
+    ElMessage.error('下载失败，请检查网络连接')
+    console.error('下载任务结果错误:', error)
+  } finally {
+    downloading.value = false
   }
 }
 
@@ -402,6 +535,7 @@ const getStatusTag = (status: string) => {
 const getProgressStatus = (status: string) => {
   if (status === 'completed') return 'success'
   if (status === 'failed') return 'exception'
+  if (status === 'cancelled') return 'warning'
   return ''
 }
 
@@ -415,52 +549,53 @@ const getLogTypeIcon = (level: string) => {
   return levelMap[level] || 'info'
 }
 
-const translateParamKey = (key: string) => {
-  const keyMap: Record<string, string> = {
-    'keywords': '关键词',
-    'cityCode': '城市',
-    'startDate': '开始日期',
-    'endDate': '结束日期',
-    'dataType': '数据类型',
-    'regionLevel': '区域等级',
-    'attributeType': '属性类型',
-    'interestType': '兴趣类型'
-  }
-  return keyMap[key] || key
+const getPriorityLabel = (priority: number) => {
+  if (priority >= 8) return '高'
+  if (priority >= 4) return '中'
+  return '低'
 }
 
-const formatParamValue = (key: string, value: any) => {
-  if (key === 'keywords' && Array.isArray(value)) {
-    return value.join(', ')
-  }
-  if (key === 'dataType') {
-    const dataTypeMap: Record<string, string> = {
-      'all': '整体趋势',
-      'pc': 'PC趋势',
-      'wise': '移动趋势'
+// 格式化关键词
+const formatKeywords = (keywords: any) => {
+  if (Array.isArray(keywords)) {
+    // 处理对象数组 [{value: '关键词1'}, {value: '关键词2'}]
+    if (keywords.length > 0 && typeof keywords[0] === 'object' && 'value' in keywords[0]) {
+      return keywords.map(k => k.value).join(', ')
     }
-    return dataTypeMap[value as string] || value
+    // 处理字符串数组 ['关键词1', '关键词2']
+    return keywords.join(', ')
   }
-  if (key === 'regionLevel') {
-    return (value as string) === 'province' ? '省级' : '城市级'
-  }
-  if (key === 'attributeType') {
-    const attributeMap: Record<string, string> = {
-      'age': '年龄分布',
-      'gender': '性别分布',
-      'education': '学历水平'
+  return keywords
+}
+
+// 格式化城市
+const formatCities = (cities: Record<string, any>) => {
+  if (!cities) return ''
+  const cityNames = Object.values(cities).map(city => city.name || city.code)
+  return cityNames.join(', ')
+}
+
+// 格式化地区
+const formatRegions = (regions: string[]) => {
+  if (!regions) return ''
+  return regions.join(', ')
+}
+
+// 格式化日期范围
+const formatDateRanges = (dateRanges: string[][]) => {
+  if (!dateRanges || !dateRanges.length) return ''
+  return dateRanges.map(range => `${range[0]} 至 ${range[1]}`).join('; ')
+}
+
+// 格式化日期列表
+const formatDatelists = (datelists: string[]) => {
+  if (!datelists || !datelists.length) return ''
+  return datelists.map(date => {
+    if (date.length === 8) {
+      return `${date.substring(0, 4)}-${date.substring(4, 6)}-${date.substring(6, 8)}`
     }
-    return attributeMap[value as string] || value
-  }
-  if (key === 'interestType') {
-    const interestMap: Record<string, string> = {
-      'general': '综合兴趣',
-      'ecommerce': '电商消费',
-      'app': 'APP偏好'
-    }
-    return interestMap[value as string] || value
-  }
-  return value
+    return date
+  }).join(', ')
 }
 
 // 自动刷新任务列表
@@ -471,31 +606,325 @@ const setupRefreshInterval = () => {
     }
   }, 30000) // 每30秒刷新一次
   
+  // 组件卸载时清除定时器
   onMounted(() => {
-    loadTasks()
-  })
-  
-  watch(() => taskDetailDialogVisible.value, (newVal) => {
-    if (!newVal && selectedTask.value) {
-      loadTasks() // 关闭详情对话框时刷新列表
+    return () => {
+      clearInterval(intervalId)
     }
   })
   
   return intervalId
 }
 
-const intervalId = setupRefreshInterval()
-
-// 组件卸载时清除定时器
-onMounted(() => {
-  return () => {
-    clearInterval(intervalId)
+// 监听详情对话框关闭
+watch(() => taskDetailDialogVisible.value, (newVal) => {
+  if (!newVal && selectedTask.value) {
+    loadTasks() // 关闭详情对话框时刷新列表
   }
 })
 
 // 初始加载
 onMounted(() => {
   loadTasks()
+  setupRefreshInterval()
+  
+  // 模拟数据 - 仅用于开发测试
+  if (import.meta.env.DEV) {
+    // 添加模拟数据
+    const mockTasks: Task[] = [
+      {
+        taskId: 'TASK-20230615-001',
+        taskType: 'search_index',
+        status: 'completed',
+        progress: 100,
+        parameters: {
+          keywords: ['小米手机', '华为手机', 'iPhone'],
+          cities: {
+            '0': { name: '全国', code: '0' },
+            '928': { name: '北京', code: '928' }
+          },
+          date_ranges: [['2023-01-01', '2023-06-01']],
+          output_format: 'csv'
+        },
+        createdAt: '2023-06-15 09:15:23',
+        updatedAt: '2023-06-15 10:30:45',
+        priority: 8
+      },
+      {
+        taskId: 'TASK-20230615-002',
+        taskType: 'feed_index',
+        status: 'running',
+        progress: 65,
+        parameters: {
+          keywords: ['新能源汽车', '电动车', '混合动力'],
+          cities: {
+            '0': { name: '全国', code: '0' }
+          },
+          days: 30,
+          output_format: 'excel'
+        },
+        createdAt: '2023-06-15 10:20:11',
+        updatedAt: '2023-06-15 11:05:32',
+        priority: 5
+      },
+      {
+        taskId: 'TASK-20230615-003',
+        taskType: 'word_graph',
+        status: 'pending',
+        progress: 0,
+        parameters: {
+          keywords: ['人工智能', '机器学习', '深度学习'],
+          datelists: ['20230101', '20230201', '20230301'],
+          output_format: 'csv'
+        },
+        createdAt: '2023-06-15 11:30:45',
+        updatedAt: '2023-06-15 11:30:45',
+        priority: 3
+      },
+      {
+        taskId: 'TASK-20230614-001',
+        taskType: 'demographic_attributes',
+        status: 'failed',
+        progress: 35,
+        parameters: {
+          keywords: ['健身', '瑜伽', '跑步'],
+          batch_size: 10,
+          output_format: 'excel'
+        },
+        createdAt: '2023-06-14 15:12:33',
+        updatedAt: '2023-06-14 16:45:21',
+        priority: 6
+      },
+      {
+        taskId: 'TASK-20230614-002',
+        taskType: 'interest_profile',
+        status: 'completed',
+        progress: 100,
+        parameters: {
+          keywords: ['游戏', '电子竞技', '手游'],
+          batch_size: 5,
+          output_format: 'csv'
+        },
+        createdAt: '2023-06-14 16:30:12',
+        updatedAt: '2023-06-14 17:45:33',
+        priority: 4
+      },
+      {
+        taskId: 'TASK-20230613-001',
+        taskType: 'region_distribution',
+        status: 'cancelled',
+        progress: 20,
+        parameters: {
+          keywords: ['旅游', '度假', '酒店'],
+          regions: ['0', '928', '2005'],
+          start_date: '2023-01-01',
+          end_date: '2023-05-31',
+          output_format: 'excel'
+        },
+        createdAt: '2023-06-13 09:45:22',
+        updatedAt: '2023-06-13 10:30:15',
+        priority: 7
+      },
+      {
+        taskId: 'TASK-20230612-001',
+        taskType: 'search_index',
+        status: 'completed',
+        progress: 100,
+        parameters: {
+          keywords: ['教育培训', '在线课程', '考研'],
+          cities: {
+            '928': { name: '北京', code: '928' },
+            '2005': { name: '上海', code: '2005' }
+          },
+          year_range: ['2022', '2023'],
+          output_format: 'csv'
+        },
+        createdAt: '2023-06-12 14:20:33',
+        updatedAt: '2023-06-12 15:45:12',
+        priority: 9
+      },
+      {
+        taskId: 'TASK-20230611-001',
+        taskType: 'feed_index',
+        status: 'completed',
+        progress: 100,
+        parameters: {
+          keywords: ['美食', '餐厅', '烹饪'],
+          cities: {
+            '0': { name: '全国', code: '0' }
+          },
+          days: 90,
+          output_format: 'excel'
+        },
+        createdAt: '2023-06-11 10:15:45',
+        updatedAt: '2023-06-11 12:30:22',
+        priority: 5
+      },
+      {
+        taskId: 'TASK-20230610-001',
+        taskType: 'word_graph',
+        status: 'failed',
+        progress: 75,
+        parameters: {
+          keywords: ['区块链', '比特币', '以太坊'],
+          datelists: ['20230401', '20230501', '20230601'],
+          output_format: 'csv'
+        },
+        createdAt: '2023-06-10 16:40:12',
+        updatedAt: '2023-06-10 18:15:33',
+        priority: 2
+      },
+      {
+        taskId: 'TASK-20230609-001',
+        taskType: 'demographic_attributes',
+        status: 'completed',
+        progress: 100,
+        parameters: {
+          keywords: ['化妆品', '护肤', '美妆'],
+          batch_size: 20,
+          output_format: 'excel'
+        },
+        createdAt: '2023-06-09 11:20:45',
+        updatedAt: '2023-06-09 13:30:12',
+        priority: 8
+      }
+    ];
+
+    // 模拟任务日志
+    const mockLogs: Record<string, TaskLog[]> = {
+      'TASK-20230615-001': [
+        { id: 'log-001', taskId: 'TASK-20230615-001', level: 'info', message: '任务开始执行', timestamp: '2023-06-15 09:15:30' },
+        { id: 'log-002', taskId: 'TASK-20230615-001', level: 'info', message: '正在获取关键词"小米手机"的搜索指数数据', timestamp: '2023-06-15 09:20:15' },
+        { id: 'log-003', taskId: 'TASK-20230615-001', level: 'info', message: '成功获取关键词"小米手机"的搜索指数数据', timestamp: '2023-06-15 09:25:45' },
+        { id: 'log-004', taskId: 'TASK-20230615-001', level: 'info', message: '正在获取关键词"华为手机"的搜索指数数据', timestamp: '2023-06-15 09:30:10' },
+        { id: 'log-005', taskId: 'TASK-20230615-001', level: 'warning', message: '关键词"华为手机"数据获取速度较慢', timestamp: '2023-06-15 09:35:22' },
+        { id: 'log-006', taskId: 'TASK-20230615-001', level: 'info', message: '成功获取关键词"华为手机"的搜索指数数据', timestamp: '2023-06-15 09:40:33' },
+        { id: 'log-007', taskId: 'TASK-20230615-001', level: 'info', message: '正在获取关键词"iPhone"的搜索指数数据', timestamp: '2023-06-15 09:45:12' },
+        { id: 'log-008', taskId: 'TASK-20230615-001', level: 'info', message: '成功获取关键词"iPhone"的搜索指数数据', timestamp: '2023-06-15 09:55:45' },
+        { id: 'log-009', taskId: 'TASK-20230615-001', level: 'info', message: '正在合并数据并生成CSV文件', timestamp: '2023-06-15 10:15:30' },
+        { id: 'log-010', taskId: 'TASK-20230615-001', level: 'info', message: '任务执行完成', timestamp: '2023-06-15 10:30:45' }
+      ],
+      'TASK-20230615-002': [
+        { id: 'log-011', taskId: 'TASK-20230615-002', level: 'info', message: '任务开始执行', timestamp: '2023-06-15 10:20:20' },
+        { id: 'log-012', taskId: 'TASK-20230615-002', level: 'info', message: '正在获取关键词"新能源汽车"的资讯指数数据', timestamp: '2023-06-15 10:25:15' },
+        { id: 'log-013', taskId: 'TASK-20230615-002', level: 'info', message: '成功获取关键词"新能源汽车"的资讯指数数据', timestamp: '2023-06-15 10:35:45' },
+        { id: 'log-014', taskId: 'TASK-20230615-002', level: 'info', message: '正在获取关键词"电动车"的资讯指数数据', timestamp: '2023-06-15 10:40:10' },
+        { id: 'log-015', taskId: 'TASK-20230615-002', level: 'info', message: '成功获取关键词"电动车"的资讯指数数据', timestamp: '2023-06-15 10:50:33' },
+        { id: 'log-016', taskId: 'TASK-20230615-002', level: 'info', message: '正在获取关键词"混合动力"的资讯指数数据', timestamp: '2023-06-15 10:55:12' },
+        { id: 'log-017', taskId: 'TASK-20230615-002', level: 'info', message: '任务执行中...', timestamp: '2023-06-15 11:05:32' }
+      ],
+      'TASK-20230614-001': [
+        { id: 'log-018', taskId: 'TASK-20230614-001', level: 'info', message: '任务开始执行', timestamp: '2023-06-14 15:12:40' },
+        { id: 'log-019', taskId: 'TASK-20230614-001', level: 'info', message: '正在获取关键词"健身"的人群属性数据', timestamp: '2023-06-14 15:15:15' },
+        { id: 'log-020', taskId: 'TASK-20230614-001', level: 'info', message: '成功获取关键词"健身"的人群属性数据', timestamp: '2023-06-14 15:25:45' },
+        { id: 'log-021', taskId: 'TASK-20230614-001', level: 'info', message: '正在获取关键词"瑜伽"的人群属性数据', timestamp: '2023-06-14 15:30:10' },
+        { id: 'log-022', taskId: 'TASK-20230614-001', level: 'warning', message: '请求频率过高，系统限流', timestamp: '2023-06-14 15:40:22' },
+        { id: 'log-023', taskId: 'TASK-20230614-001', level: 'info', message: '重试获取关键词"瑜伽"的人群属性数据', timestamp: '2023-06-14 15:45:33' },
+        { id: 'log-024', taskId: 'TASK-20230614-001', level: 'error', message: '连接超时，无法获取数据', timestamp: '2023-06-14 16:00:12' },
+        { id: 'log-025', taskId: 'TASK-20230614-001', level: 'error', message: '任务执行失败', timestamp: '2023-06-14 16:45:21' }
+      ],
+      'TASK-20230614-002': [
+        { id: 'log-026', taskId: 'TASK-20230614-002', level: 'info', message: '任务开始执行', timestamp: '2023-06-14 16:30:20' },
+        { id: 'log-027', taskId: 'TASK-20230614-002', level: 'info', message: '正在获取关键词"游戏"的兴趣分析数据', timestamp: '2023-06-14 16:35:15' },
+        { id: 'log-028', taskId: 'TASK-20230614-002', level: 'info', message: '成功获取关键词"游戏"的兴趣分析数据', timestamp: '2023-06-14 16:45:45' },
+        { id: 'log-029', taskId: 'TASK-20230614-002', level: 'info', message: '正在获取关键词"电子竞技"的兴趣分析数据', timestamp: '2023-06-14 16:50:10' },
+        { id: 'log-030', taskId: 'TASK-20230614-002', level: 'info', message: '成功获取关键词"电子竞技"的兴趣分析数据', timestamp: '2023-06-14 17:05:33' },
+        { id: 'log-031', taskId: 'TASK-20230614-002', level: 'info', message: '正在获取关键词"手游"的兴趣分析数据', timestamp: '2023-06-14 17:10:12' },
+        { id: 'log-032', taskId: 'TASK-20230614-002', level: 'info', message: '成功获取关键词"手游"的兴趣分析数据', timestamp: '2023-06-14 17:25:45' },
+        { id: 'log-033', taskId: 'TASK-20230614-002', level: 'info', message: '正在生成数据报告', timestamp: '2023-06-14 17:35:30' },
+        { id: 'log-034', taskId: 'TASK-20230614-002', level: 'info', message: '任务执行完成', timestamp: '2023-06-14 17:45:33' }
+      ],
+      'TASK-20230613-001': [
+        { id: 'log-035', taskId: 'TASK-20230613-001', level: 'info', message: '任务开始执行', timestamp: '2023-06-13 09:45:30' },
+        { id: 'log-036', taskId: 'TASK-20230613-001', level: 'info', message: '正在获取关键词"旅游"的地域分布数据', timestamp: '2023-06-13 09:50:15' },
+        { id: 'log-037', taskId: 'TASK-20230613-001', level: 'info', message: '成功获取关键词"旅游"的地域分布数据', timestamp: '2023-06-13 10:00:45' },
+        { id: 'log-038', taskId: 'TASK-20230613-001', level: 'info', message: '正在获取关键词"度假"的地域分布数据', timestamp: '2023-06-13 10:05:10' },
+        { id: 'log-039', taskId: 'TASK-20230613-001', level: 'warning', message: '用户请求取消任务', timestamp: '2023-06-13 10:15:22' },
+        { id: 'log-040', taskId: 'TASK-20230613-001', level: 'info', message: '任务已取消', timestamp: '2023-06-13 10:30:15' }
+      ]
+    };
+
+    // 覆盖加载任务的方法，使用模拟数据
+    loadTasks = async () => {
+      loading.value = true;
+      
+      setTimeout(() => {
+        // 根据筛选条件过滤任务
+        let filteredTasks = [...mockTasks];
+        
+        if (searchKeyword.value) {
+          const keyword = searchKeyword.value.toLowerCase();
+          filteredTasks = filteredTasks.filter(task => {
+            const keywords = task.parameters.keywords;
+            if (Array.isArray(keywords)) {
+              return keywords.some(k => {
+                if (typeof k === 'object' && k.value) {
+                  return k.value.toLowerCase().includes(keyword);
+                }
+                return String(k).toLowerCase().includes(keyword);
+              });
+            }
+            return task.taskId.toLowerCase().includes(keyword);
+          });
+        }
+        
+        if (taskTypeFilter.value) {
+          filteredTasks = filteredTasks.filter(task => task.taskType === taskTypeFilter.value);
+        }
+        
+        if (statusFilter.value) {
+          filteredTasks = filteredTasks.filter(task => task.status === statusFilter.value);
+        }
+        
+        // 计算分页
+        total.value = filteredTasks.length;
+        const start = (currentPage.value - 1) * pageSize.value;
+        const end = start + pageSize.value;
+        tasks.value = filteredTasks.slice(start, end);
+        
+        loading.value = false;
+      }, 500); // 模拟网络延迟
+    };
+    
+    // 覆盖加载任务日志的方法
+    loadTaskLogs = async (taskId: string) => {
+      setTimeout(() => {
+        taskLogs.value = mockLogs[taskId] || [];
+      }, 300);
+    };
+    
+    // 覆盖重试任务的方法
+    restartTask = async (task: Task) => {
+      ElMessage.success('任务已重新提交');
+      task.status = 'pending';
+      task.progress = 0;
+      task.updatedAt = new Date().toISOString().replace('T', ' ').substring(0, 19);
+      loadTasks();
+    };
+    
+    // 覆盖取消任务的方法
+    cancelTask = async (task: Task) => {
+      ElMessage.success('任务已取消');
+      task.status = 'cancelled';
+      task.updatedAt = new Date().toISOString().replace('T', ' ').substring(0, 19);
+      loadTasks();
+    };
+    
+    // 覆盖下载任务结果的方法
+    downloadTaskResult = async () => {
+      if (!selectedTask.value) return;
+      
+      downloading.value = true;
+      
+      setTimeout(() => {
+        ElMessage.success('下载成功');
+        downloading.value = false;
+      }, 1500);
+    };
+    
+    // 初始加载模拟数据
+    loadTasks();
+  }
 })
 </script>
 
@@ -504,16 +933,42 @@ onMounted(() => {
   padding: 20px;
 }
 
+.task-list-container h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #409EFF;
+}
+
 .search-bar {
   margin-bottom: 20px;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
+  background-color: #f9fafb;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .table-wrapper {
   margin-bottom: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.task-parameters {
+  font-size: 13px;
+}
+
+.task-parameters div {
+  margin-bottom: 5px;
+}
+
+.task-parameters div:last-child {
+  margin-bottom: 0;
 }
 
 .pagination {
@@ -529,6 +984,7 @@ onMounted(() => {
 .task-detail h3 {
   margin: 20px 0 10px;
   font-size: 16px;
+  color: #409EFF;
 }
 
 .task-logs {
@@ -539,5 +995,13 @@ onMounted(() => {
   border-radius: 4px;
   padding: 10px;
   background-color: #f9f9f9;
+}
+
+.task-results {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f0f9eb;
+  border-radius: 4px;
+  border-left: 4px solid #67c23a;
 }
 </style> 
