@@ -580,10 +580,23 @@ const submitTask = async () => {
   
   try {
     // 构建城市参数
-    const citiesParam: Record<string, string> = {};
+    const citiesParam: Record<string, any> = {};
+    
+    // 处理选中的城市和省份
     selectedCities.value.forEach(code => {
-      if (cityMap.value[code]) {
-        citiesParam[code] = cityMap.value[code];
+      // 检查是否是省份代码
+      if (regionStore.getProvincesList[code]) {
+        citiesParam[code] = {
+          name: regionStore.getProvinceName(code),
+          code: code
+        };
+      } 
+      // 检查是否是城市代码或全国代码
+      else if (regionStore.getAllCities[code]) {
+        citiesParam[code] = {
+          name: regionStore.getCityName(code),
+          code: code
+        };
       }
     });
     
