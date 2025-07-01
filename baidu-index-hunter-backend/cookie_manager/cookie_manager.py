@@ -390,6 +390,28 @@ class CookieManager:
             cursor.execute(sql, (account_id,))
             deleted_count = cursor.rowcount
             self.conn.commit()
+            
+            # 从Redis中删除相关数据
+            if deleted_count > 0 and self.redis_client:
+                # 检查是否是可用的cookie
+                status_json = self.redis_client.hget(self.REDIS_COOKIE_STATUS_KEY, account_id)
+                if status_json:
+                    status = json.loads(status_json)
+                    is_available = status.get("is_available") == 1
+                    
+                    # 如果是可用的cookie，更新计数
+                    if is_available:
+                        available_count = self.get_redis_available_cookie_count()
+                        if available_count > 0:
+                            self.redis_client.set(self.REDIS_COOKIE_COUNT_KEY, available_count - 1)
+                
+                # 删除Redis中的所有相关数据
+                self.redis_client.hdel(self.REDIS_COOKIES_KEY, account_id)
+                self.redis_client.hdel(self.REDIS_COOKIE_STATUS_KEY, account_id)
+                self.redis_client.hdel(self.REDIS_COOKIE_BAN_KEY, account_id)
+                
+                log.info(f"已从Redis中删除账号 {account_id} 的所有数据")
+            
             return deleted_count
         except Exception as e:
             print(f"删除cookie失败: {e}")
@@ -408,7 +430,15 @@ class CookieManager:
             成功返回True，失败返回False
         """
         try:
+            # 先获取当前cookie的信息，包括account_id
             cursor = self._get_cursor()
+            cursor.execute("SELECT * FROM cookies WHERE id = %s", (cookie_id,))
+            current_cookie = cursor.fetchone()
+            
+            if not current_cookie:
+                return False
+            
+            account_id = current_cookie['account_id']
             
             # 构建更新SQL
             set_clause = ", ".join([f"{k} = %s" for k in update_data.keys()])
@@ -421,6 +451,75 @@ class CookieManager:
             # 执行更新
             cursor.execute(sql, tuple(params))
             self.conn.commit()
+            
+            # 如果更新成功，同步到Redis
+            if cursor.rowcount > 0 and self.redis_client:
+                # 获取更新后的account的所有cookie
+                cookies = self.get_cookies_by_account_id(account_id)
+                if cookies:
+                    # 检查是否有状态变更
+                    status_changed = False
+                    ban_changed = False
+                    
+                    for key in update_data:
+                        if key in ('is_available', 'is_permanently_banned'):
+                            status_changed = True
+                        if key == 'temp_ban_until':
+                            ban_changed = True
+                    
+                    # 组装cookie字典和状态
+                    cookie_dict = {}
+                    is_available = True
+                    is_permanently_banned = False
+                    temp_ban_until = None
+                    
+                    for cookie in cookies:
+                        cookie_dict[cookie['cookie_name']] = cookie['cookie_value']
+                        
+                        # 如果任一cookie不可用或被永久封禁，则整个账号被视为不可用
+                        if not cookie['is_available']:
+                            is_available = False
+                        if cookie.get('is_permanently_banned'):
+                            is_permanently_banned = True
+                        
+                        # 记录临时封禁时间（取最大值）
+                        if cookie.get('temp_ban_until'):
+                            if temp_ban_until is None or cookie['temp_ban_until'] > temp_ban_until:
+                                temp_ban_until = cookie['temp_ban_until']
+                    
+                    # 更新Redis
+                    if is_permanently_banned:
+                        # 永久封禁从Redis中删除
+                        self.redis_client.hdel(self.REDIS_COOKIES_KEY, account_id)
+                        self.redis_client.hdel(self.REDIS_COOKIE_STATUS_KEY, account_id)
+                        self.redis_client.hdel(self.REDIS_COOKIE_BAN_KEY, account_id)
+                    else:
+                        # 更新Redis中的数据
+                        self._save_cookie_to_redis(account_id, cookie_dict, is_available, False, temp_ban_until)
+                    
+                    # 更新计数
+                    available_count = 0
+                    # 获取所有账号
+                    all_accounts = self.redis_client.hgetall(self.REDIS_COOKIE_STATUS_KEY)
+                    for acc_id, status_json in all_accounts.items():
+                        status = json.loads(status_json)
+                        if status.get("is_available") == 1 and status.get("is_permanently_banned") == 0:
+                            # 检查是否有临时封禁
+                            ban_json = self.redis_client.hget(self.REDIS_COOKIE_BAN_KEY, acc_id)
+                            if ban_json:
+                                ban_data = json.loads(ban_json)
+                                ban_until_str = ban_data.get("temp_ban_until")
+                                if ban_until_str:
+                                    ban_until = datetime.strptime(ban_until_str, "%Y-%m-%d %H:%M:%S")
+                                    if ban_until > datetime.now():
+                                        continue  # 跳过当前仍在封禁中的账号
+                            
+                            available_count += 1
+                    
+                    self.redis_client.set(self.REDIS_COOKIE_COUNT_KEY, available_count)
+                    
+                    log.info(f"已更新Redis中账号 {account_id} 的cookie数据")
+            
             return cursor.rowcount > 0
         except Exception as e:
             print(f"更新cookie失败: {e}")
@@ -443,6 +542,20 @@ class CookieManager:
             cursor.execute(sql, (account_id,))
             banned_count = cursor.rowcount
             self.conn.commit()
+            
+            # 更新Redis中的数据 - 永久封禁直接从Redis中删除
+            if banned_count > 0 and self.redis_client:
+                self.redis_client.hdel(self.REDIS_COOKIES_KEY, account_id)
+                self.redis_client.hdel(self.REDIS_COOKIE_STATUS_KEY, account_id)
+                self.redis_client.hdel(self.REDIS_COOKIE_BAN_KEY, account_id)
+                
+                # 更新计数
+                available_count = self.get_redis_available_cookie_count()
+                if available_count > 0:
+                    self.redis_client.set(self.REDIS_COOKIE_COUNT_KEY, available_count - 1)
+                
+                log.info(f"已从Redis中删除永久封禁的账号 {account_id} 数据")
+            
             return banned_count
         except Exception as e:
             print(f"永久封禁账号失败: {e}")
@@ -471,6 +584,29 @@ class CookieManager:
             cursor.execute(sql, (unban_time, account_id))
             banned_count = cursor.rowcount
             self.conn.commit()
+            
+            # 更新Redis中的数据
+            if banned_count > 0 and self.redis_client:
+                # 更新状态信息
+                status_data = {
+                    "is_available": 0,
+                    "is_permanently_banned": 0
+                }
+                self.redis_client.hset(self.REDIS_COOKIE_STATUS_KEY, account_id, json.dumps(status_data, ensure_ascii=False))
+                
+                # 更新封禁信息
+                ban_data = {
+                    "temp_ban_until": unban_time.strftime("%Y-%m-%d %H:%M:%S")
+                }
+                self.redis_client.hset(self.REDIS_COOKIE_BAN_KEY, account_id, json.dumps(ban_data, ensure_ascii=False))
+                
+                # 更新计数
+                available_count = self.get_redis_available_cookie_count()
+                if available_count > 0:
+                    self.redis_client.set(self.REDIS_COOKIE_COUNT_KEY, available_count - 1)
+                
+                log.info(f"已更新Redis中临时封禁的账号 {account_id} 数据，封禁至 {unban_time}")
+            
             return banned_count
         except Exception as e:
             print(f"暂时封禁账号失败: {e}")
@@ -497,6 +633,40 @@ class CookieManager:
             cursor.execute(sql, (account_id,))
             unbanned_count = cursor.rowcount
             self.conn.commit()
+            
+            # 更新Redis中的数据
+            if unbanned_count > 0 and self.redis_client:
+                # 获取更新后的cookie数据
+                cookies = self.get_cookies_by_account_id(account_id)
+                if cookies:
+                    # 组装cookie字典
+                    cookie_dict = {}
+                    for cookie in cookies:
+                        cookie_dict[cookie['cookie_name']] = cookie['cookie_value']
+                    
+                    # 更新Redis中的cookie状态
+                    status_data = {
+                        "is_available": 1,
+                        "is_permanently_banned": 0
+                    }
+                    self.redis_client.hset(self.REDIS_COOKIE_STATUS_KEY, account_id, json.dumps(status_data, ensure_ascii=False))
+                    
+                    # 删除封禁信息
+                    self.redis_client.hdel(self.REDIS_COOKIE_BAN_KEY, account_id)
+                    
+                    # 更新cookie数据
+                    cookie_data = {
+                        "account_id": account_id,
+                        "cookie": cookie_dict
+                    }
+                    self.redis_client.hset(self.REDIS_COOKIES_KEY, account_id, json.dumps(cookie_data, ensure_ascii=False))
+                    
+                    # 更新计数
+                    available_count = self.get_redis_available_cookie_count()
+                    self.redis_client.set(self.REDIS_COOKIE_COUNT_KEY, available_count + 1)
+                    
+                    log.info(f"已更新Redis中解封的账号 {account_id} 数据")
+                
             return unbanned_count
         except Exception as e:
             print(f"解封账号失败: {e}")
@@ -523,6 +693,26 @@ class CookieManager:
             cursor.execute(sql, (account_id,))
             unbanned_count = cursor.rowcount
             self.conn.commit()
+            
+            # 更新Redis中的数据
+            if unbanned_count > 0 and self.redis_client:
+                # 获取更新后的cookie数据
+                cookies = self.get_cookies_by_account_id(account_id)
+                if cookies:
+                    # 组装cookie字典
+                    cookie_dict = {}
+                    for cookie in cookies:
+                        cookie_dict[cookie['cookie_name']] = cookie['cookie_value']
+                    
+                    # 更新Redis
+                    self._save_cookie_to_redis(account_id, cookie_dict, True, False, None)
+                    
+                    # 更新计数
+                    available_count = self.get_redis_available_cookie_count()
+                    self.redis_client.set(self.REDIS_COOKIE_COUNT_KEY, available_count + 1)
+                    
+                    log.info(f"已更新Redis中强制解封的账号 {account_id} 数据")
+                
             return unbanned_count
         except Exception as e:
             print(f"强制解封账号失败: {e}")
@@ -683,11 +873,43 @@ class CookieManager:
             更新的记录数
         """
         try:
+            # 先检查Redis中是否存在旧账号ID的数据
+            redis_has_old_account = False
+            if self.redis_client:
+                redis_has_old_account = self.redis_client.hexists(self.REDIS_COOKIES_KEY, old_account_id)
+            
             cursor = self._get_cursor()
             sql = "UPDATE cookies SET account_id = %s WHERE account_id = %s"
             cursor.execute(sql, (new_account_id, old_account_id))
             updated_count = cursor.rowcount
             self.conn.commit()
+            
+            # 如果Redis中存在旧账号ID的数据，需要更新
+            if updated_count > 0 and redis_has_old_account and self.redis_client:
+                # 获取旧账号的Redis数据
+                cookie_json = self.redis_client.hget(self.REDIS_COOKIES_KEY, old_account_id)
+                status_json = self.redis_client.hget(self.REDIS_COOKIE_STATUS_KEY, old_account_id)
+                ban_json = self.redis_client.hget(self.REDIS_COOKIE_BAN_KEY, old_account_id)
+                
+                # 更新account_id并保存到新的键
+                if cookie_json:
+                    cookie_data = json.loads(cookie_json)
+                    cookie_data["account_id"] = new_account_id
+                    self.redis_client.hset(self.REDIS_COOKIES_KEY, new_account_id, json.dumps(cookie_data, ensure_ascii=False))
+                
+                if status_json:
+                    self.redis_client.hset(self.REDIS_COOKIE_STATUS_KEY, new_account_id, status_json)
+                
+                if ban_json:
+                    self.redis_client.hset(self.REDIS_COOKIE_BAN_KEY, new_account_id, ban_json)
+                
+                # 删除旧的键
+                self.redis_client.hdel(self.REDIS_COOKIES_KEY, old_account_id)
+                self.redis_client.hdel(self.REDIS_COOKIE_STATUS_KEY, old_account_id)
+                self.redis_client.hdel(self.REDIS_COOKIE_BAN_KEY, old_account_id)
+                
+                log.info(f"已将Redis中账号 {old_account_id} 的数据更新为 {new_account_id}")
+            
             return updated_count
         except Exception as e:
             print(f"更新账号ID失败: {e}")
@@ -789,6 +1011,10 @@ class CookieManager:
                 if not cookies:
                     log.warning(f"账号 {account_id} 没有可用的cookie")
                     not_login_accounts.append(account_id)
+                    
+                    # 永久封禁并从Redis中删除
+                    self.ban_account_permanently(account_id)
+                    
                     continue
                 
                 # 组装cookie字符串
@@ -840,16 +1066,54 @@ class CookieManager:
                     # 状态为0表示cookie有效可用
                     log.info(f"账号 {account_id} 的cookie有效可用")
                     valid_accounts.append(account_id)
+                    
+                    # 确保Redis状态正确
+                    if self.redis_client:
+                        cookies = self.get_cookies_by_account_id(account_id)
+                        if cookies:
+                            # 组装cookie字典
+                            cookie_dict = {}
+                            for cookie in cookies:
+                                cookie_dict[cookie['cookie_name']] = cookie['cookie_value']
+                            
+                            # 更新Redis中的状态
+                            self._save_cookie_to_redis(account_id, cookie_dict, True, False, None)
+                    
                 elif status == 10000:
                     # 状态为10000表示账号未登录，需要将该账号的所有cookie永久锁定
                     log.warning(f"账号 {account_id} 未登录，将被永久锁定")
                     self.ban_account_permanently(account_id)
-                    not_login_count.append(account_id)
+                    not_login_accounts.append(account_id)
+                    
+                    # Redis中直接删除该账号数据
+                    if self.redis_client:
+                        self.redis_client.hdel(self.REDIS_COOKIES_KEY, account_id)
+                        self.redis_client.hdel(self.REDIS_COOKIE_STATUS_KEY, account_id)
+                        self.redis_client.hdel(self.REDIS_COOKIE_BAN_KEY, account_id)
+                    
                 elif status == 10001:
                     # 状态为10001表示账号被锁定，需要将对应记录在MySQL中临时锁定30分钟
                     log.warning(f"账号 {account_id} 被锁定，将临时锁定30分钟")
                     self.ban_account_temporarily(account_id, 1800)  # 30分钟
                     banned_accounts.append(account_id)
+                    
+                    # 更新Redis中的状态
+                    if self.redis_client:
+                        unban_time = datetime.now() + timedelta(seconds=1800)
+                        
+                        # 更新状态信息
+                        status_data = {
+                            "is_available": 0,
+                            "is_permanently_banned": 0
+                        }
+                        self.redis_client.hset(self.REDIS_COOKIE_STATUS_KEY, account_id, json.dumps(status_data, ensure_ascii=False))
+                        
+                        # 更新封禁信息
+                        ban_data = {
+                            "temp_ban_until": unban_time.strftime("%Y-%m-%d %H:%M:%S")
+                        }
+                        self.redis_client.hset(self.REDIS_COOKIE_BAN_KEY, account_id, json.dumps(ban_data, ensure_ascii=False))
+                    
                 elif status == 10002:
                     # 状态为10002表示请求错误，不需要任何操作，但仍视为有效cookie
                     log.info(f"账号 {account_id} 请求错误，但仍视为有效: {message}")
@@ -859,9 +1123,20 @@ class CookieManager:
                     log.warning(f"账号 {account_id} 状态异常: {status}, message: {message}，将被永久锁定")
                     self.ban_account_permanently(account_id)
                     banned_accounts.append(account_id)
+                    
+                    # Redis中直接删除该账号数据
+                    if self.redis_client:
+                        self.redis_client.hdel(self.REDIS_COOKIES_KEY, account_id)
+                        self.redis_client.hdel(self.REDIS_COOKIE_STATUS_KEY, account_id)
+                        self.redis_client.hdel(self.REDIS_COOKIE_BAN_KEY, account_id)
             except Exception as e:
                 log.error(f"测试账号 {account_id} 时发生错误: {str(e)}")
                 not_login_accounts.append(account_id)
+        
+        # 更新Redis中的可用账号计数
+        if self.redis_client:
+            self.redis_client.set(self.REDIS_COOKIE_COUNT_KEY, len(valid_accounts))
+            self.redis_client.expire(self.REDIS_COOKIE_COUNT_KEY, self.REDIS_EXPIRE)
         
         # 统计结果
         total_tested = len(account_ids)
@@ -942,6 +1217,18 @@ class CookieManager:
         cookies = self.get_cookie_by_account_id(account_id)
         if not cookies:
             log.warning(f"账号 {account_id} 没有可用的cookie")
+            
+            # 更新Redis中的状态
+            if self.redis_client:
+                self.redis_client.hdel(self.REDIS_COOKIES_KEY, account_id)
+                self.redis_client.hdel(self.REDIS_COOKIE_STATUS_KEY, account_id)
+                self.redis_client.hdel(self.REDIS_COOKIE_BAN_KEY, account_id)
+                
+                # 更新计数
+                available_count = self.get_redis_available_cookie_count()
+                if available_count > 0:
+                    self.redis_client.set(self.REDIS_COOKIE_COUNT_KEY, available_count - 1)
+            
             return {
                 "account_id": account_id,
                 "status": -1,
@@ -1017,16 +1304,64 @@ class CookieManager:
                 log.info(f"账号 {account_id} 的cookie有效可用")
                 is_valid = True
                 action_taken = "保持可用状态"
+                
+                # 确保Redis状态正确
+                if self.redis_client:
+                    all_cookies = self.get_cookies_by_account_id(account_id)
+                    if all_cookies:
+                        # 组装cookie字典
+                        cookie_dict = {}
+                        for cookie in all_cookies:
+                            cookie_dict[cookie['cookie_name']] = cookie['cookie_value']
+                        
+                            # 更新Redis中的状态
+                            self._save_cookie_to_redis(account_id, cookie_dict, True, False, None)
+                
             elif status == 10000:
                 # 状态为10000表示账号未登录，需要将该账号的所有cookie永久锁定
                 log.warning(f"账号 {account_id} 未登录，将被永久锁定")
                 self.ban_account_permanently(account_id)
                 action_taken = "永久锁定账号"
+                
+                # Redis中直接删除该账号数据
+                if self.redis_client:
+                    self.redis_client.hdel(self.REDIS_COOKIES_KEY, account_id)
+                    self.redis_client.hdel(self.REDIS_COOKIE_STATUS_KEY, account_id)
+                    self.redis_client.hdel(self.REDIS_COOKIE_BAN_KEY, account_id)
+                    
+                    # 更新计数
+                    available_count = self.get_redis_available_cookie_count()
+                    if available_count > 0:
+                        self.redis_client.set(self.REDIS_COOKIE_COUNT_KEY, available_count - 1)
+                
             elif status == 10001:
                 # 状态为10001表示账号被锁定，需要将对应记录在MySQL中临时锁定30分钟
                 log.warning(f"账号 {account_id} 被锁定，将临时锁定30分钟")
                 self.ban_account_temporarily(account_id, 1800)  # 30分钟
                 action_taken = "临时锁定账号30分钟"
+                
+                # 更新Redis中的状态
+                if self.redis_client:
+                    unban_time = datetime.now() + timedelta(seconds=1800)
+                    
+                    # 更新状态信息
+                    status_data = {
+                        "is_available": 0,
+                        "is_permanently_banned": 0
+                    }
+                    self.redis_client.hset(self.REDIS_COOKIE_STATUS_KEY, account_id, json.dumps(status_data, ensure_ascii=False))
+                    
+                    # 更新封禁信息
+                    ban_data = {
+                        "temp_ban_until": unban_time.strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                    self.redis_client.hset(self.REDIS_COOKIE_BAN_KEY, account_id, json.dumps(ban_data, ensure_ascii=False))
+                    
+                    # 更新计数
+                    available_count = self.get_redis_available_cookie_count()
+                    if available_count > 0:
+                        self.redis_client.set(self.REDIS_COOKIE_COUNT_KEY, available_count - 1)
+                
             elif status == 10002:
                 # 状态为10002表示请求错误，不需要任何操作，但仍视为有效cookie
                 log.info(f"账号 {account_id} 请求错误，但仍视为有效: {message}")
@@ -1037,6 +1372,17 @@ class CookieManager:
                 log.warning(f"账号 {account_id} 状态异常: {status}, message: {message}，将被永久锁定")
                 self.ban_account_permanently(account_id)
                 action_taken = "永久锁定账号"
+                
+                # Redis中直接删除该账号数据
+                if self.redis_client:
+                    self.redis_client.hdel(self.REDIS_COOKIES_KEY, account_id)
+                    self.redis_client.hdel(self.REDIS_COOKIE_STATUS_KEY, account_id)
+                    self.redis_client.hdel(self.REDIS_COOKIE_BAN_KEY, account_id)
+                    
+                    # 更新计数
+                    available_count = self.get_redis_available_cookie_count()
+                    if available_count > 0:
+                        self.redis_client.set(self.REDIS_COOKIE_COUNT_KEY, available_count - 1)
             
             # 返回测试结果
             return {
