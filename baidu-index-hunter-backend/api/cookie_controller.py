@@ -742,6 +742,294 @@ def update_account_id(old_account_id):
     except Exception as e:
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"更新账号ID失败: {str(e)}"))
 
+@admin_cookie_bp.route('/test-availability', methods=['POST'])
+@swag_from({
+    'tags': ['Cookie管理'],
+    'summary': '测试Cookie可用性',
+    'description': '测试所有可用Cookie的可用性，并根据测试结果更新Cookie状态',
+    'responses': {
+        '200': {
+            'description': '测试成功',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': 'Cookie可用性测试完成'},
+                    'data': {
+                        'type': 'object',
+                        'properties': {
+                            'valid_accounts': {
+                                'type': 'array',
+                                'items': {'type': 'string'},
+                                'description': '可用的账号ID列表'
+                            },
+                            'banned_accounts': {
+                                'type': 'array',
+                                'items': {'type': 'string'},
+                                'description': '被封禁的账号ID列表'
+                            },
+                            'not_login_accounts': {
+                                'type': 'array',
+                                'items': {'type': 'string'},
+                                'description': '未登录的账号ID列表'
+                            },
+                            'total_tested': {'type': 'integer', 'description': '测试的总账号数'},
+                            'valid_count': {'type': 'integer', 'description': '可用的账号数'},
+                            'banned_count': {'type': 'integer', 'description': '被封禁的账号数'},
+                            'not_login_count': {'type': 'integer', 'description': '未登录的账号数'}
+                        }
+                    }
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
+                }
+            }
+        }
+    }
+})
+def test_cookie_availability():
+    """测试所有可用Cookie的可用性"""
+    try:
+        # 调用CookieManager的测试方法
+        result = cookie_manager.test_cookies_availability()
+        
+        return jsonify(ResponseFormatter.success(result, "Cookie可用性测试完成"))
+    except Exception as e:
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"测试Cookie可用性失败: {str(e)}"))
+
+@admin_cookie_bp.route('/test-account-availability/<account_id>', methods=['POST'])
+@swag_from({
+    'tags': ['Cookie管理'],
+    'summary': '测试单个账号Cookie可用性',
+    'description': '测试指定账号ID的Cookie可用性',
+    'parameters': [
+        {
+            'name': 'account_id',
+            'in': 'path',
+            'type': 'string',
+            'required': True,
+            'description': '要测试的账号ID'
+        }
+    ],
+    'responses': {
+        '200': {
+            'description': '测试成功',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': 'Cookie可用性测试完成'},
+                    'data': {
+                        'type': 'object',
+                        'properties': {
+                            'account_id': {'type': 'string', 'description': '测试的账号ID'},
+                            'status': {'type': 'integer', 'description': '测试状态码'},
+                            'message': {'type': 'string', 'description': '测试结果消息'},
+                            'is_valid': {'type': 'boolean', 'description': '是否有效'},
+                            'action_taken': {'type': 'string', 'description': '执行的操作'}
+                        }
+                    }
+                }
+            }
+        },
+        '404': {
+            'description': '账号不存在',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10404},
+                    'msg': {'type': 'string', 'example': '账号不存在'},
+                    'data': {'type': 'null'}
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
+                }
+            }
+        }
+    }
+})
+def test_account_cookie_availability(account_id):
+    """测试单个账号的Cookie可用性"""
+    try:
+        # 检查账号是否存在
+        cookies = cookie_manager.get_cookie_by_account_id(account_id)
+        if not cookies:
+            return jsonify(ResponseFormatter.error(ResponseCode.NOT_FOUND, f"账号 {account_id} 不存在或没有可用Cookie"))
+        
+        # 调用CookieManager的测试方法
+        result = cookie_manager.test_account_cookie_availability(account_id)
+        
+        return jsonify(ResponseFormatter.success(result, f"账号 {account_id} Cookie测试完成"))
+    except Exception as e:
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"测试账号 {account_id} Cookie失败: {str(e)}"))
+
+@admin_cookie_bp.route('/available-accounts', methods=['GET'])
+@swag_from({
+    'tags': ['Cookie管理'],
+    'summary': '获取所有可用账号ID',
+    'description': '获取所有可用的账号ID列表',
+    'responses': {
+        '200': {
+            'description': '获取成功',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '获取可用账号ID成功'},
+                    'data': {
+                        'type': 'object',
+                        'properties': {
+                            'account_ids': {
+                                'type': 'array',
+                                'items': {'type': 'string'},
+                                'description': '可用的账号ID列表'
+                            },
+                            'count': {'type': 'integer', 'description': '可用账号数量'}
+                        }
+                    }
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
+                }
+            }
+        }
+    }
+})
+def get_available_account_ids():
+    """获取所有可用的账号ID列表"""
+    try:
+        # 调用CookieManager的方法获取可用账号ID
+        account_ids = cookie_manager.get_available_account_ids()
+        
+        # 返回结果
+        result = {
+            "account_ids": account_ids,
+            "count": len(account_ids)
+        }
+        
+        return jsonify(ResponseFormatter.success(result, "获取可用账号ID成功"))
+    except Exception as e:
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取可用账号ID失败: {str(e)}"))
+
+@admin_cookie_bp.route('/account-cookie/<account_id>', methods=['GET'])
+@swag_from({
+    'tags': ['Cookie管理'],
+    'summary': '获取单个账号的Cookie信息',
+    'description': '获取指定账号ID的Cookie详细信息',
+    'parameters': [
+        {
+            'name': 'account_id',
+            'in': 'path',
+            'type': 'string',
+            'required': True,
+            'description': '要查询的账号ID'
+        }
+    ],
+    'responses': {
+        '200': {
+            'description': '获取成功',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '获取账号Cookie信息成功'},
+                    'data': {
+                        'type': 'object',
+                        'properties': {
+                            'account_id': {'type': 'string', 'description': '账号ID'},
+                            'cookies': {
+                                'type': 'object',
+                                'additionalProperties': {'type': 'string'},
+                                'description': 'Cookie键值对'
+                            },
+                            'cookie_count': {'type': 'integer', 'description': 'Cookie数量'},
+                            'is_available': {'type': 'boolean', 'description': '是否可用'}
+                        }
+                    }
+                }
+            }
+        },
+        '404': {
+            'description': '账号不存在',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10404},
+                    'msg': {'type': 'string', 'example': '账号不存在'},
+                    'data': {'type': 'null'}
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
+                }
+            }
+        }
+    }
+})
+def get_account_cookie(account_id):
+    """获取指定账号ID的Cookie详细信息"""
+    try:
+        # 获取账号的cookie记录
+        cookies_records = cookie_manager.get_cookies_by_account_id(account_id)
+        
+        if not cookies_records:
+            return jsonify(ResponseFormatter.error(ResponseCode.NOT_FOUND, f"账号 {account_id} 不存在或没有Cookie记录"))
+        
+        # 获取组装好的cookie字典
+        cookie_dict = cookie_manager.get_cookie_by_account_id(account_id)
+        
+        # 检查是否有可用的cookie
+        is_available = cookie_dict is not None
+        
+        # 如果没有可用cookie但有cookie记录，说明cookie已过期或被禁用
+        if not is_available:
+            cookie_dict = {}
+            for cookie in cookies_records:
+                cookie_dict[cookie['cookie_name']] = cookie['cookie_value']
+        
+        # 返回结果
+        result = {
+            "account_id": account_id,
+            "cookies": cookie_dict,
+            "cookie_count": len(cookie_dict),
+            "is_available": is_available
+        }
+        
+        return jsonify(ResponseFormatter.success(result, f"获取账号 {account_id} Cookie信息成功"))
+    except Exception as e:
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取账号 {account_id} Cookie信息失败: {str(e)}"))
+
 # 注册蓝图的函数
 def register_admin_cookie_blueprint(app):
     """注册Cookie管理API蓝图"""
