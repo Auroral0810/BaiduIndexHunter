@@ -672,7 +672,6 @@ class WordGraphCrawler:
 # 创建需求图谱爬虫单例
 word_graph_crawler = WordGraphCrawler()
 
-
 # if __name__ == "__main__":
 #     # # 示例用法
 #     # keywords = ["电脑", "手机", "平板"]
@@ -685,3 +684,4 @@ word_graph_crawler = WordGraphCrawler()
 #     # 恢复指定任务ID的任务
 #     task_id = "20250628001705"
 #     word_graph_crawler.resume_task(task_id)
+

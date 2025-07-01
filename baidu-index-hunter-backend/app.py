@@ -1,6 +1,8 @@
 """
 百度指数爬虫后端应用入口
 """
+import os
+import sys
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flasgger import Swagger, swag_from
@@ -8,13 +10,18 @@ from utils.logger import log
 # 导入API蓝图
 from api.cookie_controller import register_admin_cookie_blueprint
 from api.region_controller import register_region_blueprint
+from api.task_controller import register_task_blueprint
+from api.statistics_controller import register_statistics_blueprint
 from constant.respond import ResponseCode, ResponseFormatter
-from region_manager.region_manager import get_region_manager
+from region_manager.region_manager import get_region_manager, RegionManager
 from cookie_manager.cookie_manager import CookieManager
 
-# 标记是否已同步数据 - 使用模块级变量，避免热重载影响
+# 全局变量，用于确保区域数据只同步一次
 _region_data_synced = False
 _cookie_data_synced = False
+
+# 添加项目根目录到Python路径
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 def create_app(config=None):
     """创建Flask应用"""
@@ -99,15 +106,14 @@ def create_app(config=None):
     # 注册蓝图
     register_admin_cookie_blueprint(app)
     register_region_blueprint(app)
+    register_task_blueprint(app)
+    register_statistics_blueprint(app)
     
     # 全局错误处理
-    @app.errorhandler(404)
-    def not_found(e):
-        return jsonify(ResponseFormatter.error(ResponseCode.NOT_FOUND, "接口不存在")), 404
+    register_error_handlers(app)
     
-    @app.errorhandler(500)
-    def server_error(e):
-        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, "服务器内部错误")), 500
+    # 初始化数据
+    init_data()
     
     # 首页路由
     @app.route('/')
@@ -129,6 +135,48 @@ def create_app(config=None):
         }))
         
     return app
+
+def register_error_handlers(app):
+    """注册错误处理"""
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({
+            'code': 10404,
+            'msg': '接口不存在',
+            'data': None
+        }), 404
+    
+    @app.errorhandler(500)
+    def internal_server_error(error):
+        return jsonify({
+            'code': 10500,
+            'msg': '服务器内部错误',
+            'data': None
+        }), 500
+
+def init_data():
+    """初始化数据"""
+    global _region_data_synced
+    global _cookie_data_synced
+    
+    try:
+        # 初始化城市数据
+        if not _region_data_synced:
+            region_manager = get_region_manager()
+            region_manager.sync_to_redis()
+            _region_data_synced = True
+            log.info("区域数据同步到Redis成功")
+        
+        # 初始化Cookie数据
+        if not _cookie_data_synced:
+            cookie_manager = CookieManager()
+            cookie_manager.sync_to_redis()
+            _cookie_data_synced = True
+            log.info("Cookie数据同步到Redis成功")
+            cookie_manager.close()
+        
+    except Exception as e:
+        log.error(f"初始化数据失败: {e}")
 
 if __name__ == '__main__':
     from datetime import datetime

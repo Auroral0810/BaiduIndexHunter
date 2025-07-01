@@ -5,9 +5,11 @@ import pandas as pd
 import os
 from datetime import datetime, timedelta
 from utils.logger import log
-from utils.city_manager import city_manager
+from region_manager.region_manager import get_region_manager
 import json
 
+# 获取region_manager实例
+region_manager = get_region_manager()
 
 class BaiduIndexDataProcessor:
     """百度指数数据处理器，处理API返回的原始数据"""
@@ -49,7 +51,7 @@ class BaiduIndexDataProcessor:
                 return pd.DataFrame()
             
             # 获取城市名称
-            city_name = city_manager.get_city_name(city_number) or f"未知城市({city_number})"
+            city_name = region_manager.get_city_name_by_code(city_number) or f"未知城市({city_number})"
             
             # 如果未指定年份，使用当前年份
             if year is None:
@@ -131,7 +133,7 @@ class BaiduIndexDataProcessor:
                 return pd.DataFrame()
             
             # 获取城市名称
-            city_name = city_manager.get_city_name(area) or f"未知城市({area})"
+            city_name = region_manager.get_city_name_by_code(area) or f"未知城市({area})"
             
             # 获取统计数据
             trend_data = data['data']['index'][0]
@@ -593,7 +595,7 @@ class BaiduIndexDataProcessor:
                     
                     for city_code, value in city_data.items():
                         real_value = city_real_data.get(city_code, value)
-                        city_name = city_manager.get_city_name(city_code) or f"未知城市({city_code})"
+                        city_name = region_manager.get_city_name_by_code(city_code) or f"未知城市({city_code})"
                         
                         results.append({
                             '关键词': keyword,
@@ -629,13 +631,13 @@ class BaiduIndexDataProcessor:
         if region_code == 0:
             return "全国"
         
-        # 尝试从city_manager获取省份名称
+        # 尝试从region_manager获取省份名称
         province_name = self._get_province_name(region_code)
         if province_name:
             return province_name
         
-        # 尝试从city_manager获取城市名称
-        city_name = city_manager.get_city_name(region_code)
+        # 尝试从region_manager获取城市名称
+        city_name = region_manager.get_city_name_by_code(region_code)
         if city_name:
             return city_name
         
