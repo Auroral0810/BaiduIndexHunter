@@ -59,7 +59,7 @@ credentials.yml
 
 # 项目特定敏感数据
 data/cookie_data/
-cookie_pool.sql
+BaiduIndexHunter.sql
 *.db
 *.sqlite
 *.sqlite3

@@ -19,7 +19,7 @@ MYSQL_CONFIG = {
     'port': int(os.getenv('MYSQL_PORT', 3306)),
     'user': os.getenv('MYSQL_USER', 'root'),
     'password': os.getenv('MYSQL_PASSWORD', '123456'),
-    'db': os.getenv('MYSQL_DB', 'cookie_pool'),
+    'db': os.getenv('MYSQL_DB', 'BaiduIndexHunter'),
 }
 
 # Redis配置

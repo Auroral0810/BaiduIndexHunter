@@ -1,0 +1,34 @@
+    def get_city_code_by_name(self, city_name: str) -> Optional[str]:
+        """
+        根据城市名称获取城市代码
+        :param city_name: 城市名称
+        :return: 城市代码
+        """
+        # 先从Redis缓存中查找
+        cities = self.get_all_cities()
+        
+        # 遍历城市数据查找匹配名称的城市
+        for code, city in cities.items():
+            if city["name"] == city_name:
+                logger.info(f"从Redis缓存中找到城市: {city_name}, 代码: {code}")
+                return code
+        
+        # Redis中没找到，从数据库查询
+        try:
+            logger.info(f"Redis中未找到城市: {city_name}, 尝试从数据库查询")
+            with self.mysql_conn.cursor() as cursor:
+                cursor.execute("SELECT city_code FROM prefecture_city WHERE city_name = %s", [city_name])
+                result = cursor.fetchone()
+                
+                if result:
+                    city_code = result["city_code"]
+                    # 更新Redis缓存
+                    self._sync_cities()
+                    logger.info(f"从数据库找到城市: {city_name}, 代码: {city_code}, 并更新了Redis缓存")
+                    return city_code
+                
+                logger.warning(f"数据库中未找到城市: {city_name}")
+                return None
+        except Exception as e:
+            logger.error(f"获取城市代码失败: {e}")
+            return None
