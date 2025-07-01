@@ -12,13 +12,16 @@ from api.cookie_controller import register_admin_cookie_blueprint
 from api.region_controller import register_region_blueprint
 from api.task_controller import register_task_blueprint
 from api.statistics_controller import register_statistics_blueprint
+from api.config_api import config_bp
 from constant.respond import ResponseCode, ResponseFormatter
 from region_manager.region_manager import get_region_manager, RegionManager
 from cookie_manager.cookie_manager import CookieManager
+from db.config_manager import config_manager
 
 # 全局变量，用于确保区域数据只同步一次
 _region_data_synced = False
 _cookie_data_synced = False
+_config_initialized = False
 
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
@@ -27,6 +30,7 @@ def create_app(config=None):
     """创建Flask应用"""
     global _region_data_synced
     global _cookie_data_synced
+    global _config_initialized
     
     app = Flask(__name__)
     
@@ -77,6 +81,16 @@ def create_app(config=None):
     
     Swagger(app, config=swagger_config, template=swagger_template)
     
+    # 初始化配置（全局只初始化一次）
+    if not _config_initialized:
+        try:
+            config_manager.refresh_cache()
+            config_manager.init_default_configs()
+            _config_initialized = True
+            log.info("系统配置初始化成功")
+        except Exception as e:
+            log.error(f"初始化系统配置失败: {e}")
+    
     # 同步区域数据到Redis（全局只同步一次）
     if not _region_data_synced:
         try:
@@ -108,6 +122,7 @@ def create_app(config=None):
     register_region_blueprint(app)
     register_task_blueprint(app)
     register_statistics_blueprint(app)
+    app.register_blueprint(config_bp)  # 注册配置API蓝图
     
     # 全局错误处理
     register_error_handlers(app)
@@ -158,8 +173,16 @@ def init_data():
     """初始化数据"""
     global _region_data_synced
     global _cookie_data_synced
+    global _config_initialized
     
     try:
+        # 初始化系统配置
+        if not _config_initialized:
+            config_manager.refresh_cache()
+            config_manager.init_default_configs()
+            _config_initialized = True
+            log.info("系统配置初始化成功")
+        
         # 初始化城市数据
         if not _region_data_synced:
             region_manager = get_region_manager()

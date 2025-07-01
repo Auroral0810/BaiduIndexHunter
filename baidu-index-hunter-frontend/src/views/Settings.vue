@@ -1,382 +1,276 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import axios from 'axios'
 
-// 表单数据
-const apiForm = reactive({
-  baseUrl: 'http://localhost:5000',
-  apiKey: '',
-  timeout: 30000
-})
+const API_BASE_URL = 'http://127.0.0.1:5001/api'
 
-const cookieForm = reactive({
-  minAvailableCookies: 3,
-  cookieBlockCooldown: 30,
-  cookieExpirationBuffer: 3600
-})
+// 配置分组
+const configGroups = [
+  { id: 'api', name: 'API配置', icon: 'Connection' },
+  { id: 'task', name: '任务配置', icon: 'List' },
+  { id: 'spider', name: '爬虫配置', icon: 'Loading' },
+  { id: 'output', name: '输出配置', icon: 'Document' }
+]
 
-const spiderForm = reactive({
-  minInterval: 3,
-  maxInterval: 10,
-  retryTimes: 3,
-  timeout: 30,
-  maxWorkers: 10
-})
+// 当前选中的配置组
+const activeGroup = ref('api')
 
-// 状态
-const apiFormLoading = ref(false)
-const cookieFormLoading = ref(false)
-const spiderFormLoading = ref(false)
+// 配置数据
+const configs = ref({})
+const loading = ref(false)
+const saving = ref(false)
 
-// Cookie池状态
-const cookiePoolStatus = ref({
-  total: 0,
-  available: 0,
-  blocked: 0
-})
-
-const cookiePoolLoading = ref(false)
-
-// 方法
-const loadSettings = async () => {
-  apiFormLoading.value = true
-  cookieFormLoading.value = true
-  spiderFormLoading.value = true
-  
+// 加载配置
+const loadConfigs = async () => {
+  loading.value = true
   try {
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
+    const response = await axios.get(`${API_BASE_URL}/config/list`)
     
-    // 这里应该是从API获取实际设置
-    // 这里仅作为示例
-    apiForm.baseUrl = 'http://localhost:5000'
-    apiForm.apiKey = 'sk_test_*****'
-    apiForm.timeout = 30000
-    
-    cookieForm.minAvailableCookies = 3
-    cookieForm.cookieBlockCooldown = 30
-    cookieForm.cookieExpirationBuffer = 3600
-    
-    spiderForm.minInterval = 3
-    spiderForm.maxInterval = 10
-    spiderForm.retryTimes = 3
-    spiderForm.timeout = 30
-    spiderForm.maxWorkers = 10
-    
-    ElMessage.success('设置加载成功')
+    if (response.data.code === 0) {
+      configs.value = response.data.data || {}
+      ElMessage.success('配置加载成功')
+    } else {
+      ElMessage.error(`加载配置失败: ${response.data.message}`)
+    }
   } catch (error) {
-    ElMessage.error('加载设置失败')
-    console.error('加载设置错误:', error)
+    ElMessage.error('加载配置失败，请检查网络连接')
+    console.error('加载配置错误:', error)
   } finally {
-    apiFormLoading.value = false
-    cookieFormLoading.value = false
-    spiderFormLoading.value = false
+    loading.value = false
   }
 }
 
-const loadCookiePoolStatus = async () => {
-  cookiePoolLoading.value = true
+// 保存配置
+const saveConfigs = async (prefix) => {
+  saving.value = true
   
   try {
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    // 这里应该是从API获取实际的Cookie池状态
-    // 这里仅作为示例
-    cookiePoolStatus.value = {
-      total: 15,
-      available: 12,
-      blocked: 3,
-      cooldown_status: {
-        'cookie_1': { remaining_minutes: 5 },
-        'cookie_2': { remaining_minutes: 12 },
-        'cookie_3': { remaining_minutes: 8 },
+    // 获取指定前缀的配置项
+    const configsToSave = {}
+    for (const key in configs.value) {
+      if (key.startsWith(`${prefix}.`)) {
+        configsToSave[key] = configs.value[key]
       }
     }
-  } catch (error) {
-    ElMessage.error('加载Cookie池状态失败')
-    console.error('加载Cookie池状态错误:', error)
-  } finally {
-    cookiePoolLoading.value = false
-  }
-}
-
-const saveApiSettings = async () => {
-  apiFormLoading.value = true
-  
-  try {
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
     
-    // 这里应该是实际保存设置的API调用
-    console.log('保存API设置:', apiForm)
+    const response = await axios.post(`${API_BASE_URL}/config/batch_set`, configsToSave)
     
-    ElMessage.success('API设置保存成功')
-  } catch (error) {
-    ElMessage.error('保存API设置失败')
-    console.error('保存API设置错误:', error)
-  } finally {
-    apiFormLoading.value = false
-  }
-}
-
-const saveCookieSettings = async () => {
-  cookieFormLoading.value = true
-  
-  try {
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    // 这里应该是实际保存设置的API调用
-    console.log('保存Cookie设置:', cookieForm)
-    
-    ElMessage.success('Cookie设置保存成功')
-  } catch (error) {
-    ElMessage.error('保存Cookie设置失败')
-    console.error('保存Cookie设置错误:', error)
-  } finally {
-    cookieFormLoading.value = false
-  }
-}
-
-const saveSpiderSettings = async () => {
-  spiderFormLoading.value = true
-  
-  try {
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    // 这里应该是实际保存设置的API调用
-    console.log('保存爬虫设置:', spiderForm)
-    
-    ElMessage.success('爬虫设置保存成功')
-  } catch (error) {
-    ElMessage.error('保存爬虫设置失败')
-    console.error('保存爬虫设置错误:', error)
-  } finally {
-    spiderFormLoading.value = false
-  }
-}
-
-const refreshCookiePool = async () => {
-  try {
-    await ElMessage.confirm('确定要刷新Cookie池状态吗？', '确认', {
-      confirmButtonText: '确认',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-    
-    await loadCookiePoolStatus()
-    ElMessage.success('Cookie池状态已刷新')
-  } catch {
-    // 用户取消
-  }
-}
-
-const unlockAllCookies = async () => {
-  try {
-    await ElMessage.confirm('确定要解锁所有Cookie吗？这可能影响爬取效率。', '确认', {
-      confirmButtonText: '确认',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-    
-    cookiePoolLoading.value = true
-    
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // 这里应该是实际解锁Cookie的API调用
-    
-    cookiePoolStatus.value.blocked = 0
-    cookiePoolStatus.value.available = cookiePoolStatus.value.total
-    cookiePoolStatus.value.cooldown_status = {}
-    
-    ElMessage.success('所有Cookie已解锁')
-  } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error('解锁Cookie失败')
-      console.error('解锁Cookie错误:', error)
+    if (response.data.code === 0) {
+      ElMessage.success('配置保存成功')
+    } else {
+      ElMessage.error(`保存配置失败: ${response.data.message}`)
     }
+  } catch (error) {
+    ElMessage.error('保存配置失败，请检查网络连接')
+    console.error('保存配置错误:', error)
   } finally {
-    cookiePoolLoading.value = false
+    saving.value = false
   }
+}
+
+// 重置配置
+const resetConfigs = async () => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/config/init_defaults`)
+    
+    if (response.data.code === 0) {
+      ElMessage.success('配置已重置为默认值')
+      await loadConfigs()
+    } else {
+      ElMessage.error(`重置配置失败: ${response.data.message}`)
+    }
+  } catch (error) {
+    ElMessage.error('重置配置失败，请检查网络连接')
+    console.error('重置配置错误:', error)
+  }
+}
+
+// 获取配置项类型
+const getConfigType = (key, value) => {
+  if (typeof value === 'boolean') return 'boolean'
+  if (typeof value === 'number') {
+    if (key.includes('interval') || key.includes('timeout')) return 'number'
+    if (key.includes('port')) return 'port'
+    return 'number'
+  }
+  if (typeof value === 'string') {
+    if (key.includes('url') || key.includes('host')) return 'url'
+    if (key.includes('password') || key.includes('secret')) return 'password'
+    return 'string'
+  }
+  return 'string'
+}
+
+// 获取配置项标签
+const getConfigLabel = (key) => {
+  const parts = key.split('.')
+  if (parts.length < 2) return key
+  
+  const lastPart = parts[parts.length - 1]
+  return lastPart
+    .replace(/_/g, ' ')
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, (str) => str.toUpperCase())
+}
+
+// 获取配置项描述
+const getConfigDescription = (key) => {
+  const descriptions = {
+    'api.host': '服务器监听的主机地址',
+    'api.port': '服务器监听的端口',
+    'api.debug': '是否启用调试模式',
+    'api.cors_origins': '允许的跨域来源',
+    'task.max_concurrent_tasks': '最大并发任务数',
+    'task.queue_check_interval': '任务队列检查间隔（秒）',
+    'task.default_priority': '默认任务优先级（1-10）',
+    'task.max_retry_count': '任务最大重试次数',
+    'task.retry_delay': '任务重试延迟（秒）',
+    'spider.min_interval': '请求间隔最小秒数',
+    'spider.max_interval': '请求间隔最大秒数',
+    'spider.retry_times': '请求失败重试次数',
+    'spider.timeout': '请求超时时间（秒）',
+    'spider.max_workers': '最大工作线程数',
+    'spider.user_agent_rotation': '是否轮换User-Agent',
+    'spider.proxy_enabled': '是否启用代理',
+    'spider.proxy_url': '代理URL',
+    'output.default_format': '默认输出格式：csv, excel',
+    'output.csv_encoding': 'CSV文件编码',
+    'output.excel_sheet_name': 'Excel工作表名称',
+  }
+  
+  return descriptions[key] || '配置项描述'
+}
+
+// 获取指定分组的配置项
+const getGroupConfigs = (group) => {
+  const result = {}
+  for (const key in configs.value) {
+    if (key.startsWith(`${group}.`)) {
+      result[key] = configs.value[key]
+    }
+  }
+  return result
 }
 
 // 生命周期钩子
 onMounted(() => {
-  loadSettings()
-  loadCookiePoolStatus()
+  loadConfigs()
 })
 </script>
 
 <template>
   <div class="settings-container">
-    <h1 class="page-title">配置信息</h1>
+    <h1 class="page-title">系统配置</h1>
     
     <el-row :gutter="20">
-      <el-col :span="16">
-        <!-- API设置 -->
-        <el-card class="settings-card" shadow="hover">
-          <template #header>
-            <div class="card-header">
-              <h2>API 设置</h2>
-              <el-button type="primary" @click="saveApiSettings" :loading="apiFormLoading">
-                保存设置
-              </el-button>
-            </div>
-          </template>
+      <el-col :span="5">
+        <el-card class="settings-menu-card" shadow="hover">
+          <el-menu
+            :default-active="activeGroup"
+            class="settings-menu"
+            @select="activeGroup = $event"
+          >
+            <el-menu-item 
+              v-for="group in configGroups" 
+              :key="group.id" 
+              :index="group.id"
+            >
+              <el-icon><component :is="group.icon" /></el-icon>
+              <span>{{ group.name }}</span>
+            </el-menu-item>
+          </el-menu>
           
-          <el-form :model="apiForm" label-position="top" :disabled="apiFormLoading">
-            <el-form-item label="API 基础URL">
-              <el-input v-model="apiForm.baseUrl" placeholder="例如: http://localhost:5000"></el-input>
-            </el-form-item>
-            
-            <el-form-item label="API 密钥">
-              <el-input v-model="apiForm.apiKey" placeholder="API密钥" show-password></el-input>
-            </el-form-item>
-            
-            <el-form-item label="请求超时时间 (毫秒)">
-              <el-input-number v-model="apiForm.timeout" :min="1000" :max="60000" :step="1000"></el-input-number>
-            </el-form-item>
-          </el-form>
-        </el-card>
-        
-        <!-- Cookie设置 -->
-        <el-card class="settings-card" shadow="hover">
-          <template #header>
-            <div class="card-header">
-              <h2>Cookie 管理设置</h2>
-              <el-button type="primary" @click="saveCookieSettings" :loading="cookieFormLoading">
-                保存设置
-              </el-button>
-            </div>
-          </template>
-          
-          <el-form :model="cookieForm" label-position="top" :disabled="cookieFormLoading">
-            <el-form-item label="最小可用Cookie数量">
-              <el-input-number v-model="cookieForm.minAvailableCookies" :min="1" :max="50"></el-input-number>
-              <div class="form-item-tip">
-                当可用Cookie数量低于此值时，系统将尝试重新登录获取Cookie
-              </div>
-            </el-form-item>
-            
-            <el-form-item label="Cookie冷却时间 (分钟)">
-              <el-input-number v-model="cookieForm.cookieBlockCooldown" :min="5" :max="120"></el-input-number>
-              <div class="form-item-tip">
-                Cookie被锁定后，需要等待的冷却时间
-              </div>
-            </el-form-item>
-            
-            <el-form-item label="Cookie过期缓冲时间 (秒)">
-              <el-input-number v-model="cookieForm.cookieExpirationBuffer" :min="600" :max="86400" :step="600"></el-input-number>
-              <div class="form-item-tip">
-                Cookie过期前的缓冲时间，系统将在Cookie过期前此段时间刷新Cookie
-              </div>
-            </el-form-item>
-          </el-form>
-        </el-card>
-        
-        <!-- 爬虫设置 -->
-        <el-card class="settings-card" shadow="hover">
-          <template #header>
-            <div class="card-header">
-              <h2>爬虫设置</h2>
-              <el-button type="primary" @click="saveSpiderSettings" :loading="spiderFormLoading">
-                保存设置
-              </el-button>
-            </div>
-          </template>
-          
-          <el-form :model="spiderForm" label-position="top" :disabled="spiderFormLoading">
-            <el-form-item label="请求间隔时间">
-              <div class="interval-inputs">
-                <el-input-number v-model="spiderForm.minInterval" :min="1" :max="30" placeholder="最小间隔"></el-input-number>
-                <span class="interval-separator">~</span>
-                <el-input-number v-model="spiderForm.maxInterval" :min="1" :max="30" placeholder="最大间隔"></el-input-number>
-                <span class="interval-unit">秒</span>
-              </div>
-              <div class="form-item-tip">
-                每次请求之间的随机等待时间范围
-              </div>
-            </el-form-item>
-            
-            <el-form-item label="重试次数">
-              <el-input-number v-model="spiderForm.retryTimes" :min="0" :max="10"></el-input-number>
-              <div class="form-item-tip">
-                请求失败时的最大重试次数
-              </div>
-            </el-form-item>
-            
-            <el-form-item label="请求超时时间 (秒)">
-              <el-input-number v-model="spiderForm.timeout" :min="5" :max="120"></el-input-number>
-            </el-form-item>
-            
-            <el-form-item label="最大爬虫工作线程数">
-              <el-input-number v-model="spiderForm.maxWorkers" :min="1" :max="50"></el-input-number>
-              <div class="form-item-tip">
-                并行处理任务的最大线程数，建议根据硬件配置设置
-              </div>
-            </el-form-item>
-          </el-form>
+          <div class="menu-actions">
+            <el-button 
+              type="warning" 
+              @click="resetConfigs" 
+              plain 
+              icon="Refresh" 
+              size="small"
+            >
+              重置为默认配置
+            </el-button>
+          </div>
         </el-card>
       </el-col>
       
-      <el-col :span="8">
-        <!-- Cookie池状态 -->
-        <el-card class="settings-card cookie-status-card" shadow="hover">
+      <el-col :span="19">
+        <el-card class="settings-card" shadow="hover" v-loading="loading">
           <template #header>
             <div class="card-header">
-              <h2>Cookie池状态</h2>
-              <el-button @click="refreshCookiePool" :loading="cookiePoolLoading" plain>
-                刷新
+              <h2>{{ configGroups.find(g => g.id === activeGroup)?.name || '系统配置' }}</h2>
+              <el-button 
+                type="primary" 
+                @click="saveConfigs(activeGroup)" 
+                :loading="saving"
+              >
+                保存配置
               </el-button>
             </div>
           </template>
           
-          <div v-loading="cookiePoolLoading">
-            <div class="cookie-status-section">
-              <el-row :gutter="10">
-                <el-col :span="8">
-                  <div class="status-item">
-                    <div class="status-value">{{ cookiePoolStatus.total }}</div>
-                    <div class="status-label">总数</div>
+          <div class="config-group">
+            <template v-if="Object.keys(getGroupConfigs(activeGroup)).length > 0">
+              <el-form label-position="top">
+                <el-form-item 
+                  v-for="(value, key) in getGroupConfigs(activeGroup)" 
+                  :key="key"
+                  :label="getConfigLabel(key)"
+                >
+                  <!-- 布尔类型 -->
+                  <el-switch 
+                    v-if="getConfigType(key, value) === 'boolean'"
+                    v-model="configs.value[key]"
+                  />
+                  
+                  <!-- 数字类型 -->
+                  <el-input-number 
+                    v-else-if="getConfigType(key, value) === 'number'"
+                    v-model="configs.value[key]"
+                    :min="0"
+                    :step="key.includes('interval') ? 0.1 : 1"
+                  />
+                  
+                  <!-- 端口类型 -->
+                  <el-input-number 
+                    v-else-if="getConfigType(key, value) === 'port'"
+                    v-model="configs.value[key]"
+                    :min="1"
+                    :max="65535"
+                  />
+                  
+                  <!-- 密码类型 -->
+                  <el-input 
+                    v-else-if="getConfigType(key, value) === 'password'"
+                    v-model="configs.value[key]"
+                    show-password
+                  />
+                  
+                  <!-- URL类型 -->
+                  <el-input 
+                    v-else-if="getConfigType(key, value) === 'url'"
+                    v-model="configs.value[key]"
+                    placeholder="例如: http://localhost:5000"
+                  />
+                  
+                  <!-- 默认字符串类型 -->
+                  <el-input 
+                    v-else
+                    v-model="configs.value[key]"
+                  />
+                  
+                  <div class="form-item-tip">
+                    {{ getConfigDescription(key) }}
                   </div>
-                </el-col>
-                <el-col :span="8">
-                  <div class="status-item success">
-                    <div class="status-value">{{ cookiePoolStatus.available }}</div>
-                    <div class="status-label">可用</div>
-                  </div>
-                </el-col>
-                <el-col :span="8">
-                  <div class="status-item danger">
-                    <div class="status-value">{{ cookiePoolStatus.blocked }}</div>
-                    <div class="status-label">锁定</div>
-                  </div>
-                </el-col>
-              </el-row>
-            </div>
+                </el-form-item>
+              </el-form>
+            </template>
             
-            <el-divider></el-divider>
-            
-            <div class="cookie-actions">
-              <el-button type="warning" @click="unlockAllCookies" :loading="cookiePoolLoading">
-                解锁所有Cookie
-              </el-button>
-            </div>
-            
-            <div v-if="cookiePoolStatus.blocked > 0" class="blocked-cookies-list">
-              <h3>被锁定的Cookie</h3>
-              <el-table :data="Object.entries(cookiePoolStatus.cooldown_status || {}).map(([id, status]) => ({ id, ...status }))">
-                <el-table-column prop="id" label="Cookie ID"></el-table-column>
-                <el-table-column prop="remaining_minutes" label="剩余冷却时间">
-                  <template #default="scope">
-                    {{ scope.row.remaining_minutes }} 分钟
-                  </template>
-                </el-table-column>
-              </el-table>
-            </div>
+            <el-empty 
+              v-else 
+              description="该分组下没有配置项" 
+            />
           </div>
         </el-card>
       </el-col>
@@ -388,12 +282,28 @@ onMounted(() => {
 .settings-container {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 20px;
 }
 
 .page-title {
   font-size: 2rem;
   margin-bottom: 24px;
   color: #303133;
+}
+
+.settings-menu-card {
+  margin-bottom: 20px;
+}
+
+.settings-menu {
+  border-right: none;
+}
+
+.menu-actions {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #ebeef5;
+  text-align: center;
 }
 
 .settings-card {
@@ -412,75 +322,13 @@ onMounted(() => {
   font-weight: 600;
 }
 
+.config-group {
+  padding: 10px 0;
+}
+
 .form-item-tip {
   font-size: 0.85rem;
   color: #909399;
   margin-top: 5px;
-}
-
-.interval-inputs {
-  display: flex;
-  align-items: center;
-}
-
-.interval-separator {
-  margin: 0 10px;
-  color: #909399;
-}
-
-.interval-unit {
-  margin-left: 10px;
-  color: #909399;
-}
-
-.cookie-status-section {
-  padding: 10px 0;
-}
-
-.status-item {
-  text-align: center;
-  padding: 15px 10px;
-  background-color: #f5f7fa;
-  border-radius: 4px;
-}
-
-.status-value {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 5px;
-}
-
-.status-label {
-  font-size: 0.9rem;
-  color: #606266;
-}
-
-.status-item.success .status-value {
-  color: #67c23a;
-}
-
-.status-item.danger .status-value {
-  color: #f56c6c;
-}
-
-.cookie-actions {
-  display: flex;
-  justify-content: center;
-  margin: 20px 0;
-}
-
-.blocked-cookies-list {
-  margin-top: 20px;
-}
-
-.blocked-cookies-list h3 {
-  font-size: 1rem;
-  margin-bottom: 10px;
-}
-
-@media (max-width: 768px) {
-  .interval-inputs {
-    flex-wrap: wrap;
-  }
 }
 </style> 

@@ -5,7 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ffc61ac2-aff1-4d92-a630-60ecc81ee81f" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/RegionDistributionTask.vue" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/RegionDistributionTask.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/config/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/config/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/App.vue" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/App.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/TaskList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/TaskList.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/router/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/router/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/views/Settings.vue" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/views/Settings.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,7 +98,7 @@
       <workItem from="1751266033461" duration="11495000" />
       <workItem from="1751281475302" duration="28100000" />
       <workItem from="1751362270523" duration="9772000" />
-      <workItem from="1751377332324" duration="6393000" />
+      <workItem from="1751377332324" duration="6544000" />
     </task>
     <servers />
   </component>

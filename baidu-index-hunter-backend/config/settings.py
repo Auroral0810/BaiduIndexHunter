@@ -30,22 +30,51 @@ REDIS_CONFIG = {
     'password': os.getenv('REDIS_PASSWORD', '') or None,
 }
 
+# API配置
+API_CONFIG = {
+    'host': os.getenv('API_HOST', '0.0.0.0'),
+    'port': int(os.getenv('API_PORT', 5001)),
+    'debug': os.getenv('API_DEBUG', 'True').lower() == 'true',
+    'secret_key': os.getenv('API_SECRET_KEY', 'baidu_index_hunter_secret_key'),
+    'token_expire': int(os.getenv('API_TOKEN_EXPIRE', 86400)),  # 默认1天
+    'cors_origins': os.getenv('API_CORS_ORIGINS', '*').split(','),
+}
+
 # 任务配置
+TASK_CONFIG = {
+    'max_concurrent_tasks': int(os.getenv('MAX_CONCURRENT_TASKS', 5)),  # 最大并发任务数
+    'task_queue_check_interval': int(os.getenv('TASK_QUEUE_CHECK_INTERVAL', 10)),  # 任务队列检查间隔（秒）
+    'default_task_priority': int(os.getenv('DEFAULT_TASK_PRIORITY', 5)),  # 默认任务优先级（1-10）
+    'max_retry_count': int(os.getenv('MAX_RETRY_COUNT', 3)),  # 任务最大重试次数
+    'retry_delay': int(os.getenv('RETRY_DELAY', 300)),  # 任务重试延迟（秒）
+}
+
+# 登录和健康检查配置
 LOGIN_INTERVAL = int(os.getenv('LOGIN_INTERVAL', 86400))  # 默认24小时
 HEALTH_CHECK_INTERVAL = int(os.getenv('HEALTH_CHECK_INTERVAL', 3600))  # 默认1小时
 
 # 日志配置
-LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
-LOG_RETENTION = int(os.getenv('LOG_RETENTION', 7))
+LOG_CONFIG = {
+    'level': os.getenv('LOG_LEVEL', 'INFO'),
+    'retention': int(os.getenv('LOG_RETENTION', 7)),  # 日志保留天数
+    'format': os.getenv('LOG_FORMAT', '%(asctime)s - %(levelname)s - %(name)s - %(message)s'),
+    'file_size': int(os.getenv('LOG_FILE_SIZE', 10 * 1024 * 1024)),  # 单个日志文件大小限制，默认10MB
+    'backup_count': int(os.getenv('LOG_BACKUP_COUNT', 5)),  # 日志文件备份数量
+}
+
 LOG_DIR = Path(__file__).parent.parent / 'output/logs'
 LOG_DIR.mkdir(exist_ok=True)
 
 # Cookie相关配置
 # 注意：百度指数Cookie不会过期，只会被锁住
-COOKIE_MIN_AVAILABLE_COUNT = 3  # 最小可用Cookie数量，低于此值触发告警
-MAX_LOGIN_RETRY = 2  # 登录重试最大次数
-COOKIE_BLOCK_COOLDOWN = 1800  # Cookie被锁后的冷却时间（秒），默认30分钟
-COOKIE_EXPIRATION_BUFFER = 3600  # Cookie过期前的缓冲时间（秒），默认1小时
+COOKIE_CONFIG = {
+    'min_available_count': int(os.getenv('COOKIE_MIN_AVAILABLE_COUNT', 10)),  # 最小可用Cookie数量
+    'max_login_retry': int(os.getenv('COOKIE_MAX_LOGIN_RETRY', 2)),  # 登录重试最大次数
+    'block_cooldown': int(os.getenv('COOKIE_BLOCK_COOLDOWN', 1800)),  # Cookie被锁后的冷却时间（秒），默认30分钟
+    'expiration_buffer': int(os.getenv('COOKIE_EXPIRATION_BUFFER', 3600)),  # Cookie过期前的缓冲时间（秒），默认1小时
+    'rotation_strategy': os.getenv('COOKIE_ROTATION_STRATEGY', 'round_robin'),  # Cookie轮换策略：round_robin, random, least_used
+    'max_usage_per_day': int(os.getenv('COOKIE_MAX_USAGE_PER_DAY', 1800)),  # 每个Cookie每天最大使用次数
+}
 
 # 百度指数API配置
 BAIDU_INDEX_API = {
@@ -61,14 +90,26 @@ BAIDU_INDEX_API = {
 
 # 爬虫配置
 SPIDER_CONFIG = {
-    'min_interval': 1.8,  # 请求间隔最小秒数
-    'max_interval': 2,  # 请求间隔最大秒数
-    'default_interval': 1.8,  # 默认请求间隔秒数
-    'retry_times': 2,  # 请求失败重试次数
-    'timeout': 15,     # 请求超时时间（秒）
-    'max_workers': min(10, multiprocessing.cpu_count()*4),  # 最大工作线程数，增加到40个
-    'max_consecutive_failures': 2,  # 最大连续失败次数
-    'failure_multiplier': 1.2,  # 失败后等待时间倍数
+    'min_interval': float(os.getenv('SPIDER_MIN_INTERVAL', 1.8)),  # 请求间隔最小秒数
+    'max_interval': float(os.getenv('SPIDER_MAX_INTERVAL', 2.0)),  # 请求间隔最大秒数
+    'default_interval': float(os.getenv('SPIDER_DEFAULT_INTERVAL', 1.8)),  # 默认请求间隔秒数
+    'retry_times': int(os.getenv('SPIDER_RETRY_TIMES', 2)),  # 请求失败重试次数
+    'timeout': int(os.getenv('SPIDER_TIMEOUT', 15)),     # 请求超时时间（秒）
+    'max_workers': int(os.getenv('SPIDER_MAX_WORKERS', min(10, multiprocessing.cpu_count()*4))),  # 最大工作线程数
+    'max_consecutive_failures': int(os.getenv('SPIDER_MAX_CONSECUTIVE_FAILURES', 2)),  # 最大连续失败次数
+    'failure_multiplier': float(os.getenv('SPIDER_FAILURE_MULTIPLIER', 1.2)),  # 失败后等待时间倍数
+    'user_agent_rotation': os.getenv('SPIDER_USER_AGENT_ROTATION', 'True').lower() == 'true',  # 是否轮换User-Agent
+    'proxy_enabled': os.getenv('SPIDER_PROXY_ENABLED', 'False').lower() == 'true',  # 是否启用代理
+    'proxy_url': os.getenv('SPIDER_PROXY_URL', ''),  # 代理URL
+    'proxy_auth': os.getenv('SPIDER_PROXY_AUTH', ''),  # 代理认证信息
+}
+
+# 输出配置
+OUTPUT_CONFIG = {
+    'default_format': os.getenv('OUTPUT_DEFAULT_FORMAT', 'csv'),  # 默认输出格式：csv, excel
+    'csv_encoding': os.getenv('OUTPUT_CSV_ENCODING', 'utf-8-sig'),  # CSV文件编码
+    'excel_sheet_name': os.getenv('OUTPUT_EXCEL_SHEET_NAME', 'BaiduIndex'),  # Excel工作表名称
+    'file_name_template': os.getenv('OUTPUT_FILE_NAME_TEMPLATE', '{task_type}_{timestamp}'),  # 输出文件名模板
 }
 
 # Cipher-Text配置

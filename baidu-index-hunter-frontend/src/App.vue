@@ -38,12 +38,15 @@ const handleSelect = (key) => {
       router.push('/data-collection')
       break
     case '3':
-      router.push('/settings')
+      router.push('/cookie-manager')
       break
     case '4':
-      router.push('/about')
+      router.push('/settings')
       break
     case '5':
+      router.push('/about')
+      break
+    case '6':
       router.push('/privacy')
       break
   }
@@ -75,14 +78,18 @@ const handleSelect = (key) => {
               <span>数据采集</span>
             </el-menu-item>
             <el-menu-item index="3" class="nav-item">
+              <el-icon><i-ep-data-line /></el-icon>
+              <span>Cookie管理</span>
+            </el-menu-item>
+            <el-menu-item index="4" class="nav-item">
               <el-icon><i-ep-setting /></el-icon>
               <span>配置信息</span>
             </el-menu-item>
-            <el-menu-item index="4" class="nav-item">
+            <el-menu-item index="5" class="nav-item">
               <el-icon><i-ep-info-filled /></el-icon>
               <span>关于我们</span>
             </el-menu-item>
-            <el-menu-item index="5" class="nav-item">
+            <el-menu-item index="6" class="nav-item">
               <el-icon><i-ep-lock /></el-icon>
               <span>隐私政策</span>
             </el-menu-item>

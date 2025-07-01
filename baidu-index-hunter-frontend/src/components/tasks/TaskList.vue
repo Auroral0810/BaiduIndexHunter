@@ -346,6 +346,48 @@ const taskDetailDialogVisible = ref(false)
 const selectedTask = ref<Task | null>(null)
 const taskLogs = ref<TaskLog[]>([])
 
+// 模拟任务日志数据
+const mockLogs: Record<string, TaskLog[]> = {
+  'TASK-20230615-001': [
+    { id: '1', taskId: 'TASK-20230615-001', level: 'info', message: '任务开始执行', timestamp: '2023-06-15 09:15:30' },
+    { id: '2', taskId: 'TASK-20230615-001', level: 'info', message: '正在获取搜索指数数据', timestamp: '2023-06-15 09:16:00' },
+    { id: '3', taskId: 'TASK-20230615-001', level: 'info', message: '成功获取"小米手机"的搜索指数', timestamp: '2023-06-15 09:18:30' },
+    { id: '4', taskId: 'TASK-20230615-001', level: 'info', message: '成功获取"华为手机"的搜索指数', timestamp: '2023-06-15 09:22:15' },
+    { id: '5', taskId: 'TASK-20230615-001', level: 'info', message: '成功获取"iPhone"的搜索指数', timestamp: '2023-06-15 09:25:45' },
+    { id: '6', taskId: 'TASK-20230615-001', level: 'info', message: '数据处理完成，正在生成CSV文件', timestamp: '2023-06-15 10:28:20' },
+    { id: '7', taskId: 'TASK-20230615-001', level: 'info', message: '任务完成', timestamp: '2023-06-15 10:30:45' }
+  ],
+  'TASK-20230615-002': [
+    { id: '1', taskId: 'TASK-20230615-002', level: 'info', message: '任务开始执行', timestamp: '2023-06-15 10:20:20' },
+    { id: '2', taskId: 'TASK-20230615-002', level: 'info', message: '正在获取资讯指数数据', timestamp: '2023-06-15 10:21:00' },
+    { id: '3', taskId: 'TASK-20230615-002', level: 'info', message: '成功获取"新能源汽车"的资讯指数', timestamp: '2023-06-15 10:35:30' },
+    { id: '4', taskId: 'TASK-20230615-002', level: 'info', message: '成功获取"电动车"的资讯指数', timestamp: '2023-06-15 10:45:15' },
+    { id: '5', taskId: 'TASK-20230615-002', level: 'warning', message: '获取"混合动力"的资讯指数时遇到限流，正在重试', timestamp: '2023-06-15 10:55:45' }
+  ],
+  'TASK-20230614-001': [
+    { id: '1', taskId: 'TASK-20230614-001', level: 'info', message: '任务开始执行', timestamp: '2023-06-14 15:12:40' },
+    { id: '2', taskId: 'TASK-20230614-001', level: 'info', message: '正在获取人群属性数据', timestamp: '2023-06-14 15:13:00' },
+    { id: '3', taskId: 'TASK-20230614-001', level: 'info', message: '成功获取"健身"的人群属性', timestamp: '2023-06-14 15:30:30' },
+    { id: '4', taskId: 'TASK-20230614-001', level: 'warning', message: '获取"瑜伽"的人群属性时遇到限流，正在重试', timestamp: '2023-06-14 15:45:15' },
+    { id: '5', taskId: 'TASK-20230614-001', level: 'error', message: 'Cookie被封禁，任务失败', timestamp: '2023-06-14 16:45:21' }
+  ],
+  'TASK-20230614-002': [
+    { id: '1', taskId: 'TASK-20230614-002', level: 'info', message: '任务开始执行', timestamp: '2023-06-14 16:30:20' },
+    { id: '2', taskId: 'TASK-20230614-002', level: 'info', message: '正在获取兴趣分析数据', timestamp: '2023-06-14 16:31:00' },
+    { id: '3', taskId: 'TASK-20230614-002', level: 'info', message: '成功获取"游戏"的兴趣分析', timestamp: '2023-06-14 16:50:30' },
+    { id: '4', taskId: 'TASK-20230614-002', level: 'info', message: '成功获取"电子竞技"的兴趣分析', timestamp: '2023-06-14 17:10:15' },
+    { id: '5', taskId: 'TASK-20230614-002', level: 'info', message: '成功获取"手游"的兴趣分析', timestamp: '2023-06-14 17:30:45' },
+    { id: '6', taskId: 'TASK-20230614-002', level: 'info', message: '数据处理完成，正在生成CSV文件', timestamp: '2023-06-14 17:43:20' },
+    { id: '7', taskId: 'TASK-20230614-002', level: 'info', message: '任务完成', timestamp: '2023-06-14 17:45:33' }
+  ],
+  'TASK-20230613-001': [
+    { id: '1', taskId: 'TASK-20230613-001', level: 'info', message: '任务开始执行', timestamp: '2023-06-13 09:45:30' },
+    { id: '2', taskId: 'TASK-20230613-001', level: 'info', message: '正在获取地域分布数据', timestamp: '2023-06-13 09:46:00' },
+    { id: '3', taskId: 'TASK-20230613-001', level: 'info', message: '成功获取"旅游"的地域分布', timestamp: '2023-06-13 10:00:30' },
+    { id: '4', taskId: 'TASK-20230613-001', level: 'warning', message: '用户手动取消任务', timestamp: '2023-06-13 10:30:15' }
+  ]
+}
+
 // 加载任务列表
 let loadTasks = async () => {
   loading.value = true
@@ -625,11 +667,9 @@ watch(() => taskDetailDialogVisible.value, (newVal) => {
 
 // 初始加载
 onMounted(() => {
-  loadTasks()
-  setupRefreshInterval()
-  
   // 模拟数据 - 仅用于开发测试
-  if (import.meta.env.DEV) {
+  if (import.meta.env.DEV || true) { // 强制使用模拟数据，无论是否为开发环境
+    console.log("使用模拟数据");
     // 添加模拟数据
     const mockTasks: Task[] = [
       {
@@ -790,100 +830,44 @@ onMounted(() => {
       }
     ];
 
-    // 模拟任务日志
-    const mockLogs: Record<string, TaskLog[]> = {
-      'TASK-20230615-001': [
-        { id: 'log-001', taskId: 'TASK-20230615-001', level: 'info', message: '任务开始执行', timestamp: '2023-06-15 09:15:30' },
-        { id: 'log-002', taskId: 'TASK-20230615-001', level: 'info', message: '正在获取关键词"小米手机"的搜索指数数据', timestamp: '2023-06-15 09:20:15' },
-        { id: 'log-003', taskId: 'TASK-20230615-001', level: 'info', message: '成功获取关键词"小米手机"的搜索指数数据', timestamp: '2023-06-15 09:25:45' },
-        { id: 'log-004', taskId: 'TASK-20230615-001', level: 'info', message: '正在获取关键词"华为手机"的搜索指数数据', timestamp: '2023-06-15 09:30:10' },
-        { id: 'log-005', taskId: 'TASK-20230615-001', level: 'warning', message: '关键词"华为手机"数据获取速度较慢', timestamp: '2023-06-15 09:35:22' },
-        { id: 'log-006', taskId: 'TASK-20230615-001', level: 'info', message: '成功获取关键词"华为手机"的搜索指数数据', timestamp: '2023-06-15 09:40:33' },
-        { id: 'log-007', taskId: 'TASK-20230615-001', level: 'info', message: '正在获取关键词"iPhone"的搜索指数数据', timestamp: '2023-06-15 09:45:12' },
-        { id: 'log-008', taskId: 'TASK-20230615-001', level: 'info', message: '成功获取关键词"iPhone"的搜索指数数据', timestamp: '2023-06-15 09:55:45' },
-        { id: 'log-009', taskId: 'TASK-20230615-001', level: 'info', message: '正在合并数据并生成CSV文件', timestamp: '2023-06-15 10:15:30' },
-        { id: 'log-010', taskId: 'TASK-20230615-001', level: 'info', message: '任务执行完成', timestamp: '2023-06-15 10:30:45' }
-      ],
-      'TASK-20230615-002': [
-        { id: 'log-011', taskId: 'TASK-20230615-002', level: 'info', message: '任务开始执行', timestamp: '2023-06-15 10:20:20' },
-        { id: 'log-012', taskId: 'TASK-20230615-002', level: 'info', message: '正在获取关键词"新能源汽车"的资讯指数数据', timestamp: '2023-06-15 10:25:15' },
-        { id: 'log-013', taskId: 'TASK-20230615-002', level: 'info', message: '成功获取关键词"新能源汽车"的资讯指数数据', timestamp: '2023-06-15 10:35:45' },
-        { id: 'log-014', taskId: 'TASK-20230615-002', level: 'info', message: '正在获取关键词"电动车"的资讯指数数据', timestamp: '2023-06-15 10:40:10' },
-        { id: 'log-015', taskId: 'TASK-20230615-002', level: 'info', message: '成功获取关键词"电动车"的资讯指数数据', timestamp: '2023-06-15 10:50:33' },
-        { id: 'log-016', taskId: 'TASK-20230615-002', level: 'info', message: '正在获取关键词"混合动力"的资讯指数数据', timestamp: '2023-06-15 10:55:12' },
-        { id: 'log-017', taskId: 'TASK-20230615-002', level: 'info', message: '任务执行中...', timestamp: '2023-06-15 11:05:32' }
-      ],
-      'TASK-20230614-001': [
-        { id: 'log-018', taskId: 'TASK-20230614-001', level: 'info', message: '任务开始执行', timestamp: '2023-06-14 15:12:40' },
-        { id: 'log-019', taskId: 'TASK-20230614-001', level: 'info', message: '正在获取关键词"健身"的人群属性数据', timestamp: '2023-06-14 15:15:15' },
-        { id: 'log-020', taskId: 'TASK-20230614-001', level: 'info', message: '成功获取关键词"健身"的人群属性数据', timestamp: '2023-06-14 15:25:45' },
-        { id: 'log-021', taskId: 'TASK-20230614-001', level: 'info', message: '正在获取关键词"瑜伽"的人群属性数据', timestamp: '2023-06-14 15:30:10' },
-        { id: 'log-022', taskId: 'TASK-20230614-001', level: 'warning', message: '请求频率过高，系统限流', timestamp: '2023-06-14 15:40:22' },
-        { id: 'log-023', taskId: 'TASK-20230614-001', level: 'info', message: '重试获取关键词"瑜伽"的人群属性数据', timestamp: '2023-06-14 15:45:33' },
-        { id: 'log-024', taskId: 'TASK-20230614-001', level: 'error', message: '连接超时，无法获取数据', timestamp: '2023-06-14 16:00:12' },
-        { id: 'log-025', taskId: 'TASK-20230614-001', level: 'error', message: '任务执行失败', timestamp: '2023-06-14 16:45:21' }
-      ],
-      'TASK-20230614-002': [
-        { id: 'log-026', taskId: 'TASK-20230614-002', level: 'info', message: '任务开始执行', timestamp: '2023-06-14 16:30:20' },
-        { id: 'log-027', taskId: 'TASK-20230614-002', level: 'info', message: '正在获取关键词"游戏"的兴趣分析数据', timestamp: '2023-06-14 16:35:15' },
-        { id: 'log-028', taskId: 'TASK-20230614-002', level: 'info', message: '成功获取关键词"游戏"的兴趣分析数据', timestamp: '2023-06-14 16:45:45' },
-        { id: 'log-029', taskId: 'TASK-20230614-002', level: 'info', message: '正在获取关键词"电子竞技"的兴趣分析数据', timestamp: '2023-06-14 16:50:10' },
-        { id: 'log-030', taskId: 'TASK-20230614-002', level: 'info', message: '成功获取关键词"电子竞技"的兴趣分析数据', timestamp: '2023-06-14 17:05:33' },
-        { id: 'log-031', taskId: 'TASK-20230614-002', level: 'info', message: '正在获取关键词"手游"的兴趣分析数据', timestamp: '2023-06-14 17:10:12' },
-        { id: 'log-032', taskId: 'TASK-20230614-002', level: 'info', message: '成功获取关键词"手游"的兴趣分析数据', timestamp: '2023-06-14 17:25:45' },
-        { id: 'log-033', taskId: 'TASK-20230614-002', level: 'info', message: '正在生成数据报告', timestamp: '2023-06-14 17:35:30' },
-        { id: 'log-034', taskId: 'TASK-20230614-002', level: 'info', message: '任务执行完成', timestamp: '2023-06-14 17:45:33' }
-      ],
-      'TASK-20230613-001': [
-        { id: 'log-035', taskId: 'TASK-20230613-001', level: 'info', message: '任务开始执行', timestamp: '2023-06-13 09:45:30' },
-        { id: 'log-036', taskId: 'TASK-20230613-001', level: 'info', message: '正在获取关键词"旅游"的地域分布数据', timestamp: '2023-06-13 09:50:15' },
-        { id: 'log-037', taskId: 'TASK-20230613-001', level: 'info', message: '成功获取关键词"旅游"的地域分布数据', timestamp: '2023-06-13 10:00:45' },
-        { id: 'log-038', taskId: 'TASK-20230613-001', level: 'info', message: '正在获取关键词"度假"的地域分布数据', timestamp: '2023-06-13 10:05:10' },
-        { id: 'log-039', taskId: 'TASK-20230613-001', level: 'warning', message: '用户请求取消任务', timestamp: '2023-06-13 10:15:22' },
-        { id: 'log-040', taskId: 'TASK-20230613-001', level: 'info', message: '任务已取消', timestamp: '2023-06-13 10:30:15' }
-      ]
-    };
-
     // 覆盖加载任务的方法，使用模拟数据
     loadTasks = async () => {
       loading.value = true;
       
-      setTimeout(() => {
-        // 根据筛选条件过滤任务
-        let filteredTasks = [...mockTasks];
-        
-        if (searchKeyword.value) {
-          const keyword = searchKeyword.value.toLowerCase();
-          filteredTasks = filteredTasks.filter(task => {
-            const keywords = task.parameters.keywords;
-            if (Array.isArray(keywords)) {
-              return keywords.some(k => {
-                if (typeof k === 'object' && k.value) {
-                  return k.value.toLowerCase().includes(keyword);
-                }
-                return String(k).toLowerCase().includes(keyword);
-              });
-            }
-            return task.taskId.toLowerCase().includes(keyword);
-          });
-        }
-        
-        if (taskTypeFilter.value) {
-          filteredTasks = filteredTasks.filter(task => task.taskType === taskTypeFilter.value);
-        }
-        
-        if (statusFilter.value) {
-          filteredTasks = filteredTasks.filter(task => task.status === statusFilter.value);
-        }
-        
-        // 计算分页
-        total.value = filteredTasks.length;
-        const start = (currentPage.value - 1) * pageSize.value;
-        const end = start + pageSize.value;
-        tasks.value = filteredTasks.slice(start, end);
-        
-        loading.value = false;
-      }, 500); // 模拟网络延迟
+      // 根据筛选条件过滤任务
+      let filteredTasks = [...mockTasks];
+      
+      if (searchKeyword.value) {
+        const keyword = searchKeyword.value.toLowerCase();
+        filteredTasks = filteredTasks.filter(task => {
+          const keywords = task.parameters.keywords;
+          if (Array.isArray(keywords)) {
+            return keywords.some(k => {
+              if (typeof k === 'object' && k.value) {
+                return k.value.toLowerCase().includes(keyword);
+              }
+              return String(k).toLowerCase().includes(keyword);
+            });
+          }
+          return task.taskId.toLowerCase().includes(keyword);
+        });
+      }
+      
+      if (taskTypeFilter.value) {
+        filteredTasks = filteredTasks.filter(task => task.taskType === taskTypeFilter.value);
+      }
+      
+      if (statusFilter.value) {
+        filteredTasks = filteredTasks.filter(task => task.status === statusFilter.value);
+      }
+      
+      // 计算分页
+      total.value = filteredTasks.length;
+      const start = (currentPage.value - 1) * pageSize.value;
+      const end = start + pageSize.value;
+      tasks.value = filteredTasks.slice(start, end);
+      
+      loading.value = false;
     };
     
     // 覆盖加载任务日志的方法
@@ -922,8 +906,12 @@ onMounted(() => {
       }, 1500);
     };
     
-    // 初始加载模拟数据
+    // 立即加载模拟数据
     loadTasks();
+  } else {
+    // 正常加载数据
+    loadTasks();
+    setupRefreshInterval();
   }
 })
 </script>

@@ -18,6 +18,14 @@ const routes = [
     }
   },
   {
+    path: '/cookie-manager',
+    name: 'CookieManager',
+    component: () => import('../views/CookieManager.vue'),
+    meta: {
+      title: 'Cookie管理 - BaiduIndexHunter'
+    }
+  },
+  {
     path: '/settings',
     name: 'Settings',
     component: () => import('../views/Settings.vue'),
