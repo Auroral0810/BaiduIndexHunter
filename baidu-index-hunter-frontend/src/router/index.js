@@ -6,7 +6,7 @@ const routes = [
     name: 'Home',
     component: () => import('../views/Home.vue'),
     meta: {
-      title: '主页 - 百度指数猎手'
+      title: '主页 - BaiduIndexHunter'
     }
   },
   {
@@ -14,7 +14,7 @@ const routes = [
     name: 'DataCollection',
     component: () => import('../views/DataCollection.vue'),
     meta: {
-      title: '数据采集 - 百度指数猎手'
+      title: '数据采集 - BaiduIndexHunter'
     }
   },
   {
@@ -22,7 +22,7 @@ const routes = [
     name: 'Settings',
     component: () => import('../views/Settings.vue'),
     meta: {
-      title: '配置信息 - 百度指数猎手'
+      title: '配置信息 - BaiduIndexHunter'
     }
   },
   {
@@ -30,7 +30,7 @@ const routes = [
     name: 'About',
     component: () => import('../views/About.vue'),
     meta: {
-      title: '关于我们 - 百度指数猎手'
+      title: '关于我们 - BaiduIndexHunter'
     }
   },
   {
@@ -38,7 +38,7 @@ const routes = [
     name: 'Privacy',
     component: () => import('../views/Privacy.vue'),
     meta: {
-      title: '隐私政策 - 百度指数猎手'
+      title: '隐私政策 - BaiduIndexHunter'
     }
   }
 ]

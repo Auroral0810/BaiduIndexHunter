@@ -55,8 +55,8 @@ const handleSelect = (key) => {
     <header class="app-header">
       <div class="header-content">
         <div class="logo" @click="router.push('/')">
-          <img src="./assets/logo.svg" alt="百度指数猎手" class="logo-img">
-          <span class="logo-text">百度指数猎手</span>
+          <img src="./assets/logo.svg" alt="BaiduIndexHunter" class="logo-img">
+          <span class="logo-text">BaiduIndexHunter</span>
         </div>
         
         <nav class="app-nav">
@@ -102,7 +102,7 @@ const handleSelect = (key) => {
     <footer class="app-footer">
       <div class="footer-content">
         <div class="copyright">
-          © {{ new Date().getFullYear() }} 百度指数猎手 - 高效的百度指数数据采集与分析工具
+          © {{ new Date().getFullYear() }} BaiduIndexHunter - 高效的百度指数数据采集与分析工具
         </div>
         <div class="footer-links">
           <a href="#" @click.prevent="router.push('/about')">关于我们</a>

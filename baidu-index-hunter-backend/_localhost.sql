@@ -49,11 +49,14 @@ CREATE TABLE `prefecture_city` (
   `id` int NOT NULL AUTO_INCREMENT,
   `city_code` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '地级市代码',
   `city_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '地级市名称',
+  `province_code` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '所属省份代码',
+  `province_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '所属省份名称',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `city_code` (`city_code`),
-  KEY `idx_city_code` (`city_code`)
+  KEY `idx_city_code` (`city_code`),
+  KEY `idx_province_code` (`province_code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=370 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='地级市表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 

@@ -16,7 +16,7 @@ const developer = {
   role: '全栈开发',
   avatar: avatar,
   school: '南京审计大学',
-  description: '负责百度指数猎手项目的全部设计与开发，包括后端数据爬取、前端界面实现和数据分析功能。'
+  description: '负责BaiduIndexHunter项目的全部设计与开发，包括后端数据爬取、前端界面实现和数据分析功能。'
 }
 
 const features = ref([
@@ -45,8 +45,8 @@ const features = ref([
 // FAQ 数据
 const faqs = ref([
   {
-    question: '百度指数猎手是什么？',
-    answer: '百度指数猎手是一个高效、稳定的百度指数数据采集和分析工具，帮助您获取关键词搜索趋势、地域分布等重要数据。'
+    question: 'BaiduIndexHunter是什么？',
+    answer: 'BaiduIndexHunter是一个高效、稳定的百度指数数据采集和分析工具，帮助您获取关键词搜索趋势、地域分布等重要数据。'
   },
   {
     question: '如何开始使用？',
@@ -70,7 +70,7 @@ const faqs = ref([
 <template>
   <div class="about-container">
     <section class="hero-section">
-      <h1 class="page-title gradient-text">关于百度指数猎手</h1>
+      <h1 class="page-title gradient-text">关于BaiduIndexHunter</h1>
       <p class="subtitle">高效、稳定的百度指数数据采集和分析工具</p>
       <div class="version-info">
         <el-tag effect="dark" class="version-tag">v{{ version }}</el-tag>
@@ -83,9 +83,9 @@ const faqs = ref([
         <section class="intro-section">
           <h2>项目介绍</h2>
           <div class="intro-text">
-            <p>百度指数猎手是一个专为营销人员、数据分析师和研究人员设计的工具，旨在帮助用户高效获取和分析百度指数数据。</p>
+            <p>BaiduIndexHunter是一个专为营销人员、数据分析师和研究人员设计的工具，旨在帮助用户高效获取和分析百度指数数据。</p>
             <p>通过我们的应用，您可以轻松监控关键词趋势、了解用户需求变化，支持您的市场决策和研究工作。我们致力于提供最稳定、最高效的数据采集体验。</p>
-            <p>该项目采用Python后端和Vue.js前端构建，具有良好的可扩展性和定制能力。无论您是需要简单的数据导出，还是复杂的数据分析，百度指数猎手都能满足您的需求。</p>
+            <p>该项目采用Python后端和Vue.js前端构建，具有良好的可扩展性和定制能力。无论您是需要简单的数据导出，还是复杂的数据分析，BaiduIndexHunter都能满足您的需求。</p>
           </div>
         </section>
         

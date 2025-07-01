@@ -12,14 +12,14 @@ const lastUpdated = ref('2025-6-26')
     <div class="privacy-content">
       <section class="privacy-section">
         <h2>引言</h2>
-        <p>百度指数猎手（"我们"、"我们的"或"本应用"）尊重并保护所有使用服务用户的个人隐私权。为了给您提供更准确、更优质的服务，本应用会按照本隐私政策的规定使用和披露您的个人信息。请您仔细阅读本隐私政策。</p>
+        <p>BaiduIndexHunter（"我们"、"我们的"或"本应用"）尊重并保护所有使用服务用户的个人隐私权。为了给您提供更准确、更优质的服务，本应用会按照本隐私政策的规定使用和披露您的个人信息。请您仔细阅读本隐私政策。</p>
       </section>
       
       <section class="privacy-section">
         <h2>信息收集</h2>
         <p>我们收集的信息类型取决于您如何使用我们的服务。主要包括：</p>
         <ul>
-          <li><strong>账户信息</strong>：当您注册百度指数猎手账户时，我们会收集您提供的信息，如用户名、电子邮件地址和密码。</li>
+          <li><strong>账户信息</strong>：当您注册BaiduIndexHunter账户时，我们会收集您提供的信息，如用户名、电子邮件地址和密码。</li>
           <li><strong>使用数据</strong>：我们会收集您如何使用我们服务的数据，包括您搜索的关键词、数据采集配置和操作日志。</li>
           <li><strong>设备信息</strong>：我们可能会收集有关您使用我们服务的设备的信息，如IP地址、浏览器类型和操作系统版本。</li>
           <li><strong>Cookie信息</strong>：为提供更个性化的服务，我们会使用Cookie来存储和获取信息。您可以通过浏览器设置拒绝Cookie，但这可能会影响部分功能的正常使用。</li>
@@ -46,7 +46,7 @@ const lastUpdated = ref('2025-6-26')
         <ul>
           <li><strong>经您授权</strong>：获得您的明确同意后</li>
           <li><strong>法律要求</strong>：遵守法律法规的要求、法院命令或其他法律程序</li>
-          <li><strong>保护权利</strong>：保护百度指数猎手、我们的用户或公众的权利、财产或安全</li>
+          <li><strong>保护权利</strong>：保护BaiduIndexHunter、我们的用户或公众的权利、财产或安全</li>
           <li><strong>业务转让</strong>：在合并、收购或资产出售的情况下</li>
         </ul>
       </section>

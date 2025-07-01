@@ -671,7 +671,9 @@ def get_all_provinces():
                                     'type': 'object',
                                     'properties': {
                                         'code': {'type': 'string'},
-                                        'name': {'type': 'string'}
+                                        'name': {'type': 'string'},
+                                        'province_code': {'type': 'string'},
+                                        'province_name': {'type': 'string'}
                                     }
                                 }
                             }
@@ -734,3 +736,350 @@ def get_all_regions():
     return jsonify(ResponseFormatter.success({
         'regions': regions
     }))
+
+@region_blueprint.route('/province/cities', methods=['GET'])
+@swag_from({
+    'tags': ['区域数据'],
+    'summary': '获取各省份下属的城市列表',
+    'parameters': [
+        {
+            'name': 'province_code',
+            'in': 'query',
+            'type': 'string',
+            'required': False,
+            'description': '省份代码，如不提供则返回所有省份数据'
+        }
+    ],
+    'responses': {
+        '200': {
+            'description': '成功获取省份城市列表',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer'},
+                    'msg': {'type': 'string'},
+                    'data': {
+                        'type': 'object',
+                        'properties': {
+                            'provinces': {
+                                'type': 'object',
+                                'additionalProperties': {
+                                    'type': 'object',
+                                    'properties': {
+                                        'province_code': {'type': 'string'},
+                                        'province_name': {'type': 'string'},
+                                        'city_count': {'type': 'integer'},
+                                        'cities': {
+                                            'type': 'object',
+                                            'additionalProperties': {
+                                                'type': 'object',
+                                                'properties': {
+                                                    'code': {'type': 'string'},
+                                                    'name': {'type': 'string'}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+})
+def get_province_cities():
+    """获取各省份下属的城市列表"""
+    province_code = request.args.get('province_code')
+    
+    # 获取省份城市数据
+    province_cities = region_manager.get_province_cities(province_code)
+    
+    return jsonify(ResponseFormatter.success({
+        'provinces': province_cities
+    }))
+
+@region_blueprint.route('/sync_province_cities', methods=['POST'])
+@swag_from({
+    'tags': ['区域数据'],
+    'summary': '同步各省份下属城市数据到Redis',
+    'responses': {
+        '200': {
+            'description': '同步成功',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer'},
+                    'msg': {'type': 'string'},
+                    'data': {
+                        'type': 'object',
+                        'properties': {
+                            'success': {'type': 'boolean'}
+                        }
+                    }
+                }
+            }
+        },
+        '500': {
+            'description': '同步失败'
+        }
+    }
+})
+def sync_province_cities():
+    """手动触发同步各省份下属城市数据到Redis"""
+    success = region_manager.sync_province_cities()
+    
+    if not success:
+        return jsonify(ResponseFormatter.error(
+            ResponseCode.SERVER_ERROR,
+            "同步省份城市数据到Redis失败"
+        )), 500
+    
+    return jsonify(ResponseFormatter.success({
+        'success': True
+    }, "省份城市数据同步到Redis成功"))
+
+@region_blueprint.route('/update_city_province', methods=['POST'])
+@swag_from({
+    'tags': ['区域数据'],
+    'summary': '更新城市的所属省份信息',
+    'parameters': [
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'city_code': {'type': 'string', 'description': '城市代码'},
+                    'province_code': {'type': 'string', 'description': '省份代码'},
+                    'province_name': {'type': 'string', 'description': '省份名称'}
+                },
+                'required': ['city_code', 'province_code']
+            }
+        }
+    ],
+    'responses': {
+        '200': {
+            'description': '更新成功',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer'},
+                    'msg': {'type': 'string'},
+                    'data': {
+                        'type': 'object',
+                        'properties': {
+                            'city_code': {'type': 'string'},
+                            'province_code': {'type': 'string'},
+                            'province_name': {'type': 'string'},
+                            'success': {'type': 'boolean'}
+                        }
+                    }
+                }
+            }
+        },
+        '400': {
+            'description': '参数错误'
+        },
+        '404': {
+            'description': '城市或省份不存在'
+        }
+    }
+})
+def update_city_province():
+    """更新城市的所属省份信息"""
+    data = request.get_json()
+    
+    if not data:
+        return jsonify(ResponseFormatter.error(
+            ResponseCode.PARAM_ERROR,
+            "请求体为空"
+        )), 400
+    
+    city_code = data.get('city_code')
+    province_code = data.get('province_code')
+    
+    if not city_code or not province_code:
+        return jsonify(ResponseFormatter.error(
+            ResponseCode.PARAM_ERROR,
+            "缺少必要参数: city_code 或 province_code"
+        )), 400
+    
+    # 如果没有提供省份名称，则尝试从数据库获取
+    province_name = data.get('province_name')
+    if not province_name:
+        # 从省份信息中查找
+        province_info = region_manager.get_region_by_code(province_code)
+        if province_info:
+            province_name = province_info.get('name')
+    
+    result = region_manager.update_city_province(city_code, province_code, province_name)
+    
+    if not result:
+        return jsonify(ResponseFormatter.error(
+            ResponseCode.DATA_NOT_FOUND,
+            f"更新失败，城市代码 {city_code} 或省份代码 {province_code} 不存在"
+        )), 404
+    
+    return jsonify(ResponseFormatter.success({
+        'city_code': city_code,
+        'province_code': province_code,
+        'province_name': province_name,
+        'success': True
+    }, "更新城市所属省份信息成功"))
+
+
+@region_blueprint.route('/batch_update_city_province', methods=['POST'])
+@swag_from({
+    'tags': ['区域数据'],
+    'summary': '批量更新城市的所属省份信息',
+    'parameters': [
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'cities': {
+                        'type': 'array',
+                        'items': {
+                            'type': 'object',
+                            'properties': {
+                                'city_code': {'type': 'string', 'description': '城市代码'},
+                                'province_code': {'type': 'string', 'description': '省份代码'},
+                                'province_name': {'type': 'string', 'description': '省份名称'}
+                            },
+                            'required': ['city_code', 'province_code']
+                        }
+                    }
+                },
+                'required': ['cities']
+            }
+        }
+    ],
+    'responses': {
+        '200': {
+            'description': '批量更新成功',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer'},
+                    'msg': {'type': 'string'},
+                    'data': {
+                        'type': 'object',
+                        'properties': {
+                            'total': {'type': 'integer'},
+                            'success_count': {'type': 'integer'},
+                            'failed_count': {'type': 'integer'}
+                        }
+                    }
+                }
+            }
+        },
+        '400': {
+            'description': '参数错误'
+        }
+    }
+})
+def batch_update_city_province():
+    """批量更新城市的所属省份信息"""
+    data = request.get_json()
+    
+    if not data or 'cities' not in data:
+        return jsonify(ResponseFormatter.error(
+            ResponseCode.PARAM_ERROR,
+            "缺少必要参数: cities"
+        )), 400
+    
+    cities = data.get('cities', [])
+    if not isinstance(cities, list) or len(cities) == 0:
+        return jsonify(ResponseFormatter.error(
+            ResponseCode.PARAM_ERROR,
+            "cities 必须是非空数组"
+        )), 400
+    
+    success_count = 0
+    failed_count = 0
+    
+    for city_data in cities:
+        city_code = city_data.get('city_code')
+        province_code = city_data.get('province_code')
+        province_name = city_data.get('province_name')
+        
+        if not city_code or not province_code:
+            failed_count += 1
+            continue
+            
+        # 如果没有提供省份名称，则尝试从数据库获取
+        if not province_name:
+            province_info = region_manager.get_region_by_code(province_code)
+            if province_info:
+                province_name = province_info.get('name')
+        
+        result = region_manager.update_city_province(city_code, province_code, province_name)
+        
+        if result:
+            success_count += 1
+        else:
+            failed_count += 1
+    
+    return jsonify(ResponseFormatter.success({
+        'total': len(cities),
+        'success_count': success_count,
+        'failed_count': failed_count
+    }, f"批量更新城市所属省份信息完成，成功: {success_count}，失败: {failed_count}"))
+
+@region_blueprint.route('/sync_city_province', methods=['POST'])
+@swag_from({
+    'tags': ['区域数据'],
+    'summary': '同步城市的所属省份信息（根据region_children表）',
+    'responses': {
+        '200': {
+            'description': '同步成功',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer'},
+                    'msg': {'type': 'string'},
+                    'data': {
+                        'type': 'object',
+                        'properties': {
+                            'total': {'type': 'integer'},
+                            'success_count': {'type': 'integer'},
+                            'failed_count': {'type': 'integer'}
+                        }
+                    }
+                }
+            }
+        },
+        '500': {
+            'description': '同步失败'
+        }
+    }
+})
+def sync_city_province():
+    """同步城市的所属省份信息（根据region_children表）"""
+    try:
+        result = region_manager.sync_city_province()
+        
+        if result:
+            total, success_count, failed_count = result
+            return jsonify(ResponseFormatter.success({
+                'total': total,
+                'success_count': success_count,
+                'failed_count': failed_count
+            }, f"同步城市所属省份信息完成，成功: {success_count}，失败: {failed_count}"))
+        else:
+            return jsonify(ResponseFormatter.error(
+                ResponseCode.SERVER_ERROR,
+                "同步城市所属省份信息失败"
+            )), 500
+    except Exception as e:
+        log.error(f"同步城市所属省份信息失败: {e}")
+        return jsonify(ResponseFormatter.error(
+            ResponseCode.SERVER_ERROR,
+            f"同步城市所属省份信息失败: {str(e)}"
+        )), 500

@@ -87,7 +87,7 @@ const workflowSteps = [
     <!-- 主横幅区域 -->
     <section class="hero-section">
       <div class="hero-content">
-        <h1 class="hero-title">百度指数猎手</h1>
+        <h1 class="hero-title">BaiduIndexHunter</h1>
         <p class="hero-subtitle">高效、稳定的百度指数数据采集工具</p>
         <div class="hero-buttons">
           <el-button type="primary" size="large" @click="goToDataCollection">

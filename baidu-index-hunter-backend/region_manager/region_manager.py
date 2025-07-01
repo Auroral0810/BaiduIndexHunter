@@ -26,6 +26,7 @@ class RegionManager:
     REDIS_PROVINCES_KEY = "baidu_index:provinces"    # 省份数据
     REDIS_CITIES_KEY = "baidu_index:cities"          # 地级市数据
     REDIS_REGIONS_KEY = "baidu_index:regions"        # 区域关系数据
+    REDIS_PROVINCE_CITIES_KEY = "baidu_index:province_cities"  # 省份下属城市数据
     
     # Redis过期时间（7天）
     REDIS_EXPIRE = 60 * 60 * 24 * 7
@@ -87,6 +88,9 @@ class RegionManager:
             # 同步区域关系数据
             self._sync_regions()
             
+            # 同步省份城市关系数据
+            self.sync_province_cities()
+            
             log.info("区域数据同步到Redis完成")
             return True
         except Exception as e:
@@ -129,8 +133,8 @@ class RegionManager:
         """同步地级市数据到Redis"""
         with self.mysql_conn.cursor() as cursor:
             cursor.execute("""
-                SELECT city_code, city_name
-                FROM prefecture_city
+                SELECT city_code, city_name, province_code, province_name
+                FROM prefecture_city 
                 ORDER BY city_code
             """)
             cities = cursor.fetchall()
@@ -139,10 +143,14 @@ class RegionManager:
             for city in cities:
                 city_code = city['city_code']
                 city_name = city['city_name']
+                province_code = city['province_code']
+                province_name = city['province_name']
                 
                 cities_data[city_code] = {
                     'code': city_code,
-                    'name': city_name
+                    'name': city_name,
+                    'province_code': province_code,
+                    'province_name': province_name
                 }
             
             # 存储为JSON字符串
@@ -490,6 +498,234 @@ class RegionManager:
         except Exception as e:
             log.error(f"获取城市代码失败: {e}")
             return None
+
+    def update_city_province(self, city_code: str, province_code: str, province_name: Optional[str] = None) -> bool:
+        """
+        更新城市的所属省份信息
+        :param city_code: 城市代码
+        :param province_code: 省份代码
+        :param province_name: 省份名称（如果为None，将尝试从数据库获取）
+        :return: 是否更新成功
+        """
+        try:
+            # 检查城市是否存在
+            city_name = self.get_city_name_by_code(city_code)
+            if not city_name:
+                log.warning(f"更新失败，城市代码不存在: {city_code}")
+                return False
+            
+            # 如果没有提供省份名称，尝试获取
+            if not province_name:
+                province_info = self.get_region_by_code(province_code)
+                if province_info:
+                    province_name = province_info.get('name')
+                else:
+                    # 尝试从province_region表获取
+                    with self.mysql_conn.cursor() as cursor:
+                        cursor.execute(
+                            "SELECT province_name FROM province_region WHERE province_code = %s",
+                            [province_code]
+                        )
+                        result = cursor.fetchone()
+                        if result:
+                            province_name = result['province_name']
+            
+            # 如果省份名称仍为空，记录警告但继续执行
+            if not province_name:
+                log.warning(f"未能获取省份名称，仅更新省份代码: {province_code}")
+            
+            # 更新数据库
+            with self.mysql_conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    UPDATE prefecture_city 
+                    SET province_code = %s, province_name = %s, updated_at = NOW() 
+                    WHERE city_code = %s
+                    """,
+                    [province_code, province_name, city_code]
+                )
+                self.mysql_conn.commit()
+                
+                if cursor.rowcount == 0:
+                    log.warning(f"更新失败，城市代码可能不存在: {city_code}")
+                    return False
+                
+                log.info(f"成功更新城市所属省份: 城市={city_code}, 省份={province_code}")
+                
+                # 更新Redis缓存
+                self._sync_cities()
+                
+                return True
+                
+        except Exception as e:
+            log.error(f"更新城市所属省份失败: {e}")
+            return False
+    
+    def sync_city_province(self) -> Optional[Tuple[int, int, int]]:
+        """
+        根据region_children表同步所有城市的所属省份信息
+        :return: 元组(总数, 成功数, 失败数)，失败时返回None
+        """
+        try:
+            log.info("开始同步城市所属省份信息...")
+            
+            # 获取所有省级行政区
+            provinces = {}
+            with self.mysql_conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT province_code, province_name 
+                    FROM province_region
+                    """
+                )
+                for province in cursor.fetchall():
+                    provinces[province['province_code']] = province['province_name']
+            
+            # 获取所有省份和城市的父子关系
+            city_provinces = {}
+            with self.mysql_conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT rc.parent_code, rc.child_code
+                    FROM region_children rc
+                    JOIN prefecture_city pc ON rc.child_code = pc.city_code
+                    JOIN province_region pr ON rc.parent_code = pr.province_code
+                    """
+                )
+                for relation in cursor.fetchall():
+                    parent_code = relation['parent_code']
+                    child_code = relation['child_code']
+                    if parent_code in provinces:
+                        city_provinces[child_code] = {
+                            'province_code': parent_code,
+                            'province_name': provinces[parent_code]
+                        }
+            
+            # 获取所有需要更新的城市
+            cities = []
+            with self.mysql_conn.cursor() as cursor:
+                cursor.execute("SELECT city_code FROM prefecture_city")
+                for city in cursor.fetchall():
+                    cities.append(city['city_code'])
+            
+            total = len(cities)
+            success_count = 0
+            failed_count = 0
+            
+            # 更新城市所属省份
+            for city_code in cities:
+                if city_code in city_provinces:
+                    province_data = city_provinces[city_code]
+                    result = self.update_city_province(
+                        city_code,
+                        province_data['province_code'],
+                        province_data['province_name']
+                    )
+                    if result:
+                        success_count += 1
+                    else:
+                        failed_count += 1
+                else:
+                    log.warning(f"城市 {city_code} 没有找到对应的省份关系")
+                    failed_count += 1
+            
+            # 更新Redis缓存
+            self._sync_cities()
+            
+            log.info(f"城市所属省份同步完成，总数: {total}, 成功: {success_count}, 失败: {failed_count}")
+            return total, success_count, failed_count
+            
+        except Exception as e:
+            log.error(f"同步城市所属省份失败: {e}")
+            return None
+
+    def sync_province_cities(self) -> bool:
+        """
+        统计每个省份下面的地级市和代码，并保存到Redis
+        :return: 是否同步成功
+        """
+        try:
+            log.info("开始统计各省份下属城市数据...")
+            
+            province_cities = {}
+            
+            # 从MySQL获取所有城市数据，按省份分组
+            with self.mysql_conn.cursor() as cursor:
+                cursor.execute("""
+                    SELECT 
+                        province_code, province_name, 
+                        city_code, city_name
+                    FROM prefecture_city
+                    WHERE province_code IS NOT NULL
+                    ORDER BY province_code, city_code
+                """)
+                
+                cities = cursor.fetchall()
+                
+                # 按省份分组
+                for city in cities:
+                    province_code = city['province_code']
+                    province_name = city['province_name']
+                    city_code = city['city_code']
+                    city_name = city['city_name']
+                    
+                    # 如果省份不在字典中，初始化
+                    if province_code not in province_cities:
+                        province_cities[province_code] = {
+                            'province_code': province_code,
+                            'province_name': province_name,
+                            'city_count': 0,
+                            'cities': {}
+                        }
+                    
+                    # 添加城市到对应省份
+                    province_cities[province_code]['cities'][city_code] = {
+                        'code': city_code,
+                        'name': city_name
+                    }
+                    province_cities[province_code]['city_count'] += 1
+            
+            # 存储为JSON字符串
+            if province_cities:
+                self.redis_client.set(
+                    self.REDIS_PROVINCE_CITIES_KEY, 
+                    json.dumps(province_cities, ensure_ascii=False)
+                )
+                self.redis_client.expire(self.REDIS_PROVINCE_CITIES_KEY, self.REDIS_EXPIRE)
+                
+                log.info(f"成功统计并同步 {len(province_cities)} 个省份的城市数据到Redis")
+                return True
+            else:
+                log.warning("未找到任何省份城市关系数据")
+                return False
+                
+        except Exception as e:
+            log.error(f"统计各省份下属城市数据失败: {e}")
+            return False
+    
+    def get_province_cities(self, province_code: Optional[str] = None) -> Dict:
+        """
+        获取各省份下属城市数据
+        :param province_code: 省份代码，如果提供则只返回该省份的数据
+        :return: 省份城市数据字典
+        """
+        province_cities_json = self.redis_client.get(self.REDIS_PROVINCE_CITIES_KEY)
+        
+        # 如果Redis中没有数据，先同步
+        if not province_cities_json:
+            self.sync_province_cities()
+            province_cities_json = self.redis_client.get(self.REDIS_PROVINCE_CITIES_KEY)
+            
+        if not province_cities_json:
+            return {}
+            
+        province_cities = json.loads(province_cities_json)
+        
+        # 如果指定了省份代码，只返回该省份的数据
+        if province_code:
+            return {province_code: province_cities.get(province_code)} if province_code in province_cities else {}
+        
+        return province_cities
 
 
 # 创建单例实例
