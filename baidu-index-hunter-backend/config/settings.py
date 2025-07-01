@@ -50,11 +50,11 @@ COOKIE_EXPIRATION_BUFFER = 3600  # Cookie过期前的缓冲时间（秒），默
 # 百度指数API配置
 BAIDU_INDEX_API = {
     'search_url': 'https://index.baidu.com/api/SearchApi/index', #搜索指数的url
-    'trend_url': 'https://index.baidu.com/api/FeedSearchApi/getFeedIndex',
-    'word_graph_url': 'https://index.baidu.com/api/WordGraph/multi',
-    'social_api_url': 'https://index.baidu.com/api/SocialApi/baseAttributes',
-    'region_api_url': 'https://index.baidu.com/api/SearchApi/region',
-    'interest_api_url': 'https://index.baidu.com/api/SocialApi/interest',
+    'trend_url': 'https://index.baidu.com/api/FeedSearchApi/getFeedIndex', #资讯指数的url
+    'word_graph_url': 'https://index.baidu.com/api/WordGraph/multi', #需求图谱的url
+    'social_api_url': 'https://index.baidu.com/api/SocialApi/baseAttributes', #社会指数的url
+    'region_api_url': 'https://index.baidu.com/api/SearchApi/region', #地域指数的url
+    'interest_api_url': 'https://index.baidu.com/api/SocialApi/interest', #兴趣指数的url
     'user_agent': useragent,
     'referer': 'https://index.baidu.com/v2/main/index.html', # 构造cipher-text的url
 }

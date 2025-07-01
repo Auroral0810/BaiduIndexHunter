@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ffc61ac2-aff1-4d92-a630-60ecc81ee81f" name="更改" comment="">
+      <change afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/ab_sr_update.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/BaiduIndexHunter.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/BaiduIndexHunter.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/README_FEED_INDEX.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/config/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/config/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/cookie_manager/cookie_validator.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/cookie_manager/health_checker.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/20250628202050_checkpoint.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/20250628223048_checkpoint.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/20250629095226_checkpoint.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/20250629095301_checkpoint.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/20250629095749_checkpoint.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/20250629100626_checkpoint.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/20250629102156_checkpoint.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/demographic_attributes_checkpoint_20250628093419.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/demographic_attributes_checkpoint_20250628094506.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/demographic_attributes_checkpoint_20250628094857.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/demographic_attributes_checkpoint_20250628095418.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/feed_index_20250629112247_checkpoint.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/feed_index_checkpoint_20250629103150.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/feed_index_checkpoint_20250629103456.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/feed_index_checkpoint_20250629103530.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/feed_index_checkpoint_20250629103755.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/interest_profiles_checkpoint_20250628103434.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/scheduler/task_scheduler.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/city_manager.js" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/city_manager.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/cookie_pool_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/cookie_pool_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/json_to_csv.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cookie_status.txt" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform)); sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo, NoAppException&#10;for module in [&quot;main.py&quot;, &quot;wsgi.py&quot;, &quot;app.py&quot;]:&#10;    try: locals().update(ScriptInfo(app_import_path=module, create_app=None).load_app().make_shell_context()); print(&quot;\nFlask App: %s&quot; % app.import_name); break&#10;    except NoAppException: pass">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform)); sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo, NoAppException&#10;for module in [&quot;main.py&quot;, &quot;wsgi.py&quot;, &quot;app.py&quot;]:&#10;    try: locals().update(ScriptInfo(app_import_path=module, create_app=None).load_app().make_shell_context()); print(&quot;\nFlask App: %s&quot; % app.import_name); break&#10;    except NoAppException: pass" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="2z6DNS2ma7aUdwqcTPJcCUlo3Ts" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Node.js.ab_sr.js.executor": "Run",
+    "Python 测试.Python 测试 (cookie_pool_1.py 内).executor": "Run",
+    "Python 测试.Python 测试 (cookie_pool_test.py 内).executor": "Run",
+    "Python.ab_sr_update.executor": "Run",
+    "Python.deduplicate.executor": "Run",
+    "Python.main.executor": "Run",
+    "Python.redis_manager.executor": "Run",
+    "Python.settings.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
+    "ignore_missing_gitignore": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/auroral/ProjectDevelopment/BaiduIndexHunter",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
+    ]
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fdfe4dae3a2d-intellij.indexing.shared.core-IU-243.21565.193" />
+        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-IU-243.21565.193" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="默认任务">
+      <changelist id="ffc61ac2-aff1-4d92-a630-60ecc81ee81f" name="更改" comment="" />
+      <created>1751042589415</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1751042589415</updated>
+      <workItem from="1751042591225" duration="26006000" />
+      <workItem from="1751167147463" duration="28974000" />
+      <workItem from="1751266033461" duration="11495000" />
+      <workItem from="1751281475302" duration="27500000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/baidu-index-hunter-backend/utils/ab_sr.js</url>
+          <line>2566</line>
+          <option name="timeStamp" value="15" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/baidu-index-hunter-backend/utils/ab_sr.js</url>
+          <line>1824</line>
+          <option name="timeStamp" value="16" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/baidu-index-hunter-backend/utils/ab_sr.js</url>
+          <line>1821</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/baidu-index-hunter-backend/utils/ab_sr.js</url>
+          <line>1851</line>
+          <option name="timeStamp" value="18" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/baidu-index-hunter-backend/utils/ab_sr.js</url>
+          <line>1862</line>
+          <option name="timeStamp" value="19" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/baidu-index-hunter-backend/utils/ab_sr.js</url>
+          <line>1847</line>
+          <option name="timeStamp" value="20" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/baidu-index-hunter-backend/utils/ab_sr.js</url>
+          <line>1889</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="23" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/BaiduIndexHunter$.coverage" NAME=" 覆盖结果" MODIFIED="1751272897604" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend/utils" />
+    <SUITE FILE_PATH="coverage/BaiduIndexHunter$ab_sr_update.coverage" NAME="ab_sr_update 覆盖结果" MODIFIED="1751278560289" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend/utils" />
+    <SUITE FILE_PATH="coverage/BaiduIndexHunter$main.coverage" NAME="main 覆盖结果" MODIFIED="1751299922674" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend" />
+    <SUITE FILE_PATH="coverage/BaiduIndexHunter$deduplicate.coverage" NAME="deduplicate 覆盖结果" MODIFIED="1751043479659" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend/utils" />
+    <SUITE FILE_PATH="coverage/BaiduIndexHunter$redis_manager.coverage" NAME="redis_manager 覆盖结果" MODIFIED="1751042782654" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend/db" />
+    <SUITE FILE_PATH="coverage/BaiduIndexHunter$settings.coverage" NAME="settings 覆盖结果" MODIFIED="1751043773282" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend/config" />
+  </component>
+</project>
