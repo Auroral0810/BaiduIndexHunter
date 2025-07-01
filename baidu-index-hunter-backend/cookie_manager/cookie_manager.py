@@ -12,13 +12,24 @@ import requests
 from fake_useragent import UserAgent
 from typing import Dict, List, Tuple, Any, Optional, Set, Union
 import execjs
+import redis
 
 # 添加项目根目录到路径，以便导入项目模块
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config.settings import MYSQL_CONFIG
+from config.settings import MYSQL_CONFIG, REDIS_CONFIG
 from utils.logger import log
+
 class CookieManager:
     """Cookie管理器，负责cookie的增删改查和状态管理"""
+    
+    # Redis键名
+    REDIS_COOKIES_KEY = "baidu_index:cookies"  # 所有cookie数据
+    REDIS_COOKIE_COUNT_KEY = "baidu_index:cookie_count"  # cookie数量统计
+    REDIS_COOKIE_STATUS_KEY = "baidu_index:cookie_status"  # cookie状态
+    REDIS_COOKIE_BAN_KEY = "baidu_index:cookie_ban"  # cookie封禁信息
+    
+    # Redis过期时间（7天）
+    REDIS_EXPIRE = 60 * 60 * 24 * 7
     
     def __init__(self):
         """初始化数据库连接"""
@@ -31,6 +42,25 @@ class CookieManager:
             charset='utf8mb4',
             cursorclass=pymysql.cursors.DictCursor
         )
+        
+        # 初始化Redis连接
+        self.redis_client = None
+        self._connect_redis()
+    
+    def _connect_redis(self):
+        """连接Redis"""
+        try:
+            self.redis_client = redis.Redis(
+                host=REDIS_CONFIG['host'],
+                port=REDIS_CONFIG['port'],
+                db=REDIS_CONFIG['db'],
+                password=REDIS_CONFIG['password'],
+                decode_responses=True  # 自动将字节解码为字符串
+            )
+            log.info("成功连接到Redis")
+        except Exception as e:
+            log.error(f"连接Redis失败: {e}")
+            self.redis_client = None
     
     def _get_cursor(self):
         """获取数据库游标"""
@@ -50,6 +80,210 @@ class CookieManager:
         """关闭数据库连接"""
         if hasattr(self, 'conn') and self.conn.open:
             self.conn.close()
+        if self.redis_client:
+            self.redis_client.close()
+    
+    def sync_to_redis(self):
+        """将MySQL中的cookie数据同步到Redis"""
+        try:
+            log.info("开始同步cookie数据到Redis...")
+            
+            # 清除Redis中的旧数据
+            self._clear_redis_cookies()
+            
+            # 获取所有可用且未被永久封禁的cookie
+            cookies = self.get_available_cookies()
+            
+            # 按账号ID分组
+            cookies_by_account = {}
+            for cookie in cookies:
+                account_id = cookie['account_id']
+                if account_id not in cookies_by_account:
+                    cookies_by_account[account_id] = []
+                cookies_by_account[account_id].append(cookie)
+            
+            # 组装每个账号的cookie并存入Redis
+            available_count = 0
+            for account_id, account_cookies in cookies_by_account.items():
+                # 组装cookie字典
+                cookie_dict = {}
+                is_available = True
+                is_permanently_banned = False
+                temp_ban_until = None
+                
+                for cookie in account_cookies:
+                    cookie_dict[cookie['cookie_name']] = cookie['cookie_value']
+                    
+                    # 如果任一cookie不可用或被永久封禁，则整个账号被视为不可用
+                    if not cookie['is_available']:
+                        is_available = False
+                    if cookie.get('is_permanently_banned'):
+                        is_permanently_banned = True
+                    
+                    # 记录临时封禁时间（取最大值）
+                    if cookie.get('temp_ban_until'):
+                        if temp_ban_until is None or cookie['temp_ban_until'] > temp_ban_until:
+                            temp_ban_until = cookie['temp_ban_until']
+                
+                # 将cookie数据存入Redis
+                self._save_cookie_to_redis(account_id, cookie_dict, is_available, is_permanently_banned, temp_ban_until)
+                
+                if is_available and not is_permanently_banned and (temp_ban_until is None or temp_ban_until < datetime.now()):
+                    available_count += 1
+            
+            # 更新可用cookie数量
+            self.redis_client.set(self.REDIS_COOKIE_COUNT_KEY, available_count)
+            self.redis_client.expire(self.REDIS_COOKIE_COUNT_KEY, self.REDIS_EXPIRE)
+            
+            log.info(f"成功同步 {len(cookies_by_account)} 个账号的cookie数据到Redis，其中 {available_count} 个可用")
+            return True
+        except Exception as e:
+            log.error(f"同步cookie数据到Redis失败: {e}")
+            return False
+    
+    def _clear_redis_cookies(self):
+        """清空Redis中的cookie数据"""
+        try:
+            if not self.redis_client:
+                self._connect_redis()
+                if not self.redis_client:
+                    return
+            
+            # 删除所有相关的键
+            self.redis_client.delete(self.REDIS_COOKIES_KEY)
+            self.redis_client.delete(self.REDIS_COOKIE_COUNT_KEY)
+            self.redis_client.delete(self.REDIS_COOKIE_STATUS_KEY)
+            self.redis_client.delete(self.REDIS_COOKIE_BAN_KEY)
+            
+            log.info("已清空Redis中的cookie数据")
+        except Exception as e:
+            log.error(f"清空Redis cookie数据失败: {e}")
+    
+    def _save_cookie_to_redis(self, account_id, cookie_dict, is_available, is_permanently_banned, temp_ban_until):
+        """将cookie数据保存到Redis"""
+        try:
+            if not self.redis_client:
+                self._connect_redis()
+                if not self.redis_client:
+                    return
+            
+            # 保存cookie数据
+            cookie_data = {
+                "account_id": account_id,
+                "cookie": cookie_dict
+            }
+            self.redis_client.hset(self.REDIS_COOKIES_KEY, account_id, json.dumps(cookie_data, ensure_ascii=False))
+            
+            # 保存状态信息
+            status_data = {
+                "is_available": 1 if is_available else 0,
+                "is_permanently_banned": 1 if is_permanently_banned else 0
+            }
+            self.redis_client.hset(self.REDIS_COOKIE_STATUS_KEY, account_id, json.dumps(status_data, ensure_ascii=False))
+            
+            # 保存封禁信息
+            if temp_ban_until:
+                ban_data = {
+                    "temp_ban_until": temp_ban_until.strftime("%Y-%m-%d %H:%M:%S") if temp_ban_until else None
+                }
+                self.redis_client.hset(self.REDIS_COOKIE_BAN_KEY, account_id, json.dumps(ban_data, ensure_ascii=False))
+            
+            # 设置过期时间
+            self.redis_client.expire(self.REDIS_COOKIES_KEY, self.REDIS_EXPIRE)
+            self.redis_client.expire(self.REDIS_COOKIE_STATUS_KEY, self.REDIS_EXPIRE)
+            self.redis_client.expire(self.REDIS_COOKIE_BAN_KEY, self.REDIS_EXPIRE)
+        except Exception as e:
+            log.error(f"保存cookie到Redis失败: {e}")
+    
+    def get_redis_cookie(self, account_id):
+        """从Redis获取指定账号ID的cookie"""
+        try:
+            if not self.redis_client:
+                self._connect_redis()
+                if not self.redis_client:
+                    return None
+            
+            # 获取cookie数据
+            cookie_json = self.redis_client.hget(self.REDIS_COOKIES_KEY, account_id)
+            if not cookie_json:
+                return None
+            
+            cookie_data = json.loads(cookie_json)
+            return cookie_data.get("cookie")
+        except Exception as e:
+            log.error(f"从Redis获取cookie失败: {e}")
+            return None
+    
+    def get_redis_cookie_status(self, account_id):
+        """从Redis获取指定账号ID的cookie状态"""
+        try:
+            if not self.redis_client:
+                self._connect_redis()
+                if not self.redis_client:
+                    return None
+            
+            # 获取状态数据
+            status_json = self.redis_client.hget(self.REDIS_COOKIE_STATUS_KEY, account_id)
+            if not status_json:
+                return None
+            
+            return json.loads(status_json)
+        except Exception as e:
+            log.error(f"从Redis获取cookie状态失败: {e}")
+            return None
+    
+    def get_redis_cookie_ban_info(self, account_id):
+        """从Redis获取指定账号ID的cookie封禁信息"""
+        try:
+            if not self.redis_client:
+                self._connect_redis()
+                if not self.redis_client:
+                    return None
+            
+            # 获取封禁数据
+            ban_json = self.redis_client.hget(self.REDIS_COOKIE_BAN_KEY, account_id)
+            if not ban_json:
+                return None
+            
+            return json.loads(ban_json)
+        except Exception as e:
+            log.error(f"从Redis获取cookie封禁信息失败: {e}")
+            return None
+    
+    def get_redis_available_cookie_count(self):
+        """从Redis获取可用cookie数量"""
+        try:
+            if not self.redis_client:
+                self._connect_redis()
+                if not self.redis_client:
+                    return 0
+            
+            count = self.redis_client.get(self.REDIS_COOKIE_COUNT_KEY)
+            return int(count) if count else 0
+        except Exception as e:
+            log.error(f"从Redis获取可用cookie数量失败: {e}")
+            return 0
+    
+    def get_all_redis_cookies(self):
+        """从Redis获取所有cookie数据"""
+        try:
+            if not self.redis_client:
+                self._connect_redis()
+                if not self.redis_client:
+                    return {}
+            
+            # 获取所有cookie数据
+            all_cookies = self.redis_client.hgetall(self.REDIS_COOKIES_KEY)
+            result = {}
+            
+            for account_id, cookie_json in all_cookies.items():
+                cookie_data = json.loads(cookie_json)
+                result[account_id] = cookie_data.get("cookie")
+            
+            return result
+        except Exception as e:
+            log.error(f"从Redis获取所有cookie失败: {e}")
+            return {}
     
     def parse_cookie_string(self, cookie_string):
         """
@@ -116,6 +350,24 @@ class CookieManager:
                 cursor.execute(sql, (account_id, name, value, expire_time, value, expire_time))
             
             self.conn.commit()
+            
+            # 更新Redis中的数据
+            if self.redis_client:
+                # 获取更新后的cookie数据
+                cookies = self.get_cookies_by_account_id(account_id)
+                if cookies:
+                    # 组装cookie字典
+                    cookie_dict = {}
+                    for cookie in cookies:
+                        cookie_dict[cookie['cookie_name']] = cookie['cookie_value']
+                    
+                    # 更新Redis
+                    self._save_cookie_to_redis(account_id, cookie_dict, True, False, None)
+                    
+                    # 更新可用cookie数量
+                    available_count = self.get_redis_available_cookie_count()
+                    self.redis_client.set(self.REDIS_COOKIE_COUNT_KEY, available_count + 1)
+            
             return True
         except Exception as e:
             print(f"添加cookie失败: {e}")

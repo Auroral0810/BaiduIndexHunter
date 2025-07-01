@@ -10,13 +10,16 @@ from api.cookie_controller import register_admin_cookie_blueprint
 from api.region_controller import register_region_blueprint
 from constant.respond import ResponseCode, ResponseFormatter
 from region_manager.region_manager import get_region_manager
+from cookie_manager.cookie_manager import CookieManager
 
-# 标记是否已同步区域数据 - 使用模块级变量，避免热重载影响
+# 标记是否已同步数据 - 使用模块级变量，避免热重载影响
 _region_data_synced = False
+_cookie_data_synced = False
 
 def create_app(config=None):
     """创建Flask应用"""
     global _region_data_synced
+    global _cookie_data_synced
     
     app = Flask(__name__)
     
@@ -79,6 +82,20 @@ def create_app(config=None):
     else:
         log.info("区域数据已同步，跳过重复同步")
     
+    # 同步Cookie数据到Redis（全局只同步一次）
+    if not _cookie_data_synced:
+        try:
+            cookie_manager = CookieManager()
+            cookie_manager.sync_to_redis()
+            _cookie_data_synced = True
+            log.info("Cookie数据同步到Redis成功")
+        except Exception as e:
+            log.error(f"同步Cookie数据到Redis失败: {e}")
+        finally:
+            cookie_manager.close()
+    else:
+        log.info("Cookie数据已同步，跳过重复同步")
+    
     # 注册蓝图
     register_admin_cookie_blueprint(app)
     register_region_blueprint(app)
@@ -125,6 +142,7 @@ if __name__ == '__main__':
     # 在调试模式下，通过设置环境变量来控制是否跳过数据同步
     if debug and os.environ.get('SKIP_DATA_SYNC', 'false').lower() == 'true':
         _region_data_synced = True
+        _cookie_data_synced = True
         log.info("调试模式：已设置跳过数据同步")
     
     app = create_app()

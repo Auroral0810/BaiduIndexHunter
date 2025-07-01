@@ -29,7 +29,7 @@ class CookieManagerTester:
         self.test_get_all_cookies()
         
         # 测试获取组装的cookie
-        self.test_get_assembled_cookies()
+        # self.test_get_assembled_cookies()
         
         # # 测试添加解析cookie
         # self.test_add_parsed_cookie()
@@ -38,12 +38,12 @@ class CookieManagerTester:
         # self.test_update_random_cookie()
 
         # 测试临时封禁和解封账号
-        # self.test_temporary_ban_account()
+        self.test_temporary_ban_account()
         
         # # 测试永久封禁和解封
         # self.test_permanent_ban_account()
         
-        print("所有测试完成!")
+        # print("所有测试完成!")
         
     # 测试通过
     def test_get_all_cookies(self):

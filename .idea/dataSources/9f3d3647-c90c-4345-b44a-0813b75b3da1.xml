@@ -1174,420 +1174,435 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
     <user id="317" parent="1" name="yyf">
       <Host>localhost</Host>
     </user>
-    <table id="318" parent="288" name="cookies">
+    <scheduled-event id="318" parent="288" name="check_temp_ban">
+      <Definer>root@localhost</Definer>
+      <Interval>&apos;10&apos; MINUTE</Interval>
+      <LastExecuted>2025-07-02.04:50:57</LastExecuted>
+      <SourceTextLength>134</SourceTextLength>
+      <Starts>&apos;2025-07-01 20:50:57&apos;</Starts>
+      <Status>enabled</Status>
+    </scheduled-event>
+    <scheduled-event id="319" parent="288" name="reset_daily">
+      <Definer>root@localhost</Definer>
+      <Interval>&apos;1&apos; DAY</Interval>
+      <SourceTextLength>100</SourceTextLength>
+      <Starts>&apos;2025-07-02 00:00:00&apos;</Starts>
+      <Status>enabled</Status>
+    </scheduled-event>
+    <table id="320" parent="288" name="cookies">
       <Engine>InnoDB</Engine>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </table>
-    <table id="319" parent="288" name="prefecture_city">
+    <table id="321" parent="288" name="prefecture_city">
       <Comment>地级市表</Comment>
       <Engine>InnoDB</Engine>
       <CollationName>utf8mb4_unicode_ci</CollationName>
     </table>
-    <table id="320" parent="288" name="province_region">
+    <table id="322" parent="288" name="province_region">
       <Comment>省份大区对应表</Comment>
       <Engine>InnoDB</Engine>
       <CollationName>utf8mb4_unicode_ci</CollationName>
     </table>
-    <table id="321" parent="288" name="region_children">
+    <table id="323" parent="288" name="region_children">
       <Comment>区域父子关系表</Comment>
       <Engine>InnoDB</Engine>
       <CollationName>utf8mb4_unicode_ci</CollationName>
     </table>
-    <table id="322" parent="288" name="region_hierarchy">
+    <table id="324" parent="288" name="region_hierarchy">
       <Comment>区域层级表</Comment>
       <Engine>InnoDB</Engine>
       <CollationName>utf8mb4_unicode_ci</CollationName>
     </table>
-    <view id="323" parent="288" name="v_region_full_info">
+    <view id="325" parent="288" name="v_region_full_info">
       <Definer>root@localhost</Definer>
       <SourceTextLength>489</SourceTextLength>
     </view>
-    <view id="324" parent="288" name="v_region_with_children">
+    <view id="326" parent="288" name="v_region_with_children">
       <Definer>root@localhost</Definer>
       <SourceTextLength>525</SourceTextLength>
     </view>
-    <column id="325" parent="318" name="id">
+    <column id="327" parent="320" name="id">
       <AutoIncrement>1847</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="326" parent="318" name="account_id">
+    <column id="328" parent="320" name="account_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(50)|0s</StoredType>
     </column>
-    <column id="327" parent="318" name="cookie_name">
+    <column id="329" parent="320" name="cookie_name">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(255)|0s</StoredType>
     </column>
-    <column id="328" parent="318" name="cookie_value">
+    <column id="330" parent="320" name="cookie_value">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <column id="329" parent="318" name="last_updated">
+    <column id="331" parent="320" name="last_updated">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <OnUpdate>CURRENT_TIMESTAMP</OnUpdate>
       <Position>5</Position>
       <StoredType>timestamp|0s</StoredType>
     </column>
-    <column id="330" parent="318" name="expire_time">
+    <column id="332" parent="320" name="expire_time">
       <Position>6</Position>
       <StoredType>timestamp|0s</StoredType>
     </column>
-    <column id="331" parent="318" name="is_available">
+    <column id="333" parent="320" name="is_available">
       <Comment>是否可用，1表示可用，0表示不可用</Comment>
       <DefaultExpression>1</DefaultExpression>
       <Position>7</Position>
       <StoredType>tinyint(1)|0s</StoredType>
     </column>
-    <column id="332" parent="318" name="is_permanently_banned">
+    <column id="334" parent="320" name="is_permanently_banned">
       <Comment>是否永久封禁，1表示永久封禁，0表示未封禁</Comment>
       <DefaultExpression>0</DefaultExpression>
       <Position>8</Position>
       <StoredType>tinyint(1)|0s</StoredType>
     </column>
-    <column id="333" parent="318" name="temp_ban_until">
+    <column id="335" parent="320" name="temp_ban_until">
       <Comment>临时封禁到期时间，为NULL表示未临时封禁</Comment>
       <Position>9</Position>
       <StoredType>timestamp|0s</StoredType>
     </column>
-    <index id="334" parent="318" name="PRIMARY">
+    <index id="336" parent="320" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="335" parent="318" name="idx_account_id">
+    <index id="337" parent="320" name="idx_account_id">
       <ColNames>account_id</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="336" parent="318" name="idx_cookie_status">
+    <index id="338" parent="320" name="idx_cookie_status">
       <ColNames>is_available
 is_permanently_banned
 temp_ban_until</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="337" parent="318" name="PRIMARY">
+    <key id="339" parent="320" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="338" parent="319" name="id">
+    <column id="340" parent="321" name="id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="339" parent="319" name="city_code">
+    <column id="341" parent="321" name="city_code">
       <Comment>地级市代码</Comment>
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="340" parent="319" name="city_name">
+    <column id="342" parent="321" name="city_name">
       <Comment>地级市名称</Comment>
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="341" parent="319" name="created_at">
+    <column id="343" parent="321" name="created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <Position>4</Position>
       <StoredType>timestamp|0s</StoredType>
     </column>
-    <column id="342" parent="319" name="updated_at">
+    <column id="344" parent="321" name="updated_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <OnUpdate>CURRENT_TIMESTAMP</OnUpdate>
       <Position>5</Position>
       <StoredType>timestamp|0s</StoredType>
     </column>
-    <index id="343" parent="319" name="PRIMARY">
+    <index id="345" parent="321" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="344" parent="319" name="city_code">
+    <index id="346" parent="321" name="city_code">
       <ColNames>city_code</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="345" parent="319" name="idx_city_code">
+    <index id="347" parent="321" name="idx_city_code">
       <ColNames>city_code</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="346" parent="319" name="PRIMARY">
+    <key id="348" parent="321" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="347" parent="319" name="city_code">
+    <key id="349" parent="321" name="city_code">
       <UnderlyingIndexName>city_code</UnderlyingIndexName>
     </key>
-    <column id="348" parent="320" name="id">
+    <column id="350" parent="322" name="id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="349" parent="320" name="province_code">
+    <column id="351" parent="322" name="province_code">
       <Comment>省份代码</Comment>
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="350" parent="320" name="province_name">
+    <column id="352" parent="322" name="province_name">
       <Comment>省份名称</Comment>
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(50)|0s</StoredType>
     </column>
-    <column id="351" parent="320" name="region_name">
+    <column id="353" parent="322" name="region_name">
       <Comment>所属大区（华东、华北等）</Comment>
       <Position>4</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="352" parent="320" name="created_at">
+    <column id="354" parent="322" name="created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <Position>5</Position>
       <StoredType>timestamp|0s</StoredType>
     </column>
-    <column id="353" parent="320" name="updated_at">
+    <column id="355" parent="322" name="updated_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <OnUpdate>CURRENT_TIMESTAMP</OnUpdate>
       <Position>6</Position>
       <StoredType>timestamp|0s</StoredType>
     </column>
-    <index id="354" parent="320" name="PRIMARY">
+    <index id="356" parent="322" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="355" parent="320" name="province_code">
+    <index id="357" parent="322" name="province_code">
       <ColNames>province_code</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="356" parent="320" name="idx_province_code">
+    <index id="358" parent="322" name="idx_province_code">
       <ColNames>province_code</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="357" parent="320" name="idx_region_name">
+    <index id="359" parent="322" name="idx_region_name">
       <ColNames>region_name</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="358" parent="320" name="PRIMARY">
+    <key id="360" parent="322" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="359" parent="320" name="province_code">
+    <key id="361" parent="322" name="province_code">
       <UnderlyingIndexName>province_code</UnderlyingIndexName>
     </key>
-    <column id="360" parent="321" name="id">
+    <column id="362" parent="323" name="id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="361" parent="321" name="parent_code">
+    <column id="363" parent="323" name="parent_code">
       <Comment>父级区域代码</Comment>
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="362" parent="321" name="child_code">
+    <column id="364" parent="323" name="child_code">
       <Comment>子级区域代码</Comment>
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="363" parent="321" name="sort_order">
+    <column id="365" parent="323" name="sort_order">
       <Comment>排序序号</Comment>
       <DefaultExpression>0</DefaultExpression>
       <Position>4</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="364" parent="321" name="created_at">
+    <column id="366" parent="323" name="created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <Position>5</Position>
       <StoredType>timestamp|0s</StoredType>
     </column>
-    <column id="365" parent="321" name="updated_at">
+    <column id="367" parent="323" name="updated_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <OnUpdate>CURRENT_TIMESTAMP</OnUpdate>
       <Position>6</Position>
       <StoredType>timestamp|0s</StoredType>
     </column>
-    <index id="366" parent="321" name="PRIMARY">
+    <index id="368" parent="323" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="367" parent="321" name="uk_parent_child">
+    <index id="369" parent="323" name="uk_parent_child">
       <ColNames>parent_code
 child_code</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="368" parent="321" name="idx_parent_code">
+    <index id="370" parent="323" name="idx_parent_code">
       <ColNames>parent_code</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="369" parent="321" name="idx_child_code">
+    <index id="371" parent="323" name="idx_child_code">
       <ColNames>child_code</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="370" parent="321" name="PRIMARY">
+    <key id="372" parent="323" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="371" parent="321" name="uk_parent_child">
+    <key id="373" parent="323" name="uk_parent_child">
       <UnderlyingIndexName>uk_parent_child</UnderlyingIndexName>
     </key>
-    <column id="372" parent="322" name="id">
+    <column id="374" parent="324" name="id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="373" parent="322" name="region_code">
+    <column id="375" parent="324" name="region_code">
       <Comment>区域代码</Comment>
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="374" parent="322" name="region_name">
+    <column id="376" parent="324" name="region_name">
       <Comment>区域名称</Comment>
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="375" parent="322" name="layer_level">
+    <column id="377" parent="324" name="layer_level">
       <Comment>层级：1-省级，2-地级市，3-区县级，4-更细分级</Comment>
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="376" parent="322" name="parent_code">
+    <column id="378" parent="324" name="parent_code">
       <Comment>父级区域代码</Comment>
       <Position>5</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="377" parent="322" name="created_at">
+    <column id="379" parent="324" name="created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <Position>6</Position>
       <StoredType>timestamp|0s</StoredType>
     </column>
-    <column id="378" parent="322" name="updated_at">
+    <column id="380" parent="324" name="updated_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <OnUpdate>CURRENT_TIMESTAMP</OnUpdate>
       <Position>7</Position>
       <StoredType>timestamp|0s</StoredType>
     </column>
-    <foreign-key id="379" parent="322" name="region_hierarchy_ibfk_1">
+    <foreign-key id="381" parent="324" name="region_hierarchy_ibfk_1">
       <ColNames>parent_code</ColNames>
       <OnDelete>set-null</OnDelete>
       <RefColNames>region_code</RefColNames>
       <RefTableName>region_hierarchy</RefTableName>
       <RefTableParentName>baiduindexhunter</RefTableParentName>
     </foreign-key>
-    <index id="380" parent="322" name="PRIMARY">
+    <index id="382" parent="324" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="381" parent="322" name="region_code">
+    <index id="383" parent="324" name="region_code">
       <ColNames>region_code</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="382" parent="322" name="idx_region_code">
+    <index id="384" parent="324" name="idx_region_code">
       <ColNames>region_code</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="383" parent="322" name="idx_layer_level">
+    <index id="385" parent="324" name="idx_layer_level">
       <ColNames>layer_level</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="384" parent="322" name="idx_parent_code">
+    <index id="386" parent="324" name="idx_parent_code">
       <ColNames>parent_code</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="385" parent="322" name="PRIMARY">
+    <key id="387" parent="324" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="386" parent="322" name="region_code">
+    <key id="388" parent="324" name="region_code">
       <UnderlyingIndexName>region_code</UnderlyingIndexName>
     </key>
-    <column id="387" parent="323" name="region_code">
+    <column id="389" parent="325" name="region_code">
       <Comment>区域代码</Comment>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="388" parent="323" name="region_name">
+    <column id="390" parent="325" name="region_name">
       <Comment>区域名称</Comment>
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="389" parent="323" name="layer_level">
+    <column id="391" parent="325" name="layer_level">
       <Comment>层级：1-省级，2-地级市，3-区县级，4-更细分级</Comment>
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="390" parent="323" name="parent_code">
+    <column id="392" parent="325" name="parent_code">
       <Comment>父级区域代码</Comment>
       <Position>4</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="391" parent="323" name="parent_name">
+    <column id="393" parent="325" name="parent_name">
       <Comment>区域名称</Comment>
       <Position>5</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="392" parent="323" name="province_region">
+    <column id="394" parent="325" name="province_region">
       <Comment>所属大区（华东、华北等）</Comment>
       <Position>6</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="393" parent="324" name="parent_code">
+    <column id="395" parent="326" name="parent_code">
       <Comment>父级区域代码</Comment>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="394" parent="324" name="parent_name">
+    <column id="396" parent="326" name="parent_name">
       <Comment>区域名称</Comment>
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="395" parent="324" name="child_code">
+    <column id="397" parent="326" name="child_code">
       <Comment>子级区域代码</Comment>
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="396" parent="324" name="child_name">
+    <column id="398" parent="326" name="child_name">
       <Comment>区域名称</Comment>
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="397" parent="324" name="child_level">
+    <column id="399" parent="326" name="child_level">
       <Comment>层级：1-省级，2-地级市，3-区县级，4-更细分级</Comment>
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="398" parent="324" name="sort_order">
+    <column id="400" parent="326" name="sort_order">
       <Comment>排序序号</Comment>
       <Position>6</Position>
       <StoredType>int|0s</StoredType>
