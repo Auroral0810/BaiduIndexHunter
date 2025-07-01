@@ -275,8 +275,6 @@ class CookieManager:
             self.conn.rollback()
             return 0
     
-    
-    
     def get_cookies_by_account_id(self, account_id):
         """
         获取指定账号ID的所有cookie

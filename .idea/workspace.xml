@@ -5,13 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ffc61ac2-aff1-4d92-a630-60ecc81ee81f" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/8a58c628-d091-4416-9d5c-9af5bf313563.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/8a58c628-d091-4416-9d5c-9af5bf313563.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/8a58c628-d091-4416-9d5c-9af5bf313563/storage_v2/_src_/schema/cookie_pool.FyVKmQ.zip" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/8a58c628-d091-4416-9d5c-9af5bf313563/storage_v2/_src_/schema/cookie_pool.FyVKmQ.zip" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/config/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/config/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/city_manager.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/cookie_manager/cookie_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/cookie_manager/cookie_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/tests/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/tests/test_logger.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/tests/test_mysql_manager.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/tests/test_redis_manager.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/ab_sr_update.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/ab_sr_update.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/rate_limiter.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/rate_limiter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/retry_decorator.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/retry_decorator.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,7 +99,7 @@
       <workItem from="1751167147463" duration="28974000" />
       <workItem from="1751266033461" duration="11495000" />
       <workItem from="1751281475302" duration="28100000" />
-      <workItem from="1751362270523" duration="4864000" />
+      <workItem from="1751362270523" duration="5640000" />
     </task>
     <servers />
   </component>
@@ -148,7 +149,7 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/BaiduIndexHunter$.coverage" NAME=" 覆盖结果" MODIFIED="1751272897604" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend/utils" />
-    <SUITE FILE_PATH="coverage/BaiduIndexHunter$ab_sr_update.coverage" NAME="ab_sr_update 覆盖结果" MODIFIED="1751364441677" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend/utils" />
+    <SUITE FILE_PATH="coverage/BaiduIndexHunter$ab_sr_update.coverage" NAME="ab_sr_update 覆盖结果" MODIFIED="1751369542681" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend/utils" />
     <SUITE FILE_PATH="coverage/BaiduIndexHunter$main.coverage" NAME="main 覆盖结果" MODIFIED="1751299922674" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend" />
     <SUITE FILE_PATH="coverage/BaiduIndexHunter$deduplicate.coverage" NAME="deduplicate 覆盖结果" MODIFIED="1751043479659" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend/utils" />
     <SUITE FILE_PATH="coverage/BaiduIndexHunter$redis_manager.coverage" NAME="redis_manager 覆盖结果" MODIFIED="1751042782654" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend/db" />
