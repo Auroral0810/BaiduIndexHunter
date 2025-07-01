@@ -318,6 +318,84 @@ class CookieManager:
             print(f"获取可用cookie失败: {e}")
             return []
     
+    def get_cookies_by_account_ids(self, account_ids=None):
+        """
+        按账号ID分组获取cookie
+        
+        Args:
+            account_ids: 账号ID列表，如果为None则获取所有可用账号的cookie
+            
+        Returns:
+            {account_id: [cookie1, cookie2, ...]} 格式的字典
+        """
+        try:
+            cursor = self._get_cursor()
+            
+            if account_ids:
+                # 获取指定账号的cookie
+                placeholders = ','.join(['%s'] * len(account_ids))
+                sql = f"""
+                SELECT * FROM cookies 
+                WHERE account_id IN ({placeholders})
+                """
+                cursor.execute(sql, tuple(account_ids))
+            else:
+                # 获取所有可用账号的cookie
+                sql = """
+                SELECT * FROM cookies 
+                WHERE is_available = 1 
+                AND (expire_time IS NULL OR expire_time > NOW())
+                AND (temp_ban_until IS NULL OR temp_ban_until < NOW())
+                AND is_permanently_banned = 0
+                """
+                cursor.execute(sql)
+            
+            cookies = cursor.fetchall()
+            
+            # 按账号ID分组
+            grouped_cookies = {}
+            for cookie in cookies:
+                account_id = cookie['account_id']
+                if account_id not in grouped_cookies:
+                    grouped_cookies[account_id] = []
+                grouped_cookies[account_id].append(cookie)
+            
+            return grouped_cookies
+        except Exception as e:
+            print(f"按账号ID获取cookie失败: {e}")
+            return {}
+    
+    def get_assembled_cookies(self, account_ids=None):
+        """
+        获取所有可用账号的完整cookie字典
+        
+        Args:
+            account_ids: 账号ID列表，如果为None则获取所有可用账号的cookie
+            
+        Returns:
+            完整的cookie字典列表，每个字典代表一个账号的完整cookie
+        """
+        try:
+            grouped_cookies = self.get_cookies_by_account_ids(account_ids)
+            assembled_cookies = []
+            
+            for account_id, cookies in grouped_cookies.items():
+                cookie_dict = {}
+                for cookie in cookies:
+                    cookie_dict[cookie['cookie_name']] = cookie['cookie_value']
+                
+                if cookie_dict:  # 只添加非空的cookie字典
+                    assembled_cookies.append({
+                        'account_id': account_id,
+                        'cookie_dict': cookie_dict
+                    })
+            
+            print(f"从数据库获取并组装了 {len(assembled_cookies)} 个完整cookie")
+            return assembled_cookies
+        except Exception as e:
+            print(f"获取组装的cookie失败: {e}")
+            return []
+    
     def get_available_account_ids(self):
         """
         获取所有可用的账号ID列表

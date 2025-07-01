@@ -110,6 +110,68 @@ def list_cookies():
     except Exception as e:
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取Cookie列表失败: {str(e)}"))
 
+@admin_cookie_bp.route('/assembled', methods=['GET'])
+@swag_from({
+    'tags': ['Cookie管理'],
+    'summary': '获取组装后的完整Cookie',
+    'description': '获取所有可用账号的完整Cookie字典或根据账号ID列表过滤',
+    'parameters': [
+        {
+            'name': 'account_ids',
+            'in': 'query',
+            'type': 'string',
+            'required': False,
+            'description': '账号ID列表，多个ID用逗号分隔，用于过滤指定账号的Cookie'
+        }
+    ],
+    'responses': {
+        '200': {
+            'description': '请求成功',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
+                    'data': {
+                        'type': 'array',
+                        'items': {
+                            'type': 'object',
+                            'properties': {
+                                'account_id': {'type': 'string'},
+                                'cookie_dict': {'type': 'object'}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
+                }
+            }
+        }
+    }
+})
+def get_assembled_cookies():
+    """获取组装后的完整Cookie字典"""
+    try:
+        # 获取查询参数
+        account_ids_param = request.args.get('account_ids')
+        account_ids = account_ids_param.split(',') if account_ids_param else None
+        
+        # 获取组装的cookie
+        assembled_cookies = cookie_manager.get_assembled_cookies(account_ids)
+        
+        return jsonify(ResponseFormatter.success(assembled_cookies))
+    except Exception as e:
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取组装Cookie失败: {str(e)}"))
+
 @admin_cookie_bp.route('/accounts', methods=['GET'])
 @swag_from({
     'tags': ['Cookie管理'],

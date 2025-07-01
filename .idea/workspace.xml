@@ -5,42 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ffc61ac2-aff1-4d92-a630-60ecc81ee81f" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/ab_sr_update.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/BaiduIndexHunter.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/BaiduIndexHunter.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/README_FEED_INDEX.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/config/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/config/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/cookie_manager/cookie_validator.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/cookie_manager/health_checker.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/20250628202050_checkpoint.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/20250628223048_checkpoint.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/20250629095226_checkpoint.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/20250629095301_checkpoint.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/20250629095749_checkpoint.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/20250629100626_checkpoint.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/20250629102156_checkpoint.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/demographic_attributes_checkpoint_20250628093419.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/demographic_attributes_checkpoint_20250628094506.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/demographic_attributes_checkpoint_20250628094857.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/demographic_attributes_checkpoint_20250628095418.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/feed_index_20250629112247_checkpoint.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/feed_index_checkpoint_20250629103150.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/feed_index_checkpoint_20250629103456.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/feed_index_checkpoint_20250629103530.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/feed_index_checkpoint_20250629103755.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/output/checkpoints/interest_profiles_checkpoint_20250628103434.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/scheduler/task_scheduler.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/city_manager.js" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/city_manager.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/cookie_pool_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/cookie_pool_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/json_to_csv.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/utils/test.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cookie_status.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/api/cookie_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/api/cookie_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/api_server.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/cookie_manager/cookie_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/cookie_manager/cookie_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/cookie_manager/test_cookie_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/cookie_manager/test_cookie_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/db/mysql_manager.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -126,7 +95,7 @@
       <workItem from="1751042591225" duration="26006000" />
       <workItem from="1751167147463" duration="28974000" />
       <workItem from="1751266033461" duration="11495000" />
-      <workItem from="1751281475302" duration="27500000" />
+      <workItem from="1751281475302" duration="28100000" />
     </task>
     <servers />
   </component>

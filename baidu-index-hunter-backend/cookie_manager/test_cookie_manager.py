@@ -28,6 +28,9 @@ class CookieManagerTester:
         # 获取现有数据
         self.test_get_all_cookies()
         
+        # 测试获取组装的cookie
+        self.test_get_assembled_cookies()
+        
         # # 测试添加解析cookie
         # self.test_add_parsed_cookie()
         
@@ -38,7 +41,7 @@ class CookieManagerTester:
         # self.test_temporary_ban_account()
         
         # # 测试永久封禁和解封
-        self.test_permanent_ban_account()
+        # self.test_permanent_ban_account()
         
         print("所有测试完成!")
         
@@ -60,6 +63,66 @@ class CookieManagerTester:
             
         return cookies
     
+    def test_get_assembled_cookies(self):
+        """测试获取组装的cookie"""
+        print("\n=== 测试获取组装的cookie ===")
+        
+        # 获取所有组装的cookie
+        assembled_cookies = self.cookie_manager.get_assembled_cookies()
+        print(f"获取到 {len(assembled_cookies)} 个组装后的完整cookie")
+        
+        # 将所有组装cookie保存到文件中
+        output_file = "assembled_cookies.txt"
+        with open(output_file, "w") as f:
+            f.write(f"===== 所有组装cookie (共{len(assembled_cookies)}个) =====\n\n")
+            for i, cookie in enumerate(assembled_cookies):
+                account_id = cookie['account_id']
+                cookie_dict = cookie['cookie_dict']
+                f.write(f"Cookie #{i+1} - 账号ID: {account_id}, 包含字段数: {len(cookie_dict)}\n")
+                f.write("Cookie字典内容:\n")
+                for key, value in cookie_dict.items():
+                    f.write(f"  {key}: {value}\n")
+                f.write("\n" + "-"*50 + "\n\n")
+        
+        print(f"所有组装cookie已保存到文件: {output_file}")
+        
+        if assembled_cookies:
+            # 打印第一个组装cookie的信息
+            first_assembled = assembled_cookies[0]
+            account_id = first_assembled['account_id']
+            cookie_dict = first_assembled['cookie_dict']
+            print(f"示例组装cookie: 账号ID={account_id}, 包含 {len(cookie_dict)} 个cookie字段")
+            
+            # 打印部分cookie字段
+            sample_keys = list(cookie_dict.keys())[:3]  # 只显示前3个字段
+            for key in sample_keys:
+                print(f"  {key}: {cookie_dict[key][:20]}...")  # 只显示值的前20个字符
+        
+        # 测试指定账号ID获取组装cookie
+        if assembled_cookies:
+            # 随机选择一个账号ID进行测试
+            test_account_id = assembled_cookies[0]['account_id']
+            filtered_cookies = self.cookie_manager.get_assembled_cookies([test_account_id])
+            print(f"指定账号ID {test_account_id} 获取到 {len(filtered_cookies)} 个组装cookie")
+            
+            # 将单个账号的组装cookie保存到文件
+            single_output_file = f"cookie_{test_account_id}.txt"
+            with open(single_output_file, "w") as f:
+                f.write(f"===== 账号 {test_account_id} 的组装cookie =====\n\n")
+                if filtered_cookies:
+                    cookie_dict = filtered_cookies[0]['cookie_dict']
+                    f.write(f"包含字段数: {len(cookie_dict)}\n")
+                    f.write("Cookie字典内容:\n")
+                    for key, value in cookie_dict.items():
+                        f.write(f"  {key}: {value}\n")
+            
+            print(f"单个账号的组装cookie已保存到文件: {single_output_file}")
+            
+            if filtered_cookies:
+                cookie_dict = filtered_cookies[0]['cookie_dict']
+                print(f"该账号包含 {len(cookie_dict)} 个cookie字段")
+        
+        return assembled_cookies
     # 测试通过
     def test_add_parsed_cookie(self):
         """测试添加解析cookie"""
