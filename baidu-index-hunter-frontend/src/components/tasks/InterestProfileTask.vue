@@ -72,20 +72,6 @@
           </div>
         </el-form-item>
         
-        <!-- 兴趣设置 -->
-        <el-divider content-position="left">兴趣设置</el-divider>
-        
-        <el-form-item label="兴趣类型">
-          <el-select
-            v-model="formData.interestType"
-            placeholder="请选择兴趣类型"
-            style="width: 100%"
-          >
-            <el-option label="综合兴趣" value="general" />
-            <el-option label="电商消费" value="ecommerce" />
-            <el-option label="APP偏好" value="app" />
-          </el-select>
-        </el-form-item>
         
         <!-- 输出设置 -->
         <el-divider content-position="left">输出设置</el-divider>
@@ -219,7 +205,6 @@ const router = useRouter()
 // 表单数据
 const formData = reactive({
   keywords: [] as { value: string }[],
-  interestType: 'general',
   output_format: 'csv',
   batch_size: 10,
   resume: false,
@@ -415,7 +400,6 @@ const submitTask = async () => {
       taskType: 'interest_profile',
       parameters: {
         keywords: formData.keywords.map(k => k.value),
-        interestType: formData.interestType,
         output_format: formData.output_format,
         batch_size: formData.batch_size,
         resume: formData.resume
@@ -447,7 +431,6 @@ const submitTask = async () => {
 // 重置表单
 const resetForm = () => {
   formData.keywords = []
-  formData.interestType = 'general'
   formData.output_format = 'csv'
   formData.batch_size = 10
   formData.resume = false

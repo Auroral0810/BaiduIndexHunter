@@ -71,21 +71,7 @@
             </div>
           </div>
         </el-form-item>
-        
-        <!-- 属性设置 -->
-        <el-divider content-position="left">属性设置</el-divider>
-        
-        <el-form-item label="属性类型">
-          <el-select
-            v-model="formData.attributeType"
-            placeholder="请选择属性类型"
-            style="width: 100%"
-          >
-            <el-option label="年龄分布" value="age" />
-            <el-option label="性别分布" value="gender" />
-            <el-option label="学历水平" value="education" />
-          </el-select>
-        </el-form-item>
+
         
         <!-- 输出设置 -->
         <el-divider content-position="left">输出设置</el-divider>
@@ -219,7 +205,6 @@ const router = useRouter()
 // 表单数据
 const formData = reactive({
   keywords: [] as { value: string }[],
-  attributeType: 'age',
   output_format: 'csv',
   batch_size: 10,
   resume: false,
@@ -415,7 +400,6 @@ const submitTask = async () => {
       taskType: 'demographic_attributes',
       parameters: {
         keywords: formData.keywords.map(k => k.value),
-        attributeType: formData.attributeType,
         output_format: formData.output_format,
         batch_size: formData.batch_size,
         resume: formData.resume
@@ -447,7 +431,6 @@ const submitTask = async () => {
 // 重置表单
 const resetForm = () => {
   formData.keywords = []
-  formData.attributeType = 'age'
   formData.output_format = 'csv'
   formData.batch_size = 10
   formData.resume = false

@@ -6,6 +6,7 @@ import 'element-plus/dist/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import { createPinia } from 'pinia'
 import './assets/main.scss'
+import locale from 'element-plus/dist/locale/zh-cn.mjs'
 
 // 创建应用实例
 const app = createApp(App)
@@ -38,7 +39,7 @@ document.head.appendChild(style)
 
 // 使用插件
 app.use(router)
-app.use(ElementPlus)
+app.use(ElementPlus, { locale })
 app.use(createPinia())
 
 // 挂载应用
