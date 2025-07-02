@@ -167,9 +167,9 @@ def create_task():
             if resume and 'task_id' in parameters:
                 # 获取原任务的断点续传数据
                 original_task = task_scheduler.get_task(parameters['task_id'])
-                if original_task and 'checkpoint_data' in original_task and original_task['checkpoint_data']:
+                if original_task and 'checkpoint_path' in original_task and original_task['checkpoint_path']:
                     # 更新新任务的断点续传数据
-                    task_scheduler.update_task_checkpoint(task_id, original_task['checkpoint_data'])
+                    task_scheduler.update_task_checkpoint(task_id, original_task['checkpoint_path'])
             
             # 启动任务
             task_scheduler.start_task(task_id)
@@ -327,9 +327,9 @@ def list_tasks():
                 except:
                     pass
             
-            if 'checkpoint_data' in task and task['checkpoint_data']:
+            if 'checkpoint_path' in task and task['checkpoint_path']:
                 try:
-                    task['checkpoint_data'] = json.loads(task['checkpoint_data'])
+                    task['checkpoint_path'] = json.loads(task['checkpoint_path'])
                 except:
                     pass
             
@@ -389,7 +389,7 @@ def list_tasks():
                             'update_time': {'type': 'string', 'format': 'date-time'},
                             'end_time': {'type': 'string', 'format': 'date-time'},
                             'error_message': {'type': 'string'},
-                            'checkpoint_data': {'type': 'object'},
+                            'checkpoint_path': {'type': 'object'},
                             'output_files': {'type': 'array', 'items': {'type': 'string'}},
                             'created_by': {'type': 'string'}
                         }

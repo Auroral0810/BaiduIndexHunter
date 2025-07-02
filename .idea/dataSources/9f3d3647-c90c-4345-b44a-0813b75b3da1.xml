@@ -1764,7 +1764,7 @@ task_type</ColNames>
       <Position>15</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <column id="429" parent="326" name="checkpoint_data">
+    <column id="429" parent="326" name="checkpoint_path">
       <Comment>检查点数据(JSON格式)</Comment>
       <Position>16</Position>
       <StoredType>mediumtext|0s</StoredType>

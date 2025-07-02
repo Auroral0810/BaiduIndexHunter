@@ -8,6 +8,7 @@ import json
 import time
 import traceback
 from datetime import datetime, timedelta
+import pickle
 
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -18,7 +19,7 @@ from cookie_manager.cookie_rotator import CookieRotator
 from region_manager.region_manager import get_region_manager
 from spider.baidu_index_spider import BaiduIndexSpider
 from spider.search_index_crawler import search_index_crawler
-
+from config.settings import OUTPUT_DIR
 
 class TaskExecutor:
     """任务执行器，负责执行不同类型的爬虫任务"""
@@ -30,13 +31,13 @@ class TaskExecutor:
         self.city_manager = get_region_manager()
         self.running_tasks = {}  # 记录正在运行的任务 {task_id: is_running}
     
-    def execute_task(self, task_id, task_type, parameters, checkpoint_data=None):
+    def execute_task(self, task_id, task_type, parameters, checkpoint_path=None):
         """
         执行任务
         :param task_id: 任务ID
         :param task_type: 任务类型
         :param parameters: 任务参数
-        :param checkpoint_data: 断点续传数据
+        :param checkpoint_path: 断点续传数据路径
         :return: 是否成功
         """
         log.info(f"开始执行任务 {task_id}，类型: {task_type}")
@@ -49,22 +50,22 @@ class TaskExecutor:
             if isinstance(parameters, str):
                 parameters = json.loads(parameters)
             
-            if checkpoint_data and isinstance(checkpoint_data, str):
-                checkpoint_data = json.loads(checkpoint_data)
+            if checkpoint_path and isinstance(checkpoint_path, str):
+                checkpoint_path = json.loads(checkpoint_path)
             
             # 根据任务类型执行不同的爬虫任务
             if task_type == 'search_index':
-                return self._execute_search_index_task(task_id, parameters, checkpoint_data)
+                return self._execute_search_index_task(task_id, parameters, checkpoint_path)
             elif task_type == 'feed_index':
-                return self._execute_feed_index_task(task_id, parameters, checkpoint_data)
+                return self._execute_feed_index_task(task_id, parameters, checkpoint_path)
             elif task_type == 'word_graph':
-                return self._execute_word_graph_task(task_id, parameters, checkpoint_data)
+                return self._execute_word_graph_task(task_id, parameters, checkpoint_path)
             elif task_type == 'demographic_attributes':
-                return self._execute_demographic_attributes_task(task_id, parameters, checkpoint_data)
+                return self._execute_demographic_attributes_task(task_id, parameters, checkpoint_path)
             elif task_type == 'interest_profile':
-                return self._execute_interest_profile_task(task_id, parameters, checkpoint_data)
+                return self._execute_interest_profile_task(task_id, parameters, checkpoint_path)
             elif task_type == 'region_distribution':
-                return self._execute_region_distribution_task(task_id, parameters, checkpoint_data)
+                return self._execute_region_distribution_task(task_id, parameters, checkpoint_path)
             else:
                 log.error(f"未知的任务类型: {task_type}")
                 self._update_task_status(task_id, 'failed', error_message=f"未知的任务类型: {task_type}")
@@ -101,7 +102,7 @@ class TaskExecutor:
     
     def _update_task_status(self, task_id, status, progress=None, total_items=None, 
                            completed_items=None, failed_items=None, error_message=None, 
-                           checkpoint_data=None, output_files=None):
+                           checkpoint_path=None, output_files=None):
         """
         更新任务状态
         :param task_id: 任务ID
@@ -111,7 +112,7 @@ class TaskExecutor:
         :param completed_items: 已完成项目数
         :param failed_items: 失败项目数
         :param error_message: 错误信息
-        :param checkpoint_data: 断点续传数据
+        :param checkpoint_path: 断点续传数据
         :param output_files: 输出文件列表
         :return: 是否成功
         """
@@ -134,11 +135,11 @@ class TaskExecutor:
             if error_message is not None:
                 update_data['error_message'] = error_message
             
-            if checkpoint_data is not None:
-                if isinstance(checkpoint_data, dict):
-                    update_data['checkpoint_data'] = json.dumps(checkpoint_data)
+            if checkpoint_path is not None:
+                if isinstance(checkpoint_path, dict):
+                    update_data['checkpoint_path'] = json.dumps(checkpoint_path)
                 else:
-                    update_data['checkpoint_data'] = checkpoint_data
+                    update_data['checkpoint_path'] = checkpoint_path
             
             if output_files is not None:
                 if isinstance(output_files, list):
@@ -244,12 +245,12 @@ class TaskExecutor:
             log.error(f"更新任务统计数据失败: {e}")
             return False
     
-    def _execute_search_index_task(self, task_id, parameters, checkpoint_data=None):
+    def _execute_search_index_task(self, task_id, parameters, checkpoint_path=None):
         """
         执行搜索指数任务
         :param task_id: 任务ID
         :param parameters: 任务参数
-        :param checkpoint_data: 断点续传数据
+        :param checkpoint_path: 断点续传数据路径
         :return: 是否成功
         """
         log.info(f"执行搜索指数任务: {task_id}")
@@ -322,14 +323,33 @@ class TaskExecutor:
             self._update_task_status(task_id, 'failed', error_message="无效的时间参数")
             return False
         
-        # 初始化断点续传数据
-        if not checkpoint_data:
-            checkpoint_data = {
-                'current_keyword_index': 0,
-                'current_city_index': 0,
-                'completed_keywords': [],
-                'failed_keywords': []
-            }
+        # 获取输出目录和检查点文件路径
+        output_dir = os.path.join(OUTPUT_DIR, 'search_index', task_id)
+        checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/{task_id}_checkpoint.pkl")
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # 初始化检查点数据
+        checkpoint_data = {
+            'completed_keywords': [],
+            'failed_keywords': [],
+            'current_keyword_index': 0,
+            'current_city_index': 0
+        }
+        
+        # 如果是恢复任务，尝试从检查点文件加载数据
+        if resume and os.path.exists(checkpoint_path):
+            try:
+                with open(checkpoint_path, 'rb') as f:
+                    checkpoint = pickle.load(f)
+                    completed_tasks = checkpoint.get('completed_tasks', 0)
+                    total_tasks = checkpoint.get('total_tasks', 0)
+                    log.info(f"已加载检查点数据: {checkpoint_path}, 已完成任务: {completed_tasks}/{total_tasks}")
+                    checkpoint_data.update({
+                        'completed_tasks': completed_tasks,
+                        'total_tasks': total_tasks
+                    })
+            except Exception as e:
+                log.error(f"加载检查点文件失败: {e}")
         
         # 初始化统计数据
         total_items = len(keywords) * len(city_dict)
@@ -345,15 +365,7 @@ class TaskExecutor:
             progress=round((completed_items + failed_items) / total_items * 100, 2) if total_items > 0 else 0
         )
         
-        # 获取输出目录
-        output_dir = os.path.join('output', 'search_index', task_id)
-        os.makedirs(output_dir, exist_ok=True)
-        
         output_files = []
-        
-        # 从断点继续执行
-        current_keyword_index = checkpoint_data.get('current_keyword_index', 0)
-        current_city_index = checkpoint_data.get('current_city_index', 0)
         
         try:
             # 准备爬虫参数
@@ -369,7 +381,7 @@ class TaskExecutor:
             success = search_index_crawler.crawl(**spider_params)
             
             if success:
-                # 获取输出文件,output_files
+                # 获取输出文件路径
                 daily_path = os.path.join(output_dir, f"{task_id}_daily_data.csv")
                 stats_path = os.path.join(output_dir, f"{task_id}_stats_data.csv")
                 output_files.append(daily_path)
@@ -380,6 +392,7 @@ class TaskExecutor:
                     task_id, 'completed',
                     progress=100,
                     completed_items=total_items,
+                    checkpoint_path=checkpoint_path,
                     output_files=output_files
                 )
                 
@@ -389,7 +402,7 @@ class TaskExecutor:
                 self._update_task_status(
                     task_id, 'failed',
                     error_message="爬虫执行失败",
-                    checkpoint_data=checkpoint_data,
+                    checkpoint_path=checkpoint_path,
                     output_files=output_files
                 )
                 
@@ -403,18 +416,18 @@ class TaskExecutor:
             self._update_task_status(
                 task_id, 'failed',
                 error_message=str(e),
-                checkpoint_data=checkpoint_data,
+                checkpoint_path=checkpoint_path,
                 output_files=output_files
             )
             
             return False
     
-    def _execute_feed_index_task(self, task_id, parameters, checkpoint_data=None):
+    def _execute_feed_index_task(self, task_id, parameters, checkpoint_path=None):
         """
         执行资讯指数任务
         :param task_id: 任务ID
         :param parameters: 任务参数
-        :param checkpoint_data: 断点续传数据
+        :param checkpoint_path: 断点续传数据
         :return: 是否成功
         """
         log.info(f"执行资讯指数任务: {task_id}")
@@ -427,12 +440,12 @@ class TaskExecutor:
         self._update_task_status(task_id, 'completed', progress=100)
         return True
     
-    def _execute_word_graph_task(self, task_id, parameters, checkpoint_data=None):
+    def _execute_word_graph_task(self, task_id, parameters, checkpoint_path=None):
         """
         执行需求图谱任务
         :param task_id: 任务ID
         :param parameters: 任务参数
-        :param checkpoint_data: 断点续传数据
+        :param checkpoint_path: 断点续传数据
         :return: 是否成功
         """
         log.info(f"执行需求图谱任务: {task_id}")
@@ -444,12 +457,12 @@ class TaskExecutor:
         self._update_task_status(task_id, 'completed', progress=100)
         return True
     
-    def _execute_demographic_attributes_task(self, task_id, parameters, checkpoint_data=None):
+    def _execute_demographic_attributes_task(self, task_id, parameters, checkpoint_path=None):
         """
         执行人群属性任务
         :param task_id: 任务ID
         :param parameters: 任务参数
-        :param checkpoint_data: 断点续传数据
+        :param checkpoint_path: 断点续传数据
         :return: 是否成功
         """
         log.info(f"执行人群属性任务: {task_id}")
@@ -461,12 +474,12 @@ class TaskExecutor:
         self._update_task_status(task_id, 'completed', progress=100)
         return True
     
-    def _execute_interest_profile_task(self, task_id, parameters, checkpoint_data=None):
+    def _execute_interest_profile_task(self, task_id, parameters, checkpoint_path=None):
         """
         执行兴趣分布任务
         :param task_id: 任务ID
         :param parameters: 任务参数
-        :param checkpoint_data: 断点续传数据
+        :param checkpoint_path: 断点续传数据
         :return: 是否成功
         """
         log.info(f"执行兴趣分布任务: {task_id}")
@@ -478,12 +491,12 @@ class TaskExecutor:
         self._update_task_status(task_id, 'completed', progress=100)
         return True
     
-    def _execute_region_distribution_task(self, task_id, parameters, checkpoint_data=None):
+    def _execute_region_distribution_task(self, task_id, parameters, checkpoint_path=None):
         """
         执行地域分布任务
         :param task_id: 任务ID
         :param parameters: 任务参数
-        :param checkpoint_data: 断点续传数据
+        :param checkpoint_path: 断点续传数据
         :return: 是否成功
         """
         log.info(f"执行地域分布任务: {task_id}")

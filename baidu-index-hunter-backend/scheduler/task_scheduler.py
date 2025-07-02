@@ -219,9 +219,9 @@ class TaskScheduler:
             except:
                 pass
         
-        if task and 'checkpoint_data' in task and task['checkpoint_data']:
+        if task and 'checkpoint_path' in task and task['checkpoint_path']:
             try:
-                task['checkpoint_data'] = json.loads(task['checkpoint_data'])
+                task['checkpoint_path'] = json.loads(task['checkpoint_path'])
             except:
                 pass
         
@@ -434,7 +434,7 @@ class TaskScheduler:
         task_id = task['task_id']
         task_type = task['task_type']
         parameters = task['parameters']
-        checkpoint_data = task.get('checkpoint_data')
+        checkpoint_path = task.get('checkpoint_path')
         
         # 更新任务状态为运行中
         query = """
@@ -448,7 +448,7 @@ class TaskScheduler:
         # 创建执行线程
         thread = threading.Thread(
             target=self._task_thread,
-            args=(task_id, task_type, parameters, checkpoint_data)
+            args=(task_id, task_type, parameters, checkpoint_path)
         )
         thread.daemon = True
         
@@ -460,17 +460,17 @@ class TaskScheduler:
         
         log.info(f"任务开始执行: {task_id}")
     
-    def _task_thread(self, task_id, task_type, parameters, checkpoint_data):
+    def _task_thread(self, task_id, task_type, parameters, checkpoint_path):
         """
         任务执行线程
         :param task_id: 任务ID
         :param task_type: 任务类型
         :param parameters: 任务参数
-        :param checkpoint_data: 断点续传数据
+        :param checkpoint_path: 断点续传数据
         """
         try:
             # 执行任务
-            task_executor.execute_task(task_id, task_type, parameters, checkpoint_data)
+            task_executor.execute_task(task_id, task_type, parameters, checkpoint_path)
         except Exception as e:
             log.error(f"任务执行异常: {task_id}, 错误: {e}")
             
@@ -495,28 +495,28 @@ class TaskScheduler:
             del self.running_tasks[task_id]
             log.debug(f"清理已完成的任务线程: {task_id}")
     
-    def update_task_checkpoint(self, task_id, checkpoint_data):
+    def update_task_checkpoint(self, task_id, checkpoint_path):
         """
         更新任务的断点续传数据
         :param task_id: 任务ID
-        :param checkpoint_data: 断点续传数据
+        :param checkpoint_path: 断点续传数据
         :return: 是否成功
         """
         try:
-            # 如果checkpoint_data是字符串，尝试解析为JSON对象
-            if isinstance(checkpoint_data, str):
+            # 如果checkpoint_path是字符串，尝试解析为JSON对象
+            if isinstance(checkpoint_path, str):
                 try:
-                    checkpoint_data = json.loads(checkpoint_data)
+                    checkpoint_path = json.loads(checkpoint_path)
                 except:
                     pass
             
-            # 如果checkpoint_data是字典，转换为JSON字符串
-            if isinstance(checkpoint_data, dict):
-                checkpoint_data = json.dumps(checkpoint_data, ensure_ascii=False)
+            # 如果checkpoint_path是字典，转换为JSON字符串
+            if isinstance(checkpoint_path, dict):
+                checkpoint_path = json.dumps(checkpoint_path, ensure_ascii=False)
             
             # 更新数据库中的断点续传数据
-            query = "UPDATE spider_tasks SET checkpoint_data = %s, update_time = %s WHERE task_id = %s"
-            self.mysql.execute_query(query, (checkpoint_data, datetime.now(), task_id))
+            query = "UPDATE spider_tasks SET checkpoint_path = %s, update_time = %s WHERE task_id = %s"
+            self.mysql.execute_query(query, (checkpoint_path, datetime.now(), task_id))
             
             log.info(f"更新任务断点续传数据成功: {task_id}")
             return True
