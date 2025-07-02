@@ -101,7 +101,7 @@ class BaiduIndexSpider:
         try:
             # 这里调用feed_index_crawler的相应方法
             # 当前为占位实现
-            result = {"status": 0, "data": {"feed_index": "示例资讯指数数据"}}
+            result = {"status": 10000, "data": {"feed_index": "示例资讯指数数据"}}
             return result
         except Exception as e:
             log.error(f"获取资讯指数出错: {str(e)}")
@@ -124,7 +124,7 @@ class BaiduIndexSpider:
         try:
             # 这里调用word_graph_crawler的相应方法
             # 当前为占位实现
-            result = {"status": 0, "data": {"word_graph": "示例需求图谱数据"}}
+            result = {"status": 10000, "data": {"word_graph": "示例需求图谱数据"}}
             return result
         except Exception as e:
             log.error(f"获取需求图谱出错: {str(e)}")
@@ -147,7 +147,7 @@ class BaiduIndexSpider:
         try:
             # 这里调用demographic_attributes_crawler的相应方法
             # 当前为占位实现
-            result = {"status": 0, "data": {"demographic_attributes": "示例人群属性数据"}}
+            result = {"status": 10000, "data": {"demographic_attributes": "示例人群属性数据"}}
             return result
         except Exception as e:
             log.error(f"获取人群属性出错: {str(e)}")
@@ -170,7 +170,7 @@ class BaiduIndexSpider:
         try:
             # 这里调用interest_profile_crawler的相应方法
             # 当前为占位实现
-            result = {"status": 0, "data": {"interest_profile": "示例兴趣分布数据"}}
+            result = {"status": 10000, "data": {"interest_profile": "示例兴趣分布数据"}}
             return result
         except Exception as e:
             log.error(f"获取兴趣分布出错: {str(e)}")
@@ -193,7 +193,7 @@ class BaiduIndexSpider:
         try:
             # 这里调用region_distribution_crawler的相应方法
             # 当前为占位实现
-            result = {"status": 0, "data": {"region_distribution": "示例地域分布数据"}}
+            result = {"status": 10000, "data": {"region_distribution": "示例地域分布数据"}}
             return result
         except Exception as e:
             log.error(f"获取地域分布出错: {str(e)}")

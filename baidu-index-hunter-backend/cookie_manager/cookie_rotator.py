@@ -21,6 +21,7 @@ class CookieRotator:
         self.cookie_update_lock = threading.Lock()
         self.last_update_time = 0
         self.cookie_manager = CookieManager()
+        self.load_balancing_strategy = COOKIE_CONFIG.get('load_balancing_strategy', 'round_robin')
         self._update_cookie_list()
     
     def _update_cookie_list(self):
@@ -74,6 +75,17 @@ class CookieRotator:
             except Exception as e:
                 log.error(f"更新Cookie列表失败: {e}")
     
+    def get_cookie(self):
+        """获取一个可用的Cookie（兼容性方法）
+        
+        Returns:
+            tuple: (account_id, cookie_dict) 元组，与爬虫代码期望的格式匹配
+        """
+        cookie_info = self.get_available_cookie()
+        if cookie_info:
+            return cookie_info['account_id'], cookie_info['cookie']
+        return None, None
+    
     def get_available_cookie(self):
         """获取一个可用的Cookie"""
         # 如果Cookie列表为空或者需要更新，则更新列表
@@ -86,21 +98,65 @@ class CookieRotator:
             return None
         
         with self.cookie_lock:
-            # 轮询获取下一个Cookie
-            cookie_info = self.cookie_list[self.cookie_index]
+            # 根据不同的负载均衡策略选择Cookie
+            if self.load_balancing_strategy == 'random':
+                # 随机选择策略
+                cookie_info = random.choice(self.cookie_list)
+            elif self.load_balancing_strategy == 'least_used':
+                # 最少使用策略
+                cookie_info = min(self.cookie_list, key=lambda x: x['use_count'])
+            elif self.load_balancing_strategy == 'least_recently_used':
+                # 最近最少使用策略
+                cookie_info = min(self.cookie_list, key=lambda x: x['last_use_time'] or 0)
+            else:
+                # 默认轮询策略
+                cookie_info = self.cookie_list[self.cookie_index]
+                # 更新索引，循环使用
+                self.cookie_index = (self.cookie_index + 1) % len(self.cookie_list)
             
             # 更新使用计数和时间
             cookie_info['use_count'] += 1
             cookie_info['last_use_time'] = time.time()
-            
-            # 更新索引，循环使用
-            self.cookie_index = (self.cookie_index + 1) % len(self.cookie_list)
             
             return {
                 'account_id': cookie_info['account_id'],
                 'cookie': cookie_info['cookie'],
                 'cookie_id': cookie_info['account_id']  # 使用account_id作为cookie_id
             }
+    
+    def report_cookie_status(self, account_id, is_valid, permanent=False):
+        """报告Cookie状态，用于与爬虫代码兼容
+        
+        Args:
+            account_id (str): Cookie账号ID
+            is_valid (bool): Cookie是否有效
+            permanent (bool): 是否永久封禁
+        
+        Returns:
+            bool: 操作是否成功
+        """
+        if is_valid:
+            return self.mark_cookie_valid(account_id)
+        elif permanent:
+            # 永久封禁
+            try:
+                self.cookie_manager.ban_account_permanently(account_id)
+                log.warning(f"Cookie {account_id} 已被标记为永久无效")
+                
+                # 从当前列表中移除
+                with self.cookie_lock:
+                    self.cookie_list = [c for c in self.cookie_list if c['account_id'] != account_id]
+                    if self.cookie_list:
+                        self.cookie_index = self.cookie_index % len(self.cookie_list)
+                    else:
+                        self.cookie_index = 0
+                
+                return True
+            except Exception as e:
+                log.error(f"标记Cookie为永久无效失败: {e}")
+                return False
+        else:
+            return self.mark_cookie_invalid(account_id)
     
     def mark_cookie_invalid(self, cookie_id):
         """标记Cookie为无效"""
@@ -127,6 +183,38 @@ class CookieRotator:
         """标记Cookie为有效"""
         # 对于有效的Cookie，不需要特殊处理
         return True
+    
+    def set_load_balancing_strategy(self, strategy):
+        """设置负载均衡策略
+        
+        策略选项:
+        - round_robin: 轮询策略（默认）
+        - random: 随机选择策略
+        - least_used: 最少使用策略
+        - least_recently_used: 最近最少使用策略
+        """
+        valid_strategies = ['round_robin', 'random', 'least_used', 'least_recently_used']
+        if strategy in valid_strategies:
+            self.load_balancing_strategy = strategy
+            log.info(f"已设置Cookie负载均衡策略为: {strategy}")
+            return True
+        else:
+            log.warning(f"无效的负载均衡策略: {strategy}，有效选项: {', '.join(valid_strategies)}")
+            return False
+    
+    def get_cookie_stats(self):
+        """获取Cookie使用统计信息"""
+        with self.cookie_lock:
+            stats = {
+                'total_cookies': len(self.cookie_list),
+                'strategy': self.load_balancing_strategy,
+                'cookies': [{
+                    'account_id': c['account_id'],
+                    'use_count': c['use_count'],
+                    'last_use_time': datetime.fromtimestamp(c['last_use_time']).strftime('%Y-%m-%d %H:%M:%S') if c['last_use_time'] else None
+                } for c in self.cookie_list]
+            }
+            return stats
     
     def close(self):
         """关闭资源"""
