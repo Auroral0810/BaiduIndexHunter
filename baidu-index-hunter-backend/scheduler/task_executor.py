@@ -191,7 +191,7 @@ class TaskExecutor:
         """
         try:
             query = """
-                INSERT INTO task_logs (task_id, log_level, log_message, create_time)
+                INSERT INTO task_logs (task_id, log_level, message, timestamp)
                 VALUES (%s, %s, %s, %s)
             """
             self.mysql.execute_query(query, (task_id, level, message, datetime.now()))
