@@ -150,25 +150,16 @@ const refreshCookieStatus = async () => {
   try {
     await checkApiConnection()
     
-    if (import.meta.env.DEV || true) { // 使用模拟数据
-      console.log("使用模拟数据 - Cookie池状态")
-      setTimeout(() => {
-        cookieStats.total = 53
-        cookieStats.available = 35
-        cookieStats.tempBanned = 12
-        cookieStats.permBanned = 6
-        statusLoading.value = false
-      }, 500)
-      return
-    }
-    
-    const response = await axios.get(`${API_BASE_URL}/admin/cookie/stats`)
+    const response = await axios.get(`${API_BASE_URL}/admin/cookie/pool-status`)
     if (response.data.code === 10000) {
       const data = response.data.data
       cookieStats.total = data.total || 0
       cookieStats.available = data.available || 0
       cookieStats.tempBanned = data.temp_banned || 0
       cookieStats.permBanned = data.perm_banned || 0
+      
+      // 添加日志以便调试
+      console.log('Cookie池状态:', data)
     } else {
       ElMessage.error(`获取Cookie池状态失败: ${response.data.msg}`)
     }
@@ -196,25 +187,10 @@ const checkApiConnection = async () => {
 const loadAvailableAccounts = async () => {
   accountsLoading.value = true
   try {
-    if (import.meta.env.DEV || true) { // 使用模拟数据
-      console.log("使用模拟数据 - 可用账号列表")
-      setTimeout(() => {
-        availableAccounts.value = [
-          'baidu_user123',
-          'baidu_user456',
-          'baidu_user789',
-          'baidu_user101',
-          'baidu_user102',
-          'baidu_user103'
-        ]
-        accountsLoading.value = false
-      }, 500)
-      return
-    }
-    
     const response = await axios.get(`${API_BASE_URL}/admin/cookie/available-accounts`)
     if (response.data.code === 10000) {
       availableAccounts.value = response.data.data.account_ids || []
+      console.log('可用账号列表:', availableAccounts.value)
     } else {
       ElMessage.error(`获取可用账号列表失败: ${response.data.msg}`)
     }
@@ -230,32 +206,12 @@ const loadAvailableAccounts = async () => {
 const loadBannedAccounts = async () => {
   bannedLoading.value = true
   try {
-    if (import.meta.env.DEV || true) { // 使用模拟数据
-      console.log("使用模拟数据 - 被封禁账号")
-      setTimeout(() => {
-        // 临时封禁账号模拟数据
-        tempBannedAccounts.value = [
-          { accountId: 'baidu_user201', banEndTime: new Date(Date.now() + 10 * 60000).toISOString() },
-          { accountId: 'baidu_user202', banEndTime: new Date(Date.now() + 25 * 60000).toISOString() },
-          { accountId: 'baidu_user203', banEndTime: new Date(Date.now() + 45 * 60000).toISOString() }
-        ]
-        
-        // 永久封禁账号模拟数据
-        permBannedAccounts.value = [
-          { accountId: 'baidu_user301' },
-          { accountId: 'baidu_user302' },
-          { accountId: 'baidu_user303' }
-        ]
-        
-        bannedLoading.value = false
-      }, 500)
-      return
-    }
-    
     const response = await axios.get(`${API_BASE_URL}/admin/cookie/banned-accounts`)
     if (response.data.code === 10000) {
       tempBannedAccounts.value = response.data.data.temp_banned || []
       permBannedAccounts.value = response.data.data.perm_banned || []
+      console.log('临时封禁账号:', tempBannedAccounts.value)
+      console.log('永久封禁账号:', permBannedAccounts.value)
     } else {
       ElMessage.error(`获取被封禁账号列表失败: ${response.data.msg}`)
     }
@@ -271,56 +227,6 @@ const loadBannedAccounts = async () => {
 const loadCookies = async () => {
   listLoading.value = true
   try {
-    if (import.meta.env.DEV || true) { // 使用模拟数据
-      console.log("使用模拟数据 - Cookie列表")
-      
-      // 创建模拟数据
-      const mockCookies = []
-      const accountIds = ['baidu_user123', 'baidu_user456', 'baidu_user789', 'baidu_user101', 'baidu_user102', 'baidu_user103']
-      const cookieNames = ['BDUSS', 'BAIDUID', 'PSTM', 'BIDUPSID', 'BDORZ', 'H_PS_PSSID', 'delPer', 'STOKEN']
-      
-      let id = 1
-      for (const accountId of accountIds) {
-        for (const cookieName of cookieNames) {
-          // 随机生成状态
-          const status = Math.floor(Math.random() * 4) // 0: 可用, 1: 临时封禁, 2: 永久封禁, 3: 过期
-          const now = new Date()
-          
-          mockCookies.push({
-            id: id++,
-            account_id: accountId,
-            cookie_name: cookieName,
-            cookie_value: `${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`,
-            is_available: status === 0 ? 1 : 0,
-            is_permanently_banned: status === 2 ? 1 : 0,
-            temp_ban_until: status === 1 ? new Date(now.getTime() + Math.random() * 3600000).toISOString() : null,
-            expire_time: status === 3 ? new Date(now.getTime() - Math.random() * 3600000).toISOString() : new Date(now.getTime() + 30 * 24 * 3600000).toISOString()
-          })
-        }
-      }
-      
-      // 根据筛选条件过滤
-      let filteredCookies = [...mockCookies]
-      
-      if (searchAccount.value) {
-        filteredCookies = filteredCookies.filter(c => 
-          c.account_id.toLowerCase().includes(searchAccount.value.toLowerCase())
-        )
-      }
-      
-      total.value = filteredCookies.length
-      
-      // 分页
-      const start = (currentPage.value - 1) * pageSize.value
-      const end = start + pageSize.value
-      cookieList.value = filteredCookies.slice(start, end)
-      
-      setTimeout(() => {
-        listLoading.value = false
-      }, 500)
-      return
-    }
-    
     const params = {
       page: currentPage.value,
       limit: pageSize.value,
@@ -331,6 +237,8 @@ const loadCookies = async () => {
     const response = await axios.get(`${API_BASE_URL}/admin/cookie/list`, { params })
     if (response.data.code === 10000) {
       cookieList.value = response.data.data || []
+      console.log('Cookie列表:', cookieList.value)
+      
       // 如果后端返回了总数，使用后端的总数
       if (response.data.total) {
         total.value = response.data.total
@@ -419,33 +327,25 @@ const submitCookieForm = async () => {
     
     submitting.value = true
     
-    if (import.meta.env.DEV || true) { // 使用模拟数据
-      console.log("使用模拟数据 - 提交Cookie表单")
-      setTimeout(() => {
-        ElMessage.success(cookieForm.id ? 'Cookie更新成功' : 'Cookie添加成功')
-        cookieDialogVisible.value = false
-        refreshCookieStatus()
-        loadCookies()
-        submitting.value = false
-      }, 800)
-      return
-    }
-    
     let response
     const cookieData: any = {
       account_id: cookieForm.account_id
     }
     
     if (cookieForm.use_string_input) {
+      // 如果使用字符串输入，直接将字符串作为cookie_data
       cookieData.cookie_data = cookieForm.cookie_string
     } else {
-      cookieData.cookie_name = cookieForm.cookie_name
-      cookieData.cookie_value = cookieForm.cookie_value
+      // 如果使用键值对输入，将cookie_name和cookie_value封装到cookie_data对象中
+      cookieData.cookie_data = {}
+      cookieData.cookie_data[cookieForm.cookie_name] = cookieForm.cookie_value
     }
     
     if (cookieForm.expire_days) {
       cookieData.expire_days = cookieForm.expire_days
     }
+    
+    console.log('提交的Cookie数据:', cookieData)
     
     if (cookieForm.id) {
       // 更新Cookie
@@ -464,6 +364,8 @@ const submitCookieForm = async () => {
       cookieDialogVisible.value = false
       refreshCookieStatus()
       loadCookies()
+      loadAvailableAccounts()
+      loadBannedAccounts()
     } else {
       ElMessage.error(`${cookieForm.id ? '更新' : '添加'}Cookie失败: ${response.data.msg}`)
     }
@@ -489,18 +391,6 @@ const deleteCookie = async (id: number) => {
     })
     
     listLoading.value = true
-    
-    if (import.meta.env.DEV || true) { // 使用模拟数据
-      console.log("使用模拟数据 - 删除Cookie")
-      setTimeout(() => {
-        ElMessage.success('Cookie删除成功')
-        cookieList.value = cookieList.value.filter(c => c.id !== id)
-        total.value--
-        refreshCookieStatus()
-        listLoading.value = false
-      }, 500)
-      return
-    }
     
     const response = await axios.delete(`${API_BASE_URL}/admin/cookie/delete/${id}`)
     if (response.data.code === 10000) {
@@ -531,23 +421,6 @@ const unbanCookie = async (id: number) => {
   try {
     listLoading.value = true
     
-    if (import.meta.env.DEV || true) { // 使用模拟数据
-      console.log("使用模拟数据 - 解封Cookie")
-      setTimeout(() => {
-        // 更新当前列表中的Cookie状态
-        const cookie = cookieList.value.find(c => c.id === id)
-        if (cookie) {
-          cookie.temp_ban_until = null
-          cookie.is_available = 1
-        }
-        
-        ElMessage.success('Cookie解封成功')
-        refreshCookieStatus()
-        listLoading.value = false
-      }, 500)
-      return
-    }
-    
     const response = await axios.post(`${API_BASE_URL}/admin/cookie/unban/${id}`)
     if (response.data.code === 10000) {
       ElMessage.success('Cookie解封成功')
@@ -568,16 +441,6 @@ const unbanCookie = async (id: number) => {
 const syncToRedis = async () => {
   try {
     syncing.value = true
-    
-    if (import.meta.env.DEV || true) { // 使用模拟数据
-      console.log("使用模拟数据 - 同步到Redis")
-      setTimeout(() => {
-        ElMessage.success('Cookie数据同步到Redis成功')
-        refreshCookieStatus()
-        syncing.value = false
-      }, 1200)
-      return
-    }
     
     const response = await axios.post(`${API_BASE_URL}/admin/cookie/sync-to-redis`)
     if (response.data.code === 10000) {
@@ -600,49 +463,6 @@ const testAccountAvailability = async (accountId: string) => {
     testingAccount.value = true
     testResult.value = null
     testResultDialogVisible.value = true
-    
-    if (import.meta.env.DEV || true) { // 使用模拟数据
-      console.log("使用模拟数据 - 测试账号可用性", accountId)
-      
-      // 随机生成测试结果
-      const random = Math.random()
-      let result
-      
-      if (random < 0.7) {
-        // 70%概率有效
-        result = {
-          account_id: accountId,
-          status: 0,
-          message: '测试成功，Cookie有效可用',
-          is_valid: true,
-          action_taken: '保持可用状态'
-        }
-      } else if (random < 0.9) {
-        // 20%概率临时封禁
-        result = {
-          account_id: accountId,
-          status: 10001,
-          message: '账号被锁定，请稍后再试',
-          is_valid: false,
-          action_taken: '临时锁定账号30分钟'
-        }
-      } else {
-        // 10%概率未登录
-        result = {
-          account_id: accountId,
-          status: 10000,
-          message: '账号未登录，请重新登录',
-          is_valid: false,
-          action_taken: '永久锁定账号'
-        }
-      }
-      
-      setTimeout(() => {
-        testResult.value = result
-        testingAccount.value = false
-      }, 1000)
-      return
-    }
     
     const response = await axios.post(`${API_BASE_URL}/admin/cookie/test-account-availability/${accountId}`)
     if (response.data.code === 10000) {
@@ -667,25 +487,6 @@ const testAllCookiesAvailability = async () => {
     batchTestResult.value = null
     batchTestResultDialogVisible.value = true
     
-    if (import.meta.env.DEV || true) { // 使用模拟数据
-      console.log("使用模拟数据 - 测试所有Cookie可用性")
-      
-      // 生成模拟的批量测试结果
-      setTimeout(() => {
-        batchTestResult.value = {
-          valid_accounts: ['baidu_user123', 'baidu_user456', 'baidu_user789', 'baidu_user101'],
-          banned_accounts: ['baidu_user102'],
-          not_login_accounts: ['baidu_user103'],
-          total_tested: 6,
-          valid_count: 4,
-          banned_count: 1,
-          not_login_count: 1
-        }
-        testingAll.value = false
-      }, 2000)
-      return
-    }
-    
     const response = await axios.post(`${API_BASE_URL}/admin/cookie/test-availability`)
     if (response.data.code === 10000) {
       batchTestResult.value = response.data.data
@@ -706,17 +507,6 @@ const testAllCookiesAvailability = async () => {
 const updateCookieStatus = async () => {
   try {
     updatingStatus.value = true
-    
-    if (import.meta.env.DEV || true) { // 使用模拟数据
-      console.log("使用模拟数据 - 更新Cookie状态")
-      setTimeout(() => {
-        ElMessage.success('成功更新3条Cookie状态')
-        refreshCookieStatus()
-        loadCookies()
-        updatingStatus.value = false
-      }, 1000)
-      return
-    }
     
     const response = await axios.post(`${API_BASE_URL}/admin/cookie/update-status`)
     if (response.data.code === 10000) {
@@ -744,17 +534,6 @@ const cleanupExpiredCookies = async () => {
     })
     
     cleaningUp.value = true
-    
-    if (import.meta.env.DEV || true) { // 使用模拟数据
-      console.log("使用模拟数据 - 清理过期Cookie")
-      setTimeout(() => {
-        ElMessage.success('成功清理5条过期Cookie')
-        refreshCookieStatus()
-        loadCookies()
-        cleaningUp.value = false
-      }, 1000)
-      return
-    }
     
     const response = await axios.post(`${API_BASE_URL}/admin/cookie/cleanup-expired`)
     if (response.data.code === 10000) {
@@ -808,33 +587,6 @@ const viewAccountDetail = async (accountId: string) => {
   accountDetailDialogVisible.value = true
   
   try {
-    if (import.meta.env.DEV || true) { // 使用模拟数据
-      console.log("使用模拟数据 - 查看账号详情", accountId)
-      
-      // 生成模拟的账号详情
-      setTimeout(() => {
-        const cookieDict: Record<string, string> = {
-          'BDUSS': 'abcdefghijklmnopqrstuvwxyz123456',
-          'BAIDUID': '1A2B3C4D5E6F7G8H9I:FG',
-          'PSTM': '1624876543',
-          'BIDUPSID': 'A1B2C3D4E5F6G7H8I9',
-          'BDORZ': 'B490B5EBF6F3CD402E515D22BCDA1598',
-          'H_PS_PSSID': '36546_38942_38881_38796_38907_38954_38980_38943_38815_38636_26350',
-          'delPer': '0',
-          'STOKEN': 'abcdefghijklmnopqrstuv'
-        }
-        
-        accountDetail.value = {
-          account_id: accountId,
-          cookies: cookieDict,
-          cookie_count: Object.keys(cookieDict).length,
-          is_available: true
-        }
-        accountDetailLoading.value = false
-      }, 800)
-      return
-    }
-    
     const response = await axios.get(`${API_BASE_URL}/admin/cookie/account-cookie/${accountId}`)
     if (response.data.code === 10000) {
       accountDetail.value = response.data.data
@@ -879,20 +631,6 @@ const submitTempBan = async () => {
   try {
     submitting.value = true
     
-    if (import.meta.env.DEV || true) { // 使用模拟数据
-      console.log("使用模拟数据 - 临时封禁账号", tempBanForm)
-      setTimeout(() => {
-        ElMessage.success(`账号 ${tempBanForm.account_id} 已临时封禁 ${tempBanForm.duration_minutes} 分钟`)
-        tempBanDialogVisible.value = false
-        refreshCookieStatus()
-        loadCookies()
-        loadAvailableAccounts()
-        loadBannedAccounts()
-        submitting.value = false
-      }, 800)
-      return
-    }
-    
     const durationSeconds = tempBanForm.duration_minutes * 60
     const response = await axios.post(`${API_BASE_URL}/admin/cookie/ban/temporary/${tempBanForm.account_id}`, {
       duration_seconds: durationSeconds
@@ -927,19 +665,6 @@ const banAccountPermanently = async (accountId: string) => {
     
     accountsLoading.value = true
     
-    if (import.meta.env.DEV || true) { // 使用模拟数据
-      console.log("使用模拟数据 - 永久封禁账号", accountId)
-      setTimeout(() => {
-        ElMessage.success(`账号 ${accountId} 已永久封禁`)
-        refreshCookieStatus()
-        loadCookies()
-        loadAvailableAccounts()
-        loadBannedAccounts()
-        accountsLoading.value = false
-      }, 800)
-      return
-    }
-    
     const response = await axios.post(`${API_BASE_URL}/admin/cookie/ban/permanent/${accountId}`)
     if (response.data.code === 10000) {
       ElMessage.success(`账号 ${accountId} 已永久封禁`)
@@ -964,19 +689,6 @@ const banAccountPermanently = async (accountId: string) => {
 const unbanAccount = async (accountId: string) => {
   try {
     bannedLoading.value = true
-    
-    if (import.meta.env.DEV || true) { // 使用模拟数据
-      console.log("使用模拟数据 - 解封账号", accountId)
-      setTimeout(() => {
-        ElMessage.success(`账号 ${accountId} 已解封`)
-        refreshCookieStatus()
-        loadCookies()
-        loadAvailableAccounts()
-        loadBannedAccounts()
-        bannedLoading.value = false
-      }, 800)
-      return
-    }
     
     const response = await axios.post(`${API_BASE_URL}/admin/cookie/unban/${accountId}`)
     if (response.data.code === 10000) {
@@ -1006,19 +718,6 @@ const forceUnbanAccount = async (accountId: string) => {
     })
     
     bannedLoading.value = true
-    
-    if (import.meta.env.DEV || true) { // 使用模拟数据
-      console.log("使用模拟数据 - 强制解封账号", accountId)
-      setTimeout(() => {
-        ElMessage.success(`账号 ${accountId} 已强制解封`)
-        refreshCookieStatus()
-        loadCookies()
-        loadAvailableAccounts()
-        loadBannedAccounts()
-        bannedLoading.value = false
-      }, 800)
-      return
-    }
     
     const response = await axios.post(`${API_BASE_URL}/admin/cookie/force-unban/${accountId}`)
     if (response.data.code === 10000) {
@@ -1056,20 +755,6 @@ const submitUpdateId = async () => {
     
     submitting.value = true
     
-    if (import.meta.env.DEV || true) { // 使用模拟数据
-      console.log("使用模拟数据 - 更新账号ID", updateIdForm)
-      setTimeout(() => {
-        ElMessage.success(`账号ID已从 ${updateIdForm.old_account_id} 更新为 ${updateIdForm.new_account_id}`)
-        updateIdDialogVisible.value = false
-        refreshCookieStatus()
-        loadCookies()
-        loadAvailableAccounts()
-        loadBannedAccounts()
-        submitting.value = false
-      }, 800)
-      return
-    }
-    
     const response = await axios.put(`${API_BASE_URL}/admin/cookie/update-account/${updateIdForm.old_account_id}`, {
       new_account_id: updateIdForm.new_account_id
     })
@@ -1106,19 +791,6 @@ const deleteAccount = async (accountId: string) => {
     })
     
     accountsLoading.value = true
-    
-    if (import.meta.env.DEV || true) { // 使用模拟数据
-      console.log("使用模拟数据 - 删除账号", accountId)
-      setTimeout(() => {
-        ElMessage.success(`账号 ${accountId} 的所有Cookie已删除`)
-        refreshCookieStatus()
-        loadCookies()
-        loadAvailableAccounts()
-        loadBannedAccounts()
-        accountsLoading.value = false
-      }, 800)
-      return
-    }
     
     const response = await axios.delete(`${API_BASE_URL}/admin/cookie/delete/${accountId}`)
     if (response.data.code === 10000) {

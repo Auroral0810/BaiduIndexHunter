@@ -5,13 +5,38 @@ from flask import Blueprint, request, jsonify
 import json
 from datetime import datetime, timedelta
 from flasgger import swag_from
+import pymysql
+import traceback
+import functools
 
 from cookie_manager.cookie_manager import CookieManager
 from constant.respond import ResponseCode, ResponseFormatter
+from config.settings import MYSQL_CONFIG
+from utils.logger import log
 
 # 创建蓝图
 admin_cookie_bp = Blueprint('admin_cookie', __name__, url_prefix='/api/admin/cookie')
-cookie_manager = CookieManager()
+
+# 使用函数获取cookie_manager实例，而不是全局变量
+def get_cookie_manager():
+    """获取CookieManager实例，确保每个请求使用新的连接"""
+    return CookieManager()
+
+def with_cookie_manager(func):
+    """装饰器：为API函数提供cookie_manager实例，并确保正确关闭连接"""
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        cookie_manager = None
+        try:
+            cookie_manager = get_cookie_manager()
+            return func(cookie_manager, *args, **kwargs)
+        except Exception as e:
+            log.error(f"{func.__name__}失败: {str(e)}\n{traceback.format_exc()}")
+            return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"{func.__name__}失败: {str(e)}"))
+        finally:
+            if cookie_manager:
+                cookie_manager.close()
+    return wrapper
 
 @admin_cookie_bp.route('/list', methods=['GET'])
 @swag_from({
@@ -33,6 +58,22 @@ cookie_manager = CookieManager()
             'required': False,
             'default': True,
             'description': '是否只返回可用的Cookie'
+        },
+        {
+            'name': 'page',
+            'in': 'query',
+            'type': 'integer',
+            'required': False,
+            'default': 1,
+            'description': '页码，从1开始'
+        },
+        {
+            'name': 'limit',
+            'in': 'query',
+            'type': 'integer',
+            'required': False,
+            'default': 10,
+            'description': '每页记录数'
         }
     ],
     'responses': {
@@ -48,17 +89,16 @@ cookie_manager = CookieManager()
                         'items': {
                             'type': 'object',
                             'properties': {
-                                'id': {'type': 'integer'},
                                 'account_id': {'type': 'string'},
-                                'cookie_name': {'type': 'string'},
-                                'cookie_value': {'type': 'string'},
+                                'cookies': {'type': 'object'},
                                 'expire_time': {'type': 'string', 'format': 'date-time'},
                                 'is_available': {'type': 'integer'},
                                 'is_permanently_banned': {'type': 'integer'},
                                 'temp_ban_until': {'type': 'string', 'format': 'date-time'}
                             }
                         }
-                    }
+                    },
+                    'total': {'type': 'integer', 'description': '总记录数'}
                 }
             }
         },
@@ -75,39 +115,108 @@ cookie_manager = CookieManager()
         }
     }
 })
-def list_cookies():
-    """获取所有可用的Cookie"""
+@with_cookie_manager
+def list_cookies(cookie_manager):
+    """获取所有Cookie，按账号ID组装"""
     try:
         # 获取查询参数
         account_id = request.args.get('account_id')
-        available_only = request.args.get('available_only', 'true').lower() == 'true'
+        available_only = request.args.get('available_only', 'false').lower() == 'true'
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
         
+        cursor = cookie_manager._get_cursor()
+        
+        # 首先获取所有账号ID
         if account_id:
             # 获取指定账号的cookie
-            cookies = cookie_manager.get_cookies_by_account_id(account_id)
+            cursor.execute("SELECT DISTINCT account_id FROM cookies WHERE account_id = %s", (account_id,))
         elif available_only:
-            # 获取所有可用的cookie
-            cookies = cookie_manager.get_available_cookies()
+            # 获取所有可用的账号ID
+            cursor.execute("""
+                SELECT DISTINCT account_id FROM cookies 
+                WHERE is_available = 1 
+                AND (expire_time IS NULL OR expire_time > NOW())
+                AND (temp_ban_until IS NULL OR temp_ban_until < NOW())
+                AND is_permanently_banned = 0
+            """)
         else:
-            # 获取所有cookie（这个接口需要额外实现）
-            cookies = []
-            cursor = cookie_manager._get_cursor()
-            cursor.execute("SELECT * FROM cookies")
-            cookies = cursor.fetchall()
+            # 获取所有账号ID
+            cursor.execute("SELECT DISTINCT account_id FROM cookies")
         
-        # 转换为可序列化的格式
+        all_account_ids = [row['account_id'] for row in cursor.fetchall()]
+        total_accounts = len(all_account_ids)
+        
+        # 计算分页
+        offset = (page - 1) * limit
+        paginated_account_ids = all_account_ids[offset:offset+limit] if offset < total_accounts else []
+        
+        # 获取分页后的账号的所有Cookie
         result = []
-        for cookie in cookies:
-            # 处理datetime类型
-            cookie_dict = dict(cookie)
-            if 'expire_time' in cookie_dict and cookie_dict['expire_time'] is not None:
-                cookie_dict['expire_time'] = cookie_dict['expire_time'].strftime('%Y-%m-%d %H:%M:%S')
-            if 'temp_ban_until' in cookie_dict and cookie_dict['temp_ban_until'] is not None:
-                cookie_dict['temp_ban_until'] = cookie_dict['temp_ban_until'].strftime('%Y-%m-%d %H:%M:%S')
-            result.append(cookie_dict)
+        for acc_id in paginated_account_ids:
+            # 获取该账号的所有cookie
+            cursor.execute("SELECT * FROM cookies WHERE account_id = %s", (acc_id,))
+            cookies = cursor.fetchall()
+            
+            if not cookies:
+                continue
+                
+            # 组装cookie字典
+            cookie_dict = {}
+            is_available = True
+            is_permanently_banned = False
+            temp_ban_until = None
+            expire_time = None
+            
+            for cookie in cookies:
+                cookie_dict[cookie['cookie_name']] = cookie['cookie_value']
+                
+                # 如果任一cookie不可用或被永久封禁，则整个账号被视为不可用
+                if not cookie['is_available']:
+                    is_available = False
+                if cookie.get('is_permanently_banned'):
+                    is_permanently_banned = True
+                
+                # 记录临时封禁时间（取最大值）
+                if cookie.get('temp_ban_until'):
+                    if temp_ban_until is None or cookie['temp_ban_until'] > temp_ban_until:
+                        temp_ban_until = cookie['temp_ban_until']
+                
+                # 记录过期时间（取最小值，即最早过期的时间）
+                if cookie.get('expire_time'):
+                    if expire_time is None or cookie['expire_time'] < expire_time:
+                        expire_time = cookie['expire_time']
+            
+            # 处理日期格式
+            if expire_time:
+                expire_time = expire_time.strftime('%Y-%m-%d %H:%M:%S')
+            if temp_ban_until:
+                temp_ban_until = temp_ban_until.strftime('%Y-%m-%d %H:%M:%S')
+            
+            # 添加到结果列表
+            result.append({
+                'account_id': acc_id,
+                'cookies': cookie_dict,
+                'cookie_count': len(cookie_dict),
+                'is_available': 1 if is_available else 0,
+                'is_permanently_banned': 1 if is_permanently_banned else 0,
+                'temp_ban_until': temp_ban_until,
+                'expire_time': expire_time
+            })
         
-        return jsonify(ResponseFormatter.success(result))
+        # 返回结果，包含分页信息
+        response_data = {
+            'code': 10000,
+            'msg': '请求成功',
+            'data': result,
+            'total': total_accounts,
+            'page': page,
+            'limit': limit
+        }
+        
+        return jsonify(response_data)
     except Exception as e:
+        log.error(f"获取Cookie列表失败: {str(e)}\n{traceback.format_exc()}")
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取Cookie列表失败: {str(e)}"))
 
 @admin_cookie_bp.route('/assembled', methods=['GET'])
@@ -930,11 +1039,21 @@ def test_account_cookie_availability(account_id):
         }
     }
 })
-def get_available_account_ids():
+@with_cookie_manager
+def get_available_account_ids(cookie_manager):
     """获取所有可用的账号ID列表"""
     try:
-        # 调用CookieManager的方法获取可用账号ID
-        account_ids = cookie_manager.get_available_account_ids()
+        # 直接使用SQL查询获取可用账号，而不是调用CookieManager方法
+        cursor = cookie_manager._get_cursor()
+        cursor.execute("""
+            SELECT DISTINCT account_id FROM cookies 
+            WHERE is_available = 1 
+            AND (expire_time IS NULL OR expire_time > NOW())
+            AND (temp_ban_until IS NULL OR temp_ban_until < NOW())
+            AND is_permanently_banned = 0
+        """)
+        results = cursor.fetchall()
+        account_ids = [item['account_id'] for item in results]
         
         # 返回结果
         result = {
@@ -944,6 +1063,7 @@ def get_available_account_ids():
         
         return jsonify(ResponseFormatter.success(result, "获取可用账号ID成功"))
     except Exception as e:
+        log.error(f"获取可用账号ID失败: {str(e)}\n{traceback.format_exc()}")
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取可用账号ID失败: {str(e)}"))
 
 @admin_cookie_bp.route('/account-cookie/<account_id>', methods=['GET'])
@@ -1040,6 +1160,188 @@ def get_account_cookie(account_id):
         return jsonify(ResponseFormatter.success(result, f"获取账号 {account_id} Cookie信息成功"))
     except Exception as e:
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取账号 {account_id} Cookie信息失败: {str(e)}"))
+
+@admin_cookie_bp.route('/pool-status', methods=['GET'])
+@swag_from({
+    'tags': ['Cookie管理'],
+    'summary': 'Cookie池状态',
+    'description': '获取Cookie池的总体状态，包括总数、可用数、临时封禁数和永久封禁数',
+    'responses': {
+        '200': {
+            'description': '请求成功',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
+                    'data': {
+                        'type': 'object',
+                        'properties': {
+                            'total': {'type': 'integer', 'description': 'Cookie账号总数'},
+                            'available': {'type': 'integer', 'description': '可用Cookie账号数量'},
+                            'temp_banned': {'type': 'integer', 'description': '临时封禁Cookie账号数量'},
+                            'perm_banned': {'type': 'integer', 'description': '永久封禁Cookie账号数量'}
+                        }
+                    }
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
+                }
+            }
+        }
+    }
+})
+@with_cookie_manager
+def get_pool_status(cookie_manager):
+    """获取Cookie池状态"""
+    try:
+        cursor = cookie_manager._get_cursor()
+        
+        # 获取总账号数
+        cursor.execute("SELECT COUNT(DISTINCT account_id) as total FROM cookies")
+        total = cursor.fetchone()['total']
+        
+        # 获取可用账号数
+        cursor.execute("""
+            SELECT COUNT(DISTINCT account_id) as available FROM cookies 
+            WHERE is_available = 1 
+            AND (expire_time IS NULL OR expire_time > NOW())
+            AND (temp_ban_until IS NULL OR temp_ban_until < NOW())
+            AND is_permanently_banned = 0
+        """)
+        available = cursor.fetchone()['available']
+        
+        # 获取临时封禁账号数
+        cursor.execute("""
+            SELECT COUNT(DISTINCT account_id) as temp_banned FROM cookies 
+            WHERE temp_ban_until IS NOT NULL AND temp_ban_until > NOW()
+            AND is_permanently_banned = 0
+        """)
+        temp_banned = cursor.fetchone()['temp_banned']
+        
+        # 获取永久封禁账号数
+        cursor.execute("SELECT COUNT(DISTINCT account_id) as perm_banned FROM cookies WHERE is_permanently_banned = 1")
+        perm_banned = cursor.fetchone()['perm_banned']
+        
+        result = {
+            "total": total,
+            "available": available,
+            "temp_banned": temp_banned,
+            "perm_banned": perm_banned
+        }
+        
+        return jsonify(ResponseFormatter.success(result))
+    except Exception as e:
+        log.error(f"获取Cookie池状态失败: {str(e)}\n{traceback.format_exc()}")
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取Cookie池状态失败: {str(e)}"))
+
+@admin_cookie_bp.route('/banned-accounts', methods=['GET'])
+@swag_from({
+    'tags': ['Cookie管理'],
+    'summary': '获取被封禁的账号',
+    'description': '获取所有被临时封禁和永久封禁的账号列表',
+    'responses': {
+        '200': {
+            'description': '请求成功',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
+                    'data': {
+                        'type': 'object',
+                        'properties': {
+                            'temp_banned': {
+                                'type': 'array',
+                                'items': {
+                                    'type': 'object',
+                                    'properties': {
+                                        'account_id': {'type': 'string'},
+                                        'temp_ban_until': {'type': 'string', 'format': 'date-time'},
+                                        'remaining_seconds': {'type': 'integer'}
+                                    }
+                                }
+                            },
+                            'perm_banned': {
+                                'type': 'array',
+                                'items': {'type': 'string'}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
+                }
+            }
+        }
+    }
+})
+@with_cookie_manager
+def get_banned_accounts(cookie_manager):
+    """获取被封禁的账号列表"""
+    try:
+        cursor = cookie_manager._get_cursor()
+        
+        # 获取临时封禁的账号
+        cursor.execute("""
+            SELECT DISTINCT account_id, MAX(temp_ban_until) as temp_ban_until
+            FROM cookies 
+            WHERE temp_ban_until IS NOT NULL AND temp_ban_until > NOW()
+            AND is_permanently_banned = 0
+            GROUP BY account_id
+        """)
+        temp_banned_accounts = cursor.fetchall()
+        
+        # 获取永久封禁的账号
+        cursor.execute("""
+            SELECT DISTINCT account_id
+            FROM cookies 
+            WHERE is_permanently_banned = 1
+            GROUP BY account_id
+        """)
+        perm_banned_accounts = cursor.fetchall()
+        
+        # 处理临时封禁账号，计算剩余时间
+        now = datetime.now()
+        temp_banned_result = []
+        for account in temp_banned_accounts:
+            ban_until = account['temp_ban_until']
+            remaining_seconds = int((ban_until - now).total_seconds())
+            if remaining_seconds > 0:
+                temp_banned_result.append({
+                    'account_id': account['account_id'],
+                    'temp_ban_until': ban_until.strftime('%Y-%m-%d %H:%M:%S'),
+                    'remaining_seconds': remaining_seconds
+                })
+        
+        # 处理永久封禁账号
+        perm_banned_result = [account['account_id'] for account in perm_banned_accounts]
+        
+        result = {
+            "temp_banned": temp_banned_result,
+            "perm_banned": perm_banned_result
+        }
+        
+        return jsonify(ResponseFormatter.success(result))
+    except Exception as e:
+        log.error(f"获取被封禁账号列表失败: {str(e)}\n{traceback.format_exc()}")
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取被封禁账号列表失败: {str(e)}"))
 
 # 注册蓝图的函数
 def register_admin_cookie_blueprint(app):

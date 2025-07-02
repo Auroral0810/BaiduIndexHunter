@@ -33,19 +33,29 @@ class CookieManager:
     
     def __init__(self):
         """初始化数据库连接"""
-        self.conn = pymysql.connect(
-            host=MYSQL_CONFIG['host'],
-            port=MYSQL_CONFIG['port'],
-            user=MYSQL_CONFIG['user'],
-            password=MYSQL_CONFIG['password'],
-            db=MYSQL_CONFIG['db'],
-            charset='utf8mb4',
-            cursorclass=pymysql.cursors.DictCursor
-        )
+        self.conn = None
+        self._connect_db()
         
         # 初始化Redis连接
         self.redis_client = None
         self._connect_redis()
+    
+    def _connect_db(self):
+        """连接到MySQL数据库"""
+        try:
+            self.conn = pymysql.connect(
+                host=MYSQL_CONFIG['host'],
+                port=MYSQL_CONFIG['port'],
+                user=MYSQL_CONFIG['user'],
+                password=MYSQL_CONFIG['password'],
+                db=MYSQL_CONFIG['db'],
+                charset='utf8mb4',
+                cursorclass=pymysql.cursors.DictCursor
+            )
+            log.info("成功连接到MySQL数据库")
+        except Exception as e:
+            log.error(f"连接MySQL数据库失败: {e}")
+            self.conn = None
     
     def _connect_redis(self):
         """连接Redis"""
@@ -63,25 +73,33 @@ class CookieManager:
             self.redis_client = None
     
     def _get_cursor(self):
-        """获取数据库游标"""
-        if self.conn.open is False:
-            self.conn = pymysql.connect(
-                host=MYSQL_CONFIG['host'],
-                port=MYSQL_CONFIG['port'],
-                user=MYSQL_CONFIG['user'],
-                password=MYSQL_CONFIG['password'],
-                db=MYSQL_CONFIG['db'],
-                charset='utf8mb4',
-                cursorclass=pymysql.cursors.DictCursor
-            )
-        return self.conn.cursor()
+        """获取数据库游标，确保连接是活跃的"""
+        try:
+            # 如果连接不存在或已关闭，重新连接
+            if self.conn is None or not self.conn.open:
+                self._connect_db()
+                if self.conn is None:
+                    raise Exception("无法建立数据库连接")
+            
+            # 尝试ping一下，确保连接活跃
+            self.conn.ping(reconnect=True)
+            return self.conn.cursor()
+        except Exception as e:
+            log.error(f"获取数据库游标失败: {e}")
+            # 尝试重新连接
+            self._connect_db()
+            if self.conn is None:
+                raise Exception("无法重新连接到数据库")
+            return self.conn.cursor()
     
     def close(self):
         """关闭数据库连接"""
-        if hasattr(self, 'conn') and self.conn.open:
+        if hasattr(self, 'conn') and self.conn and self.conn.open:
             self.conn.close()
+            self.conn = None
         if self.redis_client:
             self.redis_client.close()
+            self.redis_client = None
     
     def sync_to_redis(self):
         """将MySQL中的cookie数据同步到Redis"""
