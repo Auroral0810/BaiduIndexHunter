@@ -78,6 +78,7 @@ const cookieForm = reactive({
   cookie_name: '',
   cookie_value: '',
   cookie_string: '',
+  cookie_json: '{}',
   use_string_input: false,
   expire_days: null,
   expire_option: 'none',
@@ -151,6 +152,30 @@ const cookiePoolStatus = ref({
 
 // 添加计时器引用
 const banTimeUpdateTimer = ref(null)
+
+// 添加Cookie编辑所需的变量
+const cookieInputMode = ref('string')
+const cookieTableData = ref<{ name: string, value: string }[]>([])
+const importType = ref('txt')
+const fileList = ref<any[]>([])
+const selectedFile = ref<File | null>(null)
+const importPreviewData = ref<{ name: string, value: string }[]>([])
+
+// 根据导入类型返回对应的文件接受格式
+const importFileAccept = computed(() => {
+  switch (importType.value) {
+    case 'txt':
+      return '.txt'
+    case 'json':
+      return '.json'
+    case 'csv':
+      return '.csv'
+    case 'excel':
+      return '.xlsx,.xls'
+    default:
+      return ''
+  }
+})
 
 // 加载Cookie池状态
 const refreshCookieStatus = async () => {
@@ -324,6 +349,7 @@ const openAddCookieDialog = () => {
     cookie_name: '',
     cookie_value: '',
     cookie_string: '',
+    cookie_json: '{}',
     use_string_input: false,
     expire_days: null,
     expire_option: 'none',
@@ -331,6 +357,15 @@ const openAddCookieDialog = () => {
     is_permanently_banned: false,
     temp_ban_until: null
   })
+  
+  // 重置表格数据
+  cookieTableData.value = []
+  // 重置导入数据
+  importPreviewData.value = []
+  fileList.value = []
+  selectedFile.value = null
+  // 设置默认编辑模式
+  cookieInputMode.value = 'string'
   
   cookieDialogVisible.value = true
 }
@@ -354,15 +389,22 @@ const editCookie = async (cookie: any) => {
           .join('; ');
       }
       
+      // 将cookies对象转换为JSON字符串
+      let cookieJson = '{}';
+      if (data.cookies) {
+        cookieJson = JSON.stringify(data.cookies, null, 2);
+      }
+      
       // 根据是否有过期时间设置expire_option
       const hasExpireTime = cookie.expire_time !== null;
       
       Object.assign(cookieForm, {
-        id: cookie.id,
+        id: cookie.id, // 确保设置了id，用于标识这是编辑操作
         account_id: data.account_id,
         cookie_name: '',
         cookie_value: '',
         cookie_string: cookieString,
+        cookie_json: cookieJson,
         use_string_input: true, // 使用字符串模式编辑
         expire_days: hasExpireTime ? 365 : null,
         expire_option: hasExpireTime ? 'days' : 'none',
@@ -371,7 +413,18 @@ const editCookie = async (cookie: any) => {
         temp_ban_until: cookie.temp_ban_until
       });
       
+      // 初始化表格数据
+      cookieTableData.value = Object.entries(data.cookies || {}).map(([name, value]) => ({
+        name,
+        value: value as string
+      }));
+      
+      // 设置编辑模式
+      cookieInputMode.value = 'json';
+      
       cookieDialogVisible.value = true;
+      
+      console.log('编辑Cookie:', cookieForm);
     } else {
       ElMessage.error(`获取Cookie详情失败: ${response.data.msg}`);
     }
@@ -397,13 +450,61 @@ const submitCookieForm = async () => {
       account_id: cookieForm.account_id
     }
     
-    if (cookieForm.use_string_input) {
-      // 如果使用字符串输入，直接将字符串作为cookie_data
-      cookieData.cookie_data = cookieForm.cookie_string
-    } else {
-      // 如果使用键值对输入，将cookie_name和cookie_value封装到cookie_data对象中
-      cookieData.cookie_data = {}
-      cookieData.cookie_data[cookieForm.cookie_name] = cookieForm.cookie_value
+    // 根据当前编辑模式处理Cookie数据
+    switch (cookieInputMode.value) {
+      case 'string':
+        // 字符串模式
+        cookieData.cookie_data = cookieForm.cookie_string
+        break
+      case 'json':
+        // JSON模式
+        try {
+          cookieData.cookie_data = JSON.parse(cookieForm.cookie_json)
+        } catch (e) {
+          ElMessage.error('JSON格式错误，请检查输入')
+          submitting.value = false
+          return
+        }
+        break
+      case 'table':
+        // 表格模式
+        if (cookieTableData.value.length === 0) {
+          ElMessage.error('表格数据为空，请添加至少一个Cookie字段')
+          submitting.value = false
+          return
+        }
+        
+        // 验证表格数据
+        for (const row of cookieTableData.value) {
+          if (!row.name.trim()) {
+            ElMessage.error('Cookie字段名不能为空')
+            submitting.value = false
+            return
+          }
+        }
+        
+        // 转换表格数据为对象
+        const tableData = {}
+        cookieTableData.value.forEach(row => {
+          tableData[row.name] = row.value
+        })
+        cookieData.cookie_data = tableData
+        break
+      case 'import':
+        // 导入模式
+        if (importPreviewData.value.length === 0) {
+          ElMessage.error('导入数据为空，请先处理文件')
+          submitting.value = false
+          return
+        }
+        
+        // 转换导入数据为对象
+        const importData = {}
+        importPreviewData.value.forEach(row => {
+          importData[row.name] = row.value
+        })
+        cookieData.cookie_data = importData
+        break
     }
     
     // 根据expire_option决定是否设置过期时间
@@ -446,6 +547,311 @@ const submitCookieForm = async () => {
   } finally {
     submitting.value = false
   }
+}
+
+// Cookie编辑 - JSON格式化
+const formatJson = () => {
+  try {
+    const parsed = JSON.parse(cookieForm.cookie_json)
+    cookieForm.cookie_json = JSON.stringify(parsed, null, 2)
+  } catch (e) {
+    ElMessage.error('JSON格式错误，无法格式化')
+  }
+}
+
+// Cookie编辑 - 字符串转JSON
+const convertStringToJson = () => {
+  if (!cookieForm.cookie_string) {
+    ElMessage.warning('请先输入Cookie字符串')
+    return
+  }
+  
+  try {
+    // 解析Cookie字符串为对象
+    const cookieObj = {}
+    cookieForm.cookie_string.split(';').forEach(cookie => {
+      const pair = cookie.trim().split('=')
+      if (pair.length === 2) {
+        cookieObj[pair[0]] = pair[1]
+      }
+    })
+    
+    // 转换为格式化的JSON
+    cookieForm.cookie_json = JSON.stringify(cookieObj, null, 2)
+    
+    // 切换到JSON模式
+    cookieInputMode.value = 'json'
+    
+    ElMessage.success('转换成功')
+  } catch (e) {
+    ElMessage.error('转换失败，请检查Cookie字符串格式')
+  }
+}
+
+// Cookie编辑 - 表格添加字段
+const addCookieField = () => {
+  cookieTableData.value.push({ name: '', value: '' })
+}
+
+// Cookie编辑 - 表格删除字段
+const removeCookieField = (index: number) => {
+  cookieTableData.value.splice(index, 1)
+}
+
+// Cookie编辑 - 清空所有字段
+const clearAllFields = () => {
+  ElMessageBox.confirm('确定要清空所有字段吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    cookieTableData.value = []
+    ElMessage.success('已清空所有字段')
+  }).catch(() => {})
+}
+
+// Cookie编辑 - 表格数据转JSON
+const generateJsonFromTable = () => {
+  if (cookieTableData.value.length === 0) {
+    ElMessage.warning('表格数据为空')
+    return
+  }
+  
+  const jsonObj = {}
+  cookieTableData.value.forEach(row => {
+    if (row.name) {
+      jsonObj[row.name] = row.value
+    }
+  })
+  
+  cookieForm.cookie_json = JSON.stringify(jsonObj, null, 2)
+  cookieInputMode.value = 'json'
+  ElMessage.success('已同步到JSON')
+}
+
+// Cookie编辑 - JSON转表格数据
+const generateTableFromJson = () => {
+  try {
+    const jsonObj = JSON.parse(cookieForm.cookie_json)
+    
+    cookieTableData.value = Object.entries(jsonObj).map(([name, value]) => ({
+      name,
+      value: value as string
+    }))
+    
+    cookieInputMode.value = 'table'
+    ElMessage.success('已同步到表格')
+  } catch (e) {
+    ElMessage.error('JSON格式错误，无法转换为表格')
+  }
+}
+
+// Cookie编辑 - 处理文件变更
+const handleFileChange = (file: any) => {
+  selectedFile.value = file.raw
+}
+
+// Cookie编辑 - 处理Cookie文件
+const processCookieFile = async () => {
+  if (!selectedFile.value) {
+    ElMessage.warning('请先选择文件')
+    return
+  }
+  
+  importPreviewData.value = []
+  
+  try {
+    const file = selectedFile.value
+    
+    // 根据导入类型处理文件内容
+    switch (importType.value) {
+      case 'txt':
+      case 'json':
+      case 'csv':
+        const fileContent = await readFileContent(file)
+        if (importType.value === 'txt') {
+          processTxtContent(fileContent)
+        } else if (importType.value === 'json') {
+          processJsonContent(fileContent)
+        } else if (importType.value === 'csv') {
+          processCsvContent(fileContent)
+        }
+        break
+      case 'excel':
+        await processExcelFile(file)
+        break
+    }
+  } catch (error) {
+    console.error('处理文件失败:', error)
+    ElMessage.error('处理文件失败，请检查文件格式')
+  }
+}
+
+// 读取文件内容
+const readFileContent = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        resolve(event.target.result as string)
+      } else {
+        reject(new Error('读取文件内容失败'))
+      }
+    }
+    
+    reader.onerror = () => {
+      reject(new Error('读取文件失败'))
+    }
+    
+    reader.readAsText(file)
+  })
+}
+
+// 处理TXT文件内容（假设格式为 name=value 或 name:value，每行一个）
+const processTxtContent = (content: string) => {
+  const lines = content.split('\n').filter(line => line.trim())
+  const result = []
+  
+  for (const line of lines) {
+    let name = '', value = ''
+    
+    if (line.includes('=')) {
+      [name, value] = line.trim().split('=', 2)
+    } else if (line.includes(':')) {
+      [name, value] = line.trim().split(':', 2)
+    }
+    
+    if (name && value) {
+      result.push({ name: name.trim(), value: value.trim() })
+    }
+  }
+  
+  if (result.length > 0) {
+    importPreviewData.value = result
+    ElMessage.success(`成功解析${result.length}个Cookie字段`)
+  } else {
+    ElMessage.error('未找到有效的Cookie字段，请检查文件格式')
+  }
+}
+
+// 处理JSON文件内容
+const processJsonContent = (content: string) => {
+  try {
+    const jsonObj = JSON.parse(content)
+    
+    const result = Object.entries(jsonObj).map(([name, value]) => ({
+      name,
+      value: typeof value === 'string' ? value : JSON.stringify(value)
+    }))
+    
+    if (result.length > 0) {
+      importPreviewData.value = result
+      ElMessage.success(`成功解析${result.length}个Cookie字段`)
+    } else {
+      ElMessage.error('JSON数据为空')
+    }
+  } catch (e) {
+    ElMessage.error('JSON格式错误，无法解析')
+  }
+}
+
+// 处理CSV文件内容（假设格式为两列：name,value）
+const processCsvContent = (content: string) => {
+  const lines = content.split('\n').filter(line => line.trim())
+  const result = []
+  
+  // 检查是否有标题行
+  const hasHeader = lines[0].toLowerCase().includes('name') && 
+                   (lines[0].toLowerCase().includes('value') || lines[0].toLowerCase().includes('val'))
+  
+  // 从第一行或第二行开始处理（如果有标题行则从第二行开始）
+  const startIndex = hasHeader ? 1 : 0
+  
+  for (let i = startIndex; i < lines.length; i++) {
+    const line = lines[i].trim()
+    if (!line) continue
+    
+    // 解析CSV行，处理引号和逗号的情况
+    const values = parseCSVLine(line)
+    
+    if (values.length >= 2) {
+      result.push({
+        name: values[0].trim(),
+        value: values[1].trim()
+      })
+    }
+  }
+  
+  if (result.length > 0) {
+    importPreviewData.value = result
+    ElMessage.success(`成功解析${result.length}个Cookie字段`)
+  } else {
+    ElMessage.error('未找到有效的Cookie字段，请检查CSV格式')
+  }
+}
+
+// 解析CSV行，处理引号和逗号
+const parseCSVLine = (line: string): string[] => {
+  const result = []
+  let current = ''
+  let inQuotes = false
+  
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i]
+    
+    if (char === '"' && (i === 0 || line[i - 1] !== '\\')) {
+      inQuotes = !inQuotes
+    } else if (char === ',' && !inQuotes) {
+      result.push(current)
+      current = ''
+    } else {
+      current += char
+    }
+  }
+  
+  result.push(current)
+  return result
+}
+
+// 确认导入预览数据
+const confirmImport = () => {
+  if (importPreviewData.value.length === 0) {
+    ElMessage.warning('没有可导入的数据')
+    return
+  }
+  
+  // 生成JSON格式
+  const jsonObj = {}
+  importPreviewData.value.forEach(row => {
+    if (row.name) {
+      jsonObj[row.name] = row.value
+    }
+  })
+  
+  // 更新表单
+  cookieForm.cookie_json = JSON.stringify(jsonObj, null, 2)
+  
+  // 更新表格数据
+  cookieTableData.value = [...importPreviewData.value]
+  
+  // 切换到JSON模式
+  cookieInputMode.value = 'json'
+  
+  // 清理导入数据
+  importPreviewData.value = []
+  fileList.value = []
+  selectedFile.value = null
+  
+  ElMessage.success('导入成功')
+}
+
+// 取消导入
+const cancelImport = () => {
+  importPreviewData.value = []
+  fileList.value = []
+  selectedFile.value = null
+  ElMessage.info('已取消导入')
 }
 
 // 删除Cookie
@@ -650,7 +1056,6 @@ const handleAccountCommand = (command: string, accountId: string) => {
       break
     case 'perm_ban':
       banAccountPermanently(accountId)
-      break
       break
     case 'update':
       openUpdateIdDialog(accountId)
@@ -974,6 +1379,83 @@ const handleCookieCommand = (command: string, cookie: any) => {
       break
   }
 }
+
+// 处理Excel文件
+const processExcelFile = async (file: File) => {
+  try {
+    // 加载xlsx库
+    // 注意: 需要安装xlsx库 npm install xlsx --save
+    const XLSX = await import('xlsx')
+    
+    // 读取Excel文件
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const data = e.target?.result
+        if (!data) {
+          ElMessage.error('读取Excel文件失败')
+          return
+        }
+        
+        // 解析Excel数据
+        const workbook = XLSX.read(data, { type: 'array' })
+        const firstSheetName = workbook.SheetNames[0]
+        const worksheet = workbook.Sheets[firstSheetName]
+        
+        // 转换为JSON
+        const jsonData = XLSX.utils.sheet_to_json(worksheet)
+        
+        if (jsonData.length === 0) {
+          ElMessage.error('Excel文件内容为空')
+          return
+        }
+        
+        // 检查是否有name和value列
+        const firstRow = jsonData[0]
+        const hasNameCol = 'name' in firstRow || 'Name' in firstRow || 'NAME' in firstRow
+        const hasValueCol = 'value' in firstRow || 'Value' in firstRow || 'VALUE' in firstRow
+        
+        if (!hasNameCol || !hasValueCol) {
+          ElMessage.error('Excel文件必须包含name和value列')
+          return
+        }
+        
+        // 提取name和value列数据
+        const result = jsonData.map(row => {
+          const nameKey = Object.keys(row).find(key => key.toLowerCase() === 'name')
+          const valueKey = Object.keys(row).find(key => key.toLowerCase() === 'value')
+          
+          if (nameKey && valueKey) {
+            return {
+              name: String(row[nameKey]),
+              value: String(row[valueKey])
+            }
+          }
+          return null
+        }).filter(item => item !== null)
+        
+        if (result.length > 0) {
+          importPreviewData.value = result
+          ElMessage.success(`成功解析${result.length}个Cookie字段`)
+        } else {
+          ElMessage.error('未找到有效的Cookie字段，请检查Excel格式')
+        }
+      } catch (error) {
+        console.error('解析Excel失败:', error)
+        ElMessage.error('解析Excel文件失败，请检查格式')
+      }
+    }
+    
+    reader.onerror = () => {
+      ElMessage.error('读取Excel文件失败')
+    }
+    
+    reader.readAsArrayBuffer(file)
+  } catch (error) {
+    console.error('处理Excel文件失败:', error)
+    ElMessage.error('处理Excel文件失败，请确保安装了xlsx库')
+  }
+}
 </script>
 
 <template>
@@ -1252,8 +1734,8 @@ const handleCookieCommand = (command: string, cookie: any) => {
     <!-- 添加/编辑Cookie对话框 -->
     <el-dialog
       v-model="cookieDialogVisible"
-      :title="cookieForm.id ? '编辑Cookie' : '添加Cookie'"
-      width="550px"
+      :title="cookieForm.account_id ? '编辑Cookie' : '添加Cookie'"
+      width="700px"
       destroy-on-close
     >
       <el-form :model="cookieForm" label-width="120px" :rules="cookieRules" ref="cookieFormRef">
@@ -1261,21 +1743,112 @@ const handleCookieCommand = (command: string, cookie: any) => {
           <el-input v-model="cookieForm.account_id" placeholder="请输入Cookie名称" />
         </el-form-item>
         
-        <el-form-item v-if="!cookieForm.use_string_input" label="Cookie名称" prop="cookie_name">
-          <el-input v-model="cookieForm.cookie_name" placeholder="请输入Cookie名称" />
-        </el-form-item>
+        <el-tabs v-model="cookieInputMode" type="card">
+          <!-- 字符串输入模式 -->
+          <el-tab-pane label="字符串输入" name="string">
+            <el-form-item label="Cookie字符串" prop="cookie_string">
+              <el-input v-model="cookieForm.cookie_string" type="textarea" rows="8" placeholder="请输入完整Cookie字符串（name=value; name2=value2）" />
+            </el-form-item>
+          </el-tab-pane>
+          
+          <!-- JSON输入模式 -->
+          <el-tab-pane label="JSON输入" name="json">
+            <el-form-item label="Cookie JSON" prop="cookie_json">
+              <el-input v-model="cookieForm.cookie_json" type="textarea" rows="8" placeholder="请输入JSON格式的Cookie数据" :spellcheck="false" />
+              <div class="form-actions">
+                <el-button size="small" type="primary" @click="formatJson">格式化JSON</el-button>
+                <el-button size="small" type="info" @click="convertStringToJson">从字符串转换</el-button>
+              </div>
+            </el-form-item>
+          </el-tab-pane>
+          
+          <!-- 表格输入模式 -->
+          <el-tab-pane label="表格输入" name="table">
+            <div class="table-toolbar">
+              <el-button type="primary" size="small" @click="addCookieField">
+                <el-icon><Plus /></el-icon> 添加字段
+              </el-button>
+              <el-button type="danger" size="small" @click="clearAllFields">
+                <el-icon><Delete /></el-icon> 清空所有
+              </el-button>
+            </div>
+            
+            <el-table :data="cookieTableData" border style="width: 100%" max-height="300px">
+              <el-table-column label="Cookie名" width="180">
+                <template #default="scope">
+                  <el-input v-model="scope.row.name" placeholder="字段名称" size="small" />
+                </template>
+              </el-table-column>
+              <el-table-column label="Cookie值">
+                <template #default="scope">
+                  <el-input v-model="scope.row.value" placeholder="字段值" size="small" />
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" width="120">
+                <template #default="scope">
+                  <el-button
+                    type="danger"
+                    icon="Delete"
+                    circle
+                    size="small"
+                    @click="removeCookieField(scope.$index)"
+                  />
+                </template>
+              </el-table-column>
+            </el-table>
+            <div class="form-actions">
+              <el-button size="small" type="primary" @click="generateJsonFromTable">同步到JSON</el-button>
+              <el-button size="small" type="info" @click="generateTableFromJson">从JSON同步</el-button>
+            </div>
+          </el-tab-pane>
+          
+          <!-- 导入模式 -->
+          <el-tab-pane label="文件导入" name="import">
+            <el-form-item label="导入方式">
+              <el-select v-model="importType" placeholder="请选择导入方式">
+                <el-option label="TXT文件" value="txt" />
+                <el-option label="JSON文件" value="json" />
+                <el-option label="CSV文件" value="csv" />
+                <el-option label="Excel文件" value="excel" />
+              </el-select>
+            </el-form-item>
+            
+            <el-form-item label="文件上传">
+              <el-upload
+                class="upload-demo"
+                action="#"
+                :auto-upload="false"
+                :on-change="handleFileChange"
+                :file-list="fileList"
+                :limit="1"
+                :accept="importFileAccept"
+              >
+                <template #trigger>
+                  <el-button type="primary">选择文件</el-button>
+                </template>
+                <template #tip>
+                  <div class="el-upload__tip">
+                    请上传包含Cookie数据的文件，CSV/Excel格式需要包含name和value两列
+                  </div>
+                </template>
+              </el-upload>
+              <el-button type="success" @click="processCookieFile" :disabled="!selectedFile">处理文件</el-button>
+            </el-form-item>
+            
+            <el-form-item label="导入预览" v-if="importPreviewData.length > 0">
+              <el-table :data="importPreviewData" border style="width: 100%" max-height="200px">
+                <el-table-column label="Cookie名" prop="name" width="180" />
+                <el-table-column label="Cookie值" prop="value" show-overflow-tooltip />
+              </el-table>
+              <div class="form-actions">
+                <el-button size="small" type="primary" @click="confirmImport">确认导入</el-button>
+                <el-button size="small" type="danger" @click="cancelImport">取消导入</el-button>
+              </div>
+            </el-form-item>
+          </el-tab-pane>
+        </el-tabs>
         
-        <el-form-item v-if="!cookieForm.use_string_input" label="Cookie值" prop="cookie_value">
-          <el-input v-model="cookieForm.cookie_value" type="textarea" rows="3" placeholder="请输入Cookie值" />
-        </el-form-item>
-        
-        <el-form-item v-if="cookieForm.use_string_input" label="Cookie字符串" prop="cookie_string">
-          <el-input v-model="cookieForm.cookie_string" type="textarea" rows="6" placeholder="请输入完整Cookie字符串（name=value; name2=value2）" />
-        </el-form-item>
-        
-        <el-form-item>
-          <el-checkbox v-model="cookieForm.use_string_input">使用Cookie字符串输入</el-checkbox>
-        </el-form-item>
+        <el-divider />
         
         <el-form-item label="过期设置">
           <el-radio-group v-model="cookieForm.expire_option">
@@ -1757,5 +2330,33 @@ const handleCookieCommand = (command: string, cookie: any) => {
 
 .test-result-tag {
   margin-bottom: 5px;
+}
+
+.form-actions {
+  display: flex;
+  margin-top: 10px;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.table-toolbar {
+  margin-bottom: 10px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.el-upload__tip {
+  margin-top: 8px;
+  color: #909399;
+  line-height: 1.4;
+}
+
+.dialog-subtitle {
+  margin: 0 0 15px 0;
+  padding-bottom: 10px;
+  font-size: 16px;
+  border-bottom: 1px solid #EBEEF5;
+  color: #409EFF;
 }
 </style>
