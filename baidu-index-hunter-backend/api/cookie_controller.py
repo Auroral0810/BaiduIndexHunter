@@ -191,6 +191,17 @@ def get_assembled_cookies():
                     }
                 }
             }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
+                }
+            }
         }
     }
 })

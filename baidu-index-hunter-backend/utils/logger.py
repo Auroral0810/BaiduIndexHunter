@@ -5,7 +5,7 @@ import sys
 import os
 from pathlib import Path
 from loguru import logger
-from config.settings import LOG_LEVEL, LOG_DIR, LOG_RETENTION
+from config.settings import LOG_CONFIG, LOG_DIR
 from collections import deque
 import subprocess
 
@@ -90,13 +90,17 @@ def setup_logger(console_max_logs=3000):
     配置日志系统
     :param console_max_logs: 控制台最大日志数量，达到后自动清空
     """
+    # 从配置中获取日志级别和保留天数
+    log_level = LOG_CONFIG.get('level', 'INFO')
+    log_retention = LOG_CONFIG.get('retention', 7)
+    
     # 清除默认处理程序
     logger.remove()
     
     # 添加控制台输出
     logger.add(
         sys.stdout,
-        level=LOG_LEVEL,
+        level=log_level,
         format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
     )
     
@@ -105,8 +109,8 @@ def setup_logger(console_max_logs=3000):
     logger.add(
         log_file,
         rotation="00:00",  # 每天零点切换日志文件
-        retention=LOG_RETENTION,  # 保留天数
-        level=LOG_LEVEL,
+        retention=log_retention,  # 保留天数
+        level=log_level,
         format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
         encoding="utf-8",
     )

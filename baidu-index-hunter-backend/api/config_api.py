@@ -13,6 +13,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from db.config_manager import config_manager
 from utils.logger import log
+from constant.respond import ResponseCode, ResponseFormatter
 
 # 创建蓝图
 config_bp = Blueprint('config', __name__, url_prefix='/api/config')
@@ -38,8 +39,8 @@ config_bp = Blueprint('config', __name__, url_prefix='/api/config')
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 0},
-                    'message': {'type': 'string', 'example': 'success'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'additionalProperties': {'type': 'object'}
@@ -52,8 +53,8 @@ config_bp = Blueprint('config', __name__, url_prefix='/api/config')
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 1},
-                    'message': {'type': 'string', 'example': '获取配置列表失败'},
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
                     'data': {'type': 'null'}
                 }
             }
@@ -74,17 +75,10 @@ def list_configs():
         # 按键名排序
         sorted_configs = {k: configs[k] for k in sorted(configs.keys())}
         
-        return jsonify({
-            'code': 0,
-            'message': 'success',
-            'data': sorted_configs
-        })
+        return jsonify(ResponseFormatter.success(sorted_configs))
     except Exception as e:
         log.error(f"获取配置列表失败: {e}")
-        return jsonify({
-            'code': 1,
-            'message': f"获取配置列表失败: {str(e)}"
-        }), 500
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取配置列表失败: {str(e)}")), 500
 
 
 @config_bp.route('/get/<string:key>', methods=['GET'])
@@ -107,8 +101,8 @@ def list_configs():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 0},
-                    'message': {'type': 'string', 'example': 'success'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -124,8 +118,8 @@ def list_configs():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 1},
-                    'message': {'type': 'string', 'example': "配置项 'api.host' 不存在"},
+                    'code': {'type': 'integer', 'example': 10101},
+                    'msg': {'type': 'string', 'example': '资源不存在'},
                     'data': {'type': 'null'}
                 }
             }
@@ -135,8 +129,8 @@ def list_configs():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 1},
-                    'message': {'type': 'string', 'example': '获取配置项失败'},
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
                     'data': {'type': 'null'}
                 }
             }
@@ -149,25 +143,15 @@ def get_config(key):
         value = config_manager.get(key)
         
         if value is None:
-            return jsonify({
-                'code': 1,
-                'message': f"配置项 '{key}' 不存在"
-            }), 404
+            return jsonify(ResponseFormatter.error(ResponseCode.NOT_FOUND, f"配置项 '{key}' 不存在")), 404
         
-        return jsonify({
-            'code': 0,
-            'message': 'success',
-            'data': {
-                'key': key,
-                'value': value
-            }
-        })
+        return jsonify(ResponseFormatter.success({
+            'key': key,
+            'value': value
+        }))
     except Exception as e:
         log.error(f"获取配置项失败: {key} - {e}")
-        return jsonify({
-            'code': 1,
-            'message': f"获取配置项失败: {str(e)}"
-        }), 500
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取配置项失败: {str(e)}")), 500
 
 
 @config_bp.route('/set', methods=['POST'])
@@ -196,8 +180,8 @@ def get_config(key):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 0},
-                    'message': {'type': 'string', 'example': "配置项 'api.host' 设置成功"},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {'type': 'null'}
                 }
             }
@@ -207,8 +191,8 @@ def get_config(key):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 1},
-                    'message': {'type': 'string', 'example': "缺少必要参数 'key' 或 'value'"},
+                    'code': {'type': 'integer', 'example': 10100},
+                    'msg': {'type': 'string', 'example': '参数错误'},
                     'data': {'type': 'null'}
                 }
             }
@@ -218,8 +202,8 @@ def get_config(key):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 1},
-                    'message': {'type': 'string', 'example': '设置配置项失败'},
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
                     'data': {'type': 'null'}
                 }
             }
@@ -232,10 +216,7 @@ def set_config():
         data = request.json
         
         if not data or 'key' not in data or 'value' not in data:
-            return jsonify({
-                'code': 1,
-                'message': "缺少必要参数 'key' 或 'value'"
-            }), 400
+            return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "缺少必要参数 'key' 或 'value'")), 400
         
         key = data['key']
         value = data['value']
@@ -243,21 +224,12 @@ def set_config():
         success = config_manager.set(key, value)
         
         if success:
-            return jsonify({
-                'code': 0,
-                'message': f"配置项 '{key}' 设置成功"
-            })
+            return jsonify(ResponseFormatter.success(None, f"配置项 '{key}' 设置成功"))
         else:
-            return jsonify({
-                'code': 1,
-                'message': f"配置项 '{key}' 设置失败"
-            }), 500
+            return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"配置项 '{key}' 设置失败")), 500
     except Exception as e:
         log.error(f"设置配置项失败: {e}")
-        return jsonify({
-            'code': 1,
-            'message': f"设置配置项失败: {str(e)}"
-        }), 500
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"设置配置项失败: {str(e)}")), 500
 
 
 @config_bp.route('/delete/<string:key>', methods=['DELETE'])
@@ -280,8 +252,8 @@ def set_config():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 0},
-                    'message': {'type': 'string', 'example': "配置项 'api.host' 删除成功"},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {'type': 'null'}
                 }
             }
@@ -291,8 +263,8 @@ def set_config():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 1},
-                    'message': {'type': 'string', 'example': '删除配置项失败'},
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
                     'data': {'type': 'null'}
                 }
             }
@@ -305,21 +277,12 @@ def delete_config(key):
         success = config_manager.delete(key)
         
         if success:
-            return jsonify({
-                'code': 0,
-                'message': f"配置项 '{key}' 删除成功"
-            })
+            return jsonify(ResponseFormatter.success(None, f"配置项 '{key}' 删除成功"))
         else:
-            return jsonify({
-                'code': 1,
-                'message': f"配置项 '{key}' 删除失败"
-            }), 500
+            return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"配置项 '{key}' 删除失败")), 500
     except Exception as e:
         log.error(f"删除配置项失败: {key} - {e}")
-        return jsonify({
-            'code': 1,
-            'message': f"删除配置项失败: {str(e)}"
-        }), 500
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"删除配置项失败: {str(e)}")), 500
 
 
 @config_bp.route('/batch_set', methods=['POST'])
@@ -351,8 +314,8 @@ def delete_config(key):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 0},
-                    'message': {'type': 'string', 'example': '所有配置项设置成功，共 3 项'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {'type': 'null'}
                 }
             }
@@ -362,8 +325,8 @@ def delete_config(key):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 1},
-                    'message': {'type': 'string', 'example': '请求体必须是包含配置项的JSON对象'},
+                    'code': {'type': 'integer', 'example': 10100},
+                    'msg': {'type': 'string', 'example': '参数错误'},
                     'data': {'type': 'null'}
                 }
             }
@@ -373,8 +336,8 @@ def delete_config(key):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 1},
-                    'message': {'type': 'string', 'example': '部分配置项设置失败: api.host，成功 2 项'},
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
                     'data': {'type': 'null'}
                 }
             }
@@ -387,10 +350,7 @@ def batch_set_config():
         data = request.json
         
         if not data or not isinstance(data, dict):
-            return jsonify({
-                'code': 1,
-                'message': "请求体必须是包含配置项的JSON对象"
-            }), 400
+            return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "请求体必须是包含配置项的JSON对象")), 400
         
         success_count = 0
         failed_keys = []
@@ -402,21 +362,15 @@ def batch_set_config():
                 failed_keys.append(key)
         
         if not failed_keys:
-            return jsonify({
-                'code': 0,
-                'message': f"所有配置项设置成功，共 {success_count} 项"
-            })
+            return jsonify(ResponseFormatter.success(None, f"所有配置项设置成功，共 {success_count} 项"))
         else:
-            return jsonify({
-                'code': 1,
-                'message': f"部分配置项设置失败: {', '.join(failed_keys)}，成功 {success_count} 项"
-            }), 500
+            return jsonify(ResponseFormatter.error(
+                ResponseCode.SERVER_ERROR, 
+                f"部分配置项设置失败: {', '.join(failed_keys)}，成功 {success_count} 项"
+            )), 500
     except Exception as e:
         log.error(f"批量设置配置项失败: {e}")
-        return jsonify({
-            'code': 1,
-            'message': f"批量设置配置项失败: {str(e)}"
-        }), 500
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"批量设置配置项失败: {str(e)}")), 500
 
 
 @config_bp.route('/refresh', methods=['POST'])
@@ -430,8 +384,8 @@ def batch_set_config():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 0},
-                    'message': {'type': 'string', 'example': '配置缓存刷新成功'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {'type': 'null'}
                 }
             }
@@ -441,8 +395,8 @@ def batch_set_config():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 1},
-                    'message': {'type': 'string', 'example': '配置缓存刷新失败'},
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
                     'data': {'type': 'null'}
                 }
             }
@@ -455,21 +409,12 @@ def refresh_config():
         success = config_manager.refresh_cache()
         
         if success:
-            return jsonify({
-                'code': 0,
-                'message': "配置缓存刷新成功"
-            })
+            return jsonify(ResponseFormatter.success(None, "配置缓存刷新成功"))
         else:
-            return jsonify({
-                'code': 1,
-                'message': "配置缓存刷新失败"
-            }), 500
+            return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, "配置缓存刷新失败")), 500
     except Exception as e:
         log.error(f"刷新配置缓存失败: {e}")
-        return jsonify({
-            'code': 1,
-            'message': f"刷新配置缓存失败: {str(e)}"
-        }), 500
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"刷新配置缓存失败: {str(e)}")), 500
 
 
 @config_bp.route('/init_defaults', methods=['POST'])
@@ -483,8 +428,8 @@ def refresh_config():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 0},
-                    'message': {'type': 'string', 'example': '默认配置初始化成功'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {'type': 'null'}
                 }
             }
@@ -494,8 +439,8 @@ def refresh_config():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 1},
-                    'message': {'type': 'string', 'example': '初始化默认配置失败'},
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
                     'data': {'type': 'null'}
                 }
             }
@@ -507,13 +452,7 @@ def init_defaults():
     try:
         config_manager.init_default_configs()
         
-        return jsonify({
-            'code': 0,
-            'message': "默认配置初始化成功"
-        })
+        return jsonify(ResponseFormatter.success(None, "默认配置初始化成功"))
     except Exception as e:
         log.error(f"初始化默认配置失败: {e}")
-        return jsonify({
-            'code': 1,
-            'message': f"初始化默认配置失败: {str(e)}"
-        }), 500 
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"初始化默认配置失败: {str(e)}")), 500 

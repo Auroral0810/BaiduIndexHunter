@@ -7,7 +7,7 @@ import sys
 import json
 import time
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -17,6 +17,7 @@ from db.mysql_manager import MySQLManager
 from cookie_manager.cookie_rotator import CookieRotator
 from region_manager.region_manager import get_region_manager
 from spider.baidu_index_spider import BaiduIndexSpider
+from spider.search_index_crawler import search_index_crawler
 
 
 class TaskExecutor:
@@ -258,41 +259,80 @@ class TaskExecutor:
             self._update_task_status(task_id, 'failed', error_message="缺少必要参数: keywords")
             return False
         
-        if 'start_date' not in parameters or not parameters['start_date']:
-            self._update_task_status(task_id, 'failed', error_message="缺少必要参数: start_date")
-            return False
-        
-        if 'end_date' not in parameters or not parameters['end_date']:
-            self._update_task_status(task_id, 'failed', error_message="缺少必要参数: end_date")
+        if 'cities' not in parameters or not parameters['cities']:
+            self._update_task_status(task_id, 'failed', error_message="缺少必要参数: cities")
             return False
         
         # 获取参数
         keywords = parameters['keywords']
-        if isinstance(keywords, str):
-            keywords = [keyword.strip() for keyword in keywords.split(',')]
+        cities = parameters['cities']
+        resume = parameters.get('resume', False)
         
-        start_date = parameters['start_date']
-        end_date = parameters['end_date']
-        area_codes = parameters.get('area_codes', [])
+        # 处理关键词
+        if not isinstance(keywords, list):
+            keywords = [keywords]
         
-        if isinstance(area_codes, str):
-            area_codes = [code.strip() for code in area_codes.split(',')]
+        # 处理城市
+        city_dict = {}
+        if isinstance(cities, dict):
+            for code, city_info in cities.items():
+                if isinstance(city_info, dict) and 'name' in city_info and 'code' in city_info:
+                    city_dict[city_info['code']] = city_info['name']
+                else:
+                    city_dict[code] = f"城市{code}"
+        elif isinstance(cities, list):
+            for city in cities:
+                if isinstance(city, dict) and 'name' in city and 'code' in city:
+                    city_dict[city['code']] = city['name']
+                elif isinstance(city, str):
+                    city_dict[city] = f"城市{city}"
         
-        # 如果没有指定地区，则默认为全国
-        if not area_codes:
-            area_codes = ['0']
+        if not city_dict:
+            self._update_task_status(task_id, 'failed', error_message="无效的城市参数")
+            return False
+        
+        # 处理时间参数
+        start_date = None
+        end_date = None
+        
+        if 'days' in parameters:
+            # 使用预定义的天数
+            days = int(parameters['days'])
+            end_date = datetime.now().strftime('%Y-%m-%d')
+            start_date = (datetime.now() - timedelta(days=days-1)).strftime('%Y-%m-%d')
+        elif 'date_ranges' in parameters and parameters['date_ranges']:
+            # 使用自定义日期范围
+            date_ranges = parameters['date_ranges']
+            if isinstance(date_ranges, list) and len(date_ranges) > 0:
+                if isinstance(date_ranges[0], list) and len(date_ranges[0]) >= 2:
+                    start_date = date_ranges[0][0]
+                    end_date = date_ranges[0][1]
+        elif 'year_range' in parameters and parameters['year_range']:
+            # 使用年份范围
+            year_range = parameters['year_range']
+            if isinstance(year_range, list) and len(year_range) >= 2:
+                start_date = f"{year_range[0]}-01-01"
+                end_date = f"{year_range[1]}-12-31"
+        else:
+            # 默认使用全部数据范围（2011年至今）
+            start_date = "2011-01-01"
+            end_date = datetime.now().strftime('%Y-%m-%d')
+        
+        if not start_date or not end_date:
+            self._update_task_status(task_id, 'failed', error_message="无效的时间参数")
+            return False
         
         # 初始化断点续传数据
         if not checkpoint_data:
             checkpoint_data = {
                 'current_keyword_index': 0,
-                'current_area_index': 0,
+                'current_city_index': 0,
                 'completed_keywords': [],
                 'failed_keywords': []
             }
         
         # 初始化统计数据
-        total_items = len(keywords) * len(area_codes)
+        total_items = len(keywords) * len(city_dict)
         completed_items = len(checkpoint_data.get('completed_keywords', []))
         failed_items = len(checkpoint_data.get('failed_keywords', []))
         
@@ -305,209 +345,58 @@ class TaskExecutor:
             progress=round((completed_items + failed_items) / total_items * 100, 2) if total_items > 0 else 0
         )
         
-        # 初始化爬虫
-        spider = BaiduIndexSpider()
-        
         # 获取输出目录
         output_dir = os.path.join('output', 'search_index', task_id)
         os.makedirs(output_dir, exist_ok=True)
         
         output_files = []
-        statistics_data = []
         
         # 从断点继续执行
         current_keyword_index = checkpoint_data.get('current_keyword_index', 0)
-        current_area_index = checkpoint_data.get('current_area_index', 0)
+        current_city_index = checkpoint_data.get('current_city_index', 0)
         
         try:
-            # 遍历关键词
-            for i in range(current_keyword_index, len(keywords)):
-                keyword = keywords[i]
+            # 准备爬虫参数
+            spider_params = {
+                'keywords': keywords,
+                'cities': city_dict,
+                'date_ranges': [(start_date, end_date)],
+                'resume': resume,
+                'task_id': task_id if resume else None
+            }
+            
+            # 启动爬虫
+            success = search_index_crawler.crawl(**spider_params)
+            
+            if success:
+                # 获取输出文件
+                for file in os.listdir(output_dir):
+                    if file.endswith('.csv'):
+                        output_files.append(os.path.join(output_dir, file))
                 
-                # 如果关键词已经完成或失败，跳过
-                if keyword in checkpoint_data.get('completed_keywords', []) or keyword in checkpoint_data.get('failed_keywords', []):
-                    continue
-                
-                # 遍历地区
-                for j in range(current_area_index, len(area_codes)):
-                    area_code = area_codes[j]
-                    
-                    # 检查任务是否被停止
-                    if not self.is_task_running(task_id):
-                        log.info(f"任务 {task_id} 已被停止")
-                        
-                        # 更新断点续传数据
-                        checkpoint_data['current_keyword_index'] = i
-                        checkpoint_data['current_area_index'] = j
-                        
-                        self._update_task_status(
-                            task_id, 'paused',
-                            checkpoint_data=checkpoint_data,
-                            output_files=output_files
-                        )
-                        return True
-                    
-                    # 获取地区名称
-                    area_name = "全国"
-                    if area_code != '0':
-                        area_info = self.city_manager.get_city_by_code(area_code)
-                        if area_info:
-                            area_name = area_info.get('name', f"地区{area_code}")
-                    
-                    # 记录日志
-                    self._log_task(task_id, "INFO", f"开始爬取关键词: {keyword}, 地区: {area_name}")
-                    
-                    try:
-                        # 获取Cookie
-                        cookie = self.cookie_rotator.get_available_cookie()
-                        if not cookie:
-                            self._log_task(task_id, "ERROR", "没有可用的Cookie")
-                            raise Exception("没有可用的Cookie")
-                        
-                        # 爬取搜索指数
-                        result = spider.get_search_index(
-                            keyword=keyword,
-                            start_date=start_date,
-                            end_date=end_date,
-                            area=area_code,
-                            cookie=cookie
-                        )
-                        
-                        if not result or 'data' not in result:
-                            self._log_task(task_id, "ERROR", f"爬取失败: {keyword}, 地区: {area_name}")
-                            
-                            # 标记Cookie为无效
-                            self.cookie_rotator.mark_cookie_invalid(cookie.get('cookie_id'))
-                            
-                            # 记录失败统计
-                            statistics_data.append({
-                                'keyword': keyword,
-                                'city_code': area_code,
-                                'city_name': area_name,
-                                'data_type': 'search_index',
-                                'data_date': f"{start_date}~{end_date}",
-                                'item_count': 1,
-                                'success_count': 0,
-                                'fail_count': 1
-                            })
-                            
-                            # 更新失败项目数
-                            failed_items += 1
-                            
-                            # 添加到失败关键词列表
-                            if keyword not in checkpoint_data.get('failed_keywords', []):
-                                if 'failed_keywords' not in checkpoint_data:
-                                    checkpoint_data['failed_keywords'] = []
-                                checkpoint_data['failed_keywords'].append(keyword)
-                            
-                            # 更新任务状态
-                            self._update_task_status(
-                                task_id, 'running',
-                                failed_items=failed_items,
-                                progress=round((completed_items + failed_items) / total_items * 100, 2) if total_items > 0 else 0,
-                                checkpoint_data=checkpoint_data
-                            )
-                            
-                            continue
-                        
-                        # 保存结果
-                        output_file = os.path.join(output_dir, f"{keyword}_{area_code}_{start_date}_{end_date}.json")
-                        with open(output_file, 'w', encoding='utf-8') as f:
-                            json.dump(result, f, ensure_ascii=False, indent=2)
-                        
-                        output_files.append(output_file)
-                        
-                        # 记录成功统计
-                        statistics_data.append({
-                            'keyword': keyword,
-                            'city_code': area_code,
-                            'city_name': area_name,
-                            'data_type': 'search_index',
-                            'data_date': f"{start_date}~{end_date}",
-                            'item_count': 1,
-                            'success_count': 1,
-                            'fail_count': 0
-                        })
-                        
-                        self._log_task(task_id, "INFO", f"爬取成功: {keyword}, 地区: {area_name}")
-                        
-                        # 标记Cookie为有效
-                        self.cookie_rotator.mark_cookie_valid(cookie.get('cookie_id'))
-                        
-                    except Exception as e:
-                        self._log_task(task_id, "ERROR", f"爬取异常: {keyword}, 地区: {area_name}, 错误: {e}")
-                        
-                        # 记录失败统计
-                        statistics_data.append({
-                            'keyword': keyword,
-                            'city_code': area_code,
-                            'city_name': area_name,
-                            'data_type': 'search_index',
-                            'data_date': f"{start_date}~{end_date}",
-                            'item_count': 1,
-                            'success_count': 0,
-                            'fail_count': 1
-                        })
-                        
-                        # 更新失败项目数
-                        failed_items += 1
-                        
-                        # 添加到失败关键词列表
-                        if keyword not in checkpoint_data.get('failed_keywords', []):
-                            if 'failed_keywords' not in checkpoint_data:
-                                checkpoint_data['failed_keywords'] = []
-                            checkpoint_data['failed_keywords'].append(keyword)
-                        
-                        # 更新任务状态
-                        self._update_task_status(
-                            task_id, 'running',
-                            failed_items=failed_items,
-                            progress=round((completed_items + failed_items) / total_items * 100, 2) if total_items > 0 else 0,
-                            checkpoint_data=checkpoint_data
-                        )
-                
-                # 添加到已完成关键词列表
-                if keyword not in checkpoint_data.get('completed_keywords', []) and keyword not in checkpoint_data.get('failed_keywords', []):
-                    if 'completed_keywords' not in checkpoint_data:
-                        checkpoint_data['completed_keywords'] = []
-                    checkpoint_data['completed_keywords'].append(keyword)
-                    
-                    # 更新已完成项目数
-                    completed_items += 1
-                
-                # 重置地区索引
-                current_area_index = 0
-                
-                # 更新任务状态
+                # 更新任务状态为已完成
                 self._update_task_status(
-                    task_id, 'running',
-                    completed_items=completed_items,
-                    progress=round((completed_items + failed_items) / total_items * 100, 2) if total_items > 0 else 0,
+                    task_id, 'completed',
+                    progress=100,
+                    completed_items=total_items,
+                    output_files=output_files
+                )
+                
+                return True
+            else:
+                # 更新任务状态为失败
+                self._update_task_status(
+                    task_id, 'failed',
+                    error_message="爬虫执行失败",
                     checkpoint_data=checkpoint_data,
                     output_files=output_files
                 )
-            
-            # 更新统计数据
-            self._update_task_statistics(task_id, 'search_index', statistics_data)
-            
-            # 更新任务状态为已完成
-            self._update_task_status(
-                task_id, 'completed',
-                completed_items=completed_items,
-                failed_items=failed_items,
-                progress=100,
-                output_files=output_files
-            )
-            
-            return True
+                
+                return False
             
         except Exception as e:
             log.error(f"执行搜索指数任务失败: {e}")
             log.error(traceback.format_exc())
-            
-            # 更新断点续传数据
-            checkpoint_data['current_keyword_index'] = current_keyword_index
-            checkpoint_data['current_area_index'] = current_area_index
             
             # 更新任务状态
             self._update_task_status(

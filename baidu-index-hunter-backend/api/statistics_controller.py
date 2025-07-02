@@ -43,7 +43,7 @@ mysql = MySQLManager()
                 'type': 'object',
                 'properties': {
                     'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '获取任务统计摘要成功'},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -74,6 +74,17 @@ mysql = MySQLManager()
                             }
                         }
                     }
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
                 }
             }
         }
@@ -177,7 +188,7 @@ def get_task_summary():
                 'type': 'object',
                 'properties': {
                     'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '获取任务统计数据成功'},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'array',
                         'items': {
@@ -207,8 +218,19 @@ def get_task_summary():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 10404},
-                    'msg': {'type': 'string', 'example': '任务不存在'},
+                    'code': {'type': 'integer', 'example': 10500},
+                    'msg': {'type': 'string', 'example': '数据不存在'},
+                    'data': {'type': 'null'}
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
                     'data': {'type': 'null'}
                 }
             }

@@ -32,25 +32,21 @@ task_blueprint = Blueprint('task', __name__, url_prefix='/api/task')
             'required': True,
             'schema': {
                 'type': 'object',
-                'required': ['task_type', 'parameters'],
+                'required': ['taskType', 'parameters'],
                 'properties': {
-                    'task_type': {
+                    'taskType': {
                         'type': 'string',
                         'enum': ['search_index', 'feed_index', 'word_graph', 
                                 'demographic_attributes', 'interest_profile', 'region_distribution'],
                         'description': '任务类型'
                     },
-                    'task_name': {
-                        'type': 'string',
-                        'description': '任务名称'
-                    },
                     'parameters': {
                         'type': 'object',
                         'description': '任务参数，根据任务类型不同而不同'
                     },
-                    'created_by': {
-                        'type': 'string',
-                        'description': '创建者'
+                    'priority': {
+                        'type': 'integer',
+                        'description': '任务优先级，范围1-10，数字越大优先级越高'
                     }
                 }
             }
@@ -63,11 +59,11 @@ task_blueprint = Blueprint('task', __name__, url_prefix='/api/task')
                 'type': 'object',
                 'properties': {
                     'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '任务创建成功'},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
-                            'task_id': {'type': 'string', 'example': '20230101120000_abcd1234'}
+                            'taskId': {'type': 'string', 'example': '20230101120000_abcd1234'}
                         }
                     }
                 }
@@ -83,6 +79,17 @@ task_blueprint = Blueprint('task', __name__, url_prefix='/api/task')
                     'data': {'type': 'null'}
                 }
             }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
+                }
+            }
         }
     }
 })
@@ -95,11 +102,11 @@ def create_task():
             return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "请求参数为空"))
         
         # 验证必要参数
-        task_type = data.get('task_type')
+        task_type = data.get('taskType')
         parameters = data.get('parameters')
         
         if not task_type or not parameters:
-            return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "缺少必要参数: task_type 或 parameters"))
+            return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "缺少必要参数: taskType 或 parameters"))
         
         # 验证任务类型
         valid_task_types = ['search_index', 'feed_index', 'word_graph', 
@@ -108,19 +115,82 @@ def create_task():
             return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, f"无效的任务类型: {task_type}"))
         
         # 获取可选参数
-        task_name = data.get('task_name')
-        created_by = data.get('created_by')
+        priority = data.get('priority', 5)  # 默认优先级为5
         
-        # 创建任务
+        # 处理搜索指数任务
+        if task_type == 'search_index':
+            # 验证搜索指数任务的参数
+            if 'keywords' not in parameters or not parameters['keywords']:
+                return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "缺少必要参数: keywords"))
+            
+            # 验证城市参数
+            if 'cities' not in parameters or not parameters['cities']:
+                return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "缺少必要参数: cities"))
+            
+            # 处理时间参数
+            time_params_count = sum(1 for param in ['days', 'date_ranges', 'year_range'] if param in parameters)
+            
+            # 处理恢复任务
+            resume = parameters.get('resume', False)
+            if resume and ('task_id' not in parameters or not parameters['task_id']):
+                return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "恢复任务时必须提供task_id"))
+            
+            # 准备爬虫参数
+            spider_params = {
+                'keywords': parameters['keywords'],
+                'cities': parameters['cities'],
+                'resume': resume
+            }
+            
+            # 添加时间相关参数
+            if 'days' in parameters:
+                spider_params['days'] = parameters['days']
+            elif 'date_ranges' in parameters:
+                spider_params['date_ranges'] = parameters['date_ranges']
+            elif 'year_range' in parameters:
+                spider_params['year_range'] = parameters['year_range']
+            
+            # 添加任务ID（如果是恢复任务）
+            if resume and 'task_id' in parameters:
+                spider_params['task_id'] = parameters['task_id']
+            
+            # 创建任务
+            task_id = task_scheduler.create_task(
+                task_type=task_type,
+                parameters=spider_params,
+                task_name=f"搜索指数_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+                created_by=None,
+                priority=priority
+            )
+            
+            # 如果是恢复任务，设置断点续传数据
+            if resume and 'task_id' in parameters:
+                # 获取原任务的断点续传数据
+                original_task = task_scheduler.get_task(parameters['task_id'])
+                if original_task and 'checkpoint_data' in original_task and original_task['checkpoint_data']:
+                    # 更新新任务的断点续传数据
+                    task_scheduler.update_task_checkpoint(task_id, original_task['checkpoint_data'])
+            
+            # 启动任务
+            task_scheduler.start_task(task_id)
+            
+            return jsonify(ResponseFormatter.success({
+                'taskId': task_id
+            }, "搜索指数任务创建成功"))
+            
+        # 其他类型任务的处理...
+        
+        # 默认创建任务
         task_id = task_scheduler.create_task(
             task_type=task_type,
             parameters=parameters,
-            task_name=task_name,
-            created_by=created_by
+            task_name=f"{task_type}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+            created_by=None,
+            priority=priority
         )
         
         return jsonify(ResponseFormatter.success({
-            'task_id': task_id
+            'taskId': task_id
         }, "任务创建成功"))
         
     except Exception as e:
@@ -179,7 +249,7 @@ def create_task():
                 'type': 'object',
                 'properties': {
                     'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '获取任务列表成功'},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -202,6 +272,17 @@ def create_task():
                             }
                         }
                     }
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
                 }
             }
         }
@@ -289,7 +370,7 @@ def list_tasks():
                 'type': 'object',
                 'properties': {
                     'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '获取任务详情成功'},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -321,8 +402,19 @@ def list_tasks():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 10404},
-                    'msg': {'type': 'string', 'example': '任务不存在'},
+                    'code': {'type': 'integer', 'example': 10500},
+                    'msg': {'type': 'string', 'example': '数据不存在'},
+                    'data': {'type': 'null'}
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
                     'data': {'type': 'null'}
                 }
             }
@@ -371,7 +463,7 @@ def get_task(task_id):
                 'type': 'object',
                 'properties': {
                     'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '任务启动成功'},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {'type': 'null'}
                 }
             }
@@ -381,8 +473,8 @@ def get_task(task_id):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 10400},
-                    'msg': {'type': 'string', 'example': '任务启动失败'},
+                    'code': {'type': 'integer', 'example': 10100},
+                    'msg': {'type': 'string', 'example': '参数错误'},
                     'data': {'type': 'null'}
                 }
             }
@@ -392,8 +484,19 @@ def get_task(task_id):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 10404},
-                    'msg': {'type': 'string', 'example': '任务不存在'},
+                    'code': {'type': 'integer', 'example': 10500},
+                    'msg': {'type': 'string', 'example': '数据不存在'},
+                    'data': {'type': 'null'}
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
                     'data': {'type': 'null'}
                 }
             }
@@ -442,7 +545,7 @@ def start_task(task_id):
                 'type': 'object',
                 'properties': {
                     'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '任务暂停成功'},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {'type': 'null'}
                 }
             }
@@ -452,8 +555,8 @@ def start_task(task_id):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 10400},
-                    'msg': {'type': 'string', 'example': '任务暂停失败'},
+                    'code': {'type': 'integer', 'example': 10100},
+                    'msg': {'type': 'string', 'example': '参数错误'},
                     'data': {'type': 'null'}
                 }
             }
@@ -463,8 +566,19 @@ def start_task(task_id):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 10404},
-                    'msg': {'type': 'string', 'example': '任务不存在'},
+                    'code': {'type': 'integer', 'example': 10500},
+                    'msg': {'type': 'string', 'example': '数据不存在'},
+                    'data': {'type': 'null'}
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
                     'data': {'type': 'null'}
                 }
             }
@@ -485,7 +599,7 @@ def pause_task(task_id):
         if result:
             return jsonify(ResponseFormatter.success(None, "任务暂停成功"))
         else:
-            return jsonify(ResponseFormatter.error(ResponseCode.BAD_REQUEST, "任务暂停失败"))
+            return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "任务暂停失败"))
         
     except Exception as e:
         log.error(f"暂停任务失败: {e}")
@@ -513,7 +627,7 @@ def pause_task(task_id):
                 'type': 'object',
                 'properties': {
                     'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '任务恢复成功'},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {'type': 'null'}
                 }
             }
@@ -523,8 +637,8 @@ def pause_task(task_id):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 10400},
-                    'msg': {'type': 'string', 'example': '任务恢复失败'},
+                    'code': {'type': 'integer', 'example': 10100},
+                    'msg': {'type': 'string', 'example': '参数错误'},
                     'data': {'type': 'null'}
                 }
             }
@@ -534,8 +648,19 @@ def pause_task(task_id):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 10404},
-                    'msg': {'type': 'string', 'example': '任务不存在'},
+                    'code': {'type': 'integer', 'example': 10500},
+                    'msg': {'type': 'string', 'example': '数据不存在'},
+                    'data': {'type': 'null'}
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
                     'data': {'type': 'null'}
                 }
             }
@@ -584,7 +709,7 @@ def resume_task(task_id):
                 'type': 'object',
                 'properties': {
                     'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '任务取消成功'},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {'type': 'null'}
                 }
             }
@@ -594,8 +719,8 @@ def resume_task(task_id):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 10400},
-                    'msg': {'type': 'string', 'example': '任务取消失败'},
+                    'code': {'type': 'integer', 'example': 10100},
+                    'msg': {'type': 'string', 'example': '参数错误'},
                     'data': {'type': 'null'}
                 }
             }
@@ -605,8 +730,19 @@ def resume_task(task_id):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 10404},
-                    'msg': {'type': 'string', 'example': '任务不存在'},
+                    'code': {'type': 'integer', 'example': 10500},
+                    'msg': {'type': 'string', 'example': '数据不存在'},
+                    'data': {'type': 'null'}
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
                     'data': {'type': 'null'}
                 }
             }
@@ -627,7 +763,7 @@ def cancel_task(task_id):
         if result:
             return jsonify(ResponseFormatter.success(None, "任务取消成功"))
         else:
-            return jsonify(ResponseFormatter.error(ResponseCode.BAD_REQUEST, "任务取消失败"))
+            return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "任务取消失败"))
         
     except Exception as e:
         log.error(f"取消任务失败: {e}")

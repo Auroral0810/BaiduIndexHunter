@@ -384,7 +384,17 @@ class SearchIndexCrawler:
             self.city_dict = self._load_cities_from_file(cities_file)
             cities = self.city_dict
         elif cities:
-            self.city_dict = cities
+            # 处理前端传来的城市参数格式
+            if isinstance(cities, dict):
+                processed_cities = {}
+                for code, city_info in cities.items():
+                    if isinstance(city_info, dict) and 'name' in city_info and 'code' in city_info:
+                        processed_cities[city_info['code']] = city_info['name']
+                    else:
+                        processed_cities[code] = str(city_info)
+                self.city_dict = processed_cities
+            else:
+                self.city_dict = cities
         else:
             # 默认使用全国
             cities = {0: "全国"}
@@ -417,20 +427,20 @@ class SearchIndexCrawler:
             self.task_id = self._generate_task_id()
             
         # 设置输出路径和检查点路径
-        self.output_path = os.path.join(OUTPUT_DIR, 'search_index')
+        self.output_path = os.path.join(OUTPUT_DIR, 'search_index', self.task_id)
         os.makedirs(self.output_path, exist_ok=True)
         self.checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/{self.task_id}_checkpoint.pkl")
         os.makedirs(os.path.dirname(self.checkpoint_path), exist_ok=True)
         
         # 计算总任务数
-        self.total_tasks = len(keywords) * len(cities) * len(date_ranges)
+        self.total_tasks = len(keywords) * len(self.city_dict) * len(date_ranges)
         log.info(f"任务ID: {self.task_id}")
-        log.info(f"总任务数: {self.total_tasks} (关键词: {len(keywords)}, 城市: {len(cities)}, 日期范围: {len(date_ranges)})")
+        log.info(f"总任务数: {self.total_tasks} (关键词: {len(keywords)}, 城市: {len(self.city_dict)}, 日期范围: {len(date_ranges)})")
         
         # 开始爬取
         try:
             for keyword in keywords:
-                for city_code, city_name in cities.items():
+                for city_code, city_name in self.city_dict.items():
                     for start_date, end_date in date_ranges:
                         # 检查是否已完成该任务
                         current_task = self.completed_tasks + 1

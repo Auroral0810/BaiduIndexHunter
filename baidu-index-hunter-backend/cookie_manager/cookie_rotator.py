@@ -8,7 +8,7 @@ import threading
 from datetime import datetime, timedelta
 from utils.logger import log
 from db.mysql_manager import mysql_manager
-from config.settings import COOKIE_BLOCK_COOLDOWN
+from config.settings import COOKIE_CONFIG
 from cookie_manager.cookie_manager import CookieManager
 
 
@@ -105,9 +105,10 @@ class CookieRotator:
     def mark_cookie_invalid(self, cookie_id):
         """标记Cookie为无效"""
         try:
-            # 临时禁用Cookie 30分钟
-            self.cookie_manager.ban_account_temporarily(cookie_id, 1800)
-            log.warning(f"Cookie {cookie_id} 已被标记为无效，临时禁用30分钟")
+            # 临时禁用Cookie，使用配置的冷却时间
+            cooldown_time = COOKIE_CONFIG.get('block_cooldown', 1800)
+            self.cookie_manager.ban_account_temporarily(cookie_id, cooldown_time)
+            log.warning(f"Cookie {cookie_id} 已被标记为无效，临时禁用{cooldown_time//60}分钟")
             
             # 从当前列表中移除
             with self.cookie_lock:

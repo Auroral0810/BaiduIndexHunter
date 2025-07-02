@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from utils.logger import log
 from db.redis_manager import redis_manager
 from db.mysql_manager import mysql_manager
-from config.settings import COOKIE_BLOCK_COOLDOWN
+from config.settings import COOKIE_CONFIG
 
 
 class CookieRotator:
@@ -81,7 +81,7 @@ class CookieRotator:
                     if last_updated:
                         lock_time = (datetime.now() - last_updated.replace(tzinfo=None)).total_seconds()
                         # 如果已锁定时间小于冷却时间，则设置block_time
-                        if lock_time < COOKIE_BLOCK_COOLDOWN:
+                        if lock_time < COOKIE_CONFIG['block_cooldown']:
                             self.block_times[account_id] = time.time() - lock_time
                     else:
                         self.block_times[account_id] = time.time()
@@ -538,7 +538,7 @@ class CookieRotator:
                 else:
                     # 临时锁定，设置冷却时间
                     self.block_times[account_id] = time.time()
-                    log.warning(f"账号 {account_id} 的Cookie已被锁定，设置冷却时间 {COOKIE_BLOCK_COOLDOWN} 秒")
+                    log.warning(f"账号 {account_id} 的Cookie已被锁定，设置冷却时间 {COOKIE_CONFIG['block_cooldown']} 秒")
                 
                 # 在Redis中标记cookie为锁定状态
                 redis_manager.mark_cookie_locked(account_id)
@@ -613,7 +613,7 @@ class CookieRotator:
                 cooldown_time = current_time - self.block_times[account_id]
                 
                 # 如果已冷却时间超过设定值，解除锁定
-                if cooldown_time >= COOKIE_BLOCK_COOLDOWN:
+                if cooldown_time >= COOKIE_CONFIG['block_cooldown']:
                     self.blocked_accounts.remove(account_id)
                     if account_id in self.block_times:
                         del self.block_times[account_id]
@@ -664,7 +664,7 @@ class CookieRotator:
                 if not is_available:
                     locked_account_ids.add(account_id)
                     self.blocked_accounts.add(account_id)
-                    self.block_times[account_id] = time.time() - COOKIE_BLOCK_COOLDOWN / 2  # 设置为已冷却一半时间
+                    self.block_times[account_id] = time.time() - COOKIE_CONFIG['block_cooldown'] / 2  # 设置为已冷却一半时间
                     redis_manager.mark_cookie_locked(account_id)
                 else:
                     available_account_ids.add(account_id)
@@ -737,7 +737,7 @@ class CookieRotator:
             for account_id in self.blocked_accounts:
                 if account_id in self.block_times:
                     elapsed = current_time - self.block_times[account_id]
-                    remaining = max(0, COOKIE_BLOCK_COOLDOWN - elapsed)
+                    remaining = max(0, COOKIE_CONFIG['block_cooldown'] - elapsed)
                     
                     cooldown_status[account_id] = {
                         'elapsed_seconds': int(elapsed),
@@ -871,6 +871,27 @@ class CookieRotator:
                     cookie_dict[f'account_id={account_id}'] = account_id
             
             return result
+
+    def mark_cookie_invalid(self, cookie_id):
+        """标记Cookie为无效"""
+        try:
+            # 临时禁用Cookie，使用配置的冷却时间
+            cooldown_time = COOKIE_CONFIG.get('block_cooldown', 1800)
+            self.cookie_manager.ban_account_temporarily(cookie_id, cooldown_time)
+            log.warning(f"Cookie {cookie_id} 已被标记为无效，临时禁用{cooldown_time//60}分钟")
+            
+            # 从当前列表中移除
+            with self.cookie_lock:
+                self.cookie_list = [c for c in self.cookie_list if c['account_id'] != cookie_id]
+                if self.cookie_list:
+                    self.cookie_index = self.cookie_index % len(self.cookie_list)
+                else:
+                    self.cookie_index = 0
+            
+            return True
+        except Exception as e:
+            log.error(f"标记Cookie为无效失败: {e}")
+            return False
 
 
 # 创建Cookie轮换管理器单例

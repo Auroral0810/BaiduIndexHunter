@@ -59,13 +59,14 @@ class TaskScheduler:
         
         log.info("任务调度器已停止")
     
-    def create_task(self, task_type, parameters, task_name=None, created_by=None):
+    def create_task(self, task_type, parameters, task_name=None, created_by=None, priority=5):
         """
         创建任务
         :param task_type: 任务类型
         :param parameters: 任务参数
         :param task_name: 任务名称
         :param created_by: 创建者
+        :param priority: 优先级，范围1-10，数字越大优先级越高
         :return: 任务ID
         """
         # 生成任务ID
@@ -86,22 +87,22 @@ class TaskScheduler:
             INSERT INTO spider_tasks (
                 task_id, task_name, task_type, status, parameters, 
                 progress, total_items, completed_items, failed_items,
-                create_time, created_by
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                create_time, created_by, priority
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         
         now = datetime.now()
         values = (
             task_id, task_name, task_type, 'pending', parameters_json,
-            0, 0, 0, 0, now, created_by
+            0, 0, 0, 0, now, created_by, priority
         )
         
         self.mysql.execute_query(query, values)
         
-        log.info(f"创建任务成功: {task_id}, 类型: {task_type}")
+        log.info(f"创建任务成功: {task_id}, 类型: {task_type}, 优先级: {priority}")
         
         # 将任务加入队列
-        self._add_task_to_queue(task_id, 0)  # 默认优先级为0
+        self._add_task_to_queue(task_id, -priority)  # 优先级取负值，数值越小优先级越高
         
         return task_id
     
@@ -493,6 +494,35 @@ class TaskScheduler:
         for task_id in finished_tasks:
             del self.running_tasks[task_id]
             log.debug(f"清理已完成的任务线程: {task_id}")
+    
+    def update_task_checkpoint(self, task_id, checkpoint_data):
+        """
+        更新任务的断点续传数据
+        :param task_id: 任务ID
+        :param checkpoint_data: 断点续传数据
+        :return: 是否成功
+        """
+        try:
+            # 如果checkpoint_data是字符串，尝试解析为JSON对象
+            if isinstance(checkpoint_data, str):
+                try:
+                    checkpoint_data = json.loads(checkpoint_data)
+                except:
+                    pass
+            
+            # 如果checkpoint_data是字典，转换为JSON字符串
+            if isinstance(checkpoint_data, dict):
+                checkpoint_data = json.dumps(checkpoint_data, ensure_ascii=False)
+            
+            # 更新数据库中的断点续传数据
+            query = "UPDATE spider_tasks SET checkpoint_data = %s, update_time = %s WHERE task_id = %s"
+            self.mysql.execute_query(query, (checkpoint_data, datetime.now(), task_id))
+            
+            log.info(f"更新任务断点续传数据成功: {task_id}")
+            return True
+        except Exception as e:
+            log.error(f"更新任务断点续传数据失败: {e}")
+            return False
 
 
 # 创建任务调度器实例

@@ -40,8 +40,8 @@ region_manager = get_region_manager()
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -53,7 +53,15 @@ region_manager = get_region_manager()
             }
         },
         '404': {
-            'description': '城市代码不存在'
+            'description': '城市代码不存在',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10500},
+                    'msg': {'type': 'string', 'example': '数据不存在'},
+                    'data': {'type': 'null'}
+                }
+            }
         }
     }
 })
@@ -91,8 +99,8 @@ def get_city_name_by_code(city_code):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -103,8 +111,27 @@ def get_city_name_by_code(city_code):
                 }
             }
         },
+        '400': {
+            'description': '参数错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10100},
+                    'msg': {'type': 'string', 'example': '参数错误'},
+                    'data': {'type': 'null'}
+                }
+            }
+        },
         '404': {
-            'description': '城市名称不存在'
+            'description': '城市名称不存在',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10500},
+                    'msg': {'type': 'string', 'example': '数据不存在'},
+                    'data': {'type': 'null'}
+                }
+            }
         }
     }
 })
@@ -155,8 +182,8 @@ def get_city_code_by_name_impl(city_name):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -170,7 +197,15 @@ def get_city_code_by_name_impl(city_name):
             }
         },
         '404': {
-            'description': '区域代码不存在'
+            'description': '区域代码不存在',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10500},
+                    'msg': {'type': 'string', 'example': '数据不存在'},
+                    'data': {'type': 'null'}
+                }
+            }
         }
     }
 })
@@ -212,8 +247,8 @@ def get_region_by_code(region_code):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -224,8 +259,27 @@ def get_region_by_code(region_code):
                 }
             }
         },
+        '400': {
+            'description': '参数错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10100},
+                    'msg': {'type': 'string', 'example': '参数错误'},
+                    'data': {'type': 'null'}
+                }
+            }
+        },
         '404': {
-            'description': '区域名称不存在'
+            'description': '区域名称不存在',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10500},
+                    'msg': {'type': 'string', 'example': '数据不存在'},
+                    'data': {'type': 'null'}
+                }
+            }
         }
     }
 })
@@ -284,8 +338,8 @@ def get_region_code_by_name():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -297,7 +351,15 @@ def get_region_code_by_name():
             }
         },
         '404': {
-            'description': '省份代码不存在或没有所属大区'
+            'description': '省份代码不存在或没有所属大区',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10500},
+                    'msg': {'type': 'string', 'example': '数据不存在'},
+                    'data': {'type': 'null'}
+                }
+            }
         }
     }
 })
@@ -336,8 +398,8 @@ def get_province_region(province_code):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -358,8 +420,38 @@ def get_province_region(province_code):
                 }
             }
         },
+        '400': {
+            'description': '参数错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10100},
+                    'msg': {'type': 'string', 'example': '参数错误'},
+                    'data': {'type': 'null'}
+                }
+            }
+        },
         '404': {
-            'description': '大区名称不存在或没有下属省份'
+            'description': '大区名称不存在或没有下属省份',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10500},
+                    'msg': {'type': 'string', 'example': '数据不存在'},
+                    'data': {'type': 'null'}
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
+                }
+            }
         }
     }
 })
@@ -420,8 +512,8 @@ def get_region_provinces_impl(region_name):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -472,8 +564,8 @@ def get_region_children(parent_code):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -526,8 +618,8 @@ def get_region_all_children(parent_code):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -549,7 +641,15 @@ def get_region_all_children(parent_code):
             }
         },
         '404': {
-            'description': '区域代码不存在'
+            'description': '区域代码不存在',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10500},
+                    'msg': {'type': 'string', 'example': '数据不存在'},
+                    'data': {'type': 'null'}
+                }
+            }
         }
     }
 })
@@ -580,8 +680,8 @@ def get_region_path(region_code):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -592,7 +692,15 @@ def get_region_path(region_code):
             }
         },
         '500': {
-            'description': '同步失败'
+            'description': '同步失败',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
+                }
+            }
         }
     }
 })
@@ -620,8 +728,8 @@ def sync_region_data():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -660,8 +768,8 @@ def get_all_provinces():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -701,8 +809,8 @@ def get_all_cities():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -756,8 +864,8 @@ def get_all_regions():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -810,8 +918,8 @@ def get_province_cities():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -822,7 +930,15 @@ def get_province_cities():
             }
         },
         '500': {
-            'description': '同步失败'
+            'description': '同步失败',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
+                }
+            }
         }
     }
 })
@@ -866,8 +982,8 @@ def sync_province_cities():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -881,10 +997,26 @@ def sync_province_cities():
             }
         },
         '400': {
-            'description': '参数错误'
+            'description': '参数错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10100},
+                    'msg': {'type': 'string', 'example': '参数错误'},
+                    'data': {'type': 'null'}
+                }
+            }
         },
         '404': {
-            'description': '城市或省份不存在'
+            'description': '城市或省份不存在',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10500},
+                    'msg': {'type': 'string', 'example': '数据不存在'},
+                    'data': {'type': 'null'}
+                }
+            }
         }
     }
 })
@@ -966,8 +1098,8 @@ def update_city_province():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -980,7 +1112,15 @@ def update_city_province():
             }
         },
         '400': {
-            'description': '参数错误'
+            'description': '参数错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10100},
+                    'msg': {'type': 'string', 'example': '参数错误'},
+                    'data': {'type': 'null'}
+                }
+            }
         }
     }
 })
@@ -1042,8 +1182,8 @@ def batch_update_city_province():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
                     'data': {
                         'type': 'object',
                         'properties': {
@@ -1056,7 +1196,15 @@ def batch_update_city_province():
             }
         },
         '500': {
-            'description': '同步失败'
+            'description': '同步失败',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
+                }
+            }
         }
     }
 })
