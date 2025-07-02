@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // @ts-nocheck
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, onUnmounted } from 'vue'
 import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
 import { 
   Refresh, Plus, Delete, Connection, Search, CopyDocument,
@@ -41,7 +41,7 @@ const cookieStats = reactive({
 // 账号列表
 const availableAccounts = ref<string[]>([])
 const tempBannedAccounts = ref<any[]>([])
-const permBannedAccounts = ref<any[]>([])
+const permBannedAccounts = ref<string[]>([])
 const bannedTabActive = ref('temp')
 
 // Cookie列表
@@ -144,6 +144,9 @@ const cookiePoolStatus = ref({
   cooldown_status: {}
 })
 
+// 添加计时器引用
+const banTimeUpdateTimer = ref(null)
+
 // 加载Cookie池状态
 const refreshCookieStatus = async () => {
   statusLoading.value = true
@@ -208,8 +211,17 @@ const loadBannedAccounts = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/admin/cookie/banned-accounts`)
     if (response.data.code === 10000) {
-      tempBannedAccounts.value = response.data.data.temp_banned || []
+      // 正确解析临时封禁账号
+      const tempBanned = response.data.data.temp_banned || []
+      tempBannedAccounts.value = tempBanned.map(account => ({
+        account_id: account.account_id,
+        temp_ban_until: account.temp_ban_until,
+        remaining_seconds: account.remaining_seconds
+      }))
+      
+      // 正确解析永久封禁账号
       permBannedAccounts.value = response.data.data.perm_banned || []
+      
       console.log('临时封禁账号:', tempBannedAccounts.value)
       console.log('永久封禁账号:', permBannedAccounts.value)
     } else {
@@ -236,7 +248,24 @@ const loadCookies = async () => {
     
     const response = await axios.get(`${API_BASE_URL}/admin/cookie/list`, { params })
     if (response.data.code === 10000) {
-      cookieList.value = response.data.data || []
+      // 处理返回的数据，确保cookie_value正确显示
+      cookieList.value = (response.data.data || []).map(item => {
+        // 如果有cookies字段，将其转换为字符串以便显示
+        if (item.cookies && typeof item.cookies === 'object') {
+          const cookieCount = Object.keys(item.cookies).length;
+          const cookieString = Object.entries(item.cookies)
+            .map(([name, value]) => `${name}=${value}`)
+            .join('; ');
+          
+          return {
+            ...item,
+            cookie_count: cookieCount,
+            cookie_value: cookieString
+          };
+        }
+        return item;
+      });
+      
       console.log('Cookie列表:', cookieList.value)
       
       // 如果后端返回了总数，使用后端的总数
@@ -412,8 +441,27 @@ const deleteCookie = async (id: number) => {
 
 // 生命周期钩子
 onMounted(() => {
+  checkApiConnection()
   refreshCookieStatus()
+  loadAvailableAccounts()
+  loadBannedAccounts()
   loadCookies()
+  
+  // 设置每5秒更新一次解封时间的计时器
+  banTimeUpdateTimer.value = setInterval(() => {
+    updateBanTimeRemaining();
+    // 每分钟刷新一次被封禁的账号列表
+    if (new Date().getSeconds() === 0) {
+      loadBannedAccounts();
+    }
+  }, 5000);
+})
+
+// 在组件卸载时清除计时器
+onUnmounted(() => {
+  if (banTimeUpdateTimer.value) {
+    clearInterval(banTimeUpdateTimer.value)
+  }
 })
 
 // 解封Cookie
@@ -589,7 +637,14 @@ const viewAccountDetail = async (accountId: string) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/admin/cookie/account-cookie/${accountId}`)
     if (response.data.code === 10000) {
-      accountDetail.value = response.data.data
+      // 确保cookies数据正确解析
+      const data = response.data.data;
+      if (data) {
+        accountDetail.value = {
+          ...data,
+          cookies: data.cookies || {}
+        };
+      }
     } else {
       ElMessage.error(`获取账号详情失败: ${response.data.msg}`)
       accountDetailDialogVisible.value = false
@@ -844,31 +899,33 @@ const formatDateTime = (dateTime: string) => {
 }
 
 // 格式化封禁剩余时间
-const formatBanTimeRemaining = (endTime: string) => {
-  if (!endTime) return ''
+const formatBanTimeRemaining = (seconds) => {
+  if (!seconds || seconds <= 0) return '已解封'
   
-  const now = new Date()
-  const end = new Date(endTime)
-  const diffMs = end.getTime() - now.getTime()
+  const days = Math.floor(seconds / (24 * 3600))
+  const hours = Math.floor((seconds % (24 * 3600)) / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const remainingSeconds = Math.floor(seconds % 60)
   
-  if (diffMs <= 0) return '已解封'
+  let result = ''
+  if (days > 0) result += `${days}天`
+  if (hours > 0) result += `${hours}小时`
+  if (minutes > 0) result += `${minutes}分钟`
+  if (remainingSeconds > 0 && !days && !hours) result += `${remainingSeconds}秒`
   
-  const diffMin = Math.floor(diffMs / 60000)
-  if (diffMin < 60) return `${diffMin}分钟`
-  
-  const hours = Math.floor(diffMin / 60)
-  const minutes = diffMin % 60
-  return `${hours}小时${minutes > 0 ? ` ${minutes}分钟` : ''}`
+  return result || '0秒'
 }
 
-// 初始化
-onMounted(() => {
-  checkApiConnection()
-  refreshCookieStatus()
-  loadAvailableAccounts()
-  loadBannedAccounts()
-  loadCookies()
-})
+// 更新临时封禁账号的剩余时间
+const updateBanTimeRemaining = () => {
+  if (tempBannedAccounts.value.length > 0) {
+    tempBannedAccounts.value.forEach(account => {
+      if (account.remaining_seconds > 0) {
+        account.remaining_seconds -= 5 // 每5秒减少5秒
+      }
+    })
+  }
+}
 </script>
 
 <template>
@@ -987,17 +1044,17 @@ onMounted(() => {
             <el-tabs v-model="bannedTabActive">
               <el-tab-pane label="临时封禁" name="temp">
                 <template v-if="tempBannedAccounts.length > 0">
-                  <div v-for="account in tempBannedAccounts" :key="account.accountId" class="banned-account-item">
+                  <div v-for="account in tempBannedAccounts" :key="account.account_id" class="banned-account-item">
                     <div class="banned-account-info">
-                      <div class="account-id">{{ account.accountId }}</div>
+                      <div class="account-id">{{ account.account_id }}</div>
                       <div class="ban-time">
-                        <el-tooltip :content="account.banEndTime" placement="top">
-                          <span>解封剩余: {{ formatBanTimeRemaining(account.banEndTime) }}</span>
+                        <el-tooltip :content="account.temp_ban_until" placement="top">
+                          <span>解封剩余: {{ formatBanTimeRemaining(account.remaining_seconds) }}</span>
                         </el-tooltip>
                       </div>
                     </div>
                     <div class="banned-account-actions">
-                      <el-button size="small" type="primary" @click="unbanAccount(account.accountId)" plain>解封</el-button>
+                      <el-button size="small" type="primary" @click="unbanAccount(account.account_id)" plain>解封</el-button>
                     </div>
                   </div>
                 </template>
@@ -1005,12 +1062,12 @@ onMounted(() => {
               </el-tab-pane>
               <el-tab-pane label="永久封禁" name="perm">
                 <template v-if="permBannedAccounts.length > 0">
-                  <div v-for="account in permBannedAccounts" :key="account.accountId" class="banned-account-item">
+                  <div v-for="account in permBannedAccounts" :key="account" class="banned-account-item">
                     <div class="banned-account-info">
-                      <div class="account-id">{{ account.accountId }}</div>
+                      <div class="account-id">{{ account }}</div>
                     </div>
                     <div class="banned-account-actions">
-                      <el-button size="small" type="danger" @click="forceUnbanAccount(account.accountId)" plain>强制解封</el-button>
+                      <el-button size="small" type="danger" @click="forceUnbanAccount(account)" plain>强制解封</el-button>
                     </div>
                   </div>
                 </template>
@@ -1070,9 +1127,18 @@ onMounted(() => {
             row-key="id"
             :default-sort="{ prop: 'account_id', order: 'ascending' }"
           >
-            <el-table-column prop="id" label="ID" width="70" sortable />
-            <el-table-column prop="account_id" label="账号ID" width="120" sortable />
-            <el-table-column prop="cookie_name" label="Cookie名称" width="120" sortable />
+            <!-- 隐藏ID列 -->
+            <!-- <el-table-column prop="id" label="ID" width="70" sortable /> -->
+            <el-table-column prop="account_id" label="Cookie名" width="120" sortable />
+            <!-- 隐藏Cookie名称列 -->
+            <!-- <el-table-column prop="cookie_name" label="Cookie名称" width="120" sortable /> -->
+            <el-table-column label="字段数量" width="80">
+              <template #default="scope">
+                <el-tag size="small" effect="plain" type="info">
+                  {{ scope.row.cookie_count || 0 }}
+                </el-tag>
+              </template>
+            </el-table-column>
             <el-table-column label="Cookie值" show-overflow-tooltip>
               <template #default="scope">
                 <el-tooltip 
@@ -1081,7 +1147,7 @@ onMounted(() => {
                   :hide-after="0"
                 >
                   <el-tag size="small" effect="plain" type="info">
-                    {{ truncateText(scope.row.cookie_value, 20) }}
+                    {{ truncateText(scope.row.cookie_value, 40) }}
                   </el-tag>
                 </el-tooltip>
               </template>

@@ -267,7 +267,8 @@ def list_cookies(cookie_manager):
         }
     }
 })
-def get_assembled_cookies():
+@with_cookie_manager
+def get_assembled_cookies(cookie_manager):
     """获取组装后的完整Cookie字典"""
     try:
         # 获取查询参数
@@ -314,7 +315,8 @@ def get_assembled_cookies():
         }
     }
 })
-def list_accounts():
+@with_cookie_manager
+def list_accounts(cookie_manager):
     """获取所有可用的账号ID"""
     try:
         account_ids = cookie_manager.get_available_account_ids()
@@ -368,7 +370,8 @@ def list_accounts():
         }
     }
 })
-def add_cookie():
+@with_cookie_manager
+def add_cookie(cookie_manager):
     """添加Cookie"""
     try:
         data = request.json
@@ -441,7 +444,8 @@ def add_cookie():
         }
     }
 })
-def delete_cookie(account_id):
+@with_cookie_manager
+def delete_cookie(cookie_manager,account_id):
     """删除指定账号的所有Cookie"""
     try:
         deleted_count = cookie_manager.delete_by_account_id(account_id)
@@ -507,7 +511,8 @@ def delete_cookie(account_id):
         }
     }
 })
-def update_cookie(cookie_id):
+@with_cookie_manager
+def update_cookie(cookie_manager,account_id):
     """更新指定Cookie"""
     try:
         data = request.json
@@ -568,7 +573,8 @@ def update_cookie(cookie_id):
         }
     }
 })
-def ban_account_permanently(account_id):
+@with_cookie_manager
+def ban_account_permanently(cookie_manager,account_id):
     """永久封禁账号"""
     try:
         banned_count = cookie_manager.ban_account_permanently(account_id)
@@ -625,7 +631,8 @@ def ban_account_permanently(account_id):
         }
     }
 })
-def ban_account_temporarily(account_id):
+@with_cookie_manager
+def ban_account_temporarily(cookie_manager,account_id):
     """临时封禁账号"""
     try:
         data = request.json or {}
@@ -676,7 +683,8 @@ def ban_account_temporarily(account_id):
         }
     }
 })
-def unban_account(account_id):
+@with_cookie_manager
+def unban_account(cookie_manager,account_id):
     """解封账号（只解封临时封禁的）"""
     try:
         unbanned_count = cookie_manager.unban_account(account_id)
@@ -721,7 +729,8 @@ def unban_account(account_id):
         }
     }
 })
-def force_unban_account(account_id):
+@with_cookie_manager
+def force_unban_account(cookie_manager,account_id):
     """强制解封账号（包括永久封禁的）"""
     try:
         unbanned_count = cookie_manager.force_unban_account(account_id)
@@ -757,7 +766,8 @@ def force_unban_account(account_id):
         }
     }
 })
-def update_cookie_status():
+@with_cookie_manager
+def update_cookie_status(cookie_manager):
     """检查并更新Cookie状态，将临时封禁过期的Cookie恢复可用"""
     try:
         updated_count = cookie_manager.check_and_update_cookie_status()
@@ -790,7 +800,8 @@ def update_cookie_status():
         }
     }
 })
-def cleanup_expired_cookies():
+@with_cookie_manager
+def cleanup_expired_cookies(cookie_manager):
     """清理已过期的Cookie"""
     try:
         deleted_count = cookie_manager.cleanup_expired_cookies()
@@ -844,7 +855,8 @@ def cleanup_expired_cookies():
         }
     }
 })
-def update_account_id(old_account_id):
+@with_cookie_manager
+def update_account_id(cookie_manager,old_account_id):
     """更新账号ID"""
     try:
         data = request.json
@@ -915,7 +927,8 @@ def update_account_id(old_account_id):
         }
     }
 })
-def test_cookie_availability():
+@with_cookie_manager
+def test_cookie_availability(cookie_manager):
     """测试所有可用Cookie的可用性"""
     try:
         # 调用CookieManager的测试方法
@@ -984,7 +997,8 @@ def test_cookie_availability():
         }
     }
 })
-def test_account_cookie_availability(account_id):
+@with_cookie_manager
+def test_account_cookie_availability(cookie_manager,account_id):
     """测试单个账号的Cookie可用性"""
     try:
         # 检查账号是否存在
@@ -1128,7 +1142,8 @@ def get_available_account_ids(cookie_manager):
         }
     }
 })
-def get_account_cookie(account_id):
+@with_cookie_manager
+def get_account_cookie(cookie_manager,account_id):
     """获取指定账号ID的Cookie详细信息"""
     try:
         # 获取账号的cookie记录
