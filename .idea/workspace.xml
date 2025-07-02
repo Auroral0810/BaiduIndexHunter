@@ -5,11 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ffc61ac2-aff1-4d92-a630-60ecc81ee81f" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/9f3d3647-c90c-4345-b44a-0813b75b3da1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/9f3d3647-c90c-4345-b44a-0813b75b3da1.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/api/task_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/api/task_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/scheduler/task_executor.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/scheduler/task_executor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/scheduler/task_scheduler.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/scheduler/task_scheduler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/TaskList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/TaskList.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/views/DataCollection.vue" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/views/DataCollection.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -109,7 +108,7 @@
       <workItem from="1751266033461" duration="11495000" />
       <workItem from="1751281475302" duration="28100000" />
       <workItem from="1751362270523" duration="9772000" />
-      <workItem from="1751377332324" duration="15083000" />
+      <workItem from="1751377332324" duration="16511000" />
     </task>
     <servers />
   </component>

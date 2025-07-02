@@ -19,10 +19,22 @@ const router = useRouter()
 const activeTab = ref('search_index')
 const apiStatus = ref(false)
 const apiStatusDialog = ref(false)
+const taskListRef = ref(null)
 
 watch(() => route.query, (query) => {
   if (query.tab && typeof query.tab === 'string') {
     activeTab.value = query.tab
+  }
+}, { immediate: true })
+
+// 监听标签切换，当切换到任务列表时加载数据
+watch(() => activeTab.value, (newTab) => {
+  if (newTab === 'task_list' && taskListRef.value) {
+    // 延迟一点加载，确保组件已完全挂载
+    setTimeout(() => {
+      taskListRef.value.loadTasks()
+      taskListRef.value.startAutoRefresh()
+    }, 100)
   }
 }, { immediate: true })
 
@@ -31,6 +43,12 @@ const handleTabChange = (tab: string) => {
     path: '/data-collection', 
     query: { tab } 
   })
+  
+  // 如果切换到任务列表，加载任务数据
+  if (tab === 'task_list' && taskListRef.value) {
+    taskListRef.value.loadTasks()
+    taskListRef.value.startAutoRefresh()
+  }
 }
 
 onMounted(() => {
@@ -108,7 +126,7 @@ const checkApiHealth = async () => {
           <region-distribution-task />
         </el-tab-pane>
         <el-tab-pane label="任务列表" name="task_list">
-          <task-list />
+          <task-list ref="taskListRef" />
         </el-tab-pane>
       </el-tabs>
     </el-card>

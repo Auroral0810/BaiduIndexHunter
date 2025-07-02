@@ -6,7 +6,7 @@ import os
 import sys
 import json
 from datetime import datetime
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file
 from flasgger import swag_from
 
 # 添加项目根目录到Python路径
@@ -295,8 +295,17 @@ def list_tasks():
         status = request.args.get('status')
         task_type = request.args.get('task_type')
         created_by = request.args.get('created_by')
-        limit = int(request.args.get('limit', 10))
-        offset = int(request.args.get('offset', 0))
+        
+        # 安全地转换整数参数，提供默认值
+        try:
+            limit = int(request.args.get('limit', 10))
+        except (ValueError, TypeError):
+            limit = 10
+            
+        try:
+            offset = int(request.args.get('offset', 0))
+        except (ValueError, TypeError):
+            offset = 0
         
         # 获取任务列表
         tasks = task_scheduler.list_tasks(
@@ -768,6 +777,95 @@ def cancel_task(task_id):
     except Exception as e:
         log.error(f"取消任务失败: {e}")
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"取消任务失败: {str(e)}"))
+
+
+@task_blueprint.route('/download', methods=['GET'])
+@swag_from({
+    'tags': ['任务管理'],
+    'summary': '下载任务结果文件',
+    'description': '下载指定路径的任务结果文件',
+    'parameters': [
+        {
+            'name': 'filePath',
+            'in': 'query',
+            'type': 'string',
+            'required': True,
+            'description': '文件路径'
+        }
+    ],
+    'responses': {
+        '200': {
+            'description': '文件内容',
+            'content': {
+                'application/octet-stream': {
+                    'schema': {
+                        'type': 'string',
+                        'format': 'binary'
+                    }
+                }
+            }
+        },
+        '400': {
+            'description': '参数错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10100},
+                    'msg': {'type': 'string', 'example': '参数错误'},
+                    'data': {'type': 'null'}
+                }
+            }
+        },
+        '404': {
+            'description': '文件不存在',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10500},
+                    'msg': {'type': 'string', 'example': '文件不存在'},
+                    'data': {'type': 'null'}
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
+                }
+            }
+        }
+    }
+})
+def download_file():
+    """下载文件"""
+    try:
+        # 获取文件路径
+        file_path = request.args.get('filePath')
+        if not file_path:
+            return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "缺少必要参数: filePath"))
+        
+        # 检查文件是否存在
+        if not os.path.isfile(file_path):
+            return jsonify(ResponseFormatter.error(ResponseCode.NOT_FOUND, "文件不存在"))
+        
+        # 提取文件名
+        file_name = os.path.basename(file_path)
+        
+        # 发送文件
+        return send_file(
+            file_path,
+            as_attachment=True,
+            download_name=file_name,
+            mimetype='application/octet-stream'
+        )
+        
+    except Exception as e:
+        log.error(f"下载文件失败: {e}")
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"下载文件失败: {str(e)}"))
 
 
 def register_task_blueprint(app):
