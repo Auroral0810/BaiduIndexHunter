@@ -10,6 +10,7 @@ import locale from 'element-plus/dist/locale/zh-cn.mjs'
 
 // 创建应用实例
 const app = createApp(App)
+const pinia = createPinia()
 
 // 注册所有Element Plus图标
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
@@ -40,7 +41,7 @@ document.head.appendChild(style)
 // 使用插件
 app.use(router)
 app.use(ElementPlus, { locale })
-app.use(createPinia())
+app.use(pinia)
 
 // 挂载应用
 app.mount('#app')

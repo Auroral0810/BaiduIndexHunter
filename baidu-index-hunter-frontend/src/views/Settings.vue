@@ -1,93 +1,51 @@
-<script setup>
-import { ref, reactive, onMounted } from 'vue'
+<script setup lang="ts">
+import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import { useConfigStore } from '../store/config'
 
-const API_BASE_URL = 'http://127.0.0.1:5001/api'
+// 使用配置存储
+const configStore = useConfigStore()
 
 // 配置分组
 const configGroups = [
   { id: 'api', name: 'API配置', icon: 'Connection' },
   { id: 'task', name: '任务配置', icon: 'List' },
   { id: 'spider', name: '爬虫配置', icon: 'Loading' },
-  { id: 'output', name: '输出配置', icon: 'Document' }
+  { id: 'output', name: '输出配置', icon: 'Document' },
+  { id: 'cookie', name: 'Cookie配置', icon: 'Files' },
+  { id: 'system', name: '系统配置', icon: 'Setting' },
+  { id: 'ui', name: '界面配置', icon: 'Monitor' }
 ]
 
 // 当前选中的配置组
 const activeGroup = ref('api')
 
-// 配置数据
-const configs = ref({})
-const loading = ref(false)
-const saving = ref(false)
+// 加载状态
+const loading = computed(() => configStore.isLoading)
 
-// 加载配置
-const loadConfigs = async () => {
-  loading.value = true
-  try {
-    const response = await axios.get(`${API_BASE_URL}/config/list`)
-    
-    if (response.data.code === 0) {
-      configs.value = response.data.data || {}
-      ElMessage.success('配置加载成功')
-    } else {
-      ElMessage.error(`加载配置失败: ${response.data.message}`)
-    }
-  } catch (error) {
-    ElMessage.error('加载配置失败，请检查网络连接')
-    console.error('加载配置错误:', error)
-  } finally {
-    loading.value = false
-  }
+// 获取指定分组的配置项
+const getGroupConfigs = (group: string) => {
+  return configStore.getConfigsByPrefix(group)
 }
 
 // 保存配置
-const saveConfigs = async (prefix) => {
-  saving.value = true
-  
-  try {
-    // 获取指定前缀的配置项
-    const configsToSave = {}
-    for (const key in configs.value) {
-      if (key.startsWith(`${prefix}.`)) {
-        configsToSave[key] = configs.value[key]
-      }
-    }
-    
-    const response = await axios.post(`${API_BASE_URL}/config/batch_set`, configsToSave)
-    
-    if (response.data.code === 0) {
-      ElMessage.success('配置保存成功')
-    } else {
-      ElMessage.error(`保存配置失败: ${response.data.message}`)
-    }
-  } catch (error) {
-    ElMessage.error('保存配置失败，请检查网络连接')
-    console.error('保存配置错误:', error)
-  } finally {
-    saving.value = false
+const saveConfigs = async (prefix: string) => {
+  const result = await configStore.saveConfigsByPrefix(prefix)
+  if (result) {
+    ElMessage.success('配置保存成功')
   }
 }
 
 // 重置配置
 const resetConfigs = async () => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/config/init_defaults`)
-    
-    if (response.data.code === 0) {
-      ElMessage.success('配置已重置为默认值')
-      await loadConfigs()
-    } else {
-      ElMessage.error(`重置配置失败: ${response.data.message}`)
-    }
-  } catch (error) {
-    ElMessage.error('重置配置失败，请检查网络连接')
-    console.error('重置配置错误:', error)
+  const result = await configStore.resetConfigs()
+  if (result) {
+    ElMessage.success('配置已重置为默认值')
   }
 }
 
 // 获取配置项类型
-const getConfigType = (key, value) => {
+const getConfigType = (key: string, value: any) => {
   if (typeof value === 'boolean') return 'boolean'
   if (typeof value === 'number') {
     if (key.includes('interval') || key.includes('timeout')) return 'number'
@@ -103,7 +61,7 @@ const getConfigType = (key, value) => {
 }
 
 // 获取配置项标签
-const getConfigLabel = (key) => {
+const getConfigLabel = (key: string) => {
   const parts = key.split('.')
   if (parts.length < 2) return key
   
@@ -115,17 +73,21 @@ const getConfigLabel = (key) => {
 }
 
 // 获取配置项描述
-const getConfigDescription = (key) => {
-  const descriptions = {
+const getConfigDescription = (key: string) => {
+  const descriptions: Record<string, string> = {
     'api.host': '服务器监听的主机地址',
     'api.port': '服务器监听的端口',
     'api.debug': '是否启用调试模式',
     'api.cors_origins': '允许的跨域来源',
+    'api.secret_key': 'API安全密钥',
+    'api.token_expire': 'Token过期时间（秒）',
+    
     'task.max_concurrent_tasks': '最大并发任务数',
     'task.queue_check_interval': '任务队列检查间隔（秒）',
     'task.default_priority': '默认任务优先级（1-10）',
     'task.max_retry_count': '任务最大重试次数',
     'task.retry_delay': '任务重试延迟（秒）',
+    
     'spider.min_interval': '请求间隔最小秒数',
     'spider.max_interval': '请求间隔最大秒数',
     'spider.retry_times': '请求失败重试次数',
@@ -134,28 +96,41 @@ const getConfigDescription = (key) => {
     'spider.user_agent_rotation': '是否轮换User-Agent',
     'spider.proxy_enabled': '是否启用代理',
     'spider.proxy_url': '代理URL',
+    'spider.failure_multiplier': '失败后间隔倍数',
+    
     'output.default_format': '默认输出格式：csv, excel',
     'output.csv_encoding': 'CSV文件编码',
     'output.excel_sheet_name': 'Excel工作表名称',
+    'output.file_name_template': '文件名模板',
+    
+    'cookie.block_cooldown': 'Cookie封禁冷却时间（秒）',
+    'cookie.max_usage_per_day': '每日最大使用次数',
+    'cookie.min_available_count': '最小可用Cookie数量',
+    'cookie.rotation_strategy': 'Cookie轮换策略',
+    
+    'system.admin_email': '管理员邮箱',
+    'system.maintenance_mode': '是否启用维护模式',
+    'system.name': '系统名称',
+    'system.version': '系统版本',
+    
+    'ui.auto_refresh': '是否自动刷新',
+    'ui.items_per_page': '每页显示条数',
+    'ui.language': '界面语言',
+    'ui.refresh_interval': '刷新间隔（秒）',
+    'ui.theme': '界面主题'
   }
   
   return descriptions[key] || '配置项描述'
 }
 
-// 获取指定分组的配置项
-const getGroupConfigs = (group) => {
-  const result = {}
-  for (const key in configs.value) {
-    if (key.startsWith(`${group}.`)) {
-      result[key] = configs.value[key]
-    }
-  }
-  return result
+// 更新配置值
+const updateConfigValue = (key: string, value: any) => {
+  configStore.updateConfig(key, value)
 }
 
 // 生命周期钩子
-onMounted(() => {
-  loadConfigs()
+onMounted(async () => {
+  await configStore.fetchConfigs()
 })
 </script>
 
@@ -188,6 +163,7 @@ onMounted(() => {
               plain 
               icon="Refresh" 
               size="small"
+              :loading="loading"
             >
               重置为默认配置
             </el-button>
@@ -203,7 +179,7 @@ onMounted(() => {
               <el-button 
                 type="primary" 
                 @click="saveConfigs(activeGroup)" 
-                :loading="saving"
+                :loading="loading"
               >
                 保存配置
               </el-button>
@@ -221,43 +197,49 @@ onMounted(() => {
                   <!-- 布尔类型 -->
                   <el-switch 
                     v-if="getConfigType(key, value) === 'boolean'"
-                    v-model="configs.value[key]"
+                    v-model="configStore.configs[key]"
+                    @change="(val) => updateConfigValue(key, val)"
                   />
                   
                   <!-- 数字类型 -->
                   <el-input-number 
                     v-else-if="getConfigType(key, value) === 'number'"
-                    v-model="configs.value[key]"
+                    v-model="configStore.configs[key]"
                     :min="0"
                     :step="key.includes('interval') ? 0.1 : 1"
+                    @change="(val) => updateConfigValue(key, val)"
                   />
                   
                   <!-- 端口类型 -->
                   <el-input-number 
                     v-else-if="getConfigType(key, value) === 'port'"
-                    v-model="configs.value[key]"
+                    v-model="configStore.configs[key]"
                     :min="1"
                     :max="65535"
+                    @change="(val) => updateConfigValue(key, val)"
                   />
                   
                   <!-- 密码类型 -->
                   <el-input 
                     v-else-if="getConfigType(key, value) === 'password'"
-                    v-model="configs.value[key]"
+                    v-model="configStore.configs[key]"
                     show-password
+                    @input="(val) => updateConfigValue(key, val)"
                   />
                   
                   <!-- URL类型 -->
                   <el-input 
                     v-else-if="getConfigType(key, value) === 'url'"
-                    v-model="configs.value[key]"
+                    v-model="configStore.configs[key]"
                     placeholder="例如: http://localhost:5000"
+                    @input="(val) => updateConfigValue(key, val)"
                   />
                   
                   <!-- 默认字符串类型 -->
                   <el-input 
                     v-else
-                    v-model="configs.value[key]"
+                    v-model="configStore.configs[key]"
+                    @input="(val) => updateConfigValue(key, val)"
                   />
                   
                   <div class="form-item-tip">
