@@ -1177,7 +1177,7 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
     <scheduled-event id="318" parent="309" name="check_temp_ban">
       <Definer>root@localhost</Definer>
       <Interval>&apos;10&apos; MINUTE</Interval>
-      <LastExecuted>2025-07-02.04:50:57</LastExecuted>
+      <LastExecuted>2025-07-03.05:20:57</LastExecuted>
       <SourceTextLength>134</SourceTextLength>
       <Starts>&apos;2025-07-01 20:50:57&apos;</Starts>
       <Status>enabled</Status>

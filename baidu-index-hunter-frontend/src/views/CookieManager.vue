@@ -926,6 +926,21 @@ const updateBanTimeRemaining = () => {
     })
   }
 }
+
+// 处理Cookie操作命令
+const handleCookieCommand = (command: string, cookie: any) => {
+  switch (command) {
+    case 'edit':
+      editCookie(cookie)
+      break
+    case 'delete':
+      deleteCookie(cookie.id)
+      break
+    case 'unban':
+      unbanCookie(cookie.id)
+      break
+  }
+}
 </script>
 
 <template>
@@ -1129,10 +1144,10 @@ const updateBanTimeRemaining = () => {
           >
             <!-- 隐藏ID列 -->
             <!-- <el-table-column prop="id" label="ID" width="70" sortable /> -->
-            <el-table-column prop="account_id" label="Cookie名" width="120" sortable />
+            <el-table-column prop="account_id" label="Cookie名" width="120" show-overflow-tooltip sortable />
             <!-- 隐藏Cookie名称列 -->
             <!-- <el-table-column prop="cookie_name" label="Cookie名称" width="120" sortable /> -->
-            <el-table-column label="字段数量" width="80">
+            <el-table-column label="字段数量" width="90">
               <template #default="scope">
                 <el-tag size="small" effect="plain" type="info">
                   {{ scope.row.cookie_count || 0 }}
@@ -1167,33 +1182,20 @@ const updateBanTimeRemaining = () => {
                 <span v-else>永不过期</span>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="200">
+            <el-table-column label="操作" width="100">
               <template #default="scope">
-                <el-button
-                  type="primary"
-                  size="small"
-                  @click="editCookie(scope.row)"
-                  plain
-                >
-                  编辑
-                </el-button>
-                <el-button
-                  type="danger"
-                  size="small"
-                  @click="deleteCookie(scope.row.id)"
-                  plain
-                >
-                  删除
-                </el-button>
-                <el-button
-                  v-if="scope.row.temp_ban_until"
-                  type="warning"
-                  size="small"
-                  @click="unbanCookie(scope.row.id)"
-                  plain
-                >
-                  解封
-                </el-button>
+                <el-dropdown trigger="click" @command="(command) => handleCookieCommand(command, scope.row)">
+                  <el-button type="primary" size="small" plain>
+                    操作<el-icon class="el-icon--right"><ArrowDown /></el-icon>
+                  </el-button>
+                  <template #dropdown>
+                    <el-dropdown-menu>
+                      <el-dropdown-item command="edit">编辑</el-dropdown-item>
+                      <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
+                      <el-dropdown-item v-if="scope.row.temp_ban_until" command="unban">解封</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </template>
+                </el-dropdown>
               </template>
             </el-table-column>
           </el-table>
