@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ffc61ac2-aff1-4d92-a630-60ecc81ee81f" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/9f3d3647-c90c-4345-b44a-0813b75b3da1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/9f3d3647-c90c-4345-b44a-0813b75b3da1.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/origin/cookie_pool_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/origin/cookie_pool_test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/views/CookieManager.vue" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/views/CookieManager.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -64,6 +64,7 @@
     "Python.ab_sr_update.executor": "Run",
     "Python.deduplicate.executor": "Run",
     "Python.main.executor": "Run",
+    "Python.mysql_manager.executor": "Run",
     "Python.redis_manager.executor": "Run",
     "Python.settings.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -108,7 +109,7 @@
       <workItem from="1751266033461" duration="11495000" />
       <workItem from="1751281475302" duration="28100000" />
       <workItem from="1751362270523" duration="9772000" />
-      <workItem from="1751377332324" duration="21247000" />
+      <workItem from="1751377332324" duration="22338000" />
     </task>
     <servers />
   </component>
@@ -157,9 +158,10 @@
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/BaiduIndexHunter$.coverage" NAME=" 覆盖结果" MODIFIED="1751370581787" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend/utils" />
+    <SUITE FILE_PATH="coverage/BaiduIndexHunter$.coverage" NAME=" 覆盖结果" MODIFIED="1751463803597" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend/origin" />
     <SUITE FILE_PATH="coverage/BaiduIndexHunter$ab_sr_update.coverage" NAME="ab_sr_update 覆盖结果" MODIFIED="1751369679659" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend/utils" />
     <SUITE FILE_PATH="coverage/BaiduIndexHunter$main.coverage" NAME="main 覆盖结果" MODIFIED="1751299922674" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend" />
+    <SUITE FILE_PATH="coverage/BaiduIndexHunter$mysql_manager.coverage" NAME="mysql_manager 覆盖结果" MODIFIED="1751463905841" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend/db" />
     <SUITE FILE_PATH="coverage/BaiduIndexHunter$deduplicate.coverage" NAME="deduplicate 覆盖结果" MODIFIED="1751043479659" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend/utils" />
     <SUITE FILE_PATH="coverage/BaiduIndexHunter$redis_manager.coverage" NAME="redis_manager 覆盖结果" MODIFIED="1751042782654" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend/db" />
     <SUITE FILE_PATH="coverage/BaiduIndexHunter$settings.coverage" NAME="settings 覆盖结果" MODIFIED="1751043773282" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baidu-index-hunter-backend/config" />

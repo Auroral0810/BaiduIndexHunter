@@ -115,7 +115,7 @@ const batchTestResult = ref(null as any)
 // 表单验证规则
 const cookieRules = {
   account_id: [
-    { required: true, message: '请输入账号ID', trigger: 'blur' },
+    { required: true, message: '请输入Cookie名称', trigger: 'blur' },
     { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
   ],
   cookie_name: [
@@ -131,7 +131,7 @@ const cookieRules = {
 
 const updateIdRules = {
   new_account_id: [
-    { required: true, message: '请输入新账号ID', trigger: 'blur' },
+    { required: true, message: '请输入新Cookie名称', trigger: 'blur' },
     { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
   ]
 }
@@ -186,32 +186,32 @@ const checkApiConnection = async () => {
   }
 }
 
-// 加载可用账号列表
+// 加载可用Cookie列表
 const loadAvailableAccounts = async () => {
   accountsLoading.value = true
   try {
     const response = await axios.get(`${API_BASE_URL}/admin/cookie/available-accounts`)
     if (response.data.code === 10000) {
       availableAccounts.value = response.data.data.account_ids || []
-      console.log('可用账号列表:', availableAccounts.value)
+      console.log('可用Cookie列表:', availableAccounts.value)
     } else {
-      ElMessage.error(`获取可用账号列表失败: ${response.data.msg}`)
+      ElMessage.error(`获取可用Cookie列表失败: ${response.data.msg}`)
     }
   } catch (error) {
-    console.error('获取可用账号列表失败:', error)
-    ElMessage.error('获取可用账号列表失败，请检查网络连接')
+    console.error('获取可用Cookie列表失败:', error)
+    ElMessage.error('获取可用Cookie列表失败，请检查网络连接')
   } finally {
     accountsLoading.value = false
   }
 }
 
-// 加载被封禁的账号
+// 加载被封禁的Cookie
 const loadBannedAccounts = async () => {
   bannedLoading.value = true
   try {
     const response = await axios.get(`${API_BASE_URL}/admin/cookie/banned-accounts`)
     if (response.data.code === 10000) {
-      // 正确解析临时封禁账号
+      // 正确解析临时封禁Cookie
       const tempBanned = response.data.data.temp_banned || []
       tempBannedAccounts.value = tempBanned.map(account => ({
         account_id: account.account_id,
@@ -219,17 +219,17 @@ const loadBannedAccounts = async () => {
         remaining_seconds: account.remaining_seconds
       }))
       
-      // 正确解析永久封禁账号
+      // 正确解析永久封禁Cookie
       permBannedAccounts.value = response.data.data.perm_banned || []
       
-      console.log('临时封禁账号:', tempBannedAccounts.value)
-      console.log('永久封禁账号:', permBannedAccounts.value)
+      console.log('临时封禁Cookie:', tempBannedAccounts.value)
+      console.log('永久封禁Cookie:', permBannedAccounts.value)
     } else {
-      ElMessage.error(`获取被封禁账号列表失败: ${response.data.msg}`)
+      ElMessage.error(`获取被封禁Cookie列表失败: ${response.data.msg}`)
     }
   } catch (error) {
-    console.error('获取被封禁账号列表失败:', error)
-    ElMessage.error('获取被封禁账号列表失败，请检查网络连接')
+    console.error('获取被封禁Cookie列表失败:', error)
+    ElMessage.error('获取被封禁Cookie列表失败，请检查网络连接')
   } finally {
     bannedLoading.value = false
   }
@@ -450,7 +450,7 @@ onMounted(() => {
   // 设置每5秒更新一次解封时间的计时器
   banTimeUpdateTimer.value = setInterval(() => {
     updateBanTimeRemaining();
-    // 每分钟刷新一次被封禁的账号列表
+    // 每分钟刷新一次被封禁的Cookie列表
     if (new Date().getSeconds() === 0) {
       loadBannedAccounts();
     }
@@ -505,7 +505,7 @@ const syncToRedis = async () => {
   }
 }
 
-// 测试单个账号可用性
+// 测试单个Cookie可用性
 const testAccountAvailability = async (accountId: string) => {
   try {
     testingAccount.value = true
@@ -613,11 +613,6 @@ const handleAccountCommand = (command: string, accountId: string) => {
     case 'perm_ban':
       banAccountPermanently(accountId)
       break
-    case 'unban':
-      unbanAccount(accountId)
-      break
-    case 'force_unban':
-      forceUnbanAccount(accountId)
       break
     case 'update':
       openUpdateIdDialog(accountId)
@@ -1009,7 +1004,7 @@ const handleCookieCommand = (command: string, cookie: any) => {
           <!-- 账号列表 -->
           <div class="account-list-section">
             <div class="section-header">
-              <h3>可用账号列表</h3>
+              <h3>可用Cookie列表</h3>
               <el-button size="small" text @click="loadAvailableAccounts">刷新</el-button>
             </div>
             <div v-loading="accountsLoading" class="account-list">
@@ -1029,9 +1024,7 @@ const handleCookieCommand = (command: string, cookie: any) => {
                           <el-dropdown-item command="view">查看详情</el-dropdown-item>
                           <el-dropdown-item command="temp_ban" divided>临时封禁</el-dropdown-item>
                           <el-dropdown-item command="perm_ban">永久封禁</el-dropdown-item>
-                          <el-dropdown-item command="unban">解封</el-dropdown-item>
-                          <el-dropdown-item command="force_unban">强制解封</el-dropdown-item>
-                          <el-dropdown-item command="update" divided>更新账号ID</el-dropdown-item>
+                          <el-dropdown-item command="update" divided>更新Cookie名称</el-dropdown-item>
                           <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
                         </el-dropdown-menu>
                       </template>
@@ -1039,7 +1032,7 @@ const handleCookieCommand = (command: string, cookie: any) => {
                   </div>
                 </div>
               </template>
-              <el-empty v-else description="暂无可用账号" />
+              <el-empty v-else description="暂无可用Cookie" />
             </div>
           </div>
         </el-card>
@@ -1048,7 +1041,7 @@ const handleCookieCommand = (command: string, cookie: any) => {
         <el-card class="banned-accounts-card" shadow="hover">
           <template #header>
             <div class="card-header">
-              <span>被封禁的账号</span>
+              <span>被封禁的Cookie</span>
               <el-button size="small" type="primary" @click="loadBannedAccounts" plain>
                 <el-icon><Refresh /></el-icon> 刷新
               </el-button>
@@ -1114,7 +1107,7 @@ const handleCookieCommand = (command: string, cookie: any) => {
           <div class="filter-section">
             <el-input
               v-model="searchAccount"
-              placeholder="搜索账号ID"
+              placeholder="搜索Cookie名称"
               clearable
               prefix-icon="Search"
               class="filter-item"
@@ -1223,8 +1216,8 @@ const handleCookieCommand = (command: string, cookie: any) => {
       destroy-on-close
     >
       <el-form :model="cookieForm" label-width="120px" :rules="cookieRules" ref="cookieFormRef">
-        <el-form-item label="账号ID" prop="account_id">
-          <el-input v-model="cookieForm.account_id" placeholder="请输入账号ID" />
+        <el-form-item label="Cookie名称" prop="account_id">
+          <el-input v-model="cookieForm.account_id" placeholder="请输入Cookie名称" />
         </el-form-item>
         
         <el-form-item v-if="!cookieForm.use_string_input" label="Cookie名称" prop="cookie_name">
@@ -1284,12 +1277,12 @@ const handleCookieCommand = (command: string, cookie: any) => {
     <!-- 临时封禁对话框 -->
     <el-dialog
       v-model="tempBanDialogVisible"
-      title="临时封禁账号"
+      title="临时封禁Cookie"
       width="400px"
       destroy-on-close
     >
       <el-form :model="tempBanForm" label-width="100px">
-        <el-form-item label="账号ID">
+        <el-form-item label="Cookie名称">
           <el-tag>{{ tempBanForm.account_id }}</el-tag>
         </el-form-item>
         <el-form-item label="封禁时长">
@@ -1310,15 +1303,15 @@ const handleCookieCommand = (command: string, cookie: any) => {
     <!-- 更新账号ID对话框 -->
     <el-dialog
       v-model="updateIdDialogVisible"
-      title="更新账号ID"
+      title="更新Cookie名称"
       width="400px"
       destroy-on-close
     >
       <el-form :model="updateIdForm" label-width="100px" :rules="updateIdRules" ref="updateIdFormRef">
-        <el-form-item label="原账号ID">
+        <el-form-item label="原Cookie名称">
           <el-tag>{{ updateIdForm.old_account_id }}</el-tag>
         </el-form-item>
-        <el-form-item label="新账号ID" prop="new_account_id">
+        <el-form-item label="新Cookie名称" prop="new_account_id">
           <el-input v-model="updateIdForm.new_account_id" placeholder="请输入新账号ID" />
         </el-form-item>
       </el-form>
@@ -1332,17 +1325,17 @@ const handleCookieCommand = (command: string, cookie: any) => {
       </template>
     </el-dialog>
     
-    <!-- 查看账号Cookie详情对话框 -->
+    <!-- 查看Cookie详情对话框 -->
     <el-dialog
       v-model="accountDetailDialogVisible"
-      title="账号Cookie详情"
+      title="Cookie详情"
       width="700px"
       destroy-on-close
     >
       <div v-loading="accountDetailLoading">
         <el-descriptions border :column="2" v-if="accountDetail">
-          <el-descriptions-item label="账号ID" :span="2">{{ accountDetail.account_id }}</el-descriptions-item>
-          <el-descriptions-item label="Cookie数量">{{ accountDetail.cookie_count }}</el-descriptions-item>
+          <el-descriptions-item label="Cookie名" :span="2">{{ accountDetail.account_id }}</el-descriptions-item>
+          <el-descriptions-item label="字段数量">{{ accountDetail.cookie_count }}</el-descriptions-item>
           <el-descriptions-item label="状态">
             <el-tag :type="accountDetail.is_available ? 'success' : 'danger'">
               {{ accountDetail.is_available ? '可用' : '不可用' }}
@@ -1391,7 +1384,7 @@ const handleCookieCommand = (command: string, cookie: any) => {
           >
             <template #extra>
               <el-descriptions border :column="1">
-                <el-descriptions-item label="账号ID">{{ testResult.account_id }}</el-descriptions-item>
+                <el-descriptions-item label="Cookie名称">{{ testResult.account_id }}</el-descriptions-item>
                 <el-descriptions-item label="状态码">{{ testResult.status }}</el-descriptions-item>
                 <el-descriptions-item label="执行操作">{{ testResult.action_taken }}</el-descriptions-item>
               </el-descriptions>
@@ -1427,7 +1420,7 @@ const handleCookieCommand = (command: string, cookie: any) => {
           <el-divider />
           
           <el-tabs>
-            <el-tab-pane label="有效账号">
+            <el-tab-pane label="有效Cookie">
               <div class="test-result-accounts">
                 <el-tag
                   v-for="account in batchTestResult.valid_accounts"
@@ -1438,10 +1431,10 @@ const handleCookieCommand = (command: string, cookie: any) => {
                 >
                   {{ account }}
                 </el-tag>
-                <el-empty v-if="!batchTestResult.valid_accounts.length" description="暂无有效账号" />
+                <el-empty v-if="!batchTestResult.valid_accounts.length" description="暂无有效Cookie" />
               </div>
             </el-tab-pane>
-            <el-tab-pane label="被封禁账号">
+            <el-tab-pane label="被封禁Cookie">
               <div class="test-result-accounts">
                 <el-tag
                   v-for="account in batchTestResult.banned_accounts"
@@ -1452,10 +1445,10 @@ const handleCookieCommand = (command: string, cookie: any) => {
                 >
                   {{ account }}
                 </el-tag>
-                <el-empty v-if="!batchTestResult.banned_accounts.length" description="暂无被封禁账号" />
+                <el-empty v-if="!batchTestResult.banned_accounts.length" description="暂无被封禁Cookie" />
               </div>
             </el-tab-pane>
-            <el-tab-pane label="未登录账号">
+            <el-tab-pane label="未登录Cookie">
               <div class="test-result-accounts">
                 <el-tag
                   v-for="account in batchTestResult.not_login_accounts"
@@ -1466,7 +1459,8 @@ const handleCookieCommand = (command: string, cookie: any) => {
                 >
                   {{ account }}
                 </el-tag>
-                <el-empty v-if="!batchTestResult.not_login_accounts.length" description="暂无未登录账号" />
+                
+                <el-empty v-if="!batchTestResult.not_login_accounts.length" description="暂无未登录Cookie" />
               </div>
             </el-tab-pane>
           </el-tabs>
