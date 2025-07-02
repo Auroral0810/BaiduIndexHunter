@@ -628,7 +628,7 @@ const submitTask = async () => {
     
     const response = await axios.post(`${API_BASE_URL}/task/create`, params)
     
-    if (response.data.code === 0) {
+    if (response.data.code === 10000) {
       taskId.value = response.data.data.taskId
       successDialogVisible.value = true
     } else {
