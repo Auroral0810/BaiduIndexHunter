@@ -260,7 +260,7 @@ class TaskScheduler:
             values.append(created_by)
         
         # 构建查询语句
-        query = "SELECT * FROM spider_tasks"
+        query = "SELECT task_id ,task_type,status,parameters,progress,create_time FROM spider_tasks"
         
         if conditions:
             query += " WHERE " + " AND ".join(conditions)

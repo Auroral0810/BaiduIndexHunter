@@ -37,7 +37,7 @@
       <el-button type="primary" @click="loadTasks">搜索</el-button>
       <el-button @click="resetFilters">重置</el-button>
     </div>
-    
+
     <div class="table-wrapper">
       <div v-if="loading" class="loading-container">
         <el-empty description="正在加载数据..." :image-size="100">
@@ -53,7 +53,7 @@
         border
         stripe
       >
-        <el-table-column prop="taskId" label="任务ID" width="210" />
+        <el-table-column prop="taskId" label="任务ID" width="210" show-overflow-tooltip />
         <el-table-column label="任务类型" width="95">
           <template #default="scope">
             <el-tag :type="getTaskTypeTag(scope.row.taskType)">
@@ -61,108 +61,113 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="状态" width="90">
+        <el-table-column label="状态" width="85">
           <template #default="scope">
             <el-tag :type="getStatusTag(scope.row.status)">
               {{ translateStatus(scope.row.status) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="参数">
+        <el-table-column label="参数" show-overflow-tooltip>
           <template #default="scope">
             <div v-if="scope.row.parameters" class="task-parameters">
               <div v-if="scope.row.parameters.keywords">
-                <strong>关键词:</strong> 
+                <strong>关键词:</strong>
                 {{ formatKeywords(scope.row.parameters.keywords) }}
               </div>
               <div v-if="scope.row.parameters.cities">
-                <strong>地区:</strong> 
+                <strong>地区:</strong>
                 {{ formatCities(scope.row.parameters.cities) }}
               </div>
               <div v-if="scope.row.parameters.regions">
-                <strong>地区:</strong> 
+                <strong>地区:</strong>
                 {{ formatRegions(scope.row.parameters.regions) }}
               </div>
               <div v-if="scope.row.parameters.date_ranges">
-                <strong>时间范围:</strong> 
+                <strong>时间范围:</strong>
                 {{ formatDateRanges(scope.row.parameters.date_ranges) }}
               </div>
               <div v-if="scope.row.parameters.days">
                 <strong>时间范围:</strong> 最近{{ scope.row.parameters.days }}天
               </div>
               <div v-if="scope.row.parameters.year_range">
-                <strong>年份范围:</strong> 
+                <strong>年份范围:</strong>
                 {{ scope.row.parameters.year_range[0] }} 至 {{ scope.row.parameters.year_range[1] }}
               </div>
               <div v-if="scope.row.parameters.start_date && scope.row.parameters.end_date">
-                <strong>时间范围:</strong> 
+                <strong>时间范围:</strong>
                 {{ scope.row.parameters.start_date }} 至 {{ scope.row.parameters.end_date }}
               </div>
               <div v-if="scope.row.parameters.datelists">
-                <strong>日期列表:</strong> 
+                <strong>日期列表:</strong>
                 {{ formatDatelists(scope.row.parameters.datelists) }}
               </div>
               <div v-if="scope.row.parameters.batch_size">
                 <strong>批处理大小:</strong> {{ scope.row.parameters.batch_size }}
               </div>
               <div v-if="scope.row.parameters.output_format">
-                <strong>输出格式:</strong> 
+                <strong>输出格式:</strong>
                 {{ scope.row.parameters.output_format === 'csv' ? 'CSV' : 'Excel' }}
               </div>
             </div>
           </template>
         </el-table-column>
         <el-table-column prop="createdAt" label="创建时间" width="160" />
-        <el-table-column label="进度" width="140">
+        <el-table-column label="进度" width="120">
           <template #default="scope">
-            <el-progress 
-              :percentage="scope.row.progress || 0" 
-              :status="getProgressStatus(scope.row.status)"
-            />
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <el-progress
+                :percentage="scope.row.progress || 0"
+                :status="getProgressStatus(scope.row.status)"
+                :stroke-width="18"
+                style="flex: 1;"
+                :show-text="false"
+              />
+              <span v-if="typeof scope.row.progress === 'number'" style="min-width: 38px; text-align: right; font-size: 14px; color: #606266;">
+                {{ scope.row.progress }}%
+              </span>
+            </div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="240">
+        <el-table-column label="操作" width="120">
           <template #default="scope">
-            <el-button 
-              type="primary"
-              size="small"
-              @click="viewTaskDetail(scope.row)" 
-              plain
-            >
-              详情
-            </el-button>
-            <el-button 
-              type="success"
-              size="small"
-              @click="restartTask(scope.row)" 
-              v-if="scope.row.status === 'failed' || scope.row.status === 'cancelled'"
-              plain
-            >
-              重试
-            </el-button>
-            <el-button 
-              type="danger"
-              size="small"
-              @click="cancelTask(scope.row)" 
-              v-if="scope.row.status === 'pending' || scope.row.status === 'running'"
-              plain
-            >
-              取消
-            </el-button>
-            <el-button 
-              type="primary"
-              size="small"
-              @click="downloadTaskResult(scope.row)" 
-              v-if="scope.row.status === 'completed' && scope.row.output_files && scope.row.output_files.length > 0"
-              plain
-            >
-              下载
-            </el-button>
+            <el-dropdown trigger="click">
+              <el-button type="primary" size="small">
+                操作<el-icon class="el-icon--right"><ArrowDown /></el-icon>
+              </el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item @click="viewTaskDetail(scope.row)">
+                    <el-icon><View /></el-icon>详情
+                  </el-dropdown-item>
+                  <el-dropdown-item 
+                    v-if="scope.row.status === 'failed' || scope.row.status === 'cancelled'"
+                    @click="restartTask(scope.row)"
+                  >
+                    <el-icon><RefreshRight /></el-icon>重试
+                  </el-dropdown-item>
+                  <el-dropdown-item 
+                    v-if="scope.row.status === 'pending' || scope.row.status === 'running'"
+                    @click="cancelTask(scope.row)"
+                    divided
+                  >
+                    <el-icon><Close /></el-icon>取消
+                  </el-dropdown-item>
+                  <el-dropdown-item 
+                    v-if="scope.row.status === 'completed' && scope.row.output_files && scope.row.output_files.length > 0"
+                    @click="downloadTaskResult(scope.row)"
+                    divided
+                  >
+                    <el-icon><Download /></el-icon>下载
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
     </div>
-    
+
     <div class="pagination" v-if="!loading && tasks.length > 0">
       <el-pagination
         v-model:current-page="currentPage"
@@ -174,7 +179,7 @@
         @current-change="handleCurrentChange"
       />
     </div>
-    
+
     <!-- 任务详情对话框 -->
     <el-dialog
       v-model="taskDetailDialogVisible"
@@ -222,20 +227,82 @@
                 <div class="info-value">{{ selectedTask.updatedAt || selectedTask.update_time }}</div>
               </div>
             </el-col>
+          </el-row>
+          
+          <el-row :gutter="20" class="info-row">
             <el-col :span="8" v-if="selectedTask.task_name">
               <div class="info-item">
                 <div class="info-label">任务名称</div>
                 <div class="info-value">{{ selectedTask.task_name }}</div>
               </div>
             </el-col>
-            <el-col :span="16" v-if="selectedTask.priority">
+            <el-col :span="8" v-if="selectedTask.priority">
               <div class="info-item">
                 <div class="info-label">优先级</div>
                 <div class="info-value">{{ getPriorityLabel(selectedTask.priority) }}</div>
               </div>
             </el-col>
+            <el-col :span="8" v-if="selectedTask.id !== undefined">
+              <div class="info-item">
+                <div class="info-label">任务编号</div>
+                <div class="info-value">{{ selectedTask.id }}</div>
+              </div>
+            </el-col>
           </el-row>
           
+          <el-row :gutter="20" class="info-row">
+            <el-col :span="8" v-if="selectedTask.start_time">
+              <div class="info-item">
+                <div class="info-label">开始时间</div>
+                <div class="info-value">{{ selectedTask.start_time }}</div>
+              </div>
+            </el-col>
+            <el-col :span="8" v-if="selectedTask.end_time">
+              <div class="info-item">
+                <div class="info-label">完成时间</div>
+                <div class="info-value">{{ selectedTask.end_time }}</div>
+              </div>
+            </el-col>
+            <el-col :span="8" v-if="selectedTask.created_by">
+              <div class="info-item">
+                <div class="info-label">创建者</div>
+                <div class="info-value">{{ selectedTask.created_by }}</div>
+              </div>
+            </el-col>
+          </el-row>
+          
+          <el-row :gutter="20" class="info-row" v-if="selectedTask.total_items !== undefined || selectedTask.completed_items !== undefined || selectedTask.failed_items !== undefined">
+            <el-col :span="8" v-if="selectedTask.total_items !== undefined">
+              <div class="info-item">
+                <div class="info-label">总任务数</div>
+                <div class="info-value">{{ selectedTask.total_items }}</div>
+              </div>
+            </el-col>
+            <el-col :span="8" v-if="selectedTask.completed_items !== undefined">
+              <div class="info-item">
+                <div class="info-label">已完成</div>
+                <div class="info-value">{{ selectedTask.completed_items }}</div>
+              </div>
+            </el-col>
+            <el-col :span="8" v-if="selectedTask.failed_items !== undefined">
+              <div class="info-item">
+                <div class="info-label">失败数</div>
+                <div class="info-value">{{ selectedTask.failed_items }}</div>
+              </div>
+            </el-col>
+          </el-row>
+          
+          <div v-if="selectedTask.error_message" class="error-message-container">
+            <div class="info-label">错误信息</div>
+            <el-alert
+              type="error"
+              :closable="false"
+              show-icon
+            >
+              <p>{{ selectedTask.error_message }}</p>
+            </el-alert>
+          </div>
+
           <div class="progress-section">
             <div class="progress-header">
               <span>任务进度</span>
@@ -298,7 +365,7 @@
               </el-descriptions>
             </div>
           </el-card>
-          
+
           <!-- 输出文件 -->
           <el-card class="detail-card" shadow="hover">
             <template #header>
@@ -309,14 +376,11 @@
             <div class="card-content files-content">
               <div v-if="selectedTask.output_files && selectedTask.output_files.length > 0" class="files-container">
                 <el-table :data="selectedTask.output_files" style="width: 100%" size="small" max-height="150">
-                  <el-table-column label="文件路径" prop="" min-width="200">
+                  <el-table-column label="文件路径" prop="" min-width="200" show-overflow-tooltip>
                     <template #default="scope">
                       <div class="file-path">
                         <el-icon><Document /></el-icon>
                         <span>{{ getShortPath(scope.row) }}</span>
-                        <el-tooltip :content="scope.row" placement="top" effect="light">
-                          <el-icon><InfoFilled /></el-icon>
-                        </el-tooltip>
                       </div>
                     </template>
                   </el-table-column>
@@ -333,7 +397,7 @@
                     </template>
                   </el-table-column>
                 </el-table>
-                
+
                 <div class="download-all">
                   <el-button type="primary" @click="downloadTaskResult()" :loading="downloading" v-if="selectedTask.status === 'completed'" size="small">
                     <el-icon><Download /></el-icon>下载全部
@@ -343,7 +407,7 @@
               <el-empty v-else description="暂无输出文件" :image-size="50" />
             </div>
           </el-card>
-          
+
           <!-- 检查点 -->
           <el-card class="detail-card" shadow="hover">
             <template #header>
@@ -356,24 +420,24 @@
                 <div class="checkpoint-path">
                   <span class="path-label">检查点路径: </span>
                   <el-tag size="small">
-                    {{ 
-                      typeof selectedTask.checkpoint_path === 'string' 
-                        ? getShortPath(selectedTask.checkpoint_path) 
-                        : '检查点数据已加载' 
+                    {{
+                      typeof selectedTask.checkpoint_path === 'string'
+                        ? getShortPath(selectedTask.checkpoint_path)
+                        : '检查点数据已加载'
                     }}
-                    <el-tooltip 
+                    <el-tooltip
                       v-if="typeof selectedTask.checkpoint_path === 'string'"
-                      :content="selectedTask.checkpoint_path" 
-                      placement="top" 
+                      :content="selectedTask.checkpoint_path"
+                      placement="top"
                       effect="light"
                     >
                       <el-icon><InfoFilled /></el-icon>
                     </el-tooltip>
                   </el-tag>
-                  <el-button 
-                    v-if="typeof selectedTask.checkpoint_path === 'string'" 
-                    type="primary" 
-                    size="small" 
+                  <el-button
+                    v-if="typeof selectedTask.checkpoint_path === 'string'"
+                    type="primary"
+                    size="small"
                     @click="downloadCheckpointFile(selectedTask.checkpoint_path)"
                     style="margin-left: 10px;"
                   >
@@ -388,7 +452,7 @@
               <el-empty v-else description="暂无检查点数据" :image-size="50" />
             </div>
           </el-card>
-          
+
           <!-- 任务日志 -->
           <el-card class="detail-card" shadow="hover">
             <template #header>
@@ -424,20 +488,20 @@
           </el-card>
         </div>
       </div>
-      
+
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="taskDetailDialogVisible = false">关闭</el-button>
-          <el-button 
-            type="success" 
-            @click="restartTask(selectedTask)" 
+          <el-button
+            type="success"
+            @click="restartTask(selectedTask)"
             v-if="selectedTask && (selectedTask.status === 'failed' || selectedTask.status === 'cancelled')"
           >
             重试任务
           </el-button>
-          <el-button 
-            type="danger" 
-            @click="cancelTask(selectedTask)" 
+          <el-button
+            type="danger"
+            @click="cancelTask(selectedTask)"
             v-if="selectedTask && (selectedTask.status === 'pending' || selectedTask.status === 'running')"
           >
             取消任务
@@ -453,6 +517,7 @@ import { ref, onMounted, watch, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import axios from 'axios'
 import { Download, InfoFilled, Document } from '@element-plus/icons-vue'
+import { ArrowDown, View, RefreshRight, Close } from '@element-plus/icons-vue'
 
 // 定义任务接口
 interface TaskParameter {
@@ -705,10 +770,10 @@ const handleDialogOpen = () => {
 // 重试任务
 const restartTask = async (task: Task | null = null) => {
   if (!task && !selectedTask.value) return
-  
+
   const targetTask = task || selectedTask.value
   if (!targetTask) return
-  
+
   if (useMockData.value) {
     ElMessage.success('任务已重新提交');
     const taskIndex = mockTasks.findIndex(t => t.taskId === targetTask.taskId);
@@ -737,10 +802,10 @@ const restartTask = async (task: Task | null = null) => {
 // 取消任务
 const cancelTask = async (task: Task | null = null) => {
   if (!task && !selectedTask.value) return
-  
+
   const targetTask = task || selectedTask.value
   if (!targetTask) return
-  
+
   if (useMockData.value) {
     ElMessage.success('任务已取消');
     const taskIndex = mockTasks.findIndex(t => t.taskId === targetTask.taskId);
@@ -768,23 +833,23 @@ const cancelTask = async (task: Task | null = null) => {
 // 下载任务结果
 const downloadTaskResult = async (task: Task | null = null) => {
   if (!task && !selectedTask.value) return
-  
+
   const targetTask = task || selectedTask.value
   if (!targetTask) return
-  
+
   downloading.value = true
-  
+
   try {
     if (!targetTask.output_files || !targetTask.output_files.length) {
       ElMessage.warning('该任务没有可下载的结果文件')
       downloading.value = false
       return
     }
-    
+
     for (const filePath of targetTask.output_files) {
       await downloadSingleFile(filePath)
     }
-    
+
     ElMessage.success('下载成功')
     loadTasks()
   } catch (error) {
@@ -798,11 +863,11 @@ const downloadTaskResult = async (task: Task | null = null) => {
 // 下载单个文件
 const downloadSingleFile = async (filePath: string) => {
   if (!filePath) return false
-  
+
   try {
     const fileName = filePath.split('/').pop()
     const downloadUrl = `${API_BASE_URL}/task/download?filePath=${encodeURIComponent(filePath)}`
-    
+
     const link = document.createElement('a')
     link.href = downloadUrl
     link.setAttribute('download', fileName || 'output.csv')
@@ -810,7 +875,7 @@ const downloadSingleFile = async (filePath: string) => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    
+
     return true
   } catch (error) {
     ElMessage.error('下载失败，请检查网络连接')
@@ -1253,6 +1318,24 @@ const getLogLevelTag = (level: string) => {
 }
 
 .error-message p {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.error-message-container {
+  margin: 10px 0;
+  padding: 5px 0;
+}
+
+.error-message-container .info-label {
+  font-size: 13px;
+  color: #909399;
+  margin-bottom: 5px;
+}
+
+.error-message-container p {
   margin: 0;
   white-space: pre-wrap;
   font-family: monospace;
