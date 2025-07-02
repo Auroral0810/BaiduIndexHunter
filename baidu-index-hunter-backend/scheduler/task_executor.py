@@ -369,11 +369,12 @@ class TaskExecutor:
             success = search_index_crawler.crawl(**spider_params)
             
             if success:
-                # 获取输出文件
-                for file in os.listdir(output_dir):
-                    if file.endswith('.csv'):
-                        output_files.append(os.path.join(output_dir, file))
-                
+                # 获取输出文件,output_files
+                daily_path = os.path.join(output_dir, f"{task_id}_daily_data.csv")
+                stats_path = os.path.join(output_dir, f"{task_id}_stats_data.csv")
+                output_files.append(daily_path)
+                output_files.append(stats_path)
+
                 # 更新任务状态为已完成
                 self._update_task_status(
                     task_id, 'completed',
