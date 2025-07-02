@@ -21,6 +21,7 @@ const apiStatus = ref(false)
 const apiStatusDialog = ref(false)
 const taskListRef = ref(null)
 
+// 监听路由查询参数变化
 watch(() => route.query, (query) => {
   if (query.tab && typeof query.tab === 'string') {
     activeTab.value = query.tab
@@ -30,7 +31,7 @@ watch(() => route.query, (query) => {
 // 监听标签切换，当切换到任务列表时加载数据
 watch(() => activeTab.value, (newTab) => {
   if (newTab === 'task_list' && taskListRef.value) {
-    // 延迟一点加载，确保组件已完全挂载
+    // 延迟加载确保组件已挂载
     setTimeout(() => {
       taskListRef.value.loadTasks()
       taskListRef.value.startAutoRefresh()
@@ -38,23 +39,15 @@ watch(() => activeTab.value, (newTab) => {
   }
 }, { immediate: true })
 
-const handleTabChange = (tab: string) => {
+// 处理标签切换
+const handleTabChange = (tab) => {
   router.push({ 
     path: '/data-collection', 
     query: { tab } 
   })
-  
-  // 如果切换到任务列表，加载任务数据
-  if (tab === 'task_list' && taskListRef.value) {
-    taskListRef.value.loadTasks()
-    taskListRef.value.startAutoRefresh()
-  }
 }
 
-onMounted(() => {
-  checkApiHealth()
-})
-
+// 检查API健康状态
 const checkApiHealth = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/health`)
@@ -88,10 +81,15 @@ const checkApiHealth = async () => {
     apiStatusDialog.value = true
   }
 }
+
+onMounted(() => {
+  checkApiHealth()
+})
 </script>
 
 <template>
   <div class="data-collection-container">
+    <!-- 页面头部 -->
     <div class="page-header">
       <h1>百度指数数据采集</h1>
       <div class="api-status-indicator" @click="apiStatusDialog = true">
@@ -100,6 +98,7 @@ const checkApiHealth = async () => {
       </div>
     </div>
 
+    <!-- 主卡片 -->
     <el-card class="main-card">
       <el-tabs 
         v-model="activeTab" 
@@ -108,31 +107,39 @@ const checkApiHealth = async () => {
         @tab-change="handleTabChange"
       >
         <el-tab-pane label="搜索指数" name="search_index">
-          <search-index-task />
+          <search-index-task></search-index-task>
         </el-tab-pane>
+        
         <el-tab-pane label="资讯指数" name="feed_index">
-          <feed-index-task />
+          <feed-index-task></feed-index-task>
         </el-tab-pane>
+        
         <el-tab-pane label="需求图谱" name="word_graph">
-          <word-graph-task />
+          <word-graph-task></word-graph-task>
         </el-tab-pane>
+        
         <el-tab-pane label="人群属性" name="demographic_attributes">
-          <demographic-attributes-task />
+          <demographic-attributes-task></demographic-attributes-task>
         </el-tab-pane>
+        
         <el-tab-pane label="兴趣分析" name="interest_profile">
-          <interest-profile-task />
+          <interest-profile-task></interest-profile-task>
         </el-tab-pane>
+        
         <el-tab-pane label="地域分布" name="region_distribution">
-          <region-distribution-task />
+          <region-distribution-task></region-distribution-task>
         </el-tab-pane>
+        
         <el-tab-pane label="任务列表" name="task_list">
-          <task-list ref="taskListRef" />
+          <task-list ref="taskListRef"></task-list>
         </el-tab-pane>
       </el-tabs>
     </el-card>
 
+    <!-- API状态对话框 -->
     <el-dialog 
-      v-model="apiStatusDialog" 
+      :visible="apiStatusDialog"
+      @update:visible="apiStatusDialog = $event"
       title="API服务状态" 
       width="400px"
       destroy-on-close
@@ -147,7 +154,7 @@ const checkApiHealth = async () => {
           <template #extra>
             <el-button type="primary" @click="checkApiHealth">刷新状态</el-button>
             <el-button @click="apiStatusDialog = false">关闭</el-button>
-            <div class="api-endpoint" v-if="apiStatus">
+            <div v-if="apiStatus" class="api-endpoint">
               <span>API地址: </span>
               <el-tag size="small">{{ API_BASE_URL }}</el-tag>
             </div>

@@ -295,17 +295,24 @@ def list_tasks():
         status = request.args.get('status')
         task_type = request.args.get('task_type')
         created_by = request.args.get('created_by')
+        keyword = request.args.get('keyword')
         
         # 安全地转换整数参数，提供默认值
         try:
             limit = int(request.args.get('limit', 10))
+            if limit <= 0:
+                limit = 10
         except (ValueError, TypeError):
             limit = 10
             
         try:
             offset = int(request.args.get('offset', 0))
+            if offset < 0:
+                offset = 0
         except (ValueError, TypeError):
             offset = 0
+        
+        log.info(f"查询任务列表: status={status}, task_type={task_type}, created_by={created_by}, keyword={keyword}, limit={limit}, offset={offset}")
         
         # 获取任务列表
         tasks = task_scheduler.list_tasks(
@@ -323,30 +330,51 @@ def list_tasks():
             created_by=created_by
         )
         
+        log.info(f"查询到 {len(tasks)} 条任务记录，总计 {total} 条")
+        
         # 处理日期时间格式
         for task in tasks:
             for key, value in task.items():
                 if isinstance(value, datetime):
                     task[key] = value.strftime('%Y-%m-%d %H:%M:%S')
-            
             # 处理JSON字段
             if 'parameters' in task and task['parameters']:
                 try:
-                    task['parameters'] = json.loads(task['parameters'])
-                except:
-                    pass
-            
+                    if isinstance(task['parameters'], str):
+                        # 有些数据库字段可能是双重序列化，先尝试反序列化两次
+                        try:
+                            task['parameters'] = json.loads(task['parameters'])
+                            if isinstance(task['parameters'], str):
+                                task['parameters'] = json.loads(task['parameters'])
+                        except Exception:
+                            # 如果只反序列化一次就能用，则忽略第二次
+                            pass
+                except Exception as e:
+                    log.warning(f"参数解析失败: {e}")
+
             if 'checkpoint_path' in task and task['checkpoint_path']:
                 try:
-                    task['checkpoint_path'] = json.loads(task['checkpoint_path'])
-                except:
-                    pass
-            
+                    if isinstance(task['checkpoint_path'], str):
+                        try:
+                            task['checkpoint_path'] = json.loads(task['checkpoint_path'])
+                            if isinstance(task['checkpoint_path'], str):
+                                task['checkpoint_path'] = json.loads(task['checkpoint_path'])
+                        except Exception:
+                            pass
+                except Exception as e:
+                    log.warning(f"检查点路径解析失败: {e}")
             if 'output_files' in task and task['output_files']:
                 try:
-                    task['output_files'] = json.loads(task['output_files'])
-                except:
-                    pass
+                    if isinstance(task['output_files'], str):
+                        output_files = json.loads(task['output_files'])
+                        # 确保输出文件始终是数组格式
+                        if not isinstance(output_files, list):
+                            output_files = [output_files]
+                        task['output_files'] = output_files
+                except Exception as e:
+                    log.warning(f"输出文件解析失败: {e}")
+                    if isinstance(task['output_files'], str):
+                        task['output_files'] = [task['output_files']]
         
         return jsonify(ResponseFormatter.success({
             'total': total,

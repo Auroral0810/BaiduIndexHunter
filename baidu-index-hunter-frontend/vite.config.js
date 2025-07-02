@@ -6,7 +6,12 @@ import path from 'path'
 export default defineConfig({
   plugins: [
     vue({
-      // 启用.vue文件中的TypeScript
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => false,
+          whitespace: 'preserve'
+        }
+      },
       script: {
         defineModel: true,
         propsDestructure: true
@@ -14,12 +19,19 @@ export default defineConfig({
     })
   ],
   optimizeDeps: {
-    include: ['vue'],
+    include: ['vue', 'axios', 'element-plus'],
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src')
     },
     extensions: ['.js', '.ts', '.vue', '.json']
+  },
+  server: {
+    host: true,
+    port: 5173,
+    strictPort: false,
+    open: false,
+    cors: true
   }
 })

@@ -8,7 +8,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/api/task_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/api/task_controller.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/TaskList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/TaskList.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/views/DataCollection.vue" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/views/DataCollection.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-frontend/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-frontend/vite.config.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

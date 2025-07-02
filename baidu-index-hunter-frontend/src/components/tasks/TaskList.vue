@@ -180,176 +180,22 @@
       />
     </div>
     
-    <!-- 任务详情对话框 -->
-    <el-dialog
-      v-model="taskDetailDialogVisible"
-      title="任务详情"
-      width="700px"
-      destroy-on-close
-    >
-      <div v-if="selectedTask" class="task-detail">
-        <el-descriptions bordered :column="2">
-          <el-descriptions-item label="任务ID" :span="2">
-            {{ selectedTask.taskId }}
-          </el-descriptions-item>
-          <el-descriptions-item label="任务类型">
-            {{ translateTaskType(selectedTask.taskType) }}
-          </el-descriptions-item>
-          <el-descriptions-item label="任务状态">
-            <el-tag :type="getStatusTag(selectedTask.status)">
-              {{ translateStatus(selectedTask.status) }}
-            </el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item label="创建时间">
-            {{ selectedTask.createdAt || selectedTask.create_time }}
-          </el-descriptions-item>
-          <el-descriptions-item label="更新时间">
-            {{ selectedTask.updatedAt || selectedTask.update_time }}
-          </el-descriptions-item>
-          <el-descriptions-item label="进度" :span="2">
-            <el-progress 
-              :percentage="selectedTask.progress || 0" 
-              :status="getProgressStatus(selectedTask.status)"
-            />
-          </el-descriptions-item>
-        </el-descriptions>
-        
-        <h3>任务参数</h3>
-        <el-descriptions bordered :column="1">
-          <!-- 关键词 -->
-          <el-descriptions-item v-if="selectedTask.parameters && selectedTask.parameters.keywords" label="关键词">
-            {{ formatKeywords(selectedTask.parameters.keywords) }}
-          </el-descriptions-item>
-          
-          <!-- 城市/地区 -->
-          <el-descriptions-item v-if="selectedTask.parameters && selectedTask.parameters.cities" label="地区">
-            {{ formatCities(selectedTask.parameters.cities) }}
-          </el-descriptions-item>
-          <el-descriptions-item v-if="selectedTask.parameters && selectedTask.parameters.regions" label="地区">
-            {{ formatRegions(selectedTask.parameters.regions) }}
-          </el-descriptions-item>
-          
-          <!-- 日期参数 -->
-          <el-descriptions-item v-if="selectedTask.parameters && selectedTask.parameters.date_ranges" label="时间范围">
-            {{ formatDateRanges(selectedTask.parameters.date_ranges) }}
-          </el-descriptions-item>
-          <el-descriptions-item v-if="selectedTask.parameters && selectedTask.parameters.days" label="时间范围">
-            最近{{ selectedTask.parameters.days }}天
-          </el-descriptions-item>
-          <el-descriptions-item v-if="selectedTask.parameters && selectedTask.parameters.year_range" label="年份范围">
-            {{ selectedTask.parameters.year_range[0] }} 至 {{ selectedTask.parameters.year_range[1] }}
-          </el-descriptions-item>
-          <el-descriptions-item v-if="selectedTask.parameters && selectedTask.parameters.start_date && selectedTask.parameters.end_date" label="时间范围">
-            {{ selectedTask.parameters.start_date }} 至 {{ selectedTask.parameters.end_date }}
-          </el-descriptions-item>
-          
-          <!-- 需求图谱特有的日期列表 -->
-          <el-descriptions-item v-if="selectedTask.parameters && selectedTask.parameters.datelists" label="日期列表">
-            {{ formatDatelists(selectedTask.parameters.datelists) }}
-          </el-descriptions-item>
-          
-          <!-- 批处理大小 -->
-          <el-descriptions-item v-if="selectedTask.parameters && selectedTask.parameters.batch_size" label="批处理大小">
-            {{ selectedTask.parameters.batch_size }}
-          </el-descriptions-item>
-          
-          <!-- 输出格式 -->
-          <el-descriptions-item v-if="selectedTask.parameters && selectedTask.parameters.output_format" label="输出格式">
-            {{ selectedTask.parameters.output_format === 'csv' ? 'CSV' : 'Excel' }}
-          </el-descriptions-item>
-          
-          <!-- 优先级 -->
-          <el-descriptions-item v-if="selectedTask.priority" label="优先级">
-            {{ getPriorityLabel(selectedTask.priority) }}
-          </el-descriptions-item>
-        </el-descriptions>
-        
-        <!-- 检查点路径 -->
-        <div v-if="selectedTask.checkpoint_path" class="checkpoint-section">
-          <h3>检查点文件</h3>
-          <div class="checkpoint-path">
-            <span class="path-label">路径: </span>
-            <el-tag size="small">
-              {{ 
-                typeof selectedTask.checkpoint_path === 'string' 
-                  ? selectedTask.checkpoint_path 
-                  : '检查点数据已加载' 
-              }}
-            </el-tag>
-            <el-button 
-              v-if="typeof selectedTask.checkpoint_path === 'string'" 
-              type="primary" 
-              size="small" 
-              @click="downloadCheckpointFile(selectedTask.checkpoint_path)"
-              style="margin-left: 10px;"
-            >
-              <el-icon><Download /></el-icon>下载检查点
-            </el-button>
-          </div>
-          <div v-if="typeof selectedTask.checkpoint_path === 'object'" class="checkpoint-data">
-            <h4>检查点数据：</h4>
-            <pre>{{ JSON.stringify(selectedTask.checkpoint_path, null, 2) }}</pre>
-          </div>
-        </div>
-        
-        <!-- 输出文件列表 -->
-        <div v-if="selectedTask.output_files && selectedTask.output_files.length > 0" class="output-files-section">
-          <h3>输出文件</h3>
-          <el-table :data="selectedTask.output_files" style="width: 100%" size="small">
-            <el-table-column label="文件路径" prop="">
-              <template #default="scope">
-                <div class="file-path">
-                  {{ scope.row }}
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" width="100">
-              <template #default="scope">
-                <el-button 
-                  type="primary" 
-                  size="small" 
-                  @click="downloadSingleFile(scope.row)"
-                  plain
-                >
-                  下载
-                </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-        
-        <h3>任务日志</h3>
-        <div class="task-logs">
-          <el-timeline v-if="taskLogs.length > 0">
-            <el-timeline-item
-              v-for="log in taskLogs"
-              :key="log.id"
-              :timestamp="log.timestamp"
-              :type="getLogTypeIcon(log.level)"
-            >
-              {{ log.message }}
-            </el-timeline-item>
-          </el-timeline>
-          <el-empty v-else description="暂无日志" />
-        </div>
-        
-        <!-- 任务结果按钮 -->
-        <div v-if="selectedTask.status === 'completed' && selectedTask.output_files && selectedTask.output_files.length > 0" class="task-results">
-          <h3>任务结果</h3>
-          <el-button type="primary" @click="downloadTaskResult()" :loading="downloading">
-            <el-icon><Download /></el-icon>下载全部结果
-          </el-button>
-        </div>
-      </div>
-    </el-dialog>
+    <!-- 使用独立的任务详情组件 -->
+    <TaskDetail
+      :visible="taskDetailDialogVisible"
+      @update:visible="taskDetailDialogVisible = $event"
+      :task="selectedTask"
+      :API_BASE_URL="API_BASE_URL"
+      @download-complete="loadTasks"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch, onUnmounted } from 'vue'
+import { ref, onMounted, watch, onUnmounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import axios from 'axios'
-import { Download } from '@element-plus/icons-vue'
+import TaskDetail from './TaskDetail.vue'
 
 // 定义任务和日志的接口
 interface TaskLog {
@@ -444,34 +290,12 @@ const mockTasks: Task[] = [
   }
 ];
 
-// 模拟日志数据
-const mockLogs: Record<string, TaskLog[]> = {
-  'TASK-20230615-001': [
-    { id: '1', taskId: 'TASK-20230615-001', level: 'info', message: '任务开始执行', timestamp: '2023-06-15 09:15:30' },
-    { id: '2', taskId: 'TASK-20230615-001', level: 'info', message: '正在处理关键词: 小米手机', timestamp: '2023-06-15 09:20:45' },
-    { id: '3', taskId: 'TASK-20230615-001', level: 'info', message: '正在处理关键词: 华为手机', timestamp: '2023-06-15 09:35:12' },
-    { id: '4', taskId: 'TASK-20230615-001', level: 'info', message: '正在处理关键词: iPhone', timestamp: '2023-06-15 09:50:33' },
-    { id: '5', taskId: 'TASK-20230615-001', level: 'info', message: '任务完成', timestamp: '2023-06-15 10:30:45' }
-  ],
-  'TASK-20230615-002': [
-    { id: '1', taskId: 'TASK-20230615-002', level: 'info', message: '任务开始执行', timestamp: '2023-06-15 10:20:15' },
-    { id: '2', taskId: 'TASK-20230615-002', level: 'warning', message: '请求速率受限，等待中...', timestamp: '2023-06-15 10:45:22' },
-    { id: '3', taskId: 'TASK-20230615-002', level: 'info', message: '继续执行任务', timestamp: '2023-06-15 10:50:17' }
-  ],
-  'TASK-20230614-001': [
-    { id: '1', taskId: 'TASK-20230614-001', level: 'info', message: '任务开始执行', timestamp: '2023-06-14 15:12:40' },
-    { id: '2', taskId: 'TASK-20230614-001', level: 'error', message: '处理关键词时发生错误: 服务器返回 500', timestamp: '2023-06-14 16:20:55' },
-    { id: '3', taskId: 'TASK-20230614-001', level: 'error', message: '任务执行失败', timestamp: '2023-06-14 16:45:21' }
-  ]
-};
-
 // 任务列表数据
 const tasks = ref<Task[]>([])
 const loading = ref(false)
 const total = ref(0)
 const currentPage = ref(1)
 const pageSize = ref(10)
-const downloading = ref(false)
 
 // 搜索和筛选
 const searchKeyword = ref('')
@@ -481,11 +305,12 @@ const statusFilter = ref('')
 // 任务详情
 const taskDetailDialogVisible = ref(false)
 const selectedTask = ref<Task | null>(null)
-const taskLogs = ref<TaskLog[]>([])
 
 // 加载任务列表
 const loadTasks = async () => {
   loading.value = true
+  console.log('开始加载任务列表, useMockData:', useMockData.value)
+  
   try {
     if (useMockData.value) {
       // 使用模拟数据
@@ -525,75 +350,100 @@ const loadTasks = async () => {
       tasks.value = filteredTasks.slice(start, end);
     } else {
       // 使用真实API
+      console.log("使用真实API");
+      
       // 构建有效的查询参数
       const params: Record<string, any> = {}
       
-      // 只添加有值的查询参数
-      if (pageSize.value) params.limit = pageSize.value
-      if (currentPage.value) params.offset = (currentPage.value - 1) * pageSize.value
+      // 只添加有值的查询参数，确保转为字符串
+      if (pageSize.value) params.limit = String(pageSize.value)
+      if (currentPage.value) params.offset = String((currentPage.value - 1) * pageSize.value)
       if (searchKeyword.value) params.keyword = searchKeyword.value
       if (taskTypeFilter.value) params.task_type = taskTypeFilter.value
       if (statusFilter.value) params.status = statusFilter.value
       
-      const response = await axios.get(`${API_BASE_URL}/task/list`, { params })
+      console.log('查询参数:', params)
       
-      if (response.data.code === 10000) {
-        const responseTasks = response.data.data.tasks || []
-        total.value = response.data.data.total || 0
+      try {
+        const response = await axios.get(`${API_BASE_URL}/task/list`, { params })
+        console.log('API响应:', response.data)
         
-        // 处理任务数据
-        tasks.value = responseTasks.map((task: any) => {
-          // 确保task_id映射到taskId
-          task.taskId = task.task_id
-          task.taskType = task.task_type
-          task.createdAt = task.create_time
-          task.updatedAt = task.update_time
+        if (response.data.code === 10000) {
+          const responseTasks = response.data.data.tasks || []
+          total.value = response.data.data.total || 0
           
-          // 确保parameters字段是对象
-          if (task.parameters && typeof task.parameters === 'string') {
-            try {
-              task.parameters = JSON.parse(task.parameters)
-            } catch (e) {
-              console.error('解析parameters失败:', e)
-              task.parameters = {}
+          console.log('原始任务数据:', responseTasks)
+          
+          // 处理任务数据
+          tasks.value = responseTasks.map((task: any) => {
+            console.log('处理任务:', task.task_id)
+            
+            // 确保基础字段存在
+            task.taskId = task.task_id || task.taskId || ''
+            task.taskType = task.task_type || task.taskType || ''
+            task.createdAt = task.create_time || task.createdAt || ''
+            task.updatedAt = task.update_time || task.updatedAt || ''
+            task.status = task.status || 'pending'
+            task.progress = task.progress || 0
+            
+            // 处理parameters字段
+            if (!task.parameters) {
+              task.parameters = {};
+              console.log(`任务 ${task.taskId} 没有parameters字段，初始化为空对象`);
+            } else if (typeof task.parameters === 'string') {
+              try {
+                task.parameters = JSON.parse(task.parameters);
+                console.log(`任务 ${task.taskId} parameters解析成功`);
+              } catch (e) {
+                console.error(`任务 ${task.taskId} 解析parameters失败:`, e);
+                task.parameters = {};
+              }
+            } else {
+              console.log(`任务 ${task.taskId} parameters已是对象类型`);
             }
-          }
-          
-          // 确保output_files字段是数组
-          if (task.output_files === null) {
-            task.output_files = []
-          } else if (typeof task.output_files === 'string') {
-            try {
-              task.output_files = JSON.parse(task.output_files)
-            } catch (e) {
-              console.error('解析output_files失败:', e)
-              // 如果是字符串但不是JSON，可能是单个文件路径
-              task.output_files = [task.output_files]
+            
+            // 处理output_files字段
+            if (task.output_files === null || task.output_files === undefined) {
+              task.output_files = [];
+              console.log(`任务 ${task.taskId} 没有output_files字段，初始化为空数组`);
+            } else if (typeof task.output_files === 'string') {
+              try {
+                task.output_files = JSON.parse(task.output_files);
+                console.log(`任务 ${task.taskId} output_files解析成功:`, task.output_files);
+              } catch (e) {
+                console.error(`任务 ${task.taskId} 解析output_files失败:`, e);
+                // 如果是字符串但不是JSON，当作单个文件路径处理
+                task.output_files = [task.output_files];
+                console.log(`任务 ${task.taskId} 将output_files作为单个路径处理:`, task.output_files);
+              }
             }
-          }
-          
-          // 检查checkpoint_path，确保是合适的格式
-          if (task.checkpoint_path) {
-            if (typeof task.checkpoint_path === 'string') {
-              // 如果是字符串，保留原样
-              console.log('检查点路径:', task.checkpoint_path)
-            } else if (typeof task.checkpoint_path === 'object') {
-              // 对象格式的检查点数据
-              console.log('检查点数据对象:', task.checkpoint_path)
+            
+            // 确保output_files始终是数组
+            if (!Array.isArray(task.output_files)) {
+              console.log(`任务 ${task.taskId} output_files不是数组，转换为数组:`, task.output_files);
+              task.output_files = [task.output_files];
             }
-          }
+            
+            return task
+          })
           
-          return task
-        })
-      } else {
-        ElMessage.error(`获取任务列表失败: ${response.data.msg}`)
+          console.log('处理后的任务数据:', tasks.value)
+        } else {
+          ElMessage.error(`获取任务列表失败: ${response.data.msg}`)
+          console.error('API返回错误:', response.data)
+        }
+      } catch (apiError) {
+        console.error('API请求错误:', apiError)
+        ElMessage.error('API请求失败，请检查网络连接和后端服务')
       }
     }
   } catch (error) {
-    ElMessage.error('获取任务列表失败，请检查网络连接')
     console.error('加载任务列表错误:', error)
+    ElMessage.error('获取任务列表失败，请检查网络连接')
+    tasks.value = []
   } finally {
     loading.value = false
+    console.log('任务加载完成，当前任务列表:', tasks.value)
   }
 }
 
@@ -621,72 +471,6 @@ const handleCurrentChange = (page: number) => {
 const viewTaskDetail = async (task: Task) => {
   selectedTask.value = task
   taskDetailDialogVisible.value = true
-  await loadTaskLogs(task.taskId)
-  
-  // 如果需要，加载完整的任务详情
-  try {
-    const response = await axios.get(`${API_BASE_URL}/task/${task.taskId}`)
-    if (response.data.code === 10000) {
-      const taskDetail = response.data.data
-      
-      // 映射字段名
-      taskDetail.taskId = taskDetail.task_id
-      taskDetail.taskType = taskDetail.task_type
-      taskDetail.createdAt = taskDetail.create_time
-      taskDetail.updatedAt = taskDetail.update_time
-      
-      // 确保parameters字段是对象
-      if (taskDetail.parameters && typeof taskDetail.parameters === 'string') {
-        try {
-          taskDetail.parameters = JSON.parse(taskDetail.parameters)
-        } catch (e) {
-          console.error('解析parameters失败:', e)
-          taskDetail.parameters = {}
-        }
-      }
-      
-      // 确保output_files字段是数组
-      if (taskDetail.output_files === null) {
-        taskDetail.output_files = []
-      } else if (typeof taskDetail.output_files === 'string') {
-        try {
-          taskDetail.output_files = JSON.parse(taskDetail.output_files)
-        } catch (e) {
-          console.error('解析output_files失败:', e)
-          // 如果是字符串但不是JSON，可能是单个文件路径
-          taskDetail.output_files = [taskDetail.output_files]
-        }
-      }
-      
-      selectedTask.value = taskDetail
-    }
-  } catch (error) {
-    console.error('加载任务详情错误:', error)
-  }
-}
-
-// 加载任务日志
-const loadTaskLogs = async (taskId: string) => {
-  if (useMockData.value) {
-    // 使用模拟数据
-    setTimeout(() => {
-      taskLogs.value = mockLogs[taskId] || [];
-    }, 300);
-  } else {
-    // 使用真实API
-    try {
-      const response = await axios.get(`${API_BASE_URL}/task/${taskId}/logs`)
-      if (response.data.code === 10000) {
-        taskLogs.value = response.data.data || []
-      } else {
-        taskLogs.value = []
-        console.error('获取任务日志失败:', response.data.msg)
-      }
-    } catch (error) {
-      taskLogs.value = []
-      console.error('加载任务日志错误:', error)
-    }
-  }
 }
 
 // 重试任务
@@ -750,94 +534,13 @@ const cancelTask = async (task: Task) => {
 
 // 下载任务结果
 const downloadTaskResult = async (task: Task | null = null) => {
-  const targetTask = task || selectedTask.value
-  if (!targetTask) return
-  
-  if (useMockData.value) {
-    // 使用模拟数据
-    downloading.value = true;
-    
-    setTimeout(() => {
-      ElMessage.success('下载成功');
-      downloading.value = false;
-    }, 1500);
-  } else {
-    // 使用真实API
-    downloading.value = true
-    try {
-      // 检查是否有输出文件
-      if (!targetTask.output_files || !targetTask.output_files.length) {
-        ElMessage.warning('该任务没有可下载的结果文件')
-        downloading.value = false
-        return
-      }
-      
-      // 为每个输出文件创建下载链接
-      for (const filePath of targetTask.output_files) {
-        // 从路径中提取文件名
-        const fileName = filePath.split('/').pop()
-        
-        // 构建下载URL
-        const downloadUrl = `${API_BASE_URL}/task/download?filePath=${encodeURIComponent(filePath)}`
-        
-        // 创建临时链接并点击
-        const link = document.createElement('a')
-        link.href = downloadUrl
-        link.setAttribute('download', fileName || 'output.csv')
-        link.setAttribute('target', '_blank')
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-      }
-      
-      ElMessage.success('下载成功')
-    } catch (error) {
-      ElMessage.error('下载失败，请检查网络连接')
-      console.error('下载任务结果错误:', error)
-    } finally {
-      downloading.value = false
-    }
+  if (task) {
+    selectedTask.value = task
+    taskDetailDialogVisible.value = true
+  } else if (selectedTask.value) {
+    // 如果已经在详情对话框中，不做任何操作
+    return
   }
-}
-
-// 下载单个文件
-const downloadSingleFile = (filePath: string) => {
-  if (!filePath) return
-  
-  if (useMockData.value) {
-    // 使用模拟数据
-    ElMessage.success('下载成功');
-  } else {
-    // 使用真实API
-    try {
-      // 从路径中提取文件名
-      const fileName = filePath.split('/').pop()
-      
-      // 构建下载URL
-      const downloadUrl = `${API_BASE_URL}/task/download?filePath=${encodeURIComponent(filePath)}`
-      
-      // 创建临时链接并点击
-      const link = document.createElement('a')
-      link.href = downloadUrl
-      link.setAttribute('download', fileName || 'output.csv')
-      link.setAttribute('target', '_blank')
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      
-      ElMessage.success('下载成功')
-    } catch (error) {
-      ElMessage.error('下载失败，请检查网络连接')
-      console.error('下载文件错误:', error)
-    }
-  }
-}
-
-// 下载检查点文件
-const downloadCheckpointFile = (checkpointPath: string) => {
-  if (!checkpointPath) return
-  
-  downloadSingleFile(checkpointPath)
 }
 
 // 辅助函数
@@ -894,16 +597,6 @@ const getProgressStatus = (status: string) => {
   return ''
 }
 
-const getLogTypeIcon = (level: string) => {
-  const levelMap: Record<string, string> = {
-    'info': 'primary',
-    'warning': 'warning',
-    'error': 'danger',
-    'debug': 'info'
-  }
-  return levelMap[level] || 'info'
-}
-
 const getPriorityLabel = (priority: number) => {
   if (priority >= 8) return '高'
   if (priority >= 4) return '中'
@@ -924,10 +617,30 @@ const formatKeywords = (keywords: any) => {
 }
 
 // 格式化城市
-const formatCities = (cities: Record<string, any>) => {
+const formatCities = (cities: any) => {
   if (!cities) return ''
-  const cityNames = Object.values(cities).map(city => city.name || city.code)
-  return cityNames.join(', ')
+  
+  try {
+    // 处理对象形式的城市数据 {0: {code: "0", name: "全国"}, 901: {code: "901", name: "山东"}}
+    if (typeof cities === 'object' && !Array.isArray(cities)) {
+      const cityNames = Object.values(cities).map((city: any) => city.name || city.code || '');
+      return cityNames.join(', ');
+    }
+    
+    // 处理数组形式的城市数据
+    if (Array.isArray(cities)) {
+      return cities.map((city: any) => {
+        if (typeof city === 'object') return city.name || city.code || '';
+        return String(city);
+      }).join(', ');
+    }
+    
+    // 字符串或其他类型
+    return String(cities);
+  } catch (error) {
+    console.error('格式化城市错误:', error);
+    return String(cities);
+  }
 }
 
 // 格式化地区
@@ -1043,87 +756,5 @@ defineExpose({
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
-}
-
-.task-detail {
-  margin-top: 20px;
-}
-
-.task-detail h3 {
-  margin: 20px 0 10px;
-  font-size: 16px;
-  color: #409EFF;
-}
-
-.task-logs {
-  margin-top: 10px;
-  max-height: 300px;
-  overflow-y: auto;
-  border: 1px solid #ebeef5;
-  border-radius: 4px;
-  padding: 10px;
-  background-color: #f9f9f9;
-}
-
-.task-results {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #f0f9eb;
-  border-radius: 4px;
-  border-left: 4px solid #67c23a;
-}
-
-.checkpoint-section {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #f0f9eb;
-  border-radius: 4px;
-  border-left: 4px solid #67c23a;
-}
-
-.checkpoint-path {
-  display: flex;
-  align-items: center;
-}
-
-.path-label {
-  margin-right: 10px;
-}
-
-.checkpoint-data {
-  margin-top: 10px;
-  background-color: #f5f7fa;
-  border-radius: 4px;
-  padding: 10px;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.checkpoint-data h4 {
-  margin-top: 0;
-  margin-bottom: 8px;
-  font-size: 14px;
-  color: #67c23a;
-}
-
-.checkpoint-data pre {
-  margin: 0;
-  white-space: pre-wrap;
-  font-family: monospace;
-  font-size: 12px;
-}
-
-.output-files-section {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #f0f9eb;
-  border-radius: 4px;
-  border-left: 4px solid #67c23a;
-}
-
-.file-path {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 </style> 
