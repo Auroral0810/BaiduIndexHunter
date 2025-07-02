@@ -39,8 +39,15 @@
     </div>
     
     <div class="table-wrapper">
+      <div v-if="loading" class="loading-container">
+        <el-empty description="正在加载数据..." :image-size="100">
+          <template #image>
+            <el-icon class="loading-icon"><i-ep-loading /></el-icon>
+          </template>
+        </el-empty>
+      </div>
       <el-table
-        v-loading="loading"
+        v-else
         :data="tasks"
         style="width: 100%"
         border
@@ -168,7 +175,7 @@
       </el-table>
     </div>
     
-    <div class="pagination">
+    <div class="pagination" v-if="!loading && tasks.length > 0">
       <el-pagination
         v-model:current-page="currentPage"
         v-model:page-size="pageSize"
@@ -444,6 +451,11 @@ const loadTasks = async () => {
   } finally {
     loading.value = false
     console.log('任务加载完成，当前任务列表:', tasks.value)
+    
+    // 添加以下代码，确保视图更新
+    if (tasks.value && tasks.value.length > 0) {
+      tasks.value = [...tasks.value]
+    }
   }
 }
 
@@ -699,7 +711,10 @@ const startAutoRefresh = () => {
 // 初始加载
 onMounted(() => {
   console.log("TaskList组件已挂载");
-  // 不在挂载时加载数据，而是等待父组件激活时加载
+  // 直接加载任务数据，不依赖父组件调用
+  loadTasks();
+  // 开始自动刷新
+  startAutoRefresh();
 })
 
 // 导出方法供父组件调用
@@ -756,5 +771,23 @@ defineExpose({
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.loading-icon {
+  font-size: 40px;
+  color: #409EFF;
+  animation: rotate 1.5s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 </style> 

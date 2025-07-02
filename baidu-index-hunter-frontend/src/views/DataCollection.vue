@@ -30,12 +30,17 @@ watch(() => route.query, (query) => {
 
 // 监听标签切换，当切换到任务列表时加载数据
 watch(() => activeTab.value, (newTab) => {
-  if (newTab === 'task_list' && taskListRef.value) {
-    // 延迟加载确保组件已挂载
+  if (newTab === 'task_list') {
+    // 增加延迟时间，确保组件完全挂载
     setTimeout(() => {
-      taskListRef.value.loadTasks()
-      taskListRef.value.startAutoRefresh()
-    }, 100)
+      if (taskListRef.value) {
+        console.log('开始加载任务列表数据')
+        taskListRef.value.loadTasks()
+        taskListRef.value.startAutoRefresh()
+      } else {
+        console.warn('任务列表组件引用尚未可用')
+      }
+    }, 300) // 增加到300ms
   }
 }, { immediate: true })
 
