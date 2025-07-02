@@ -1,0 +1,117 @@
+# Python缓存文件
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 虚拟环境
+venv/
+ENV/
+env/
+.env
+
+# 系统文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 日志文件
+logs/
+*.log
+output/logs/
+
+# 敏感数据
+*.pem
+*.key
+*.env
+.env
+.env.*
+config/local_settings.py
+cookie_*.json
+credentials.json
+credentials.yaml
+credentials.yml
+*.pem
+*.crt
+*.key
+*.pfx
+*.p12
+
+# 项目特定敏感数据
+data/cookie_data/
+BaiduIndexHunter.sql
+*.db
+*.sqlite
+*.sqlite3
+cookies.txt
+account_info.txt
+passwords.txt
+
+# 缓存和临时文件
+.cache/
+.tmp/
+temp/
+tmp/
+
+# 数据文件（可能包含敏感信息）
+data/*.json
+data/crawler_progress.json
+data/batches/
+data/data_batches/
+output/merged_results/
+*.xlsx
+*.xls
+*.csv
+*.json
+*.pkl
+*.pickle
+*.bak
+*.dat
+*.dump
+*.bin
+*.parquet
+*.feather
+*.h5
+*.hdf5
+*.npy
+*.npz
+
+# IDE文件
+.idea/
+.vscode/
+*.swp
+*.swo
+.project
+.pydevproject
+.settings/
+
+# 测试结果
+cookie_load_test_*.json
+test_results/
+
+# 其他
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+.hypothesis/
