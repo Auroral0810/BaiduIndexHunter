@@ -8,6 +8,10 @@ import {
 } from '@element-plus/icons-vue'
 import axios from 'axios'
 import { useClipboard } from '@vueuse/core'
+import { useTaskStore } from '@/stores/task'
+import 'element-plus/es/components/message/style/css'
+import 'element-plus/es/components/message-box/style/css'
+import { Warning, View, Edit } from '@element-plus/icons-vue'
 
 const { copy, isSupported } = useClipboard()
 
@@ -75,10 +79,11 @@ const cookieForm = reactive({
   cookie_value: '',
   cookie_string: '',
   use_string_input: false,
-  expire_days: 365,
+  expire_days: null,
+  expire_option: 'none',
   is_available: true,
   is_permanently_banned: false,
-  temp_ban_until: null as string | null
+  temp_ban_until: null as string | null,
 })
 
 const tempBanForm = reactive({
@@ -320,7 +325,8 @@ const openAddCookieDialog = () => {
     cookie_value: '',
     cookie_string: '',
     use_string_input: false,
-    expire_days: 365,
+    expire_days: null,
+    expire_option: 'none',
     is_available: true,
     is_permanently_banned: false,
     temp_ban_until: null
@@ -330,21 +336,51 @@ const openAddCookieDialog = () => {
 }
 
 // 编辑Cookie
-const editCookie = (cookie: any) => {
-  Object.assign(cookieForm, {
-    id: cookie.id,
-    account_id: cookie.account_id,
-    cookie_name: cookie.cookie_name,
-    cookie_value: cookie.cookie_value,
-    cookie_string: '',
-    use_string_input: false,
-    expire_days: cookie.expire_time ? 365 : null,
-    is_available: cookie.is_available === 1,
-    is_permanently_banned: cookie.is_permanently_banned === 1,
-    temp_ban_until: cookie.temp_ban_until
-  })
-  
-  cookieDialogVisible.value = true
+const editCookie = async (cookie: any) => {
+  try {
+    loading.value = true;
+    
+    // 获取完整的Cookie信息
+    const response = await axios.get(`${API_BASE_URL}/admin/cookie/account-cookie/${cookie.account_id}`);
+    
+    if (response.data.code === 10000) {
+      const data = response.data.data;
+      
+      // 将cookies对象转换为字符串
+      let cookieString = '';
+      if (data.cookies) {
+        cookieString = Object.entries(data.cookies)
+          .map(([name, value]) => `${name}=${value}`)
+          .join('; ');
+      }
+      
+      // 根据是否有过期时间设置expire_option
+      const hasExpireTime = cookie.expire_time !== null;
+      
+      Object.assign(cookieForm, {
+        id: cookie.id,
+        account_id: data.account_id,
+        cookie_name: '',
+        cookie_value: '',
+        cookie_string: cookieString,
+        use_string_input: true, // 使用字符串模式编辑
+        expire_days: hasExpireTime ? 365 : null,
+        expire_option: hasExpireTime ? 'days' : 'none',
+        is_available: cookie.is_available === 1,
+        is_permanently_banned: cookie.is_permanently_banned === 1,
+        temp_ban_until: cookie.temp_ban_until
+      });
+      
+      cookieDialogVisible.value = true;
+    } else {
+      ElMessage.error(`获取Cookie详情失败: ${response.data.msg}`);
+    }
+  } catch (error) {
+    console.error('获取Cookie详情失败:', error);
+    ElMessage.error('获取Cookie详情失败，请检查网络连接');
+  } finally {
+    loading.value = false;
+  }
 }
 
 // 提交Cookie表单
@@ -370,9 +406,11 @@ const submitCookieForm = async () => {
       cookieData.cookie_data[cookieForm.cookie_name] = cookieForm.cookie_value
     }
     
-    if (cookieForm.expire_days) {
+    // 根据expire_option决定是否设置过期时间
+    if (cookieForm.expire_option === 'days' && cookieForm.expire_days) {
       cookieData.expire_days = cookieForm.expire_days
     }
+    // 如果expire_option为none，则不设置expire_days，后端默认为null
     
     console.log('提交的Cookie数据:', cookieData)
     
@@ -1125,6 +1163,9 @@ const handleCookieCommand = (command: string, cookie: any) => {
             </el-select>
             <el-button type="primary" @click="handleFilter">筛选</el-button>
             <el-button plain @click="resetFilter">重置</el-button>
+            <el-button type="success" @click="openAddCookieDialog">
+              <el-icon><Plus /></el-icon> 添加Cookie
+            </el-button>
           </div>
           
           <el-table
@@ -1236,9 +1277,16 @@ const handleCookieCommand = (command: string, cookie: any) => {
           <el-checkbox v-model="cookieForm.use_string_input">使用Cookie字符串输入</el-checkbox>
         </el-form-item>
         
-        <el-form-item label="过期天数" prop="expire_days">
+        <el-form-item label="过期设置">
+          <el-radio-group v-model="cookieForm.expire_option">
+            <el-radio :label="'none'">永不过期</el-radio>
+            <el-radio :label="'days'">设置过期天数</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        
+        <el-form-item label="过期天数" v-if="cookieForm.expire_option === 'days'">
           <el-input-number v-model="cookieForm.expire_days" :min="1" :max="365" />
-          <span class="form-tip">不设置则永不过期</span>
+          <span class="form-tip">天后过期</span>
         </el-form-item>
         
         <el-form-item v-if="cookieForm.id" label="可用状态" prop="is_available">
