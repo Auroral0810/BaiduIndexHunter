@@ -57,7 +57,7 @@ const checkApiHealth = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/health`)
     const prevStatus = apiStatus.value
-    apiStatus.value = response.status === 200
+    apiStatus.value = response.status === 200 && response.data.code === 10000
     
     if (apiStatus.value && !prevStatus) {
       ElNotification({

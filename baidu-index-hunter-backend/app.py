@@ -3,6 +3,7 @@
 """
 import os
 import sys
+from datetime import datetime
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flasgger import Swagger, swag_from
@@ -141,13 +142,13 @@ def create_app(config=None):
         }, "欢迎使用百度指数爬虫API"))
     
     # 健康检查路由
-    @app.route('/health')
+    @app.route('/api/health')
     def health_check():
         """健康检查接口"""
         return jsonify(ResponseFormatter.success({
             "status": "UP",
-            "timestamp": str(datetime.now())
-        }))
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }, "API服务正常"))
         
     return app
 
