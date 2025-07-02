@@ -123,15 +123,6 @@ const cookieRules = {
   account_id: [
     { required: true, message: '请输入Cookie名称', trigger: 'blur' },
     { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
-  ],
-  cookie_name: [
-    { required: true, message: '请输入Cookie名称', trigger: 'blur' }
-  ],
-  cookie_value: [
-    { required: true, message: '请输入Cookie值', trigger: 'blur' }
-  ],
-  cookie_string: [
-    { required: true, message: '请输入Cookie字符串', trigger: 'blur' }
   ]
 }
 
@@ -399,8 +390,8 @@ const editCookie = async (cookie: any) => {
       const hasExpireTime = cookie.expire_time !== null;
       
       Object.assign(cookieForm, {
-        id: cookie.id, // 确保设置了id，用于标识这是编辑操作
-        account_id: data.account_id,
+        id: cookie.id,
+        account_id: data.account_id, // 确保设置了id，用于标识这是编辑操作
         cookie_name: '',
         cookie_value: '',
         cookie_string: cookieString,
@@ -453,14 +444,53 @@ const submitCookieForm = async () => {
     // 根据当前编辑模式处理Cookie数据
     switch (cookieInputMode.value) {
       case 'string':
-        // 字符串模式
-        cookieData.cookie_data = cookieForm.cookie_string
+        // 字符串模式 - 将字符串解析为对象
+        try {
+          // 检查是否有字符串输入
+          if (!cookieForm.cookie_string || cookieForm.cookie_string.trim() === '') {
+            // 警告但不阻止提交，使用空对象
+            ElMessage.warning('Cookie字符串为空，将提交空Cookie数据')
+            cookieData.cookie_data = {}
+          } else {
+            const cookieObj = {}
+            const cookieParts = cookieForm.cookie_string.split(';')
+            
+            cookieParts.forEach(cookie => {
+              const trimmedCookie = cookie.trim()
+              if (!trimmedCookie) return
+              
+              // 查找第一个等号的位置
+              const equalSignIndex = trimmedCookie.indexOf('=')
+              if (equalSignIndex > 0) {
+                const name = trimmedCookie.substring(0, equalSignIndex).trim()
+                const value = trimmedCookie.substring(equalSignIndex + 1).trim()
+                cookieObj[name] = value
+              }
+            })
+            
+            cookieData.cookie_data = cookieObj
+          }
+          console.log("解析后的Cookie数据:", cookieData.cookie_data)
+        } catch (e) {
+          console.error("Cookie字符串解析错误:", e)
+          ElMessage.error('Cookie字符串格式错误，请检查输入')
+          submitting.value = false
+          return
+        }
         break
       case 'json':
         // JSON模式
         try {
-          cookieData.cookie_data = JSON.parse(cookieForm.cookie_json)
+          const jsonData = JSON.parse(cookieForm.cookie_json)
+          
+          // 检查是否是嵌套结构 (避免格式为 {account_id: xxx, cookie_data: {}} 的情况)
+          if (jsonData.cookie_data) {
+            cookieData.cookie_data = jsonData.cookie_data
+          } else {
+            cookieData.cookie_data = jsonData
+          }
         } catch (e) {
+          console.error("JSON解析错误:", e)
           ElMessage.error('JSON格式错误，请检查输入')
           submitting.value = false
           return
@@ -486,7 +516,10 @@ const submitCookieForm = async () => {
         // 转换表格数据为对象
         const tableData = {}
         cookieTableData.value.forEach(row => {
-          tableData[row.name] = row.value
+          // 避免特殊字段导致嵌套
+          if (row.name !== 'account_id' && row.name !== 'cookie_data' && row.name !== 'expire_days') {
+            tableData[row.name] = row.value
+          }
         })
         cookieData.cookie_data = tableData
         break
@@ -501,7 +534,10 @@ const submitCookieForm = async () => {
         // 转换导入数据为对象
         const importData = {}
         importPreviewData.value.forEach(row => {
-          importData[row.name] = row.value
+          // 避免特殊字段导致嵌套
+          if (row.name !== 'account_id' && row.name !== 'cookie_data' && row.name !== 'expire_days') {
+            importData[row.name] = row.value
+          }
         })
         cookieData.cookie_data = importData
         break
@@ -514,6 +550,9 @@ const submitCookieForm = async () => {
     // 如果expire_option为none，则不设置expire_days，后端默认为null
     
     console.log('提交的Cookie数据:', cookieData)
+    
+    // 添加详细的日志，方便调试
+    console.log('准备提交的Cookie数据:', JSON.stringify(cookieData, null, 2))
     
     if (cookieForm.id) {
       // 更新Cookie
@@ -569,10 +608,18 @@ const convertStringToJson = () => {
   try {
     // 解析Cookie字符串为对象
     const cookieObj = {}
-    cookieForm.cookie_string.split(';').forEach(cookie => {
-      const pair = cookie.trim().split('=')
-      if (pair.length === 2) {
-        cookieObj[pair[0]] = pair[1]
+    const cookieParts = cookieForm.cookie_string.split(';')
+    
+    cookieParts.forEach(cookie => {
+      const trimmedCookie = cookie.trim()
+      if (!trimmedCookie) return
+      
+      // 查找第一个等号的位置
+      const equalSignIndex = trimmedCookie.indexOf('=')
+      if (equalSignIndex > 0) {
+        const name = trimmedCookie.substring(0, equalSignIndex).trim()
+        const value = trimmedCookie.substring(equalSignIndex + 1).trim()
+        cookieObj[name] = value
       }
     })
     
@@ -584,6 +631,7 @@ const convertStringToJson = () => {
     
     ElMessage.success('转换成功')
   } catch (e) {
+    console.error('转换失败:', e)
     ElMessage.error('转换失败，请检查Cookie字符串格式')
   }
 }
@@ -855,7 +903,7 @@ const cancelImport = () => {
 }
 
 // 删除Cookie
-const deleteCookie = async (id: number) => {
+const deleteCookie = async (account_id: number) => {
   try {
     await ElMessageBox.confirm('确定要删除此Cookie吗？此操作不可恢复。', '确认删除', {
       confirmButtonText: '删除',
@@ -865,7 +913,7 @@ const deleteCookie = async (id: number) => {
     
     listLoading.value = true
     
-    const response = await axios.delete(`${API_BASE_URL}/admin/cookie/delete/${id}`)
+    const response = await axios.delete(`${API_BASE_URL}/admin/cookie/delete/${account_id}`)
     if (response.data.code === 10000) {
       ElMessage.success('Cookie删除成功')
       loadCookies()
@@ -1372,10 +1420,10 @@ const handleCookieCommand = (command: string, cookie: any) => {
       editCookie(cookie)
       break
     case 'delete':
-      deleteCookie(cookie.id)
+      deleteCookie(cookie.account_id)
       break
     case 'unban':
-      unbanCookie(cookie.id)
+      unbanCookie(cookie.account_id)
       break
   }
 }
@@ -1746,7 +1794,7 @@ const processExcelFile = async (file: File) => {
         <el-tabs v-model="cookieInputMode" type="card">
           <!-- 字符串输入模式 -->
           <el-tab-pane label="字符串输入" name="string">
-            <el-form-item label="Cookie字符串" prop="cookie_string">
+            <el-form-item label="Cookie字符串">
               <el-input v-model="cookieForm.cookie_string" type="textarea" rows="8" placeholder="请输入完整Cookie字符串（name=value; name2=value2）" />
             </el-form-item>
           </el-tab-pane>
