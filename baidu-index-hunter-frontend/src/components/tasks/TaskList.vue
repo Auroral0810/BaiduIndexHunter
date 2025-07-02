@@ -389,7 +389,7 @@
             </div>
           </el-card>
           
-          <!-- 错误信息 -->
+          <!-- 任务日志 -->
           <el-card class="detail-card" shadow="hover">
             <template #header>
               <div class="card-header">
@@ -397,7 +397,20 @@
               </div>
             </template>
             <div class="card-content logs-content">
-              <div v-if="selectedTask.error_message" class="error-message">
+              <div v-if="selectedTask.logs && selectedTask.logs.length > 0" class="logs-container">
+                <el-table :data="selectedTask.logs" style="width: 100%" size="small" max-height="150">
+                  <el-table-column label="时间" prop="timestamp" width="150" />
+                  <el-table-column label="级别" prop="log_level" width="80">
+                    <template #default="scope">
+                      <el-tag :type="getLogLevelTag(scope.row.log_level)" size="small">
+                        {{ scope.row.log_level }}
+                      </el-tag>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="消息" prop="message" min-width="250" show-overflow-tooltip />
+                </el-table>
+              </div>
+              <div v-else-if="selectedTask.error_message" class="error-message">
                 <el-alert
                   type="error"
                   :closable="false"
@@ -406,7 +419,7 @@
                   <p>{{ selectedTask.error_message }}</p>
                 </el-alert>
               </div>
-              <el-empty v-else description="日志功能即将推出，敬请期待" :image-size="50" />
+              <el-empty v-else description="暂无任务日志" :image-size="50" />
             </div>
           </el-card>
         </div>
@@ -476,6 +489,7 @@ interface Task {
   failed_items?: number;
   task_name?: string;
   error_message?: string;
+  logs?: { timestamp: string; log_level: string; message: string }[];
   [key: string]: any;
 }
 
@@ -967,6 +981,16 @@ defineExpose({
   loadTasks,
   startAutoRefresh
 })
+
+const getLogLevelTag = (level: string) => {
+  const levelMap: Record<string, string> = {
+    'INFO': 'info',
+    'WARNING': 'warning',
+    'ERROR': 'danger',
+    'DEBUG': 'success'
+  }
+  return levelMap[level] || 'info'
+}
 </script>
 
 <style scoped>
@@ -1237,6 +1261,10 @@ defineExpose({
 
 .logs-content {
   padding: 10px;
+}
+
+.logs-container {
+  height: 100%;
 }
 
 @keyframes rotate {

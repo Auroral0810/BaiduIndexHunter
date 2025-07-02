@@ -319,7 +319,7 @@ class TaskScheduler:
         query = """
             SELECT * FROM task_logs 
             WHERE task_id = %s 
-            ORDER BY create_time DESC 
+            ORDER BY timestamp DESC 
             LIMIT %s OFFSET %s
         """
         

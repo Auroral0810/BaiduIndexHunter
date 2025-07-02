@@ -428,7 +428,8 @@ def list_tasks():
                             'error_message': {'type': 'string'},
                             'checkpoint_path': {'type': 'object'},
                             'output_files': {'type': 'array', 'items': {'type': 'string'}},
-                            'created_by': {'type': 'string'}
+                            'created_by': {'type': 'string'},
+                            'logs': {'type': 'array', 'items': {'type': 'object'}}
                         }
                     }
                 }
@@ -471,6 +472,17 @@ def get_task(task_id):
         for key, value in task.items():
             if isinstance(value, datetime):
                 task[key] = value.strftime('%Y-%m-%d %H:%M:%S')
+        
+        # 获取任务日志
+        logs = task_scheduler.get_task_logs(task_id, limit=100)
+        
+        # 处理日志中的日期时间格式
+        for log in logs:
+            if 'timestamp' in log and isinstance(log['timestamp'], datetime):
+                log['timestamp'] = log['timestamp'].strftime('%Y-%m-%d %H:%M:%S')
+        
+        # 将日志添加到任务详情中
+        task['logs'] = logs
         
         return jsonify(ResponseFormatter.success(task, "获取任务详情成功"))
         
