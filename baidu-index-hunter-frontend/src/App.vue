@@ -10,9 +10,10 @@ const activeIndex = ref('1')
 const routeMap = {
   '/': '1',
   '/data-collection': '2',
-  '/settings': '3',
-  '/about': '4',
-  '/privacy': '5'
+  '/cookie-manager': '3',
+  '/settings': '4',
+  '/about': '5',
+  '/privacy': '6'
 }
 
 // 根据当前路径更新激活的菜单项
