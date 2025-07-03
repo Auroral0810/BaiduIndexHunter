@@ -239,6 +239,61 @@ def create_task():
                 'taskId': task_id
             }, "资讯指数任务创建成功"))
         
+        # 处理需求图谱任务
+        elif task_type == 'word_graph':
+            # 验证需求图谱任务的参数
+            if 'keywords' not in parameters or not parameters['keywords']:
+                return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "缺少必要参数: keywords"))
+            
+            if 'datelists' not in parameters or not parameters['datelists']:
+                return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "缺少必要参数: datelists"))
+            
+            # 处理恢复任务
+            resume = parameters.get('resume', False)
+            if resume and ('task_id' not in parameters or not parameters['task_id']):
+                return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "恢复任务时必须提供task_id"))
+            
+            # 获取输出格式
+            output_format = parameters.get('output_format', 'csv')
+            if output_format not in ['csv', 'excel']:
+                output_format = 'csv'
+            
+            # 准备爬虫参数
+            spider_params = {
+                'keywords': parameters['keywords'],
+                'datelists': parameters['datelists'],
+                'output_format': output_format,
+                'resume': resume
+            }
+            
+            # 添加任务ID（如果是恢复任务）
+            if resume and 'task_id' in parameters:
+                spider_params['task_id'] = parameters['task_id']
+            
+            # 创建任务
+            task_id = task_scheduler.create_task(
+                task_type=task_type,
+                parameters=spider_params,
+                task_name=f"需求图谱_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+                created_by=None,
+                priority=priority
+            )
+            
+            # 如果是恢复任务，设置断点续传数据
+            if resume and 'task_id' in parameters:
+                # 获取原任务的断点续传数据
+                original_task = task_scheduler.get_task(parameters['task_id'])
+                if original_task and 'checkpoint_path' in original_task and original_task['checkpoint_path']:
+                    # 更新新任务的断点续传数据
+                    task_scheduler.update_task_checkpoint(task_id, original_task['checkpoint_path'])
+            
+            # 启动任务
+            task_scheduler.start_task(task_id)
+            
+            return jsonify(ResponseFormatter.success({
+                'taskId': task_id
+            }, "需求图谱任务创建成功"))
+        
         # 其他类型任务的处理...
         
         # 默认创建任务

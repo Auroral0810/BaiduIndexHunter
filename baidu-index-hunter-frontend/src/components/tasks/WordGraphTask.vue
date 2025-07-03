@@ -636,11 +636,11 @@ const submitTask = async () => {
     
     const response = await axios.post(`${API_BASE_URL}/task/create`, params)
     
-    if (response.data.code === 0) {
+    if (response.data.code === 10000) {
       taskId.value = response.data.data.taskId
       successDialogVisible.value = true
     } else {
-      ElMessage.error(`任务提交失败: ${response.data.message}`)
+      ElMessage.error(`任务提交失败: ${response.data.msg}`)
     }
   } catch (error) {
     ElMessage.error('任务提交失败，请检查网络连接')
