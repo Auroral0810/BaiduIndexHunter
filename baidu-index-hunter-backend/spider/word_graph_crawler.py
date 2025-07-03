@@ -34,6 +34,7 @@ class WordGraphCrawler:
         self.word_graph_url = BAIDU_INDEX_API['word_graph_url']
         self.referer = BAIDU_INDEX_API['referer']
         self.ua = UserAgent()
+        self.task_id = None
         self.checkpoint_dir = os.path.join(OUTPUT_DIR, 'checkpoints')
         self.output_dir = os.path.join(OUTPUT_DIR, 'word_graph')
         
@@ -178,12 +179,12 @@ class WordGraphCrawler:
         获取当前正在执行的任务ID
         :return: 任务ID，如果没有当前任务则返回None
         """
-        with self.lock:
-            # 查找状态为'running'的任务
-            for task_id, status in self.task_status.items():
-                if status.get('status') == 'running':
-                    return task_id
-        return None
+        # with self.lock:
+        #     # 查找状态为'running'的任务
+        #     for task_id, status in self.task_status.items():
+        #         if status.get('status') == 'running':
+        #             return task_id
+        return self.task_id
     
     @retry(max_retries=2)
     def get_word_graph(self, keyword, datelist):
@@ -305,7 +306,7 @@ class WordGraphCrawler:
         # 确定任务ID
         if task_id is None:
             task_id = datetime.now().strftime('%Y%m%d%H%M%S')
-        
+        self.task_id = task_id
         log.info(f"开始爬取 {len(keywords)} 个关键词在 {len(datelists)} 个日期的需求图谱数据，任务ID: {task_id}")
         
         # 初始化任务状态

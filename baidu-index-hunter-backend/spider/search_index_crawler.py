@@ -64,7 +64,7 @@ class SearchIndexCrawler:
             if (len(self.data_cache) >= self.cache_limit or force) and self.data_cache:
                 # 保存日度/周度数据
                 daily_df = pd.DataFrame(self.data_cache)
-                daily_path = os.path.join(self.output_path, f"{self.task_id}_daily_data.csv")
+                daily_path = os.path.join(self.output_path, f"search_index_{self.task_id}_daily_data.csv")
                 
                 # 判断文件是否存在，决定是否写入表头
                 file_exists = os.path.isfile(daily_path)
@@ -77,7 +77,7 @@ class SearchIndexCrawler:
             if (len(self.stats_cache) >= self.cache_limit or force) and self.stats_cache:
                 # 保存统计数据
                 stats_df = pd.DataFrame(self.stats_cache)
-                stats_path = os.path.join(self.output_path, f"{self.task_id}_stats_data.csv")
+                stats_path = os.path.join(self.output_path, f"search_index_{self.task_id}_stats_data.csv")
                 
                 # 判断文件是否存在，决定是否写入表头
                 file_exists = os.path.isfile(stats_path)
@@ -360,6 +360,7 @@ class SearchIndexCrawler:
         爬取百度搜索指数数据
         
         参数:
+            task_id (str): 任务ID
             keywords (list): 关键词列表
             cities (dict): 城市代码和名称的字典 {城市代码: 城市名称}
             date_ranges (list): 日期范围列表，每个元素为 (start_date, end_date) 元组
@@ -369,7 +370,7 @@ class SearchIndexCrawler:
             date_ranges_file (str): 日期范围文件路径
             year_range (tuple): 年份范围，格式为 (start_year, end_year)
             resume (bool): 是否恢复上次任务
-            task_id (str): 要恢复的任务ID
+            checkpoint_task_id (str): 要恢复的任务ID
         """
         # 加载关键词
         if keywords_file:
@@ -424,12 +425,12 @@ class SearchIndexCrawler:
                 log.warning(f"未找到任务ID为 {checkpoint_task_id} 的检查点，将创建新任务")
                 self.task_id = self._generate_task_id()
         else:
-            self.task_id = self._generate_task_id()
+            self.task_id = task_id
             
         # 设置输出路径和检查点路径
-        self.output_path = os.path.join(OUTPUT_DIR, 'search_index', self.task_id)
+        self.output_path = os.path.join(OUTPUT_DIR, 'search_index',  self.task_id)
         os.makedirs(self.output_path, exist_ok=True)
-        self.checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/{self.task_id}_checkpoint.pkl")
+        self.checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/search_index_checkpoint_{self.task_id}.pkl")
         os.makedirs(os.path.dirname(self.checkpoint_path), exist_ok=True)
         
         # 计算总任务数

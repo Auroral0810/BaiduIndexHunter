@@ -5,10 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ffc61ac2-aff1-4d92-a630-60ecc81ee81f" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/config/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/config/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/db/mysql_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/db/mysql_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/scheduler/task_executor.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/scheduler/task_executor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/scheduler/task_scheduler.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/scheduler/task_scheduler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/spider/search_index_crawler.py" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-backend/spider/search_index_crawler.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
