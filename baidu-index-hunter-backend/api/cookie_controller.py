@@ -1358,6 +1358,69 @@ def get_banned_accounts(cookie_manager):
         log.error(f"获取被封禁账号列表失败: {str(e)}\n{traceback.format_exc()}")
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取被封禁账号列表失败: {str(e)}"))
 
+@admin_cookie_bp.route('/update-ab-sr', methods=['POST'])
+@swag_from({
+    'tags': ['Cookie管理'],
+    'summary': '更新所有账号的ab_sr cookie',
+    'description': '为所有账号获取最新的ab_sr cookie值，如果账号没有则添加',
+    'responses': {
+        '200': {
+            'description': '更新成功',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '成功更新ab_sr cookie'},
+                    'data': {
+                        'type': 'object',
+                        'properties': {
+                            'updated_count': {'type': 'integer', 'description': '更新成功的账号数'},
+                            'failed_count': {'type': 'integer', 'description': '更新失败的账号数'},
+                            'added_count': {'type': 'integer', 'description': '新增ab_sr字段的账号数'}
+                        }
+                    }
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
+                }
+            }
+        }
+    }
+})
+@with_cookie_manager
+def update_ab_sr(cookie_manager):
+    """更新所有账号的ab_sr cookie值"""
+    try:
+        result = cookie_manager.update_ab_sr_for_all_accounts()
+        
+        if 'error' in result:
+            return jsonify({
+                'code': 10102,
+                'msg': f"更新ab_sr cookie失败: {result['error']}",
+                'data': result
+            })
+        
+        return jsonify({
+            'code': 10000,
+            'msg': f"成功更新ab_sr cookie: 更新{result['updated_count']}个，新增{result['added_count']}个，失败{result['failed_count']}个",
+            'data': result
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'code': 10102,
+            'msg': f"更新ab_sr cookie失败: {str(e)}",
+            'data': None
+        })
+
 # 注册蓝图的函数
 def register_admin_cookie_blueprint(app):
     """注册Cookie管理API蓝图"""

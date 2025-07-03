@@ -119,3 +119,4 @@ class AbSrUpdater:
 
 # 创建一个AbSrUpdater实例
 updater = AbSrUpdater()
+updater.update_ab_sr()

@@ -13,11 +13,12 @@ from fake_useragent import UserAgent
 from typing import Dict, List, Tuple, Any, Optional, Set, Union
 import execjs
 import redis
+from utils.ab_sr_update import AbSrUpdater
+from utils.logger import log
 
 # 添加项目根目录到路径，以便导入项目模块
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config.settings import MYSQL_CONFIG, REDIS_CONFIG
-from utils.logger import log
 
 class CookieManager:
     """Cookie管理器，负责cookie的增删改查和状态管理"""
@@ -1424,3 +1425,110 @@ class CookieManager:
     def __del__(self):
         """析构函数，确保连接被关闭"""
         self.close()
+
+    def update_ab_sr_for_all_accounts(self):
+        """
+        更新所有账号的ab_sr cookie值
+        
+        为每个账号更新ab_sr cookie值，如果账号没有ab_sr字段则新增
+        
+        Returns:
+            dict: 包含更新结果的字典
+                {
+                    'updated_count': 更新成功的账号数量,
+                    'failed_count': 更新失败的账号数量,
+                    'added_count': 新增ab_sr字段的账号数量
+                }
+        """
+        try:
+            # 获取所有账号ID
+            cursor = self._get_cursor()
+            cursor.execute("SELECT DISTINCT account_id FROM cookies")
+            accounts = cursor.fetchall()
+            
+            # 更新计数器
+            updated_count = 0
+            failed_count = 0
+            added_count = 0
+            
+            # 获取新的ab_sr值
+            updater = AbSrUpdater()
+            new_ab_sr = updater.update_ab_sr()
+            
+            if not new_ab_sr:
+                return {
+                    'updated_count': 0,
+                    'failed_count': len(accounts),
+                    'added_count': 0,
+                    'error': 'Failed to get new ab_sr value'
+                }
+            
+            # 遍历所有账号
+            for account in accounts:
+                account_id = account['account_id']
+                
+                # 查询账号是否已有ab_sr cookie
+                cursor.execute(
+                    "SELECT id, is_available, is_permanently_banned, temp_ban_until FROM cookies "
+                    "WHERE account_id = %s AND cookie_name = 'ab_sr'",
+                    (account_id,)
+                )
+                ab_sr_cookie = cursor.fetchone()
+                
+                if ab_sr_cookie:
+                    # 已有ab_sr，更新它
+                    cursor.execute(
+                        "UPDATE cookies SET cookie_value = %s, last_updated = NOW() "
+                        "WHERE id = %s",
+                        (new_ab_sr, ab_sr_cookie['id'])
+                    )
+                    updated_count += 1
+                else:
+                    # 没有ab_sr，需要新增
+                    # 获取账号的其他cookie状态信息
+                    cursor.execute(
+                        "SELECT is_available, is_permanently_banned, temp_ban_until "
+                        "FROM cookies WHERE account_id = %s LIMIT 1",
+                        (account_id,)
+                    )
+                    account_status = cursor.fetchone()
+                    
+                    if account_status:
+                        # 新增ab_sr cookie
+                        cursor.execute(
+                            "INSERT INTO cookies (account_id, cookie_name, cookie_value, "
+                            "is_available, is_permanently_banned, temp_ban_until) "
+                            "VALUES (%s, 'ab_sr', %s, %s, %s, %s)",
+                            (
+                                account_id, 
+                                new_ab_sr,
+                                account_status['is_available'],
+                                account_status['is_permanently_banned'],
+                                account_status['temp_ban_until']
+                            )
+                        )
+                        added_count += 1
+                    else:
+                        failed_count += 1
+            
+            # 提交数据库更改
+            self.conn.commit()
+            
+            # 同步到Redis
+            self.sync_to_redis()
+            
+            return {
+                'updated_count': updated_count,
+                'failed_count': failed_count,
+                'added_count': added_count
+            }
+            
+        except Exception as e:
+            self.conn.rollback()
+            log.error(f"更新ab_sr失败: {e}")
+            return {
+                'updated_count': 0,
+                'failed_count': len(accounts) if 'accounts' in locals() else 0,
+                'added_count': 0,
+                'error': str(e)
+            }

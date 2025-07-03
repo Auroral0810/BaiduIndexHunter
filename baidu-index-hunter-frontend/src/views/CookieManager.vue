@@ -33,6 +33,7 @@ const updatingStatus = ref(false)
 const cleaningUp = ref(false)
 const accountDetailLoading = ref(false)
 const loading = ref(false)
+const updatingAbSr = ref(false)
 
 // Cookie池统计
 const cookieStats = reactive({
@@ -997,6 +998,27 @@ const syncToRedis = async () => {
   }
 }
 
+// 更新ab_sr cookie
+const updateAbSr = async () => {
+  try {
+    updatingAbSr.value = true
+    
+    const response = await axios.post(`${API_BASE_URL}/admin/cookie/update-ab-sr`)
+    if (response.data.code === 10000) {
+      ElMessage.success(response.data.msg)
+      refreshCookieStatus()
+      loadCookies()
+    } else {
+      ElMessage.error(`更新ab_sr失败: ${response.data.msg}`)
+    }
+  } catch (error) {
+    console.error('更新ab_sr失败:', error)
+    ElMessage.error('更新ab_sr失败，请检查网络连接')
+  } finally {
+    updatingAbSr.value = false
+  }
+}
+
 // 测试单个Cookie可用性
 const testAccountAvailability = async (accountId: string) => {
   try {
@@ -1665,6 +1687,9 @@ const processExcelFile = async (file: File) => {
                 <el-button type="primary" size="small" @click="syncToRedis" :loading="syncing">
                   <el-icon><Connection /></el-icon> 同步到Redis
                 </el-button>
+                <el-button type="success" size="small" @click="updateAbSr" :loading="updatingAbSr">
+                  <el-icon><RefreshRight /></el-icon> 更新ab_sr
+                </el-button>
                 <el-button size="small" @click="loadCookies" :loading="listLoading">
                   <el-icon><Refresh /></el-icon> 刷新
                 </el-button>
@@ -1768,7 +1793,7 @@ const processExcelFile = async (file: File) => {
             <el-pagination
               v-model:current-page="currentPage"
               v-model:page-size="pageSize"
-              :page-sizes="[10, 20, 50, 100]"
+              :page-sizes="[20, 35, 50]"
               layout="total, sizes, prev, pager, next, jumper"
               :total="total"
               @size-change="handleSizeChange"
