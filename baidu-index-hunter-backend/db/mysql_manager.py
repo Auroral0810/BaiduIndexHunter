@@ -226,6 +226,82 @@ class MySQLManager:
                 raise
         
         return []
+    def insert(self, table, data):
+        """
+        插入数据
+        :param table: 表名
+        :param data: 数据字典
+        :return: 插入的ID
+        """
+        try:
+            columns = ', '.join(data.keys())
+            placeholders = ', '.join(['%s'] * len(data))
+            query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
+            
+            with self._get_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(query, list(data.values()))
+                    conn.commit()
+                    return cursor.lastrowid
+        except Exception as e:
+            log.error(f"插入数据失败: {e}")
+            log.error(f"表: {table}")
+            log.error(f"数据: {data}")
+            raise
+    
+    def update(self, table, data, condition, condition_params=None):
+        """
+        更新数据
+        :param table: 表名
+        :param data: 要更新的数据字典
+        :param condition: 条件语句
+        :param condition_params: 条件参数
+        :return: 影响的行数
+        """
+        try:
+            set_clause = ', '.join([f"{k} = %s" for k in data.keys()])
+            query = f"UPDATE {table} SET {set_clause} WHERE {condition}"
+            
+            params = list(data.values())
+            if condition_params:
+                if isinstance(condition_params, (list, tuple)):
+                    params.extend(condition_params)
+                else:
+                    params.append(condition_params)
+            
+            with self._get_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(query, params)
+                    conn.commit()
+                    return cursor.rowcount
+        except Exception as e:
+            log.error(f"更新数据失败: {e}")
+            log.error(f"表: {table}")
+            log.error(f"数据: {data}")
+            log.error(f"条件: {condition}")
+            raise
+    
+    def delete(self, table, condition, params=None):
+        """
+        删除数据
+        :param table: 表名
+        :param condition: 条件语句
+        :param params: 条件参数
+        :return: 影响的行数
+        """
+        try:
+            query = f"DELETE FROM {table} WHERE {condition}"
+            
+            with self._get_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(query, params)
+                    conn.commit()
+                    return cursor.rowcount
+        except Exception as e:
+            log.error(f"删除数据失败: {e}")
+            log.error(f"表: {table}")
+            log.error(f"条件: {condition}")
+            raise
     
     def close(self):
         """关闭MySQL连接"""
@@ -241,7 +317,6 @@ class MySQLManager:
     def __del__(self):
         """析构函数，确保连接被关闭"""
         self.close()
-
 
 # 创建MySQL管理器单例
 mysql_manager = MySQLManager() 
