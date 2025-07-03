@@ -31,22 +31,39 @@ class TaskScheduler:
         self.running_tasks = {}  # 记录正在运行的任务 {task_id: thread}
         self.is_running = False  # 调度器是否正在运行
         self.scheduler_thread = None  # 调度器线程
+        self.worker_threads = 3  # 工作线程数
+        self.workers = []  # 工作线程列表
     
     def start(self):
-        """启动任务调度器"""
-        if self.is_running:
-            log.warning("任务调度器已经在运行中")
-            return
-        
-        self.is_running = True
-        self.scheduler_thread = threading.Thread(target=self._scheduler_loop)
-        self.scheduler_thread.daemon = True
-        self.scheduler_thread.start()
-        
-        log.info("任务调度器已启动")
-        
-        # 加载未完成的任务
-        self._load_pending_tasks()
+        """
+        启动任务调度器
+        """
+        try:
+            log.info("启动任务调度器")
+            
+            # 初始化表结构
+            self._init_tables()
+            
+            # 更新历史任务的累计爬取数据条数（初次添加字段时需要）
+            self._update_historical_crawled_items()
+            
+            # 加载待执行的任务
+            self._load_pending_tasks()
+            
+            # 启动工作线程
+            for _ in range(self.worker_threads):
+                worker = threading.Thread(target=self._worker, daemon=True)
+                worker.start()
+                self.workers.append(worker)
+            
+            # 启动调度线程
+            self.scheduler_thread = threading.Thread(target=self._scheduler, daemon=True)
+            self.scheduler_thread.start()
+            
+            log.info(f"任务调度器启动成功，工作线程数: {self.worker_threads}")
+        except Exception as e:
+            log.error(f"启动任务调度器失败: {e}")
+            log.error(traceback.format_exc())
     
     def stop(self):
         """停止任务调度器"""
@@ -596,6 +613,124 @@ class TaskScheduler:
         except Exception as e:
             log.error(f"更新任务断点续传数据失败: {e}")
             return False
+    
+    def _init_tables(self):
+        """
+        初始化数据库表结构
+        """
+        try:
+            # 检查spider_statistics表是否存在total_crawled_items字段
+            check_query = """
+                SELECT COUNT(*) as count
+                FROM information_schema.COLUMNS 
+                WHERE TABLE_SCHEMA = DATABASE()
+                AND TABLE_NAME = 'spider_statistics' 
+                AND COLUMN_NAME = 'total_crawled_items'
+            """
+            result = self.mysql.fetch_one(check_query)
+            
+            # 如果字段不存在，添加字段
+            if result and result['count'] == 0:
+                alter_query = """
+                    ALTER TABLE spider_statistics 
+                    ADD COLUMN total_crawled_items BIGINT DEFAULT 0 COMMENT '累计爬取数据条数' 
+                    AFTER total_items
+                """
+                self.mysql.execute_query(alter_query)
+                log.info("成功添加total_crawled_items字段到spider_statistics表")
+        except Exception as e:
+            log.error(f"初始化表结构失败: {e}")
+            log.error(traceback.format_exc())
+    
+    def _update_historical_crawled_items(self):
+        """
+        更新历史任务的累计爬取数据条数
+        仅在首次添加字段时执行一次
+        """
+        try:
+            # 检查是否需要更新历史数据
+            check_query = """
+                SELECT COUNT(*) as count
+                FROM spider_statistics
+                WHERE total_crawled_items = 0 OR total_crawled_items IS NULL
+            """
+            result = self.mysql.fetch_one(check_query)
+            
+            if not result or result['count'] == 0:
+                log.info("无需更新历史累计爬取数据条数")
+                return
+            
+            log.info(f"开始更新历史累计爬取数据条数，共 {result['count']} 条记录")
+            
+            # 获取所有需要更新的统计记录
+            stats_query = """
+                SELECT id, stat_date, task_type
+                FROM spider_statistics
+                WHERE total_crawled_items = 0 OR total_crawled_items IS NULL
+                ORDER BY stat_date
+            """
+            stats_records = self.mysql.fetch_all(stats_query)
+            
+            for stat in stats_records:
+                # 计算该日期之前（含当天）的所有已完成任务的爬取条数
+                crawled_items_query = """
+                    SELECT SUM(completed_items) as total_crawled
+                    FROM spider_tasks
+                    WHERE task_type = %s 
+                    AND status = 'completed'
+                    AND DATE(end_time) <= %s
+                """
+                crawled_result = self.mysql.fetch_one(
+                    crawled_items_query, 
+                    (stat['task_type'], stat['stat_date'])
+                )
+                
+                total_crawled = crawled_result['total_crawled'] if crawled_result and crawled_result['total_crawled'] else 0
+                
+                # 更新统计记录
+                update_query = """
+                    UPDATE spider_statistics
+                    SET total_crawled_items = %s
+                    WHERE id = %s
+                """
+                self.mysql.execute_query(update_query, (total_crawled, stat['id']))
+                
+                log.info(f"已更新 {stat['stat_date']} 的 {stat['task_type']} 任务累计爬取数据条数: {total_crawled}")
+            
+            log.info("历史累计爬取数据条数更新完成")
+        except Exception as e:
+            log.error(f"更新历史累计爬取数据条数失败: {e}")
+            log.error(traceback.format_exc())
+    
+    def _scheduler(self):
+        """调度器线程函数"""
+        log.info("调度器线程已启动")
+        self.is_running = True
+        
+        while self.is_running:
+            try:
+                self._scheduler_loop()
+            except Exception as e:
+                log.error(f"调度器线程异常: {e}")
+                log.error(traceback.format_exc())
+            time.sleep(1)
+        
+        log.info("调度器线程已停止")
+    
+    def _worker(self):
+        """工作线程函数"""
+        log.info("工作线程已启动")
+        
+        while self.is_running:
+            try:
+                # 这里可以实现特定的工作逻辑，例如处理队列中的任务
+                # 目前任务执行主要在_execute_task中通过新线程完成，这里预留接口
+                time.sleep(5)
+            except Exception as e:
+                log.error(f"工作线程异常: {e}")
+                log.error(traceback.format_exc())
+        
+        log.info("工作线程已停止")
 
 
 # 创建任务调度器实例

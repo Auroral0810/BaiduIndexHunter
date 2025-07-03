@@ -1584,7 +1584,7 @@ child_code</ColNames>
       <UnderlyingIndexName>region_code</UnderlyingIndexName>
     </key>
     <column id="398" parent="325" name="id">
-      <AutoIncrement>1</AutoIncrement>
+      <AutoIncrement>2</AutoIncrement>
       <Comment>统计ID</Comment>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -1626,219 +1626,225 @@ child_code</ColNames>
       <Position>7</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="405" parent="325" name="success_rate">
-      <Comment>成功率</Comment>
+    <column id="405" parent="325" name="total_crawled_items">
+      <Comment>累计爬取数据条数</Comment>
       <DefaultExpression>0</DefaultExpression>
       <Position>8</Position>
-      <StoredType>float|0s</StoredType>
+      <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="406" parent="325" name="avg_duration">
-      <Comment>平均执行时间(秒)</Comment>
+    <column id="406" parent="325" name="success_rate">
+      <Comment>成功率</Comment>
       <DefaultExpression>0</DefaultExpression>
       <Position>9</Position>
       <StoredType>float|0s</StoredType>
     </column>
-    <column id="407" parent="325" name="cookie_usage">
-      <Comment>Cookie使用次数</Comment>
+    <column id="407" parent="325" name="avg_duration">
+      <Comment>平均执行时间(秒)</Comment>
       <DefaultExpression>0</DefaultExpression>
       <Position>10</Position>
-      <StoredType>int|0s</StoredType>
+      <StoredType>float|0s</StoredType>
     </column>
-    <column id="408" parent="325" name="cookie_ban_count">
-      <Comment>Cookie封禁次数</Comment>
+    <column id="408" parent="325" name="cookie_usage">
+      <Comment>Cookie使用次数</Comment>
       <DefaultExpression>0</DefaultExpression>
       <Position>11</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="409" parent="325" name="update_time">
+    <column id="409" parent="325" name="cookie_ban_count">
+      <Comment>Cookie封禁次数</Comment>
+      <DefaultExpression>0</DefaultExpression>
+      <Position>12</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="410" parent="325" name="update_time">
       <Comment>更新时间</Comment>
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <NotNull>1</NotNull>
       <OnUpdate>CURRENT_TIMESTAMP</OnUpdate>
-      <Position>12</Position>
+      <Position>13</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <index id="410" parent="325" name="PRIMARY">
+    <index id="411" parent="325" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="411" parent="325" name="idx_date_type">
+    <index id="412" parent="325" name="idx_date_type">
       <ColNames>stat_date
 task_type</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="412" parent="325" name="PRIMARY">
+    <key id="413" parent="325" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="413" parent="325" name="idx_date_type">
+    <key id="414" parent="325" name="idx_date_type">
       <UnderlyingIndexName>idx_date_type</UnderlyingIndexName>
     </key>
-    <column id="414" parent="326" name="id">
+    <column id="415" parent="326" name="id">
       <AutoIncrement>1</AutoIncrement>
       <Comment>任务ID</Comment>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="415" parent="326" name="task_id">
+    <column id="416" parent="326" name="task_id">
       <Comment>任务唯一标识符</Comment>
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(32)|0s</StoredType>
     </column>
-    <column id="416" parent="326" name="task_name">
+    <column id="417" parent="326" name="task_name">
       <Comment>任务名称</Comment>
       <Position>3</Position>
       <StoredType>varchar(255)|0s</StoredType>
     </column>
-    <column id="417" parent="326" name="task_type">
+    <column id="418" parent="326" name="task_type">
       <Comment>任务类型(search_index/feed_index/word_graph/demographic_attributes/interest_profile/region_distribution)</Comment>
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>varchar(50)|0s</StoredType>
     </column>
-    <column id="418" parent="326" name="status">
+    <column id="419" parent="326" name="status">
       <Comment>任务状态(pending/running/paused/completed/failed)</Comment>
       <DefaultExpression>&apos;pending&apos;</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="419" parent="326" name="parameters">
+    <column id="420" parent="326" name="parameters">
       <Comment>任务参数(JSON格式)</Comment>
       <Position>6</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <column id="420" parent="326" name="progress">
+    <column id="421" parent="326" name="progress">
       <Comment>任务进度(0-100)</Comment>
       <DefaultExpression>0</DefaultExpression>
       <Position>7</Position>
       <StoredType>float|0s</StoredType>
     </column>
-    <column id="421" parent="326" name="total_items">
+    <column id="422" parent="326" name="total_items">
       <Comment>总项目数</Comment>
       <DefaultExpression>0</DefaultExpression>
       <Position>8</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="422" parent="326" name="completed_items">
+    <column id="423" parent="326" name="completed_items">
       <Comment>已完成项目数</Comment>
       <DefaultExpression>0</DefaultExpression>
       <Position>9</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="423" parent="326" name="failed_items">
+    <column id="424" parent="326" name="failed_items">
       <Comment>失败项目数</Comment>
       <DefaultExpression>0</DefaultExpression>
       <Position>10</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="424" parent="326" name="create_time">
+    <column id="425" parent="326" name="create_time">
       <Comment>创建时间</Comment>
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>11</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="425" parent="326" name="start_time">
+    <column id="426" parent="326" name="start_time">
       <Comment>开始执行时间</Comment>
       <Position>12</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="426" parent="326" name="update_time">
+    <column id="427" parent="326" name="update_time">
       <Comment>最后更新时间</Comment>
       <Position>13</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="427" parent="326" name="end_time">
+    <column id="428" parent="326" name="end_time">
       <Comment>结束时间</Comment>
       <Position>14</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="428" parent="326" name="error_message">
+    <column id="429" parent="326" name="error_message">
       <Comment>错误信息</Comment>
       <Position>15</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <column id="429" parent="326" name="checkpoint_path">
+    <column id="430" parent="326" name="checkpoint_path">
       <Comment>检查点数据(JSON格式)</Comment>
       <Position>16</Position>
       <StoredType>mediumtext|0s</StoredType>
     </column>
-    <column id="430" parent="326" name="output_files">
+    <column id="431" parent="326" name="output_files">
       <Comment>输出文件路径(JSON格式)</Comment>
       <Position>17</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <column id="431" parent="326" name="created_by">
+    <column id="432" parent="326" name="created_by">
       <Comment>创建者</Comment>
       <Position>18</Position>
       <StoredType>varchar(50)|0s</StoredType>
     </column>
-    <column id="432" parent="326" name="priority">
+    <column id="433" parent="326" name="priority">
       <Comment>任务优先级(1-10，数字越大优先级越高)</Comment>
       <DefaultExpression>5</DefaultExpression>
       <Position>19</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <index id="433" parent="326" name="PRIMARY">
+    <index id="434" parent="326" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="434" parent="326" name="task_id">
+    <index id="435" parent="326" name="task_id">
       <ColNames>task_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="435" parent="326" name="idx_task_type">
+    <index id="436" parent="326" name="idx_task_type">
       <ColNames>task_type</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="436" parent="326" name="idx_status">
+    <index id="437" parent="326" name="idx_status">
       <ColNames>status</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="437" parent="326" name="idx_create_time">
+    <index id="438" parent="326" name="idx_create_time">
       <ColNames>create_time</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="438" parent="326" name="PRIMARY">
+    <key id="439" parent="326" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="439" parent="326" name="task_id">
+    <key id="440" parent="326" name="task_id">
       <UnderlyingIndexName>task_id</UnderlyingIndexName>
     </key>
-    <column id="440" parent="327" name="id">
+    <column id="441" parent="327" name="id">
       <AutoIncrement>1</AutoIncrement>
       <Comment>配置ID</Comment>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="441" parent="327" name="config_key">
+    <column id="442" parent="327" name="config_key">
       <Comment>配置键</Comment>
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(50)|0s</StoredType>
     </column>
-    <column id="442" parent="327" name="config_value">
+    <column id="443" parent="327" name="config_value">
       <Comment>配置值</Comment>
       <Position>3</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <column id="443" parent="327" name="description">
+    <column id="444" parent="327" name="description">
       <Comment>描述</Comment>
       <Position>4</Position>
       <StoredType>varchar(255)|0s</StoredType>
     </column>
-    <column id="444" parent="327" name="update_time">
+    <column id="445" parent="327" name="update_time">
       <Comment>更新时间</Comment>
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <NotNull>1</NotNull>
@@ -1846,335 +1852,335 @@ task_type</ColNames>
       <Position>5</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <index id="445" parent="327" name="PRIMARY">
+    <index id="446" parent="327" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="446" parent="327" name="config_key">
+    <index id="447" parent="327" name="config_key">
       <ColNames>config_key</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="447" parent="327" name="PRIMARY">
+    <key id="448" parent="327" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="448" parent="327" name="config_key">
+    <key id="449" parent="327" name="config_key">
       <UnderlyingIndexName>config_key</UnderlyingIndexName>
     </key>
-    <column id="449" parent="328" name="id">
+    <column id="450" parent="328" name="id">
       <AutoIncrement>1</AutoIncrement>
       <Comment>日志ID</Comment>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="450" parent="328" name="task_id">
+    <column id="451" parent="328" name="task_id">
       <Comment>关联的任务ID</Comment>
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(32)|0s</StoredType>
     </column>
-    <column id="451" parent="328" name="log_level">
+    <column id="452" parent="328" name="log_level">
       <Comment>日志级别(info/warning/error/debug)</Comment>
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(10)|0s</StoredType>
     </column>
-    <column id="452" parent="328" name="message">
+    <column id="453" parent="328" name="message">
       <Comment>日志消息</Comment>
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <column id="453" parent="328" name="timestamp">
+    <column id="454" parent="328" name="timestamp">
       <Comment>记录时间</Comment>
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="454" parent="328" name="details">
+    <column id="455" parent="328" name="details">
       <Comment>详细信息(JSON格式)</Comment>
       <Position>6</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <index id="455" parent="328" name="PRIMARY">
+    <index id="456" parent="328" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="456" parent="328" name="idx_task_id">
+    <index id="457" parent="328" name="idx_task_id">
       <ColNames>task_id</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="457" parent="328" name="idx_log_level">
+    <index id="458" parent="328" name="idx_log_level">
       <ColNames>log_level</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="458" parent="328" name="idx_timestamp">
+    <index id="459" parent="328" name="idx_timestamp">
       <ColNames>timestamp</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="459" parent="328" name="PRIMARY">
+    <key id="460" parent="328" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="460" parent="329" name="id">
+    <column id="461" parent="329" name="id">
       <AutoIncrement>1</AutoIncrement>
       <Comment>队列ID</Comment>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="461" parent="329" name="task_id">
+    <column id="462" parent="329" name="task_id">
       <Comment>关联的任务ID</Comment>
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(32)|0s</StoredType>
     </column>
-    <column id="462" parent="329" name="priority">
+    <column id="463" parent="329" name="priority">
       <Comment>优先级(数字越大优先级越高)</Comment>
       <DefaultExpression>0</DefaultExpression>
       <Position>3</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="463" parent="329" name="status">
+    <column id="464" parent="329" name="status">
       <Comment>状态(waiting/processing/completed/failed)</Comment>
       <DefaultExpression>&apos;waiting&apos;</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="464" parent="329" name="worker_id">
+    <column id="465" parent="329" name="worker_id">
       <Comment>处理该任务的工作节点ID</Comment>
       <Position>5</Position>
       <StoredType>varchar(50)|0s</StoredType>
     </column>
-    <column id="465" parent="329" name="enqueue_time">
+    <column id="466" parent="329" name="enqueue_time">
       <Comment>入队时间</Comment>
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="466" parent="329" name="start_time">
+    <column id="467" parent="329" name="start_time">
       <Comment>开始处理时间</Comment>
       <Position>7</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="467" parent="329" name="complete_time">
+    <column id="468" parent="329" name="complete_time">
       <Comment>完成时间</Comment>
       <Position>8</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="468" parent="329" name="retry_count">
+    <column id="469" parent="329" name="retry_count">
       <Comment>重试次数</Comment>
       <DefaultExpression>0</DefaultExpression>
       <Position>9</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="469" parent="329" name="max_retries">
+    <column id="470" parent="329" name="max_retries">
       <Comment>最大重试次数</Comment>
       <DefaultExpression>3</DefaultExpression>
       <Position>10</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="470" parent="329" name="next_retry_time">
+    <column id="471" parent="329" name="next_retry_time">
       <Comment>下次重试时间</Comment>
       <Position>11</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <index id="471" parent="329" name="PRIMARY">
+    <index id="472" parent="329" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="472" parent="329" name="task_id">
+    <index id="473" parent="329" name="task_id">
       <ColNames>task_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="473" parent="329" name="idx_priority">
+    <index id="474" parent="329" name="idx_priority">
       <ColNames>priority</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="474" parent="329" name="idx_status">
+    <index id="475" parent="329" name="idx_status">
       <ColNames>status</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="475" parent="329" name="idx_worker_id">
+    <index id="476" parent="329" name="idx_worker_id">
       <ColNames>worker_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="476" parent="329" name="PRIMARY">
+    <key id="477" parent="329" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="477" parent="329" name="task_id">
+    <key id="478" parent="329" name="task_id">
       <UnderlyingIndexName>task_id</UnderlyingIndexName>
     </key>
-    <column id="478" parent="330" name="id">
+    <column id="479" parent="330" name="id">
       <AutoIncrement>1</AutoIncrement>
       <Comment>统计ID</Comment>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="479" parent="330" name="task_id">
+    <column id="480" parent="330" name="task_id">
       <Comment>关联的任务ID</Comment>
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(32)|0s</StoredType>
     </column>
-    <column id="480" parent="330" name="keyword">
+    <column id="481" parent="330" name="keyword">
       <Comment>关键词</Comment>
       <Position>3</Position>
       <StoredType>varchar(255)|0s</StoredType>
     </column>
-    <column id="481" parent="330" name="city_code">
+    <column id="482" parent="330" name="city_code">
       <Comment>城市代码</Comment>
       <Position>4</Position>
       <StoredType>varchar(50)|0s</StoredType>
     </column>
-    <column id="482" parent="330" name="date_range">
+    <column id="483" parent="330" name="date_range">
       <Comment>日期范围</Comment>
       <Position>5</Position>
       <StoredType>varchar(50)|0s</StoredType>
     </column>
-    <column id="483" parent="330" name="data_type">
+    <column id="484" parent="330" name="data_type">
       <Comment>数据类型</Comment>
       <Position>6</Position>
       <StoredType>varchar(50)|0s</StoredType>
     </column>
-    <column id="484" parent="330" name="item_count">
+    <column id="485" parent="330" name="item_count">
       <Comment>数据项数量</Comment>
       <DefaultExpression>0</DefaultExpression>
       <Position>7</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="485" parent="330" name="avg_value">
+    <column id="486" parent="330" name="avg_value">
       <Comment>平均值</Comment>
       <Position>8</Position>
       <StoredType>float|0s</StoredType>
     </column>
-    <column id="486" parent="330" name="max_value">
+    <column id="487" parent="330" name="max_value">
       <Comment>最大值</Comment>
       <Position>9</Position>
       <StoredType>float|0s</StoredType>
     </column>
-    <column id="487" parent="330" name="min_value">
+    <column id="488" parent="330" name="min_value">
       <Comment>最小值</Comment>
       <Position>10</Position>
       <StoredType>float|0s</StoredType>
     </column>
-    <column id="488" parent="330" name="sum_value">
+    <column id="489" parent="330" name="sum_value">
       <Comment>总和</Comment>
       <Position>11</Position>
       <StoredType>float|0s</StoredType>
     </column>
-    <column id="489" parent="330" name="extra_data">
+    <column id="490" parent="330" name="extra_data">
       <Comment>额外数据(JSON格式)</Comment>
       <Position>12</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <column id="490" parent="330" name="create_time">
+    <column id="491" parent="330" name="create_time">
       <Comment>创建时间</Comment>
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>13</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <index id="491" parent="330" name="PRIMARY">
+    <index id="492" parent="330" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="492" parent="330" name="idx_task_id">
+    <index id="493" parent="330" name="idx_task_id">
       <ColNames>task_id</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="493" parent="330" name="idx_keyword">
+    <index id="494" parent="330" name="idx_keyword">
       <ColNames>keyword</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="494" parent="330" name="idx_city_code">
+    <index id="495" parent="330" name="idx_city_code">
       <ColNames>city_code</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="495" parent="330" name="PRIMARY">
+    <key id="496" parent="330" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="496" parent="331" name="region_code">
+    <column id="497" parent="331" name="region_code">
       <Comment>区域代码</Comment>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="497" parent="331" name="region_name">
+    <column id="498" parent="331" name="region_name">
       <Comment>区域名称</Comment>
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="498" parent="331" name="layer_level">
+    <column id="499" parent="331" name="layer_level">
       <Comment>层级：1-省级，2-地级市，3-区县级，4-更细分级</Comment>
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="499" parent="331" name="parent_code">
+    <column id="500" parent="331" name="parent_code">
       <Comment>父级区域代码</Comment>
       <Position>4</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="500" parent="331" name="parent_name">
+    <column id="501" parent="331" name="parent_name">
       <Comment>区域名称</Comment>
       <Position>5</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="501" parent="331" name="province_region">
+    <column id="502" parent="331" name="province_region">
       <Comment>所属大区（华东、华北等）</Comment>
       <Position>6</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="502" parent="332" name="parent_code">
+    <column id="503" parent="332" name="parent_code">
       <Comment>父级区域代码</Comment>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="503" parent="332" name="parent_name">
+    <column id="504" parent="332" name="parent_name">
       <Comment>区域名称</Comment>
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="504" parent="332" name="child_code">
+    <column id="505" parent="332" name="child_code">
       <Comment>子级区域代码</Comment>
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="505" parent="332" name="child_name">
+    <column id="506" parent="332" name="child_name">
       <Comment>区域名称</Comment>
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="506" parent="332" name="child_level">
+    <column id="507" parent="332" name="child_level">
       <Comment>层级：1-省级，2-地级市，3-区县级，4-更细分级</Comment>
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="507" parent="332" name="sort_order">
+    <column id="508" parent="332" name="sort_order">
       <Comment>排序序号</Comment>
       <Position>6</Position>
       <StoredType>int|0s</StoredType>

@@ -1227,11 +1227,19 @@ class TaskExecutor:
             if task['start_time'] and task['end_time']:
                 duration = (task['end_time'] - task['start_time']).total_seconds()
             
+            # 获取本次任务实际爬取的数据条数
+            crawled_items = task['completed_items'] or 0
+            
             # 检查今天的统计数据是否存在
-            check_query = "SELECT id FROM spider_statistics WHERE stat_date = %s AND task_type = %s"
+            check_query = "SELECT id, total_crawled_items FROM spider_statistics WHERE stat_date = %s AND task_type = %s"
             stats = self.mysql.fetch_one(check_query, (stat_date, task_type))
             
             if stats:
+                # 当前累计爬取数据条数
+                current_total_crawled = stats.get('total_crawled_items', 0) or 0
+                # 更新后的累计爬取数据条数
+                new_total_crawled = current_total_crawled + crawled_items
+                
                 # 更新已有的统计数据
                 update_query = """
                     UPDATE spider_statistics 
@@ -1239,6 +1247,7 @@ class TaskExecutor:
                         completed_tasks = completed_tasks + %s,
                         failed_tasks = failed_tasks + %s,
                         total_items = total_items + %s,
+                        total_crawled_items = %s,
                         success_rate = (completed_tasks + %s) / (total_tasks + 1) * 100,
                         avg_duration = ((avg_duration * total_tasks) + %s) / (total_tasks + 1)
                     WHERE stat_date = %s AND task_type = %s
@@ -1249,15 +1258,17 @@ class TaskExecutor:
                 
                 self.mysql.execute_query(
                     update_query, 
-                    (is_completed, is_failed, total_items, is_completed, duration, stat_date, task_type)
+                    (is_completed, is_failed, total_items, new_total_crawled, is_completed, duration, stat_date, task_type)
                 )
+                
+                log.info(f"更新累计爬取数据条数: {current_total_crawled} -> {new_total_crawled}")
             else:
                 # 创建新的统计数据
                 insert_query = """
                     INSERT INTO spider_statistics (
                         stat_date, task_type, total_tasks, completed_tasks, 
-                        failed_tasks, total_items, success_rate, avg_duration
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                        failed_tasks, total_items, total_crawled_items, success_rate, avg_duration
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
                 is_completed = 1 if status == 'completed' else 0
                 is_failed = 1 if status == 'failed' else 0
@@ -1266,8 +1277,10 @@ class TaskExecutor:
                 
                 self.mysql.execute_query(
                     insert_query, 
-                    (stat_date, task_type, 1, is_completed, is_failed, total_items, success_rate, duration)
+                    (stat_date, task_type, 1, is_completed, is_failed, total_items, crawled_items, success_rate, duration)
                 )
+                
+                log.info(f"创建新统计记录，初始爬取数据条数: {crawled_items}")
                 
             log.info(f"已更新任务 {task_id} 的统计数据")
             

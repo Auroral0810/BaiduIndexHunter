@@ -268,22 +268,21 @@ def get_task_statistics(task_id):
 @swag_from({
     'tags': ['统计数据'],
     'summary': '获取爬虫统计数据',
-    'description': '获取爬虫系统的统计数据',
+    'description': '获取爬虫执行的统计数据，支持按日期和任务类型筛选',
     'parameters': [
         {
-            'name': 'days',
+            'name': 'date',
             'in': 'query',
-            'type': 'integer',
+            'type': 'string',
             'required': False,
-            'default': 30,
-            'description': '统计最近几天的数据'
+            'description': '日期，格式为YYYY-MM-DD'
         },
         {
             'name': 'task_type',
             'in': 'query',
             'type': 'string',
             'required': False,
-            'description': '任务类型过滤'
+            'description': '任务类型'
         }
     ],
     'responses': {
@@ -292,41 +291,41 @@ def get_task_statistics(task_id):
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '获取爬虫统计数据成功'},
+                    'code': {'type': 'integer'},
+                    'msg': {'type': 'string'},
                     'data': {
                         'type': 'object',
                         'properties': {
-                            'total_items': {'type': 'integer'},
-                            'success_items': {'type': 'integer'},
-                            'fail_items': {'type': 'integer'},
-                            'success_rate': {'type': 'number'},
-                            'daily_statistics': {
+                            'statistics': {
                                 'type': 'array',
                                 'items': {
                                     'type': 'object',
                                     'properties': {
-                                        'date': {'type': 'string', 'format': 'date'},
-                                        'item_count': {'type': 'integer'},
-                                        'success_count': {'type': 'integer'},
-                                        'fail_count': {'type': 'integer'}
-                                    }
-                                }
-                            },
-                            'task_type_statistics': {
-                                'type': 'array',
-                                'items': {
-                                    'type': 'object',
-                                    'properties': {
+                                        'stat_date': {'type': 'string'},
                                         'task_type': {'type': 'string'},
-                                        'item_count': {'type': 'integer'},
-                                        'success_count': {'type': 'integer'},
-                                        'fail_count': {'type': 'integer'}
+                                        'total_tasks': {'type': 'integer'},
+                                        'completed_tasks': {'type': 'integer'},
+                                        'failed_tasks': {'type': 'integer'},
+                                        'total_items': {'type': 'integer'},
+                                        'total_crawled_items': {'type': 'integer'},
+                                        'success_rate': {'type': 'number'},
+                                        'avg_duration': {'type': 'number'}
                                     }
                                 }
                             }
                         }
                     }
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer'},
+                    'msg': {'type': 'string'},
+                    'data': {'type': 'null'}
                 }
             }
         }
@@ -335,92 +334,47 @@ def get_task_statistics(task_id):
 def get_spider_statistics():
     """获取爬虫统计数据"""
     try:
-        # 获取参数
-        days = int(request.args.get('days', 30))
+        # 获取查询参数
+        date = request.args.get('date')
         task_type = request.args.get('task_type')
         
         # 构建查询条件
         conditions = []
         values = []
         
+        if date:
+            conditions.append("stat_date = %s")
+            values.append(date)
+        
         if task_type:
             conditions.append("task_type = %s")
             values.append(task_type)
         
-        # 添加时间范围
-        start_date = datetime.now() - timedelta(days=days)
-        conditions.append("create_time >= %s")
-        values.append(start_date)
-        
-        where_clause = " WHERE " + " AND ".join(conditions) if conditions else ""
-        
-        # 获取总体统计数据
-        query = f"""
+        # 构建查询语句
+        query = """
             SELECT 
-                SUM(item_count) AS total_items,
-                SUM(success_count) AS success_items,
-                SUM(fail_count) AS fail_items
-            FROM task_statistics
-            {where_clause}
+                stat_date, task_type, total_tasks, completed_tasks, 
+                failed_tasks, total_items, total_crawled_items, success_rate, avg_duration,
+                cookie_usage, cookie_ban_count
+            FROM 
+                spider_statistics
         """
         
-        overall = mysql.fetch_one(query, values)
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
         
-        # 获取每日统计数据
-        query = f"""
-            SELECT 
-                DATE(create_time) AS date,
-                SUM(item_count) AS item_count,
-                SUM(success_count) AS success_count,
-                SUM(fail_count) AS fail_count
-            FROM task_statistics
-            {where_clause}
-            GROUP BY DATE(create_time)
-            ORDER BY date
-        """
+        query += " ORDER BY stat_date DESC, task_type ASC"
         
-        daily_statistics = mysql.fetch_all(query, values)
+        # 执行查询
+        statistics = MySQLManager().fetch_all(query, values)
         
-        # 格式化日期
-        for item in daily_statistics:
-            if isinstance(item['date'], datetime):
-                item['date'] = item['date'].strftime('%Y-%m-%d')
+        # 处理日期格式
+        for stat in statistics:
+            if 'stat_date' in stat and isinstance(stat['stat_date'], datetime.date):
+                stat['stat_date'] = stat['stat_date'].strftime('%Y-%m-%d')
         
-        # 获取任务类型统计数据
-        query = f"""
-            SELECT 
-                task_type,
-                SUM(item_count) AS item_count,
-                SUM(success_count) AS success_count,
-                SUM(fail_count) AS fail_count
-            FROM task_statistics
-            {where_clause}
-            GROUP BY task_type
-        """
-        
-        task_type_statistics = mysql.fetch_all(query, values)
-        
-        # 计算成功率
-        total_items = overall['total_items'] if overall and overall['total_items'] else 0
-        success_items = overall['success_items'] if overall and overall['success_items'] else 0
-        fail_items = overall['fail_items'] if overall and overall['fail_items'] else 0
-        
-        success_rate = 0
-        if total_items > 0:
-            success_rate = round(success_items / total_items * 100, 2)
-        
-        # 构建返回数据
-        data = {
-            'total_items': total_items,
-            'success_items': success_items,
-            'fail_items': fail_items,
-            'success_rate': success_rate,
-            'daily_statistics': daily_statistics,
-            'task_type_statistics': task_type_statistics
-        }
-        
-        return jsonify(ResponseFormatter.success(data, "获取爬虫统计数据成功"))
-        
+        return jsonify(ResponseFormatter.success({'statistics': statistics}, "获取爬虫统计数据成功"))
+    
     except Exception as e:
         log.error(f"获取爬虫统计数据失败: {e}")
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取爬虫统计数据失败: {str(e)}"))
