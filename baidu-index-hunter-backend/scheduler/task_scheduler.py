@@ -731,6 +731,95 @@ class TaskScheduler:
                 log.error(traceback.format_exc())
         
         log.info("工作线程已停止")
+    
+    def _update_spider_statistics(self, task_id, status):
+        """
+        更新爬虫统计数据
+        :param task_id: 任务ID
+        :param status: 任务状态
+        :return: 是否成功
+        """
+        try:
+            # 只处理已完成的任务
+            if status != 'completed':
+                return True
+            
+            # 获取任务信息
+            query = """
+                SELECT task_id, task_type, completed_items, start_time, end_time
+                FROM spider_tasks
+                WHERE task_id = %s
+            """
+            task = self.mysql.fetch_one(query, (task_id,))
+            
+            if not task or not task['end_time'] or not task['start_time']:
+                log.warning(f"任务 {task_id} 缺少必要信息，无法更新统计数据")
+                return False
+            
+            # 获取任务完成日期（使用结束时间的日期）
+            stat_date = task['end_time'].date()
+            task_type = task['task_type']
+            completed_items = task['completed_items'] or 0
+            
+            # 检查该日期是否已有统计记录
+            check_query = """
+                SELECT id, total_tasks, completed_tasks, total_items, total_crawled_items
+                FROM spider_statistics
+                WHERE stat_date = %s AND task_type = %s
+            """
+            stat = self.mysql.fetch_one(check_query, (stat_date, task_type))
+            
+            if stat:
+                # 更新现有记录
+                update_query = """
+                    UPDATE spider_statistics
+                    SET total_tasks = total_tasks + 1,
+                        completed_tasks = completed_tasks + 1,
+                        total_items = total_items + %s,
+                        total_crawled_items = (
+                            SELECT COALESCE(SUM(completed_items), 0)
+                            FROM spider_tasks
+                            WHERE task_type = %s
+                            AND status = 'completed'
+                            AND DATE(end_time) <= %s
+                        ),
+                        update_time = %s
+                    WHERE id = %s
+                """
+                self.mysql.execute_query(
+                    update_query, 
+                    (completed_items, task_type, stat_date, datetime.now(), stat['id'])
+                )
+            else:
+                # 计算累计爬取数据条数
+                crawled_query = """
+                    SELECT COALESCE(SUM(completed_items), 0) as total_crawled
+                    FROM spider_tasks
+                    WHERE task_type = %s
+                    AND status = 'completed'
+                    AND DATE(end_time) <= %s
+                """
+                crawled_result = self.mysql.fetch_one(crawled_query, (task_type, stat_date))
+                total_crawled_items = crawled_result['total_crawled'] if crawled_result else 0
+                
+                # 插入新记录
+                insert_query = """
+                    INSERT INTO spider_statistics
+                    (stat_date, task_type, total_tasks, completed_tasks, failed_tasks, 
+                     total_items, total_crawled_items, create_time, update_time)
+                    VALUES (%s, %s, 1, 1, 0, %s, %s, %s, %s)
+                """
+                now = datetime.now()
+                self.mysql.execute_query(
+                    insert_query, 
+                    (stat_date, task_type, completed_items, total_crawled_items, now, now)
+                )
+            
+            return True
+        except Exception as e:
+            log.error(f"更新爬虫统计数据失败: {e}")
+            log.error(traceback.format_exc())
+            return False
 
 
 # 创建任务调度器实例

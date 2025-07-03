@@ -30,6 +30,16 @@ REDIS_CONFIG = {
     'password': os.getenv('REDIS_PASSWORD', '') or None,
 }
 
+# 阿里云OSS配置
+OSS_CONFIG = {
+    'url': os.getenv('OSS_URL', 'big-event20040810.oss-cn-beijing.aliyuncs.com'),
+    'endpoint': os.getenv('OSS_ENDPOINT', 'https://oss-cn-beijing.aliyuncs.com'),
+    'access_key_id': os.getenv('OSS_ACCESS_KEY_ID', 'LTAI5tCJAKHv96E4hYuhUEG4'),
+    'access_key_secret': os.getenv('OSS_ACCESS_KEY_SECRET', 'RRxg1dBcF4rqB7uvKxyZm7L1kcdpbl'),
+    'bucket_name': os.getenv('OSS_BUCKET_NAME', 'big-event20040810'),
+    'region': os.getenv('OSS_REGION', 'cn-beijing'),
+}
+
 # API配置
 API_CONFIG = {
     'host': os.getenv('API_HOST', '0.0.0.0'),

@@ -135,17 +135,48 @@ class TaskExecutor:
             if error_message is not None:
                 update_data['error_message'] = error_message
             
-            if checkpoint_path is not None:
-                if isinstance(checkpoint_path, dict):
-                    update_data['checkpoint_path'] = json.dumps(checkpoint_path)
-                else:
-                    update_data['checkpoint_path'] = checkpoint_path
-            
-            if output_files is not None:
-                if isinstance(output_files, list):
-                    update_data['output_files'] = json.dumps(output_files)
-                else:
-                    update_data['output_files'] = output_files
+            # 如果任务已完成，将文件上传到OSS
+            if status == 'completed':
+                from utils.oss_manager import OSSManager
+                oss_manager = OSSManager()
+                
+                # 上传断点续传文件到OSS
+                if checkpoint_path is not None:
+                    if isinstance(checkpoint_path, dict):
+                        # 如果是字典，先转为JSON字符串
+                        update_data['checkpoint_path'] = json.dumps(checkpoint_path)
+                    else:
+                        # 上传文件到OSS并更新路径
+                        oss_url = oss_manager.upload_checkpoint(checkpoint_path)
+                        if oss_url:
+                            update_data['checkpoint_path'] = oss_url
+                        else:
+                            update_data['checkpoint_path'] = checkpoint_path
+                
+                # 上传输出文件到OSS
+                if output_files is not None:
+                    if isinstance(output_files, list) and len(output_files) > 0:
+                        # 上传文件列表到OSS
+                        oss_urls = oss_manager.upload_output_files(output_files)
+                        if oss_urls:
+                            update_data['output_files'] = json.dumps(oss_urls)
+                        else:
+                            update_data['output_files'] = json.dumps(output_files)
+                    else:
+                        update_data['output_files'] = output_files
+            else:
+                # 非完成状态，直接更新路径
+                if checkpoint_path is not None:
+                    if isinstance(checkpoint_path, dict):
+                        update_data['checkpoint_path'] = json.dumps(checkpoint_path)
+                    else:
+                        update_data['checkpoint_path'] = checkpoint_path
+                
+                if output_files is not None:
+                    if isinstance(output_files, list):
+                        update_data['output_files'] = json.dumps(output_files)
+                    else:
+                        update_data['output_files'] = output_files
             
             # 如果状态是已完成或失败，设置结束时间
             if status in ['completed', 'failed', 'cancelled']:
@@ -203,6 +234,7 @@ class TaskExecutor:
             return True
         except Exception as e:
             log.error(f"更新任务状态失败: {e}")
+            log.error(traceback.format_exc())
             return False
     
     def _log_task(self, task_id, level, message):
