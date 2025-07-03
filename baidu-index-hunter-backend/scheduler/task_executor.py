@@ -167,19 +167,9 @@ class TaskExecutor:
                         update_data['output_files'] = json.dumps(output_files)
                 else:
                     update_data['output_files'] = output_files
-            # else:
-            #     # 非完成状态，直接更新路径
-            #     if checkpoint_path is not None:
-            #         if isinstance(checkpoint_path, dict):
-            #             update_data['checkpoint_path'] = json.dumps(checkpoint_path)
-            #         else:
-            #             update_data['checkpoint_path'] = checkpoint_path
-                
-            #     if output_files is not None:
-            #         if isinstance(output_files, list):
-            #             update_data['output_files'] = json.dumps(output_files)
-            #         else:
-            #             update_data['output_files'] = output_files
+
+            # 过滤掉值为 None 的字段，防止 SQL 语法错误
+            update_data = {k: v for k, v in update_data.items() if v is not None}
             
             # 如果状态是已完成或失败，设置结束时间
             if status in ['completed', 'failed', 'cancelled']:
