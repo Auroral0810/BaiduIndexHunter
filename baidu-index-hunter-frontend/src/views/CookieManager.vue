@@ -1531,7 +1531,7 @@ const processExcelFile = async (file: File) => {
 <template>
   <div class="cookie-manager-container">
     <div class="page-header">
-      <h1>Cookie 管理系统</h1>
+      <h1>Cookie 管理</h1>
       <div class="api-status">
         <el-tag :type="apiConnected ? 'success' : 'danger'" effect="dark">
           {{ apiConnected ? 'API 已连接' : 'API 未连接' }}
