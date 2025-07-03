@@ -10,6 +10,7 @@ import uuid
 import threading
 from datetime import datetime
 from queue import Queue, PriorityQueue
+import traceback
 
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -99,6 +100,15 @@ class TaskScheduler:
         
         self.mysql.execute_query(query, values)
         
+        # 将任务添加到task_queue表
+        queue_query = """
+            INSERT INTO task_queue (
+                task_id, priority, status, enqueue_time
+            ) VALUES (%s, %s, %s, %s)
+        """
+        queue_values = (task_id, priority, 'waiting', now)
+        self.mysql.execute_query(queue_query, queue_values)
+        
         log.info(f"创建任务成功: {task_id}, 类型: {task_type}, 优先级: {priority}")
         
         # 将任务加入队列
@@ -126,8 +136,32 @@ class TaskScheduler:
             return False
         
         # 更新任务状态为待处理
+        now = datetime.now()
         query = "UPDATE spider_tasks SET status = 'pending', update_time = %s WHERE task_id = %s"
-        self.mysql.execute_query(query, (datetime.now(), task_id))
+        self.mysql.execute_query(query, (now, task_id))
+        
+        # 检查任务是否在task_queue表中存在
+        check_query = "SELECT id FROM task_queue WHERE task_id = %s"
+        queue_record = self.mysql.fetch_one(check_query, (task_id,))
+        
+        if queue_record:
+            # 如果任务在队列表中存在，更新状态为waiting
+            queue_update_query = """
+                UPDATE task_queue 
+                SET status = 'waiting' 
+                WHERE task_id = %s
+            """
+            self.mysql.execute_query(queue_update_query, (task_id,))
+        else:
+            # 如果任务不在队列表中，添加到队列表
+            priority = task.get('priority', 5)
+            queue_insert_query = """
+                INSERT INTO task_queue (
+                    task_id, priority, status, enqueue_time
+                ) VALUES (%s, %s, %s, %s)
+            """
+            queue_values = (task_id, priority, 'waiting', now)
+            self.mysql.execute_query(queue_insert_query, queue_values)
         
         # 将任务加入队列
         self._add_task_to_queue(task_id, 0)  # 默认优先级为0
@@ -197,9 +231,17 @@ class TaskScheduler:
             task_executor.stop_task(task_id)
         
         # 更新任务状态为取消
-        query = "UPDATE spider_tasks SET status = 'cancelled', update_time = %s, end_time = %s WHERE task_id = %s"
         now = datetime.now()
+        query = "UPDATE spider_tasks SET status = 'cancelled', update_time = %s, end_time = %s WHERE task_id = %s"
         self.mysql.execute_query(query, (now, now, task_id))
+        
+        # 更新task_queue表中的状态为cancelled
+        queue_query = """
+            UPDATE task_queue 
+            SET status = 'cancelled', complete_time = %s 
+            WHERE task_id = %s
+        """
+        self.mysql.execute_query(queue_query, (now, task_id))
         
         log.info(f"任务已取消: {task_id}")
         return True
@@ -362,7 +404,7 @@ class TaskScheduler:
         """加载未完成的任务到队列"""
         try:
             # 查询所有待处理和暂停的任务
-            query = "SELECT task_id FROM spider_tasks WHERE status IN ('pending', 'paused')"
+            query = "SELECT task_id, priority FROM spider_tasks WHERE status IN ('pending', 'paused')"
             tasks = self.mysql.fetch_all(query)
             
             if not tasks:
@@ -370,14 +412,37 @@ class TaskScheduler:
                 return
             
             # 将任务加入队列
+            now = datetime.now()
             for task in tasks:
                 task_id = task['task_id']
-                self._add_task_to_queue(task_id)
+                priority = task.get('priority', 5)
+                
+                # 检查任务是否在task_queue表中
+                check_query = "SELECT id, status FROM task_queue WHERE task_id = %s"
+                queue_record = self.mysql.fetch_one(check_query, (task_id,))
+                
+                if queue_record:
+                    # 如果在队列表中，但状态不是waiting，更新为waiting
+                    if queue_record['status'] != 'waiting':
+                        update_query = "UPDATE task_queue SET status = 'waiting' WHERE task_id = %s"
+                        self.mysql.execute_query(update_query, (task_id,))
+                else:
+                    # 如果不在队列表中，添加到队列表
+                    insert_query = """
+                        INSERT INTO task_queue (
+                            task_id, priority, status, enqueue_time
+                        ) VALUES (%s, %s, %s, %s)
+                    """
+                    self.mysql.execute_query(insert_query, (task_id, priority, 'waiting', now))
+                
+                # 将任务加入内存队列
+                self._add_task_to_queue(task_id, -priority)  # 优先级取负值
             
             log.info(f"已加载 {len(tasks)} 个待处理任务")
             
         except Exception as e:
             log.error(f"加载待处理任务失败: {e}")
+            log.error(traceback.format_exc())
     
     def _scheduler_loop(self):
         """调度器主循环"""
@@ -444,6 +509,14 @@ class TaskScheduler:
         """
         now = datetime.now()
         self.mysql.execute_query(query, (now, now, task_id))
+        
+        # 更新task_queue表中的状态为processing
+        queue_query = """
+            UPDATE task_queue 
+            SET status = 'processing', start_time = %s 
+            WHERE task_id = %s AND start_time IS NULL
+        """
+        self.mysql.execute_query(queue_query, (now, task_id))
         
         # 创建执行线程
         thread = threading.Thread(

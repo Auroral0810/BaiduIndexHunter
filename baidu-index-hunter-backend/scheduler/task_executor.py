@@ -168,6 +168,29 @@ class TaskExecutor:
             query = f"UPDATE spider_tasks SET {set_clause} WHERE task_id = %s"
             self.mysql.execute_query(query, values)
             
+            # 如果任务状态为完成、失败或取消，更新task_queue表中的状态
+            if status in ['completed', 'failed', 'cancelled']:
+                now = datetime.now()
+                queue_status = 'completed' if status == 'completed' else 'failed' if status == 'failed' else 'cancelled'
+                queue_query = """
+                    UPDATE task_queue 
+                    SET status = %s, complete_time = %s 
+                    WHERE task_id = %s
+                """
+                self.mysql.execute_query(queue_query, (queue_status, now, task_id))
+                
+                # 如果任务完成或失败，更新spider_statistics表
+                self._update_spider_statistics(task_id, status)
+            
+            # 如果任务状态为running，更新task_queue表中的状态为processing
+            if status == 'running':
+                queue_query = """
+                    UPDATE task_queue 
+                    SET status = 'processing', start_time = %s 
+                    WHERE task_id = %s AND start_time IS NULL
+                """
+                self.mysql.execute_query(queue_query, (datetime.now(), task_id))
+            
             # 记录任务日志
             log_message = f"任务状态更新为: {status}"
             if progress is not None:
@@ -240,10 +263,133 @@ class TaskExecutor:
                 
                 self.mysql.execute_query(query, values)
             
+            # 在完成任务后获取任务执行的统计数据并保存到task_statistics表
+            task = self._get_task_summary(task_id)
+            if task:
+                self._save_task_statistics(task)
+            
             return True
         except Exception as e:
             log.error(f"更新任务统计数据失败: {e}")
+            log.error(traceback.format_exc())
             return False
+            
+    def _get_task_summary(self, task_id):
+        """
+        获取任务摘要信息
+        :param task_id: 任务ID
+        :return: 任务摘要信息
+        """
+        try:
+            query = """
+                SELECT 
+                    task_id, task_type, parameters, total_items, completed_items, 
+                    failed_items, create_time, start_time, end_time, status
+                FROM 
+                    spider_tasks 
+                WHERE 
+                    task_id = %s
+            """
+            
+            task = self.mysql.fetch_one(query, (task_id,))
+            
+            # 解析parameters
+            if task and 'parameters' in task and task['parameters']:
+                try:
+                    if isinstance(task['parameters'], str):
+                        task['parameters'] = json.loads(task['parameters'])
+                except:
+                    pass
+                    
+            return task
+        except Exception as e:
+            log.error(f"获取任务摘要信息失败: {e}")
+            return None
+            
+    def _save_task_statistics(self, task):
+        """
+        保存任务统计数据到task_statistics表
+        :param task: 任务信息
+        """
+        try:
+            task_id = task['task_id']
+            task_type = task['task_type']
+            parameters = task['parameters']
+            
+            # 提取任务参数中的关键数据
+            if isinstance(parameters, dict):
+                keywords = parameters.get('keywords', [])
+                if not isinstance(keywords, list):
+                    keywords = [keywords]
+                
+                # 获取城市或地区信息
+                cities = parameters.get('cities', {})
+                regions = parameters.get('regions', [])
+                
+                # 如果有日期范围，提取日期信息
+                date_range = None
+                if 'date_ranges' in parameters and parameters['date_ranges']:
+                    date_ranges = parameters['date_ranges']
+                    if isinstance(date_ranges, list) and len(date_ranges) > 0:
+                        if isinstance(date_ranges[0], list) and len(date_ranges[0]) >= 2:
+                            date_range = f"{date_ranges[0][0]} - {date_ranges[0][1]}"
+                elif 'start_date' in parameters and 'end_date' in parameters:
+                    date_range = f"{parameters['start_date']} - {parameters['end_date']}"
+                
+                # 为每个关键词创建统计记录
+                now = datetime.now()
+                for keyword in keywords:
+                    # 处理城市/地区统计
+                    if task_type in ['search_index', 'feed_index']:
+                        # 处理城市字典情况
+                        if isinstance(cities, dict):
+                            for city_code, city_name in cities.items():
+                                self._insert_task_stat(task_id, task_type, keyword, city_code, city_name, date_range, now)
+                        # 处理城市列表情况
+                        elif isinstance(cities, list):
+                            for city in cities:
+                                if isinstance(city, dict) and 'code' in city and 'name' in city:
+                                    self._insert_task_stat(task_id, task_type, keyword, city['code'], city['name'], date_range, now)
+                                else:
+                                    self._insert_task_stat(task_id, task_type, keyword, city, f"城市{city}", date_range, now)
+                    elif task_type == 'region_distribution':
+                        # 处理地区列表情况
+                        if isinstance(regions, list):
+                            for region in regions:
+                                self._insert_task_stat(task_id, task_type, keyword, region, f"地区{region}", date_range, now)
+                    else:
+                        # 对于其他类型任务，创建一个通用统计记录
+                        self._insert_task_stat(task_id, task_type, keyword, None, None, date_range, now)
+            
+        except Exception as e:
+            log.error(f"保存任务统计数据失败: {e}")
+            log.error(traceback.format_exc())
+            
+    def _insert_task_stat(self, task_id, task_type, keyword, city_code=None, city_name=None, date_range=None, now=None):
+        """
+        插入任务统计记录
+        """
+        if now is None:
+            now = datetime.now()
+            
+        query = """
+            INSERT INTO task_statistics (
+                task_id, task_type, keyword, city_code, city_name, date_range, create_time
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+            update_time = %s
+        """
+        
+        values = (
+            task_id, task_type, keyword, 
+            city_code, city_name, date_range, now, now
+        )
+        
+        try:
+            self.mysql.execute_query(query, values)
+        except Exception as e:
+            log.error(f"插入任务统计记录失败: {e}")
+            log.error(traceback.format_exc())
     
     def _execute_search_index_task(self, task_id, parameters, checkpoint_path=None):
         """
@@ -1052,6 +1198,82 @@ class TaskExecutor:
             )
             
             return False
+    
+    def _update_spider_statistics(self, task_id, status):
+        """
+        更新爬虫统计数据
+        :param task_id: 任务ID
+        :param status: 任务状态
+        """
+        try:
+            # 获取任务信息
+            task_query = """
+                SELECT task_type, create_time, start_time, end_time, total_items, 
+                       completed_items, failed_items 
+                FROM spider_tasks 
+                WHERE task_id = %s
+            """
+            task = self.mysql.fetch_one(task_query, (task_id,))
+            
+            if not task:
+                log.warning(f"更新统计数据失败：任务 {task_id} 不存在")
+                return
+            
+            task_type = task['task_type']
+            stat_date = datetime.now().date()
+            
+            # 计算任务执行时间（秒）
+            duration = 0
+            if task['start_time'] and task['end_time']:
+                duration = (task['end_time'] - task['start_time']).total_seconds()
+            
+            # 检查今天的统计数据是否存在
+            check_query = "SELECT id FROM spider_statistics WHERE stat_date = %s AND task_type = %s"
+            stats = self.mysql.fetch_one(check_query, (stat_date, task_type))
+            
+            if stats:
+                # 更新已有的统计数据
+                update_query = """
+                    UPDATE spider_statistics 
+                    SET total_tasks = total_tasks + 1,
+                        completed_tasks = completed_tasks + %s,
+                        failed_tasks = failed_tasks + %s,
+                        total_items = total_items + %s,
+                        success_rate = (completed_tasks + %s) / (total_tasks + 1) * 100,
+                        avg_duration = ((avg_duration * total_tasks) + %s) / (total_tasks + 1)
+                    WHERE stat_date = %s AND task_type = %s
+                """
+                is_completed = 1 if status == 'completed' else 0
+                is_failed = 1 if status == 'failed' else 0
+                total_items = task['total_items'] or 0
+                
+                self.mysql.execute_query(
+                    update_query, 
+                    (is_completed, is_failed, total_items, is_completed, duration, stat_date, task_type)
+                )
+            else:
+                # 创建新的统计数据
+                insert_query = """
+                    INSERT INTO spider_statistics (
+                        stat_date, task_type, total_tasks, completed_tasks, 
+                        failed_tasks, total_items, success_rate, avg_duration
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                """
+                is_completed = 1 if status == 'completed' else 0
+                is_failed = 1 if status == 'failed' else 0
+                total_items = task['total_items'] or 0
+                success_rate = 100.0 if status == 'completed' else 0.0
+                
+                self.mysql.execute_query(
+                    insert_query, 
+                    (stat_date, task_type, 1, is_completed, is_failed, total_items, success_rate, duration)
+                )
+                
+            log.info(f"已更新任务 {task_id} 的统计数据")
+            
+        except Exception as e:
+            log.error(f"更新统计数据失败: {e}")
+            log.error(traceback.format_exc())
 
 
 # 创建任务执行器实例
