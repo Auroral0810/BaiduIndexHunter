@@ -307,34 +307,44 @@
       v-model="importResultDialogVisible"
       :title="importResultTitle"
       width="500px"
+      modal
+      append-to-body
+      :close-on-click-modal="false"
+      :show-close="true"
     >
       <div class="import-result-content">
         <el-alert
           v-if="importResults.validItems.length > 0"
           type="success"
-          :title="`成功导入 ${importResults.validItems.length} 项`"
+          :title="`成功导入 ${importResults.validItems.length} ${importResultTitle === '关键词导入结果' ? '个关键词' : '个地区'}`"
           :closable="false"
           show-icon
         />
         <el-alert
           v-if="importResults.invalidItems.length > 0"
           type="warning"
-          :title="`${importResults.invalidItems.length} 项无效或重复`"
+          :title="`${importResults.invalidItems.length} ${importResultTitle === '关键词导入结果' ? '个关键词' : '个地区'}无效或重复`"
           :closable="false"
           show-icon
           style="margin-top: 10px;"
         />
         
-        <div v-if="importResults.invalidItems.length > 0" class="invalid-items">
-          <p>无效或重复项：</p>
-          <ul>
-            <li v-for="(item, index) in importResults.invalidItems.slice(0, 10)" :key="index">
+        <div v-if="importResults.invalidItems.length > 0" class="invalid-keywords">
+          <p>无效或重复的{{ importResultTitle === '关键词导入结果' ? '关键词' : '地区' }}：</p>
+          <div class="keywords-list">
+            <el-tag
+              v-for="(item, index) in importResults.invalidItems.slice(0, 20)"
+              :key="index"
+              type="danger"
+              class="keyword-tag"
+              style="margin: 5px;"
+            >
               {{ item }}
-            </li>
-            <li v-if="importResults.invalidItems.length > 10">
-              ... 等 {{ importResults.invalidItems.length - 10 }} 项
-            </li>
-          </ul>
+            </el-tag>
+            <el-tag v-if="importResults.invalidItems.length > 20" type="info">
+              ...等 {{ importResults.invalidItems.length - 20 }} 个
+            </el-tag>
+          </div>
         </div>
       </div>
       <template #footer>
@@ -605,10 +615,6 @@ const handleKeywordsFileChange = async (file: any) => {
     importResults.invalidItems = invalidKeywords;
     importResultTitle.value = '关键词导入结果';
     importResultDialogVisible.value = true;
-    
-    if (validKeywords.length > 0) {
-      ElMessage.success(`成功导入 ${validKeywords.length} 个关键词`);
-    }
   } catch (error) {
     console.error('读取文件错误:', error);
     ElMessage.error('文件读取失败，请检查文件格式');
@@ -703,14 +709,6 @@ const handleRegionsFileChange = async (file: any) => {
     importResults.invalidItems = invalidCodes;
     importResultTitle.value = '地区导入结果';
     importResultDialogVisible.value = true;
-    
-    if (validCodes.length > 0) {
-      ElMessage.success(`成功导入 ${validCodes.length} 个地区`);
-    }
-    
-    if (invalidCodes.length > 0) {
-      ElMessage.warning(`${invalidCodes.length} 个地区代码无效`);
-    }
   } catch (error) {
     console.error('读取文件错误:', error);
     ElMessage.error('文件读取失败，请检查文件格式');
@@ -966,7 +964,7 @@ onMounted(async () => {
   padding: 10px;
 }
 
-.invalid-items {
+.invalid-keywords {
   margin-top: 15px;
   padding: 10px;
   background-color: #f8f8f8;
@@ -975,18 +973,20 @@ onMounted(async () => {
   overflow-y: auto;
 }
 
-.invalid-items p {
+.invalid-keywords p {
   font-weight: bold;
   margin-bottom: 5px;
 }
 
-.invalid-items ul {
-  margin: 0;
-  padding-left: 20px;
+.keywords-list {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.invalid-items li {
-  margin-bottom: 3px;
+.keyword-tag {
+  margin: 5px;
 }
 
 .year-range {

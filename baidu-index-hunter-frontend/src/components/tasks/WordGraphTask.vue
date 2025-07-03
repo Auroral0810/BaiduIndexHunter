@@ -247,36 +247,46 @@
     <!-- 导入结果对话框 -->
     <el-dialog
       v-model="importResultDialogVisible"
-      :title="importResultTitle"
+      title="关键词导入结果"
       width="500px"
+      modal
+      append-to-body
+      :close-on-click-modal="false"
+      :show-close="true"
     >
       <div class="import-result-content">
         <el-alert
           v-if="importResults.validItems.length > 0"
           type="success"
-          :title="`成功导入 ${importResults.validItems.length} 项`"
+          :title="`成功导入 ${importResults.validItems.length} 个关键词`"
           :closable="false"
           show-icon
         />
         <el-alert
           v-if="importResults.invalidItems.length > 0"
           type="warning"
-          :title="`${importResults.invalidItems.length} 项无效或重复`"
+          :title="`${importResults.invalidItems.length} 个关键词无效或重复`"
           :closable="false"
           show-icon
           style="margin-top: 10px;"
         />
         
-        <div v-if="importResults.invalidItems.length > 0" class="invalid-items">
-          <p>无效或重复项：</p>
-          <ul>
-            <li v-for="(item, index) in importResults.invalidItems.slice(0, 10)" :key="index">
+        <div v-if="importResults.invalidItems.length > 0" class="invalid-keywords">
+          <p>无效或重复的关键词：</p>
+          <div class="keywords-list">
+            <el-tag
+              v-for="(item, index) in importResults.invalidItems.slice(0, 20)"
+              :key="index"
+              type="danger"
+              class="keyword-tag"
+              style="margin: 5px;"
+            >
               {{ item }}
-            </li>
-            <li v-if="importResults.invalidItems.length > 10">
-              ... 等 {{ importResults.invalidItems.length - 10 }} 项
-            </li>
-          </ul>
+            </el-tag>
+            <el-tag v-if="importResults.invalidItems.length > 20" type="info">
+              ...等 {{ importResults.invalidItems.length - 20 }} 个
+            </el-tag>
+          </div>
         </div>
       </div>
       <template #footer>
@@ -542,12 +552,7 @@ const handleKeywordsFileChange = async (file: any) => {
     // 显示导入结果
     importResults.validItems = validKeywords;
     importResults.invalidItems = invalidKeywords;
-    importResultTitle.value = '关键词导入结果';
     importResultDialogVisible.value = true;
-    
-    if (validKeywords.length > 0) {
-      ElMessage.success(`成功导入 ${validKeywords.length} 个关键词`);
-    }
   } catch (error) {
     console.error('读取文件错误:', error);
     ElMessage.error('文件读取失败，请检查文件格式');
