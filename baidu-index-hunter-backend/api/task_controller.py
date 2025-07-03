@@ -351,6 +351,79 @@ def create_task():
                 'taskId': task_id
             }, "人群属性任务创建成功"))
         
+        # 处理地域分布任务
+        elif task_type == 'region_distribution':
+            # 验证地域分布任务的参数
+            if 'keywords' not in parameters or not parameters['keywords']:
+                return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "缺少必要参数: keywords"))
+            
+            if 'regions' not in parameters or not parameters['regions']:
+                return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "缺少必要参数: regions"))
+            
+            # 处理时间参数
+            time_params_count = sum(1 for param in ['days', 'date_ranges', 'year_range', 'start_date', 'end_date'] if param in parameters)
+            
+            # 处理恢复任务
+            resume = parameters.get('resume', False)
+            if resume and ('task_id' not in parameters or not parameters['task_id']):
+                return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "恢复任务时必须提供task_id"))
+            
+            # 获取输出格式
+            output_format = parameters.get('output_format', 'csv')
+            if output_format not in ['csv', 'excel']:
+                output_format = 'csv'
+            
+            # 准备爬虫参数
+            spider_params = {
+                'keywords': parameters['keywords'],
+                'regions': parameters['regions'],
+                'output_format': output_format,
+                'resume': resume
+            }
+            
+            # 添加时间相关参数
+            if 'days' in parameters:
+                spider_params['days'] = parameters['days']
+            elif 'date_ranges' in parameters:
+                spider_params['date_ranges'] = parameters['date_ranges']
+            elif 'year_range' in parameters:
+                spider_params['year_range'] = parameters['year_range']
+            elif 'start_date' in parameters and 'end_date' in parameters:
+                spider_params['start_date'] = parameters['start_date']
+                spider_params['end_date'] = parameters['end_date']
+            
+            # 添加区域级别参数
+            if 'regionLevel' in parameters:
+                spider_params['region_level'] = parameters['regionLevel']
+            
+            # 添加任务ID（如果是恢复任务）
+            if resume and 'task_id' in parameters:
+                spider_params['task_id'] = parameters['task_id']
+            
+            # 创建任务
+            task_id = task_scheduler.create_task(
+                task_type=task_type,
+                parameters=spider_params,
+                task_name=f"地域分布_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+                created_by=None,
+                priority=priority
+            )
+            
+            # 如果是恢复任务，设置断点续传数据
+            if resume and 'task_id' in parameters:
+                # 获取原任务的断点续传数据
+                original_task = task_scheduler.get_task(parameters['task_id'])
+                if original_task and 'checkpoint_path' in original_task and original_task['checkpoint_path']:
+                    # 更新新任务的断点续传数据
+                    task_scheduler.update_task_checkpoint(task_id, original_task['checkpoint_path'])
+            
+            # 启动任务
+            task_scheduler.start_task(task_id)
+            
+            return jsonify(ResponseFormatter.success({
+                'taskId': task_id
+            }, "地域分布任务创建成功"))
+        
         # 其他类型任务的处理...
         
         # 默认创建任务

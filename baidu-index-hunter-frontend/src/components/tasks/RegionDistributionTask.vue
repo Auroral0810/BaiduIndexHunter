@@ -790,9 +790,9 @@ const submitTask = async () => {
       params.parameters.days = formData.days
     } else if (timeType.value === 'year') {
       params.parameters.yearRange = formData.yearRange
-    } else {
-      params.parameters.start_date = formData.start_date
-      params.parameters.end_date = formData.end_date
+    } else if (timeType.value === 'custom' && dateRange.value && dateRange.value.length === 2) {
+      params.parameters.start_date = dateRange.value[0]
+      params.parameters.end_date = dateRange.value[1]
     }
     
     // 添加任务ID（如果是恢复任务）
@@ -802,11 +802,11 @@ const submitTask = async () => {
     
     const response = await axios.post(`${API_BASE_URL}/task/create`, params)
     
-    if (response.data.code === 0) {
+    if (response.data.code === 10000) {
       taskId.value = response.data.data.taskId
       successDialogVisible.value = true
     } else {
-      ElMessage.error(`任务提交失败: ${response.data.message}`)
+      ElMessage.error(`任务提交失败: ${response.data.msg}`)
     }
   } catch (error) {
     ElMessage.error('任务提交失败，请检查网络连接')

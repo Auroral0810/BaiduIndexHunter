@@ -828,13 +828,146 @@ class TaskExecutor:
         :return: 是否成功
         """
         log.info(f"执行地域分布任务: {task_id}")
-        self._update_task_status(task_id, 'running', progress=0)
         
-        # TODO: 实现地域分布爬取逻辑
+        # 验证必要参数
+        if 'keywords' not in parameters or not parameters['keywords']:
+            self._update_task_status(task_id, 'failed', error_message="缺少必要参数: keywords")
+            return False
         
-        time.sleep(2)  # 模拟任务执行
-        self._update_task_status(task_id, 'completed', progress=100)
-        return True
+        if 'regions' not in parameters or not parameters['regions']:
+            self._update_task_status(task_id, 'failed', error_message="缺少必要参数: regions")
+            return False
+        
+        # 获取参数
+        keywords = parameters['keywords']
+        regions = parameters['regions']
+        output_format = parameters.get('output_format', 'csv')
+        resume = parameters.get('resume', False)
+        region_level = parameters.get('region_level', 'province')
+        
+        # 处理关键词
+        if not isinstance(keywords, list):
+            keywords = [keywords]
+        
+        # 处理地区
+        if not isinstance(regions, list):
+            regions = [regions]
+        
+        # 转换地区代码为整数
+        try:
+            regions = [int(region) for region in regions]
+        except ValueError:
+            self._update_task_status(task_id, 'failed', error_message="无效的地区代码")
+            return False
+        
+        # 处理时间参数
+        start_date = None
+        end_date = None
+        days = None
+        
+        if 'days' in parameters:
+            # 使用预定义的天数
+            days = int(parameters['days'])
+        elif 'date_ranges' in parameters and parameters['date_ranges']:
+            # 使用自定义日期范围
+            date_ranges = parameters['date_ranges']
+            if isinstance(date_ranges, list) and len(date_ranges) > 0:
+                if isinstance(date_ranges[0], list) and len(date_ranges[0]) >= 2:
+                    start_date = date_ranges[0][0]
+                    end_date = date_ranges[0][1]
+        elif 'year_range' in parameters and parameters['year_range']:
+            # 使用年份范围
+            year_range = parameters['year_range']
+            if isinstance(year_range, list) and len(year_range) >= 2:
+                start_date = f"{year_range[0]}-01-01"
+                end_date = f"{year_range[1]}-12-31"
+        elif 'start_date' in parameters and 'end_date' in parameters:
+            # 使用明确的开始和结束日期
+            start_date = parameters['start_date']
+            end_date = parameters['end_date']
+        
+        # 获取输出目录和检查点文件路径
+        output_dir = os.path.join(OUTPUT_DIR, 'region_distributions', task_id)
+        checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/region_distributions_{task_id}_checkpoint.pkl")
+        os.makedirs(output_dir, exist_ok=True)
+        os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
+        
+        # 初始化统计数据
+        total_items = len(keywords) * len(regions)
+        completed_items = 0
+        failed_items = 0
+        
+        # 更新任务状态
+        self._update_task_status(
+            task_id, 'running',
+            total_items=total_items,
+            completed_items=completed_items,
+            failed_items=failed_items,
+            progress=0
+        )
+        
+        output_files = []
+        
+        try:
+            # 准备爬虫参数
+            spider_params = {
+                'keywords': keywords,
+                'regions': regions,
+                'output_format': output_format,
+                'resume': resume,
+                'task_id': task_id if resume else None
+            }
+            
+            # 添加时间相关参数
+            if days:
+                spider_params['days'] = days
+            elif start_date and end_date:
+                spider_params['start_date'] = start_date
+                spider_params['end_date'] = end_date
+            
+            # 启动爬虫
+            from spider.region_distribution_crawler import region_distribution_crawler
+            success = region_distribution_crawler.crawl(**spider_params)
+            
+            if success:
+                # 获取输出文件路径
+                output_file = os.path.join(output_dir, f"region_distributions_{task_id}.{output_format}")
+                output_files.append(output_file)
+                
+                # 更新任务状态为已完成
+                self._update_task_status(
+                    task_id, 'completed',
+                    progress=100,
+                    completed_items=total_items,
+                    checkpoint_path=checkpoint_path,
+                    output_files=output_files
+                )
+                
+                return True
+            else:
+                # 更新任务状态为失败
+                self._update_task_status(
+                    task_id, 'failed',
+                    error_message="爬虫执行失败",
+                    checkpoint_path=checkpoint_path,
+                    output_files=output_files
+                )
+                
+                return False
+            
+        except Exception as e:
+            log.error(f"执行地域分布任务失败: {e}")
+            log.error(traceback.format_exc())
+            
+            # 更新任务状态
+            self._update_task_status(
+                task_id, 'failed',
+                error_message=str(e),
+                checkpoint_path=checkpoint_path,
+                output_files=output_files
+            )
+            
+            return False
 
 
 # 创建任务执行器实例
