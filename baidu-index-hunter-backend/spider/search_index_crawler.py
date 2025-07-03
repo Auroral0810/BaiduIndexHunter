@@ -353,9 +353,9 @@ class SearchIndexCrawler:
             log.error(f"不支持的文件格式: {ext}")
             return []
     
-    def crawl(self, keywords=None, cities=None, date_ranges=None, days=None, 
+    def crawl(self, task_id=None, keywords=None, cities=None, date_ranges=None, days=None, 
               keywords_file=None, cities_file=None, date_ranges_file=None,
-              year_range=None, resume=False, task_id=None):
+              year_range=None, resume=False, checkpoint_task_id=None):
         """
         爬取百度搜索指数数据
         
@@ -417,11 +417,11 @@ class SearchIndexCrawler:
             date_ranges = [(start_date, end_date)]
             
         # 设置任务ID和输出路径
-        if resume and task_id:
-            self.task_id = task_id
-            loaded = self._load_global_checkpoint(task_id)
+        if resume and checkpoint_task_id:
+            self.task_id = checkpoint_task_id
+            loaded = self._load_global_checkpoint(checkpoint_task_id)
             if not loaded:
-                log.warning(f"未找到任务ID为 {task_id} 的检查点，将创建新任务")
+                log.warning(f"未找到任务ID为 {checkpoint_task_id} 的检查点，将创建新任务")
                 self.task_id = self._generate_task_id()
         else:
             self.task_id = self._generate_task_id()

@@ -414,6 +414,8 @@ class TaskExecutor:
         keywords = parameters['keywords']
         cities = parameters['cities']
         resume = parameters.get('resume', False)
+        if resume:
+            checkpoint_task_id = parameters.get('task_id')
         
         # 处理关键词
         if not isinstance(keywords, list):
@@ -516,11 +518,12 @@ class TaskExecutor:
         try:
             # 准备爬虫参数
             spider_params = {
+                'task_id': task_id,
                 'keywords': keywords,
                 'cities': city_dict,
                 'date_ranges': [(start_date, end_date)],
                 'resume': resume,
-                'task_id': task_id if resume else None
+                'checkpoint_task_id': checkpoint_task_id if resume else None
             }
             
             # 启动爬虫
@@ -591,6 +594,8 @@ class TaskExecutor:
         keywords = parameters['keywords']
         cities = parameters['cities']
         resume = parameters.get('resume', False)
+        if resume:
+            checkpoint_task_id = parameters.get('task_id')
         
         # 处理关键词
         if not isinstance(keywords, list):
@@ -676,10 +681,11 @@ class TaskExecutor:
         try:
             # 准备爬虫参数
             spider_params = {
+                'task_id': task_id,
                 'keywords': keywords,
                 'cities': city_dict,
                 'resume': resume,
-                'task_id': task_id if resume else None
+                'checkpoint_task_id': checkpoint_task_id if resume else None
             }
             
             # 根据不同的时间参数类型添加相应的参数
@@ -762,6 +768,8 @@ class TaskExecutor:
         datelists = parameters['datelists']
         output_format = parameters.get('output_format', 'csv')
         resume = parameters.get('resume', False)
+        if resume:
+            checkpoint_task_id = parameters.get('task_id')
         
         # 处理关键词
         if not isinstance(keywords, list):
@@ -796,11 +804,12 @@ class TaskExecutor:
         try:
             # 准备爬虫参数
             spider_params = {
+                'task_id': task_id,
                 'keywords': keywords,
                 'datelists': datelists,
                 'output_format': output_format,
                 'resume': resume,
-                'task_id': task_id if resume else None
+                'checkpoint_task_id': checkpoint_task_id if resume else None
             }
             
             # 启动爬虫
@@ -867,6 +876,8 @@ class TaskExecutor:
         output_format = parameters.get('output_format', 'csv')
         batch_size = parameters.get('batch_size', 10)
         resume = parameters.get('resume', False)
+        if resume:
+            checkpoint_task_id = parameters.get('task_id')
         
         # 处理关键词
         if not isinstance(keywords, list):
@@ -897,11 +908,12 @@ class TaskExecutor:
         try:
             # 准备爬虫参数
             spider_params = {
+                'task_id': task_id,
                 'keywords': keywords,
                 'output_format': output_format,
                 'batch_size': batch_size,
                 'resume': resume,
-                'task_id': task_id if resume else None
+                'checkpoint_task_id': checkpoint_task_id if resume else None
             }
             
             # 启动爬虫
@@ -968,6 +980,8 @@ class TaskExecutor:
         output_format = parameters.get('output_format', 'csv')
         batch_size = parameters.get('batch_size', 10)
         resume = parameters.get('resume', False)
+        if resume:
+            checkpoint_task_id = parameters.get('task_id')
         
         # 处理关键词
         if not isinstance(keywords, list):
@@ -998,11 +1012,12 @@ class TaskExecutor:
         try:
             # 准备爬虫参数
             spider_params = {
+                'task_id': task_id,
                 'keywords': keywords,
                 'output_format': output_format,
                 'batch_size': batch_size,
                 'resume': resume,
-                'task_id': task_id if resume else None
+                'checkpoint_task_id': checkpoint_task_id if resume else None
             }
             
             # 启动爬虫
@@ -1073,6 +1088,8 @@ class TaskExecutor:
         regions = parameters['regions']
         output_format = parameters.get('output_format', 'csv')
         resume = parameters.get('resume', False)
+        if resume:
+            checkpoint_task_id = parameters.get('task_id')
         region_level = parameters.get('region_level', 'province')
         
         # 处理关键词
@@ -1141,11 +1158,12 @@ class TaskExecutor:
         try:
             # 准备爬虫参数
             spider_params = {
+                'task_id': task_id,
                 'keywords': keywords,
                 'regions': regions,
                 'output_format': output_format,
                 'resume': resume,
-                'task_id': task_id if resume else None
+                'checkpoint_task_id': checkpoint_task_id if resume else None
             }
             
             # 添加时间相关参数

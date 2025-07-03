@@ -329,10 +329,11 @@ class RegionDistributionCrawler:
                 cookie_rotator.report_cookie_status(account_id, False)
             return None
     
-    def crawl(self, keywords, regions=None, days=None, start_date=None, end_date=None, 
-              output_format='csv', resume=True, task_id=None):
+    def crawl(self, task_id=None, keywords=None, regions=None, days=None, start_date=None, end_date=None, 
+              output_format='csv', resume=True, checkpoint_task_id=None):
         """
         爬取多个关键词的地域分布数据
+        :param task_id: 任务ID，如果为None则自动生成
         :param keywords: 关键词列表或字符串（逗号分隔）
         :param regions: 地区代码列表，默认为[0]（全国）
         :param days: 天数，可选值：7, 30, 90, 180, 365
@@ -340,7 +341,7 @@ class RegionDistributionCrawler:
         :param end_date: 结束日期，格式：YYYY-MM-DD
         :param output_format: 输出格式，可选值：csv, excel
         :param resume: 是否从上次中断的地方继续爬取
-        :param task_id: 任务ID，如果为None则自动生成
+        :param checkpoint_task_id: 检查点任务ID，如果为None则自动生成
         :return: 是否全部爬取成功
         """
         # 确保输入是列表
@@ -367,10 +368,10 @@ class RegionDistributionCrawler:
             # 检查是否有检查点数据
             checkpoint_status = None
             if resume:
-                checkpoint_status = self._load_global_checkpoint(task_id)
+                checkpoint_status = self._load_global_checkpoint(checkpoint_task_id)
             
             if checkpoint_status:
-                log.info(f"从检查点恢复任务: {task_id}")
+                log.info(f"从检查点恢复任务: {checkpoint_task_id}")
                 self.task_status[task_id] = checkpoint_status
                 
                 # 检查数据文件是否存在

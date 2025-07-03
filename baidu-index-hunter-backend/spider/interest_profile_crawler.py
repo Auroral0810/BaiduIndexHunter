@@ -300,13 +300,14 @@ class InterestProfileCrawler:
                 cookie_rotator.report_cookie_status(account_id, False)
             return None
     
-    def crawl(self, keywords, output_format='csv', resume=True, task_id=None, batch_size=10):
+    def crawl(self, task_id=None, keywords=None, output_format='csv', resume=True, checkpoint_task_id=None, batch_size=10):
         """
         爬取多个关键词的兴趣分布数据
+        :param task_id: 任务ID，如果为None则自动生成
         :param keywords: 关键词列表
         :param output_format: 输出格式，可选值：csv, excel
         :param resume: 是否从上次中断的地方继续爬取
-        :param task_id: 任务ID，如果为None则自动生成
+        :param checkpoint_task_id: 检查点任务ID，如果为None则自动生成
         :param batch_size: 每批处理的关键词数量，默认为10
         :return: 是否全部爬取成功
         """
@@ -325,10 +326,10 @@ class InterestProfileCrawler:
             # 检查是否有检查点数据
             checkpoint_status = None
             if resume:
-                checkpoint_status = self._load_global_checkpoint(task_id)
+                checkpoint_status = self._load_global_checkpoint(checkpoint_task_id)
             
             if checkpoint_status:
-                log.info(f"从检查点恢复任务: {task_id}")
+                log.info(f"从检查点恢复任务: {checkpoint_task_id}")
                 self.task_status[task_id] = checkpoint_status
                 
                 # 检查数据文件是否存在

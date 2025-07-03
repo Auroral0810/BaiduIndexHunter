@@ -99,7 +99,7 @@ class WordGraphCrawler:
             df = pd.DataFrame(self.data_cache)
             
             # 构建输出文件路径
-            output_path = os.path.join(self.output_dir, f"word_graph_{task_id}.csv")
+            output_path = os.path.join(self.output_dir, task_id,f"word_graph_{task_id}.csv")
             
             # 保存数据
             try:
@@ -285,14 +285,15 @@ class WordGraphCrawler:
                 cookie_rotator.report_cookie_status(account_id, False)
             return None
     
-    def crawl(self, keywords, datelists, output_format='csv', resume=True, task_id=None):
+    def crawl(self, task_id, keywords, datelists, output_format='csv', resume=True, checkpoint_task_id=None):
         """
         爬取多个关键词和日期的需求图谱数据
+        :param task_id: 任务ID，如果为None则自动生成
         :param keywords: 关键词列表
         :param datelists: 日期列表，格式为YYYYMMDD
         :param output_format: 输出格式，可选值：csv, excel
         :param resume: 是否从上次中断的地方继续爬取
-        :param task_id: 任务ID，如果为None则自动生成
+        :param checkpoint_task_id: 检查点任务ID，如果为None则自动生成
         :return: 是否全部爬取成功
         """
         # 确保输入是列表
@@ -312,10 +313,10 @@ class WordGraphCrawler:
             # 检查是否有检查点数据
             checkpoint_status = None
             if resume:
-                checkpoint_status = self._load_global_checkpoint(task_id)
+                checkpoint_status = self._load_global_checkpoint(checkpoint_task_id)
             
             if checkpoint_status:
-                log.info(f"从检查点恢复任务: {task_id}")
+                log.info(f"从检查点恢复任务: {checkpoint_task_id}")
                 self.task_status[task_id] = checkpoint_status
                 
                 # 检查数据文件是否存在

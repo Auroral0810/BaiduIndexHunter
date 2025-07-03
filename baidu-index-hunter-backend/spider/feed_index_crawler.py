@@ -358,13 +358,14 @@ class FeedIndexCrawler:
             log.error(f"不支持的文件格式: {ext}")
             return []
     
-    def crawl(self, keywords=None, cities=None, date_ranges=None, days=None, 
+    def crawl(self, task_id=None, keywords=None, cities=None, date_ranges=None, days=None, 
               keywords_file=None, cities_file=None, date_ranges_file=None,
-              year_range=None, resume=False, task_id=None):
+              year_range=None, resume=False, checkpoint_task_id=None):
         """
         爬取百度资讯指数数据
         
         参数:
+            task_id (str): 任务ID，如果为None则自动生成
             keywords (list): 关键词列表
             cities (dict): 城市代码和名称的字典 {城市代码: 城市名称}
             date_ranges (list): 日期范围列表，每个元素为 (start_date, end_date) 元组
@@ -374,7 +375,7 @@ class FeedIndexCrawler:
             date_ranges_file (str): 日期范围文件路径
             year_range (tuple): 年份范围，格式为 (start_year, end_year)
             resume (bool): 是否恢复上次任务
-            task_id (str): 要恢复的任务ID
+            checkpoint_task_id (str): 检查点任务ID
         """
         # 加载关键词
         if keywords_file:
@@ -412,11 +413,11 @@ class FeedIndexCrawler:
             date_ranges = [(start_date, end_date)]
             
         # 设置任务ID和输出路径
-        if resume and task_id:
-            self.task_id = task_id
-            loaded = self._load_global_checkpoint(task_id)
+        if resume and checkpoint_task_id:
+            self.task_id = checkpoint_task_id
+            loaded = self._load_global_checkpoint(checkpoint_task_id)
             if not loaded:
-                log.warning(f"未找到任务ID为 {task_id} 的检查点，将创建新任务")
+                log.warning(f"未找到任务ID为 {checkpoint_task_id} 的检查点，将创建新任务")
                 self.task_id = self._generate_task_id()
         else:
             self.task_id = self._generate_task_id()
