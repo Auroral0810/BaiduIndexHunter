@@ -811,13 +811,97 @@ class TaskExecutor:
         :return: 是否成功
         """
         log.info(f"执行兴趣分布任务: {task_id}")
-        self._update_task_status(task_id, 'running', progress=0)
         
-        # TODO: 实现兴趣分布爬取逻辑
+        # 验证必要参数
+        if 'keywords' not in parameters or not parameters['keywords']:
+            self._update_task_status(task_id, 'failed', error_message="缺少必要参数: keywords")
+            return False
         
-        time.sleep(2)  # 模拟任务执行
-        self._update_task_status(task_id, 'completed', progress=100)
-        return True
+        # 获取参数
+        keywords = parameters['keywords']
+        output_format = parameters.get('output_format', 'csv')
+        batch_size = parameters.get('batch_size', 10)
+        resume = parameters.get('resume', False)
+        
+        # 处理关键词
+        if not isinstance(keywords, list):
+            keywords = [keywords]
+        
+        # 获取输出目录和检查点文件路径
+        output_dir = os.path.join(OUTPUT_DIR, 'interest_profiles', task_id)
+        checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/interest_profiles_{task_id}_checkpoint.pkl")
+        os.makedirs(output_dir, exist_ok=True)
+        os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
+        
+        # 初始化统计数据
+        total_items = len(keywords)
+        completed_items = 0
+        failed_items = 0
+        
+        # 更新任务状态
+        self._update_task_status(
+            task_id, 'running',
+            total_items=total_items,
+            completed_items=completed_items,
+            failed_items=failed_items,
+            progress=0
+        )
+        
+        output_files = []
+        
+        try:
+            # 准备爬虫参数
+            spider_params = {
+                'keywords': keywords,
+                'output_format': output_format,
+                'batch_size': batch_size,
+                'resume': resume,
+                'task_id': task_id if resume else None
+            }
+            
+            # 启动爬虫
+            from spider.interest_profile_crawler import interest_profile_crawler
+            success = interest_profile_crawler.crawl(**spider_params)
+            
+            if success:
+                # 获取输出文件路径
+                output_file = os.path.join(output_dir, f"interest_profiles_{task_id}.{output_format}")
+                output_files.append(output_file)
+                
+                # 更新任务状态为已完成
+                self._update_task_status(
+                    task_id, 'completed',
+                    progress=100,
+                    completed_items=total_items,
+                    checkpoint_path=checkpoint_path,
+                    output_files=output_files
+                )
+                
+                return True
+            else:
+                # 更新任务状态为失败
+                self._update_task_status(
+                    task_id, 'failed',
+                    error_message="爬虫执行失败",
+                    checkpoint_path=checkpoint_path,
+                    output_files=output_files
+                )
+                
+                return False
+            
+        except Exception as e:
+            log.error(f"执行兴趣分布任务失败: {e}")
+            log.error(traceback.format_exc())
+            
+            # 更新任务状态
+            self._update_task_status(
+                task_id, 'failed',
+                error_message=str(e),
+                checkpoint_path=checkpoint_path,
+                output_files=output_files
+            )
+            
+            return False
     
     def _execute_region_distribution_task(self, task_id, parameters, checkpoint_path=None):
         """
