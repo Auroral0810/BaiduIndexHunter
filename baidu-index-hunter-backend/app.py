@@ -13,6 +13,7 @@ from api.cookie_controller import register_admin_cookie_blueprint
 from api.region_controller import register_region_blueprint
 from api.task_controller import register_task_blueprint
 from api.statistics_controller import register_statistics_blueprint
+from api.statistics import register_statistics_bp
 from api.config_api import config_bp
 from api.word_check_controller import register_word_check_blueprint
 from constant.respond import ResponseCode, ResponseFormatter
@@ -123,7 +124,8 @@ def create_app(config=None):
     register_admin_cookie_blueprint(app)
     register_region_blueprint(app)
     register_task_blueprint(app)
-    register_statistics_blueprint(app)
+    # register_statistics_blueprint(app)
+    register_statistics_bp(app)
     register_word_check_blueprint(app)
     app.register_blueprint(config_bp)  # 注册配置API蓝图
     

@@ -9,7 +9,7 @@ import request from '@/utils/request'
  */
 export function getSpiderStatistics(params) {
   return request({
-    url: '/api/statistics/spider_statistics',
+    url: '/statistics/spider_statistics',
     method: 'get',
     params
   })
@@ -22,7 +22,21 @@ export function getSpiderStatistics(params) {
  */
 export function getTaskStatistics(params) {
   return request({
-    url: '/api/statistics/task_statistics',
+    url: '/statistics/task_statistics',
+    method: 'get',
+    params
+  })
+}
+
+/**
+ * 获取大屏展示数据
+ * @param {Object} params 查询参数
+ * @param {number} params.days 统计天数，默认30天
+ * @returns {Promise} 请求Promise
+ */
+export function getDashboardData(params) {
+  return request({
+    url: '/statistics/dashboard',
     method: 'get',
     params
   })
