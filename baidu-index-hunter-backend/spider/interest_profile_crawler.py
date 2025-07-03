@@ -14,6 +14,7 @@ import threading
 import sys
 import os
 import json
+import traceback
 
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -25,6 +26,7 @@ from cookie_manager.cookie_rotator import cookie_rotator
 from config.settings import BAIDU_INDEX_API, OUTPUT_DIR
 from utils.data_processor import data_processor
 from fake_useragent import UserAgent
+from db.mysql_manager import MySQLManager
 
 
 class InterestProfileCrawler:
@@ -75,10 +77,11 @@ class InterestProfileCrawler:
         if task_id:
             self._save_global_checkpoint(task_id)
     
-    def _save_data_cache(self, force=False):
+    def _save_data_cache(self, force=False, status=None):
         """
         保存数据缓存到CSV文件
         :param force: 是否强制保存，即使缓存未达到阈值
+        :param status: 任务状态，如果是"completed"则更新统计数据
         :return: 是否保存成功
         """
         with self.lock:
@@ -119,6 +122,75 @@ class InterestProfileCrawler:
                 
                 # 清空缓存
                 self.data_cache = []
+                
+                # 如果是任务完成时的保存，更新统计数据
+                if status == "completed":
+                    try:
+                        # 计算该任务的总爬取数据条数
+                        total_crawled = 0
+                        
+                        # 计算文件的行数
+                        if os.path.exists(output_path):
+                            with open(output_path, 'r', encoding='utf-8-sig') as f:
+                                total_crawled += sum(1 for _ in f) - 1  # 减去表头行
+                        
+                        # 获取当前日期
+                        stat_date = datetime.now().date()
+                        
+                        # 连接数据库
+                        mysql = MySQLManager()
+                        
+                        # 查询当前任务信息
+                        task_query = """
+                            SELECT task_type FROM spider_tasks WHERE task_id = %s
+                        """
+                        task = mysql.fetch_one(task_query, (task_id,))
+                        
+                        if not task:
+                            log.warning(f"更新统计数据失败：任务 {task_id} 不存在")
+                            return True
+                        
+                        task_type = task['task_type']
+                        
+                        # 检查该日期是否已有统计记录
+                        check_query = """
+                            SELECT id, total_crawled_items FROM spider_statistics 
+                            WHERE stat_date = %s AND task_type = %s
+                        """
+                        stats = mysql.fetch_one(check_query, (stat_date, task_type))
+                        
+                        if stats:
+                            # 当前累计爬取数据条数
+                            current_total_crawled = stats.get('total_crawled_items', 0) or 0
+                            # 更新后的累计爬取数据条数
+                            new_total_crawled = current_total_crawled + total_crawled
+                            
+                            # 更新统计记录
+                            update_query = """
+                                UPDATE spider_statistics
+                                SET total_crawled_items = %s,
+                                    update_time = %s
+                                WHERE id = %s
+                            """
+                            mysql.execute_query(update_query, (new_total_crawled, datetime.now(), stats['id']))
+                            
+                            log.info(f"更新累计爬取数据条数: {current_total_crawled} -> {new_total_crawled} (新增: {total_crawled})")
+                        else:
+                            # 未找到当日统计记录，创建一条新记录
+                            insert_query = """
+                                INSERT INTO spider_statistics 
+                                (stat_date, task_type, total_tasks, completed_tasks, failed_tasks, total_crawled_items, update_time) 
+                                VALUES (%s, %s, 1, 1, 0, %s,  %s)
+                            """
+                            now = datetime.now()
+                            mysql.execute_query(insert_query, (stat_date, task_type, total_crawled, now))
+                            
+                            log.info(f"创建新的统计记录，初始累计爬取数据条数: {total_crawled}")
+                    
+                    except Exception as e:
+                        log.error(f"在_save_data_cache中更新统计数据失败: {e}")
+                        log.error(traceback.format_exc())
+                
                 return True
             except Exception as e:
                 log.error(f"保存数据缓存失败: {e}")
@@ -436,7 +508,7 @@ class InterestProfileCrawler:
                     
                     # 如果缓存达到阈值，保存数据
                     if len(self.data_cache) >= self.data_cache_size:
-                        self._save_data_cache()
+                        self._save_data_cache(status="completed")
                 
                 # 提取所有唯一的typeId值
                 unique_typeids = set()
@@ -491,7 +563,7 @@ class InterestProfileCrawler:
                             
                             # 如果缓存达到阈值，保存数据
                             if len(self.data_cache) >= self.data_cache_size:
-                                self._save_data_cache()
+                                self._save_data_cache(status="completed")
                         
                         # 标记该typeid为已处理
                         with self.lock:

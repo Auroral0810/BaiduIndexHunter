@@ -12,6 +12,7 @@ import threading
 import pickle
 from datetime import datetime, timedelta
 from pathlib import Path
+import traceback
 
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -57,14 +58,20 @@ class SearchIndexCrawler:
     def _generate_task_id(self):
         """生成唯一的任务ID"""
         return datetime.now().strftime('%Y%m%d%H%M%S')
-        
-    def _save_data_cache(self, force=False):
+    
+    def _save_data_cache(self, status=None, force=False):
         """保存数据缓存到CSV文件"""
         with self.lock:
+            data_count = 0
+            stats_count = 0
+            
             if (len(self.data_cache) >= self.cache_limit or force) and self.data_cache:
                 # 保存日度/周度数据
                 daily_df = pd.DataFrame(self.data_cache)
                 daily_path = os.path.join(self.output_path, f"search_index_{self.task_id}_daily_data.csv")
+                
+                # 记录实际保存的数据条数
+                data_count = len(daily_df)
                 
                 # 判断文件是否存在，决定是否写入表头
                 file_exists = os.path.isfile(daily_path)
@@ -72,12 +79,15 @@ class SearchIndexCrawler:
                 
                 # 清空缓存
                 self.data_cache = []
-                log.info(f"已保存{len(daily_df)}条数据记录到 {daily_path}")
+                log.info(f"已保存{data_count}条数据记录到 {daily_path}")
                 
             if (len(self.stats_cache) >= self.cache_limit or force) and self.stats_cache:
                 # 保存统计数据
                 stats_df = pd.DataFrame(self.stats_cache)
                 stats_path = os.path.join(self.output_path, f"search_index_{self.task_id}_stats_data.csv")
+                
+                # 记录实际保存的数据条数
+                stats_count = len(stats_df)
                 
                 # 判断文件是否存在，决定是否写入表头
                 file_exists = os.path.isfile(stats_path)
@@ -85,7 +95,77 @@ class SearchIndexCrawler:
                 
                 # 清空缓存
                 self.stats_cache = []
-                log.info(f"已保存{len(stats_df)}条统计数据记录到 {stats_path}")
+                log.info(f"已保存{stats_count}条统计数据记录到 {stats_path}")
+            
+            # 如果是任务完成时的保存，更新统计数据
+            if status == "completed":
+                try:
+                    # 计算该任务的总爬取数据条数
+                    total_crawled = 0
+                    
+                    # 计算日度数据文件的行数
+                    daily_path = os.path.join(self.output_path, f"search_index_{self.task_id}_daily_data.csv")
+                    if os.path.exists(daily_path):
+                        with open(daily_path, 'r', encoding='utf-8-sig') as f:
+                            total_crawled += sum(1 for _ in f) - 1  # 减去表头行
+                    
+                    # 获取当前日期
+                    stat_date = datetime.now().date()
+                    
+                    # 连接数据库
+                    from db.mysql_manager import MySQLManager
+                    mysql = MySQLManager()
+                    
+                    # 查询当前任务信息
+                    task_query = """
+                        SELECT task_type FROM spider_tasks WHERE task_id = %s
+                    """
+                    task = mysql.fetch_one(task_query, (self.task_id,))
+                    
+                    if not task:
+                        log.warning(f"更新统计数据失败：任务 {self.task_id} 不存在")
+                        return
+                    
+                    task_type = task['task_type']
+                    
+                    # 检查该日期是否已有统计记录
+                    check_query = """
+                        SELECT id, total_crawled_items FROM spider_statistics 
+                        WHERE stat_date = %s AND task_type = %s
+                    """
+                    stats = mysql.fetch_one(check_query, (stat_date, task_type))
+                    
+                    if stats:
+                        # 当前累计爬取数据条数
+                        current_total_crawled = stats.get('total_crawled_items', 0) or 0
+                        # 更新后的累计爬取数据条数
+                        new_total_crawled = current_total_crawled + total_crawled
+                        
+                        # 更新统计记录
+                        update_query = """
+                            UPDATE spider_statistics
+                            SET total_crawled_items = %s,
+                                update_time = %s
+                            WHERE id = %s
+                        """
+                        mysql.execute_query(update_query, (new_total_crawled, datetime.now(), stats['id']))
+                        
+                        log.info(f"更新累计爬取数据条数: {current_total_crawled} -> {new_total_crawled} (新增: {total_crawled})")
+                    else:
+                        # 未找到当日统计记录，创建一条新记录
+                        insert_query = """
+                            INSERT INTO spider_statistics 
+                            (stat_date, task_type, total_tasks, completed_tasks, failed_tasks, total_crawled_items, update_time) 
+                            VALUES (%s, %s, 1, 1, 0, %s, %s)
+                        """
+                        now = datetime.now()
+                        mysql.execute_query(insert_query, (stat_date, task_type, total_crawled, now))
+                        
+                        log.info(f"创建新的统计记录，初始累计爬取数据条数: {total_crawled}")
+                
+                except Exception as e:
+                    log.error(f"在_save_data_cache中更新统计数据失败: {e}")
+                    log.error(traceback.format_exc())
     
     def _save_global_checkpoint(self):
         """保存全局检查点"""
@@ -480,7 +560,7 @@ class SearchIndexCrawler:
                             log.warning(f"处理数据失败，跳过当前任务")
                             
             # 最后保存所有剩余数据
-            self._save_data_cache(force=True)
+            self._save_data_cache(status="completed", force=True)
             log.info(f"任务完成! 总共处理了 {self.completed_tasks}/{self.total_tasks} 个任务")
             return True
             

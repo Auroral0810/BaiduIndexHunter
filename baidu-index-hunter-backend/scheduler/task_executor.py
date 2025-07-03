@@ -9,6 +9,7 @@ import time
 import traceback
 from datetime import datetime, timedelta
 import pickle
+import pandas as pd
 
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -1261,7 +1262,7 @@ class TaskExecutor:
             # 获取任务信息
             task_query = """
                 SELECT task_type, create_time, start_time, end_time, total_items, 
-                       completed_items, failed_items 
+                       completed_items, failed_items
                 FROM spider_tasks 
                 WHERE task_id = %s
             """
@@ -1279,60 +1280,70 @@ class TaskExecutor:
             if task['start_time'] and task['end_time']:
                 duration = (task['end_time'] - task['start_time']).total_seconds()
             
-            # 获取本次任务实际爬取的数据条数
-            crawled_items = task['completed_items'] or 0
+            # 任务相关数据
+            total_items = task['total_items'] or 0
+            completed_items = task['completed_items'] or 0
+            failed_items = task['failed_items'] or 0
             
             # 检查今天的统计数据是否存在
-            check_query = "SELECT id, total_crawled_items FROM spider_statistics WHERE stat_date = %s AND task_type = %s"
+            check_query = "SELECT id, total_tasks, completed_tasks, failed_tasks, avg_duration FROM spider_statistics WHERE stat_date = %s AND task_type = %s"
             stats = self.mysql.fetch_one(check_query, (stat_date, task_type))
             
             if stats:
-                # 当前累计爬取数据条数
-                current_total_crawled = stats.get('total_crawled_items', 0) or 0
-                # 更新后的累计爬取数据条数
-                new_total_crawled = current_total_crawled + crawled_items
+                # 当前统计数据
+                current_total_tasks = stats.get('total_tasks', 0) or 0
+                current_completed_tasks = stats.get('completed_tasks', 0) or 0
+                current_failed_tasks = stats.get('failed_tasks', 0) or 0
+                current_avg_duration = stats.get('avg_duration', 0) or 0
+                
+                # 更新后的统计数据
+                new_total_tasks = current_total_tasks + 1
+                new_completed_tasks = current_completed_tasks + (1 if status == 'completed' else 0)
+                new_failed_tasks = current_failed_tasks + (1 if status == 'failed' else 0)
+                new_avg_duration = ((current_avg_duration * current_total_tasks) + duration) / new_total_tasks
+                new_success_rate = (new_completed_tasks / new_total_tasks) * 100 if new_total_tasks > 0 else 0
                 
                 # 更新已有的统计数据
                 update_query = """
                     UPDATE spider_statistics 
-                    SET total_tasks = total_tasks + 1,
-                        completed_tasks = completed_tasks + %s,
-                        failed_tasks = failed_tasks + %s,
+                    SET total_tasks = %s,
+                        completed_tasks = %s,
+                        failed_tasks = %s,
                         total_items = total_items + %s,
-                        total_crawled_items = %s,
-                        success_rate = (completed_tasks + %s) / (total_tasks + 1) * 100,
-                        avg_duration = ((avg_duration * total_tasks) + %s) / (total_tasks + 1)
-                    WHERE stat_date = %s AND task_type = %s
+                        success_rate = %s,
+                        avg_duration = %s,
+                        update_time = %s
+                    WHERE id = %s
                 """
-                is_completed = 1 if status == 'completed' else 0
-                is_failed = 1 if status == 'failed' else 0
-                total_items = task['total_items'] or 0
                 
                 self.mysql.execute_query(
                     update_query, 
-                    (is_completed, is_failed, total_items, new_total_crawled, is_completed, duration, stat_date, task_type)
+                    (new_total_tasks, new_completed_tasks, new_failed_tasks, total_items, 
+                     new_success_rate, new_avg_duration, datetime.now(), stats['id'])
                 )
                 
-                log.info(f"更新累计爬取数据条数: {current_total_crawled} -> {new_total_crawled}")
+                log.info(f"更新统计数据: 总任务数 {current_total_tasks} -> {new_total_tasks}, "
+                         f"成功率 {new_success_rate:.2f}%, 平均耗时 {new_avg_duration:.2f}秒")
             else:
                 # 创建新的统计数据
+                is_completed = 1 if status == 'completed' else 0
+                is_failed = 1 if status == 'failed' else 0
+                success_rate = 100.0 if status == 'completed' else 0.0
+                
                 insert_query = """
                     INSERT INTO spider_statistics (
                         stat_date, task_type, total_tasks, completed_tasks, 
-                        failed_tasks, total_items, total_crawled_items, success_rate, avg_duration
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        failed_tasks, total_items, success_rate, avg_duration, create_time, update_time
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
-                is_completed = 1 if status == 'completed' else 0
-                is_failed = 1 if status == 'failed' else 0
-                total_items = task['total_items'] or 0
-                success_rate = 100.0 if status == 'completed' else 0.0
                 
+                now = datetime.now()
                 self.mysql.execute_query(
                     insert_query, 
-                    (stat_date, task_type, 1, is_completed, is_failed, total_items, crawled_items, success_rate, duration)
+                    (stat_date, task_type, 1, is_completed, is_failed, total_items, success_rate, duration, now, now)
                 )
                 
-                log.info(f"创建新统计记录，初始爬取数据条数: {crawled_items}")
+                log.info(f"创建新统计记录，任务类型: {task_type}, 成功率: {success_rate}%, 平均耗时: {duration:.2f}秒")
                 
             log.info(f"已更新任务 {task_id} 的统计数据")
             
