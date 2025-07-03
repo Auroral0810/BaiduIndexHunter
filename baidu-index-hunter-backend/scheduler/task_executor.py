@@ -431,14 +431,166 @@ class TaskExecutor:
         :return: 是否成功
         """
         log.info(f"执行资讯指数任务: {task_id}")
-        self._update_task_status(task_id, 'running', progress=0)
         
-        # TODO: 实现资讯指数爬取逻辑
-        # 这里只是一个示例，实际实现需要根据百度指数的API和页面结构来完成
+        # 验证必要参数
+        if 'keywords' not in parameters or not parameters['keywords']:
+            self._update_task_status(task_id, 'failed', error_message="缺少必要参数: keywords")
+            return False
         
-        time.sleep(2)  # 模拟任务执行
-        self._update_task_status(task_id, 'completed', progress=100)
-        return True
+        if 'cities' not in parameters or not parameters['cities']:
+            self._update_task_status(task_id, 'failed', error_message="缺少必要参数: cities")
+            return False
+        
+        # 获取参数
+        keywords = parameters['keywords']
+        cities = parameters['cities']
+        resume = parameters.get('resume', False)
+        
+        # 处理关键词
+        if not isinstance(keywords, list):
+            keywords = [keywords]
+        
+        # 处理城市
+        city_dict = {}
+        if isinstance(cities, dict):
+            for code, city_info in cities.items():
+                if isinstance(city_info, dict) and 'name' in city_info and 'code' in city_info:
+                    city_dict[city_info['code']] = city_info['name']
+                else:
+                    city_dict[code] = f"城市{code}"
+        elif isinstance(cities, list):
+            for city in cities:
+                if isinstance(city, dict) and 'name' in city and 'code' in city:
+                    city_dict[city['code']] = city['name']
+                elif isinstance(city, str):
+                    city_dict[city] = f"城市{city}"
+        
+        if not city_dict:
+            self._update_task_status(task_id, 'failed', error_message="无效的城市参数")
+            return False
+        
+        # 处理时间参数
+        start_date = None
+        end_date = None
+        days = None
+        date_ranges = None
+        year_range = None
+        
+        if 'days' in parameters:
+            # 使用预定义的天数
+            days = int(parameters['days'])
+            end_date = datetime.now().strftime('%Y-%m-%d')
+            start_date = (datetime.now() - timedelta(days=days-1)).strftime('%Y-%m-%d')
+        elif 'date_ranges' in parameters and parameters['date_ranges']:
+            # 使用自定义日期范围
+            date_ranges = parameters['date_ranges']
+            if isinstance(date_ranges, list) and len(date_ranges) > 0:
+                if isinstance(date_ranges[0], list) and len(date_ranges[0]) >= 2:
+                    start_date = date_ranges[0][0]
+                    end_date = date_ranges[0][1]
+        elif 'year_range' in parameters and parameters['year_range']:
+            # 使用年份范围
+            year_range = parameters['year_range']
+            if isinstance(year_range, list) and len(year_range) >= 2:
+                start_date = f"{year_range[0]}-01-01"
+                end_date = f"{year_range[1]}-12-31"
+                # 保存年份范围用于爬虫参数
+                year_range = (int(year_range[0]), int(year_range[1]))
+        else:
+            # 默认使用全部数据范围（2011年至今）
+            start_date = "2011-01-01"
+            end_date = datetime.now().strftime('%Y-%m-%d')
+        
+        if not start_date or not end_date:
+            self._update_task_status(task_id, 'failed', error_message="无效的时间参数")
+            return False
+        
+        # 获取输出目录和检查点文件路径
+        output_dir = os.path.join(OUTPUT_DIR, 'feed_index', task_id)
+        checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/feed_index_{task_id}_checkpoint.pkl")
+        os.makedirs(output_dir, exist_ok=True)
+        os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
+        
+        # 初始化统计数据
+        total_items = len(keywords) * len(city_dict)
+        completed_items = 0
+        failed_items = 0
+        
+        # 更新任务状态
+        self._update_task_status(
+            task_id, 'running',
+            total_items=total_items,
+            completed_items=completed_items,
+            failed_items=failed_items,
+            progress=0
+        )
+        
+        output_files = []
+        
+        try:
+            # 准备爬虫参数
+            spider_params = {
+                'keywords': keywords,
+                'cities': city_dict,
+                'resume': resume,
+                'task_id': task_id if resume else None
+            }
+            
+            # 根据不同的时间参数类型添加相应的参数
+            if days:
+                spider_params['days'] = days
+            elif date_ranges:
+                spider_params['date_ranges'] = date_ranges
+            elif year_range:
+                spider_params['year_range'] = year_range
+            else:
+                spider_params['date_ranges'] = [(start_date, end_date)]
+            
+            # 启动爬虫
+            from spider.feed_index_crawler import feed_index_crawler
+            success = feed_index_crawler.crawl(**spider_params)
+            
+            if success:
+                # 获取输出文件路径
+                daily_path = os.path.join(output_dir, f"{task_id}_daily_data.csv")
+                stats_path = os.path.join(output_dir, f"{task_id}_stats_data.csv")
+                output_files.append(daily_path)
+                output_files.append(stats_path)
+
+                # 更新任务状态为已完成
+                self._update_task_status(
+                    task_id, 'completed',
+                    progress=100,
+                    completed_items=total_items,
+                    checkpoint_path=checkpoint_path,
+                    output_files=output_files
+                )
+                
+                return True
+            else:
+                # 更新任务状态为失败
+                self._update_task_status(
+                    task_id, 'failed',
+                    error_message="爬虫执行失败",
+                    checkpoint_path=checkpoint_path,
+                    output_files=output_files
+                )
+                
+                return False
+            
+        except Exception as e:
+            log.error(f"执行资讯指数任务失败: {e}")
+            log.error(traceback.format_exc())
+            
+            # 更新任务状态
+            self._update_task_status(
+                task_id, 'failed',
+                error_message=str(e),
+                checkpoint_path=checkpoint_path,
+                output_files=output_files
+            )
+            
+            return False
     
     def _execute_word_graph_task(self, task_id, parameters, checkpoint_path=None):
         """

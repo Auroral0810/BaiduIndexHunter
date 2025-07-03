@@ -178,6 +178,67 @@ def create_task():
                 'taskId': task_id
             }, "搜索指数任务创建成功"))
             
+        # 处理资讯指数任务
+        elif task_type == 'feed_index':
+            # 验证资讯指数任务的参数
+            if 'keywords' not in parameters or not parameters['keywords']:
+                return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "缺少必要参数: keywords"))
+            
+            # 验证城市参数
+            if 'cities' not in parameters or not parameters['cities']:
+                return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "缺少必要参数: cities"))
+            
+            # 处理时间参数
+            time_params_count = sum(1 for param in ['days', 'date_ranges', 'year_range'] if param in parameters)
+            
+            # 处理恢复任务
+            resume = parameters.get('resume', False)
+            if resume and ('task_id' not in parameters or not parameters['task_id']):
+                return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "恢复任务时必须提供task_id"))
+            
+            # 准备爬虫参数
+            spider_params = {
+                'keywords': parameters['keywords'],
+                'cities': parameters['cities'],
+                'resume': resume
+            }
+            
+            # 添加时间相关参数
+            if 'days' in parameters:
+                spider_params['days'] = parameters['days']
+            elif 'date_ranges' in parameters:
+                spider_params['date_ranges'] = parameters['date_ranges']
+            elif 'year_range' in parameters:
+                spider_params['year_range'] = parameters['year_range']
+            
+            # 添加任务ID（如果是恢复任务）
+            if resume and 'task_id' in parameters:
+                spider_params['task_id'] = parameters['task_id']
+            
+            # 创建任务
+            task_id = task_scheduler.create_task(
+                task_type=task_type,
+                parameters=spider_params,
+                task_name=f"资讯指数_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+                created_by=None,
+                priority=priority
+            )
+            
+            # 如果是恢复任务，设置断点续传数据
+            if resume and 'task_id' in parameters:
+                # 获取原任务的断点续传数据
+                original_task = task_scheduler.get_task(parameters['task_id'])
+                if original_task and 'checkpoint_path' in original_task and original_task['checkpoint_path']:
+                    # 更新新任务的断点续传数据
+                    task_scheduler.update_task_checkpoint(task_id, original_task['checkpoint_path'])
+            
+            # 启动任务
+            task_scheduler.start_task(task_id)
+            
+            return jsonify(ResponseFormatter.success({
+                'taskId': task_id
+            }, "资讯指数任务创建成功"))
+        
         # 其他类型任务的处理...
         
         # 默认创建任务
