@@ -866,10 +866,9 @@ const downloadSingleFile = async (filePath: string) => {
 
   try {
     const fileName = filePath.split('/').pop()
-    const downloadUrl = `${API_BASE_URL}/task/download?filePath=${encodeURIComponent(filePath)}`
-
+    // 直接使用文件URL进行下载，不再调用API
     const link = document.createElement('a')
-    link.href = downloadUrl
+    link.href = filePath
     link.setAttribute('download', fileName || 'output.csv')
     link.setAttribute('target', '_blank')
     document.body.appendChild(link)
@@ -887,7 +886,21 @@ const downloadSingleFile = async (filePath: string) => {
 // 下载检查点文件
 const downloadCheckpointFile = (checkpointPath: string) => {
   if (!checkpointPath) return
-  downloadSingleFile(checkpointPath)
+  
+  // 直接使用文件URL进行下载，不再调用API
+  try {
+    const fileName = checkpointPath.split('/').pop()
+    const link = document.createElement('a')
+    link.href = checkpointPath
+    link.setAttribute('download', fileName || 'checkpoint.json')
+    link.setAttribute('target', '_blank')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  } catch (error) {
+    ElMessage.error('下载检查点文件失败')
+    console.error('下载检查点文件错误:', error)
+  }
 }
 
 // 辅助函数
