@@ -11,9 +11,11 @@ const routeMap = {
   '/': '1',
   '/data-collection': '2',
   '/cookie-manager': '3',
-  '/settings': '4',
-  '/about': '5',
-  '/privacy': '6'
+  '/dashboard': '4',
+  '/settings': '5',
+  '/about': '6',
+  '/privacy': '7',
+  
 }
 
 // 根据当前路径更新激活的菜单项
@@ -42,12 +44,15 @@ const handleSelect = (key) => {
       router.push('/cookie-manager')
       break
     case '4':
-      router.push('/settings')
+      router.push('/dashboard')
       break
     case '5':
-      router.push('/about')
+      router.push('/settings')
       break
     case '6':
+      router.push('/about')
+      break
+    case '7':
       router.push('/privacy')
       break
   }
@@ -83,14 +88,18 @@ const handleSelect = (key) => {
               <span>Cookie管理</span>
             </el-menu-item>
             <el-menu-item index="4" class="nav-item">
+              <el-icon><i-ep-data-analysis /></el-icon>
+              <span>数据大屏</span>
+            </el-menu-item>
+            <el-menu-item index="5" class="nav-item">
               <el-icon><i-ep-setting /></el-icon>
               <span>配置信息</span>
             </el-menu-item>
-            <el-menu-item index="5" class="nav-item">
+            <el-menu-item index="6" class="nav-item">
               <el-icon><i-ep-info-filled /></el-icon>
               <span>关于我们</span>
             </el-menu-item>
-            <el-menu-item index="6" class="nav-item">
+            <el-menu-item index="7" class="nav-item">
               <el-icon><i-ep-lock /></el-icon>
               <span>隐私政策</span>
             </el-menu-item>

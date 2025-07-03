@@ -273,8 +273,8 @@ class TaskExecutor:
                 query = """
                     INSERT INTO task_statistics 
                     (task_id, task_type, keyword, city_code, city_name, data_type, data_date, 
-                     item_count, success_count, fail_count, create_time, update_time)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                     item_count, success_count, fail_count, update_time)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     ON DUPLICATE KEY UPDATE
                     item_count = VALUES(item_count),
                     success_count = VALUES(success_count),
@@ -293,7 +293,7 @@ class TaskExecutor:
                     item.get('item_count', 0),
                     item.get('success_count', 0),
                     item.get('fail_count', 0),
-                    now, now
+                    now
                 )
                 
                 self.mysql.execute_query(query, values)
@@ -409,7 +409,7 @@ class TaskExecutor:
             
         query = """
             INSERT INTO task_statistics (
-                task_id, task_type, keyword, city_code, city_name, date_range, create_time
+                task_id, task_type, keyword, city_code, city_name, date_range, update_time
             ) VALUES (%s, %s, %s, %s, %s, %s, %s)
             ON DUPLICATE KEY UPDATE
             update_time = %s
@@ -417,7 +417,7 @@ class TaskExecutor:
         
         values = (
             task_id, task_type, keyword, 
-            city_code, city_name, date_range, now, now
+            city_code, city_name, date_range, now
         )
         
         try:
@@ -1261,7 +1261,7 @@ class TaskExecutor:
         try:
             # 获取任务信息
             task_query = """
-                SELECT task_type, create_time, start_time, end_time, total_items, 
+                SELECT task_type, start_time, end_time, total_items, 
                        completed_items, failed_items
                 FROM spider_tasks 
                 WHERE task_id = %s
@@ -1333,14 +1333,14 @@ class TaskExecutor:
                 insert_query = """
                     INSERT INTO spider_statistics (
                         stat_date, task_type, total_tasks, completed_tasks, 
-                        failed_tasks, total_items, success_rate, avg_duration, create_time, update_time
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        failed_tasks, total_items, success_rate, avg_duration,  update_time
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s,  %s)
                 """
                 
                 now = datetime.now()
                 self.mysql.execute_query(
                     insert_query, 
-                    (stat_date, task_type, 1, is_completed, is_failed, total_items, success_rate, duration, now, now)
+                    (stat_date, task_type, 1, is_completed, is_failed, total_items, success_rate, duration,  now)
                 )
                 
                 log.info(f"创建新统计记录，任务类型: {task_type}, 成功率: {success_rate}%, 平均耗时: {duration:.2f}秒")
