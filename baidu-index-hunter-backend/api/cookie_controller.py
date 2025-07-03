@@ -1421,6 +1421,49 @@ def update_ab_sr(cookie_manager):
             'data': None
         })
 
+@admin_cookie_bp.route('/sync-to-redis', methods=['POST'])
+@swag_from({
+    'tags': ['Cookie管理'],
+    'summary': '同步Cookie到Redis',
+    'description': '将数据库中的Cookie数据同步到Redis缓存中',
+    'responses': {
+        '200': {
+            'description': '同步成功',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': 'Cookie数据成功同步到Redis'},
+                    'data': {'type': 'null'}
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
+                }
+            }
+        }
+    }
+})
+@with_cookie_manager
+def sync_to_redis(cookie_manager):
+    """将数据库中的Cookie数据同步到Redis"""
+    try:
+        success = cookie_manager.sync_to_redis()
+        
+        if success:
+            return jsonify(ResponseFormatter.success(None, "Cookie数据成功同步到Redis"))
+        else:
+            return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, "同步到Redis失败"))
+    except Exception as e:
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"同步到Redis失败: {str(e)}"))
+
 # 注册蓝图的函数
 def register_admin_cookie_blueprint(app):
     """注册Cookie管理API蓝图"""
