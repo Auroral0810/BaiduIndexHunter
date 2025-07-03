@@ -32,12 +32,12 @@ REDIS_CONFIG = {
 
 # 阿里云OSS配置
 OSS_CONFIG = {
-    'url': os.getenv('OSS_URL', ''),
-    'endpoint': os.getenv('OSS_ENDPOINT', ''),
-    'access_key_id': os.getenv('OSS_ACCESS_KEY_ID', ''),
-    'access_key_secret': os.getenv('OSS_ACCESS_KEY_SECRET', ''),
-    'bucket_name': os.getenv('OSS_BUCKET_NAME', ''),
-    'region': os.getenv('OSS_REGION', ''),
+    'url': os.getenv('OSS_URL'),
+    'endpoint': os.getenv('OSS_ENDPOINT'),
+    'access_key_id': os.getenv('OSS_ACCESS_KEY_ID'),
+    'access_key_secret': os.getenv('OSS_ACCESS_KEY_SECRET'),
+    'bucket_name': os.getenv('OSS_BUCKET_NAME'),
+    'region': os.getenv('OSS_REGION'),
 }
 
 # API配置
