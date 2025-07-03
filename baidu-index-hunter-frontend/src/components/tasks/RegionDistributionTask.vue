@@ -74,6 +74,9 @@
               <el-button type="primary" plain size="small" @click="checkKeywords" :loading="checkingKeywords">
                 <el-icon><Check /></el-icon>检查关键词
               </el-button>
+              <el-button type="warning" plain size="small" @click="removeInvalidKeywords" :disabled="!hasInvalidKeywords">
+                <el-icon><Close /></el-icon>清除不存在的关键词
+              </el-button>
               <div class="keywords-count">共 {{ formData.keywords.length }} 个关键词</div>
             </div>
           </div>
@@ -243,6 +246,62 @@
       </div>
     </el-dialog>
     
+    <!-- 关键词检查结果对话框 -->
+    <el-dialog
+      v-model="checkResultDialogVisible"
+      title="关键词检查结果"
+      width="500px"
+      modal
+      append-to-body
+      :close-on-click-modal="false"
+      :show-close="true"
+    >
+      <div class="check-result-content">
+        <el-alert
+          v-if="checkResults.existsCount > 0"
+          type="success"
+          :title="`${checkResults.existsCount} 个关键词存在`"
+          :closable="false"
+          show-icon
+        />
+        <el-alert
+          v-if="checkResults.notExistsCount > 0"
+          type="warning"
+          :title="`${checkResults.notExistsCount} 个关键词不存在`"
+          :closable="false"
+          show-icon
+          style="margin-top: 10px;"
+        />
+        
+        <div v-if="checkResults.notExistsCount > 0" class="invalid-keywords">
+          <p>不存在的关键词：</p>
+          <div class="keywords-list">
+            <el-tag
+              v-for="(keyword, index) in checkResults.notExistsKeywords"
+              :key="index"
+              type="danger"
+              class="keyword-tag"
+              style="margin: 5px;"
+            >
+              {{ keyword }}
+            </el-tag>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="checkResultDialogVisible = false">关闭</el-button>
+          <el-button 
+            type="warning" 
+            @click="removeInvalidKeywordsFromDialog" 
+            :disabled="checkResults.notExistsCount === 0"
+          >
+            清除不存在的关键词
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
+    
     <!-- 导入结果对话框 -->
     <el-dialog
       v-model="importResultDialogVisible"
@@ -291,7 +350,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Delete, Upload, Check, Refresh, Warning } from '@element-plus/icons-vue'
+import { Plus, Delete, Upload, Check, Refresh, Warning, Close } from '@element-plus/icons-vue'
 import axios from 'axios'
 import * as XLSX from 'xlsx'
 import RegionCitySelector from '@/components/RegionCitySelector.vue'
@@ -350,6 +409,12 @@ const priorityMarks = {
 // 关键词检查结果
 const keywordCheckResults = reactive<Record<string, boolean | null>>({})
 const checkingKeywords = ref(false)
+const checkResultDialogVisible = ref(false)
+const checkResults = reactive({
+  existsCount: 0,
+  notExistsCount: 0,
+  notExistsKeywords: [] as string[]
+})
 
 // 日期范围限制
 const MIN_DATE = new Date('2011-01-01')
@@ -429,14 +494,19 @@ const checkKeywords = async () => {
       }
       
       // 统计结果
-      const existsCount = Object.values(results).filter(r => r.exists).length
-      const notExistsCount = Object.values(results).filter(r => !r.exists).length
+      checkResults.existsCount = Object.values(results).filter(r => r.exists).length
+      checkResults.notExistsCount = Object.values(results).filter(r => !r.exists).length
       
-      if (notExistsCount > 0) {
-        ElMessage.warning(`检查完成: ${existsCount} 个关键词存在，${notExistsCount} 个关键词不存在`)
-      } else {
-        ElMessage.success(`检查完成: 所有 ${existsCount} 个关键词均存在`)
+      // 获取不存在的关键词列表
+      checkResults.notExistsKeywords = []
+      for (const word in results) {
+        if (!results[word].exists) {
+          checkResults.notExistsKeywords.push(word)
+        }
       }
+      
+      // 显示检查结果对话框
+      checkResultDialogVisible.value = true
     } else {
       ElMessage.error(`检查失败: ${response.data.msg}`)
     }
@@ -646,6 +716,58 @@ const handleRegionsFileChange = async (file: any) => {
     ElMessage.error('文件读取失败，请检查文件格式');
   }
 };
+
+// 计算是否有不存在的关键词
+const hasInvalidKeywords = computed(() => {
+  return Object.values(keywordCheckResults).some(result => result === false);
+});
+
+// 清除不存在的关键词
+const removeInvalidKeywords = () => {
+  if (!hasInvalidKeywords.value) return;
+  
+  ElMessageBox.confirm('确定要清除所有不存在的关键词吗?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    const invalidKeywords: string[] = [];
+    
+    // 找出不存在的关键词
+    formData.keywords = formData.keywords.filter(keyword => {
+      const exists = keywordCheckResults[keyword.value] !== false;
+      if (!exists) {
+        invalidKeywords.push(keyword.value);
+        delete keywordCheckResults[keyword.value];
+      }
+      return exists;
+    });
+    
+    if (invalidKeywords.length > 0) {
+      ElMessage.success(`已清除 ${invalidKeywords.length} 个不存在的关键词`);
+    }
+  }).catch(() => {});
+}
+
+// 从对话框中清除不存在的关键词
+const removeInvalidKeywordsFromDialog = () => {
+  const invalidKeywords: string[] = [];
+  
+  // 找出不存在的关键词
+  formData.keywords = formData.keywords.filter(keyword => {
+    const exists = keywordCheckResults[keyword.value] !== false;
+    if (!exists) {
+      invalidKeywords.push(keyword.value);
+      delete keywordCheckResults[keyword.value];
+    }
+    return exists;
+  });
+  
+  if (invalidKeywords.length > 0) {
+    ElMessage.success(`已清除 ${invalidKeywords.length} 个不存在的关键词`);
+    checkResultDialogVisible.value = false;
+  }
+}
 
 // 提交任务
 const submitTask = async () => {
@@ -879,5 +1001,34 @@ onMounted(async () => {
 
 .time-info {
   margin-top: 10px;
+}
+
+.check-result-content {
+  padding: 10px;
+}
+
+.invalid-keywords {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #f8f8f8;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.invalid-keywords p {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.keywords-list {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.keyword-tag {
+  margin: 5px;
 }
 </style> 
