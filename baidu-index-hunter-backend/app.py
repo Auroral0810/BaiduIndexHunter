@@ -1,5 +1,5 @@
 """
-百度指数爬虫后端应用入口
+百度指数爬虫API服务
 """
 import os
 import sys
@@ -14,6 +14,7 @@ from api.region_controller import register_region_blueprint
 from api.task_controller import register_task_blueprint
 from api.statistics_controller import register_statistics_blueprint
 from api.config_api import config_bp
+from api.word_check_controller import register_word_check_blueprint
 from constant.respond import ResponseCode, ResponseFormatter
 from region_manager.region_manager import get_region_manager, RegionManager
 from cookie_manager.cookie_manager import CookieManager
@@ -36,7 +37,7 @@ def create_app(config=None):
     app = Flask(__name__)
     
     # 配置跨域
-    CORS(app)
+    CORS(app, supports_credentials=True)
     
     # 配置Swagger
     swagger_config = {
@@ -123,6 +124,7 @@ def create_app(config=None):
     register_region_blueprint(app)
     register_task_blueprint(app)
     register_statistics_blueprint(app)
+    register_word_check_blueprint(app)
     app.register_blueprint(config_bp)  # 注册配置API蓝图
     
     # 全局错误处理
