@@ -103,7 +103,7 @@ class RegionDistributionCrawler:
             df = pd.DataFrame(self.data_cache)
             
             # 构建输出文件路径
-            output_path = os.path.join(self.output_dir, f"region_distributions_{task_id}.csv")
+            output_path = os.path.join(self.output_dir,task_id, f"region_distributions_{task_id}.csv")
             
             # 保存数据
             try:

@@ -66,7 +66,7 @@ class FeedIndexCrawler:
             if (len(self.data_cache) >= self.cache_limit or force) and self.data_cache:
                 # 保存日度/周度数据
                 daily_df = pd.DataFrame(self.data_cache)
-                daily_path = os.path.join(self.output_path, f"{self.task_id}_daily_data.csv")
+                daily_path = os.path.join(self.output_path, f"feed_index_{self.task_id}_daily_data.csv")
                 
                 # 判断文件是否存在，决定是否写入表头
                 file_exists = os.path.isfile(daily_path)
@@ -79,7 +79,7 @@ class FeedIndexCrawler:
             if (len(self.stats_cache) >= self.cache_limit or force) and self.stats_cache:
                 # 保存统计数据
                 stats_df = pd.DataFrame(self.stats_cache)
-                stats_path = os.path.join(self.output_path, f"{self.task_id}_stats_data.csv")
+                stats_path = os.path.join(self.output_path, f"feed_index_{self.task_id}_stats_data.csv")
                 
                 # 判断文件是否存在，决定是否写入表头
                 file_exists = os.path.isfile(stats_path)
@@ -420,10 +420,10 @@ class FeedIndexCrawler:
                 log.warning(f"未找到任务ID为 {checkpoint_task_id} 的检查点，将创建新任务")
                 self.task_id = self._generate_task_id()
         else:
-            self.task_id = self._generate_task_id()
+            self.task_id = task_id
             
         # 设置输出路径和检查点路径
-        self.output_path = os.path.join(OUTPUT_DIR, 'feed_index')
+        self.output_path = os.path.join(OUTPUT_DIR, 'feed_index', self.task_id)
         os.makedirs(self.output_path, exist_ok=True)
         self.checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/feed_index_{self.task_id}_checkpoint.pkl")
         os.makedirs(os.path.dirname(self.checkpoint_path), exist_ok=True)

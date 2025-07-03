@@ -136,47 +136,49 @@ class TaskExecutor:
                 update_data['error_message'] = error_message
             
             # 如果任务已完成，将文件上传到OSS
-            if status == 'completed':
-                from utils.oss_manager import OSSManager
-                oss_manager = OSSManager()
-                
-                # 上传断点续传文件到OSS
-                if checkpoint_path is not None:
-                    if isinstance(checkpoint_path, dict):
-                        # 如果是字典，先转为JSON字符串
-                        update_data['checkpoint_path'] = json.dumps(checkpoint_path)
-                    else:
-                        # 上传文件到OSS并更新路径
-                        oss_url = oss_manager.upload_checkpoint(checkpoint_path)
-                        if oss_url:
-                            update_data['checkpoint_path'] = oss_url
-                        else:
-                            update_data['checkpoint_path'] = checkpoint_path
-                
-                # 上传输出文件到OSS
-                if output_files is not None:
-                    if isinstance(output_files, list) and len(output_files) > 0:
-                        # 上传文件列表到OSS
-                        oss_urls = oss_manager.upload_output_files(output_files)
-                        if oss_urls:
-                            update_data['output_files'] = json.dumps(oss_urls)
-                        else:
-                            update_data['output_files'] = json.dumps(output_files)
-                    else:
-                        update_data['output_files'] = output_files
-            else:
-                # 非完成状态，直接更新路径
-                if checkpoint_path is not None:
-                    if isinstance(checkpoint_path, dict):
-                        update_data['checkpoint_path'] = json.dumps(checkpoint_path)
+            # if status == 'completed':
+            from utils.oss_manager import OSSManager
+            oss_manager = OSSManager()
+            
+            # 上传断点续传文件到OSS
+            if checkpoint_path is not None:
+                # print(f"checkpoint_path: {checkpoint_path},'isinstance(checkpoint_path, dict)': {isinstance(checkpoint_path, dict)}")
+                if isinstance(checkpoint_path, dict):
+                    # 如果是字典，先转为JSON字符串
+                    update_data['checkpoint_path'] = json.dumps(checkpoint_path)
+                else:
+                    # print(f"开始上传checkpoint_path: {checkpoint_path}")
+                    # 上传文件到OSS并更新路径
+                    oss_url = oss_manager.upload_checkpoint(checkpoint_path)
+                    if oss_url:
+                        update_data['checkpoint_path'] = oss_url
                     else:
                         update_data['checkpoint_path'] = checkpoint_path
-                
-                if output_files is not None:
-                    if isinstance(output_files, list):
-                        update_data['output_files'] = json.dumps(output_files)
+            
+            # 上传输出文件到OSS
+            if output_files is not None:
+                if isinstance(output_files, list) and len(output_files) > 0:
+                    # 上传文件列表到OSS
+                    oss_urls = oss_manager.upload_output_files(output_files)
+                    if oss_urls:
+                        update_data['output_files'] = json.dumps(oss_urls)
                     else:
-                        update_data['output_files'] = output_files
+                        update_data['output_files'] = json.dumps(output_files)
+                else:
+                    update_data['output_files'] = output_files
+            # else:
+            #     # 非完成状态，直接更新路径
+            #     if checkpoint_path is not None:
+            #         if isinstance(checkpoint_path, dict):
+            #             update_data['checkpoint_path'] = json.dumps(checkpoint_path)
+            #         else:
+            #             update_data['checkpoint_path'] = checkpoint_path
+                
+            #     if output_files is not None:
+            #         if isinstance(output_files, list):
+            #             update_data['output_files'] = json.dumps(output_files)
+            #         else:
+            #             update_data['output_files'] = output_files
             
             # 如果状态是已完成或失败，设置结束时间
             if status in ['completed', 'failed', 'cancelled']:
@@ -505,7 +507,7 @@ class TaskExecutor:
         
         # 获取输出目录和检查点文件路径
         output_dir = os.path.join(OUTPUT_DIR, 'search_index', task_id)
-        checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/{task_id}_checkpoint.pkl")
+        checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/search_index_checkpoint_{task_id}.pkl")
         os.makedirs(output_dir, exist_ok=True)
         
         # 初始化检查点数据
@@ -563,8 +565,8 @@ class TaskExecutor:
             
             if success:
                 # 获取输出文件路径
-                daily_path = os.path.join(output_dir, f"{task_id}_daily_data.csv")
-                stats_path = os.path.join(output_dir, f"{task_id}_stats_data.csv")
+                daily_path = os.path.join(output_dir, f"search_index_{task_id}_daily_data.csv")
+                stats_path = os.path.join(output_dir, f"search_index_{task_id}_stats_data.csv")
                 output_files.append(daily_path)
                 output_files.append(stats_path)
 
@@ -736,8 +738,8 @@ class TaskExecutor:
             
             if success:
                 # 获取输出文件路径
-                daily_path = os.path.join(output_dir, f"{task_id}_daily_data.csv")
-                stats_path = os.path.join(output_dir, f"{task_id}_stats_data.csv")
+                daily_path = os.path.join(output_dir, f"feed_index_{task_id}_daily_data.csv")
+                stats_path = os.path.join(output_dir, f"feed_index_{task_id}_stats_data.csv")
                 output_files.append(daily_path)
                 output_files.append(stats_path)
 
@@ -813,7 +815,7 @@ class TaskExecutor:
         
         # 获取输出目录和检查点文件路径
         output_dir = os.path.join(OUTPUT_DIR, 'word_graph', task_id)
-        checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/word_graph_{task_id}_checkpoint.pkl")
+        checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/word_graph_checkpoint_{task_id}.pkl")
         os.makedirs(output_dir, exist_ok=True)
         os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
         
@@ -917,7 +919,7 @@ class TaskExecutor:
         
         # 获取输出目录和检查点文件路径
         output_dir = os.path.join(OUTPUT_DIR, 'demographic_attributes', task_id)
-        checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/demographic_attributes_{task_id}_checkpoint.pkl")
+        checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/demographic_attributes_checkpoint_{task_id}.pkl")
         os.makedirs(output_dir, exist_ok=True)
         os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
         
@@ -1021,7 +1023,7 @@ class TaskExecutor:
         
         # 获取输出目录和检查点文件路径
         output_dir = os.path.join(OUTPUT_DIR, 'interest_profiles', task_id)
-        checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/interest_profiles_{task_id}_checkpoint.pkl")
+        checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/interest_profiles_checkpoint_{task_id}.pkl")
         os.makedirs(output_dir, exist_ok=True)
         os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
         
@@ -1167,7 +1169,7 @@ class TaskExecutor:
         
         # 获取输出目录和检查点文件路径
         output_dir = os.path.join(OUTPUT_DIR, 'region_distributions', task_id)
-        checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/region_distributions_{task_id}_checkpoint.pkl")
+        checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/region_distributions_checkpoint_{task_id}.pkl")
         os.makedirs(output_dir, exist_ok=True)
         os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
         
