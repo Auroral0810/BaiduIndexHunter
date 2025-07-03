@@ -59,13 +59,20 @@
                 closable
                 @close="removeKeyword(index)"
                 class="keyword-tag"
+                :type="keywordCheckResults[keyword.value] === false ? 'danger' : keywordCheckResults[keyword.value] === true ? 'success' : ''"
               >
                 {{ keyword.value }}
+                <el-tooltip v-if="keywordCheckResults[keyword.value] === false" content="该关键词在百度指数中不存在" placement="top">
+                  <el-icon class="keyword-warning"><Warning /></el-icon>
+                </el-tooltip>
               </el-tag>
             </div>
             <div class="keywords-actions">
               <el-button type="danger" plain size="small" @click="clearKeywords">
                 <el-icon><Delete /></el-icon>清空关键词
+              </el-button>
+              <el-button type="primary" plain size="small" @click="checkKeywords" :loading="checkingKeywords">
+                <el-icon><Check /></el-icon>检查关键词
               </el-button>
               <div class="keywords-count">共 {{ formData.keywords.length }} 个关键词</div>
             </div>
@@ -226,7 +233,7 @@
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Delete, Upload, Check, Refresh } from '@element-plus/icons-vue'
+import { Plus, Delete, Upload, Check, Refresh, Warning } from '@element-plus/icons-vue'
 import axios from 'axios'
 import * as XLSX from 'xlsx'
 
@@ -262,6 +269,10 @@ const importResults = reactive({
   validItems: [] as string[],
   invalidItems: [] as string[]
 })
+
+// 关键词检查结果
+const keywordCheckResults = reactive<Record<string, boolean | null>>({})
+const checkingKeywords = ref(false)
 
 // 优先级标记
 const priorityMarks = {
@@ -335,7 +346,48 @@ const clearDates = () => {
   }).catch(() => {});
 }
 
-// 批量添加关键词
+// 检查关键词
+const checkKeywords = async () => {
+  if (formData.keywords.length === 0) {
+    ElMessage.warning('请先添加关键词')
+    return
+  }
+  
+  checkingKeywords.value = true
+  
+  try {
+    const keywords = formData.keywords.map(k => k.value)
+    const response = await axios.post(`${API_BASE_URL}/word-check/check`, { words: keywords })
+    
+    if (response.data.code === 10000) {
+      const results = response.data.data.results
+      
+      // 更新检查结果
+      for (const word in results) {
+        keywordCheckResults[word] = results[word].exists
+      }
+      
+      // 统计结果
+      const existsCount = Object.values(results).filter(r => r.exists).length
+      const notExistsCount = Object.values(results).filter(r => !r.exists).length
+      
+      if (notExistsCount > 0) {
+        ElMessage.warning(`检查完成: ${existsCount} 个关键词存在，${notExistsCount} 个关键词不存在`)
+      } else {
+        ElMessage.success(`检查完成: 所有 ${existsCount} 个关键词均存在`)
+      }
+    } else {
+      ElMessage.error(`检查失败: ${response.data.msg}`)
+    }
+  } catch (error) {
+    console.error('检查关键词错误:', error)
+    ElMessage.error('检查关键词失败，请检查网络连接')
+  } finally {
+    checkingKeywords.value = false
+  }
+}
+
+// 添加关键词时重置检查结果
 const addBatchKeywords = () => {
   if (!batchKeywords.value.trim()) return
   
@@ -347,6 +399,7 @@ const addBatchKeywords = () => {
     const keyword = line.trim()
     if (keyword && !formData.keywords.some(k => k.value === keyword)) {
       formData.keywords.push({ value: keyword })
+      keywordCheckResults[keyword] = null // 重置检查结果
       addedCount++
     } else if (keyword) {
       duplicateCount++
@@ -364,12 +417,14 @@ const addBatchKeywords = () => {
   batchKeywords.value = ''
 }
 
-// 移除关键词
+// 移除关键词时同时移除检查结果
 const removeKeyword = (index: number) => {
+  const keyword = formData.keywords[index].value
+  delete keywordCheckResults[keyword]
   formData.keywords.splice(index, 1)
 }
 
-// 清空关键词
+// 清空关键词时同时清空检查结果
 const clearKeywords = () => {
   ElMessageBox.confirm('确定要清空所有关键词吗?', '提示', {
     confirmButtonText: '确定',
@@ -377,6 +432,9 @@ const clearKeywords = () => {
     type: 'warning'
   }).then(() => {
     formData.keywords = []
+    Object.keys(keywordCheckResults).forEach(key => {
+      delete keywordCheckResults[key]
+    })
   }).catch(() => {})
 }
 
@@ -408,6 +466,7 @@ const handleKeywordsFileChange = async (file: any) => {
     // 添加有效关键词
     validKeywords.forEach(keyword => {
       formData.keywords.push({ value: keyword });
+      keywordCheckResults[keyword] = null; // 重置检查结果
     });
     
     // 显示导入结果
@@ -665,5 +724,10 @@ const goToTaskList = () => {
 
 .invalid-items li {
   margin-bottom: 3px;
+}
+
+.keyword-warning {
+  margin-left: 4px;
+  color: #F56C6C;
 }
 </style> 
