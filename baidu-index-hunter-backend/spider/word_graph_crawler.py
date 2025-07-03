@@ -474,6 +474,18 @@ class WordGraphCrawler:
                     
                     # 获取数据
                     api_data = result['data']
+                    if not isinstance(api_data, dict):
+                        log.error(f"API返回data字段不是字典，实际类型: {type(api_data)}, 内容: {api_data}")
+                        # 标记任务失败
+                        with self.lock:
+                            self.task_status[task_id]['failed'] += 1
+                            self.task_status[task_id]['last_update_time'] = datetime.now()
+                            self.task_status[task_id]['results'][task_key] = {
+                                'status': 'failed',
+                                'error': f"API返回data字段不是字典，内容: {api_data}",
+                                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                            }
+                        continue  # 跳过本次
                     period = api_data.get('period', '')
                     
                     # 处理每个关键词的数据

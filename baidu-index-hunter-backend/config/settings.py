@@ -100,12 +100,12 @@ BAIDU_INDEX_API = {
 
 # 爬虫配置
 SPIDER_CONFIG = {
-    'min_interval': float(os.getenv('SPIDER_MIN_INTERVAL', 1.8)),  # 请求间隔最小秒数
-    'max_interval': float(os.getenv('SPIDER_MAX_INTERVAL', 2.0)),  # 请求间隔最大秒数
-    'default_interval': float(os.getenv('SPIDER_DEFAULT_INTERVAL', 1.8)),  # 默认请求间隔秒数
+    'min_interval': float(os.getenv('SPIDER_MIN_INTERVAL', 0.8)),  # 请求间隔最小秒数
+    'max_interval': float(os.getenv('SPIDER_MAX_INTERVAL', 1)),  # 请求间隔最大秒数
+    'default_interval': float(os.getenv('SPIDER_DEFAULT_INTERVAL', 0.8)),  # 默认请求间隔秒数
     'retry_times': int(os.getenv('SPIDER_RETRY_TIMES', 2)),  # 请求失败重试次数
     'timeout': int(os.getenv('SPIDER_TIMEOUT', 15)),     # 请求超时时间（秒）
-    'max_workers': int(os.getenv('SPIDER_MAX_WORKERS', min(10, multiprocessing.cpu_count()*4))),  # 最大工作线程数
+    'max_workers': int(os.getenv('SPIDER_MAX_WORKERS', min(12, multiprocessing.cpu_count()*4))),  # 最大工作线程数
     'max_consecutive_failures': int(os.getenv('SPIDER_MAX_CONSECUTIVE_FAILURES', 2)),  # 最大连续失败次数
     'failure_multiplier': float(os.getenv('SPIDER_FAILURE_MULTIPLIER', 1.2)),  # 失败后等待时间倍数
     'user_agent_rotation': os.getenv('SPIDER_USER_AGENT_ROTATION', 'True').lower() == 'true',  # 是否轮换User-Agent
