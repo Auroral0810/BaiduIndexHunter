@@ -172,7 +172,12 @@ class SearchIndexCrawler:
         checkpoint = {
             'task_id': self.task_id,
             'completed_tasks': self.completed_tasks,
-            'total_tasks': self.total_tasks
+            'total_tasks': self.total_tasks,
+            # 保存当前处理进度的详细信息
+            'completed_keywords': self.completed_keywords,
+            'current_keyword_index': self.current_keyword_index,
+            'current_city_index': self.current_city_index,
+            'current_date_range_index': self.current_date_range_index
         }
         
         with open(self.checkpoint_path, 'wb') as f:
@@ -182,19 +187,59 @@ class SearchIndexCrawler:
     def _load_global_checkpoint(self, task_id):
         """加载全局检查点"""
         self.task_id = task_id
-        self.checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/{self.task_id}_checkpoint.pkl")
+        self.checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/search_index_checkpoint_{self.task_id}.pkl")
         
         # 确保检查点目录存在
         os.makedirs(os.path.dirname(self.checkpoint_path), exist_ok=True)
         
         if os.path.exists(self.checkpoint_path):
-            with open(self.checkpoint_path, 'rb') as f:
-                checkpoint = pickle.load(f)
-                self.completed_tasks = checkpoint.get('completed_tasks', 0)
-                self.total_tasks = checkpoint.get('total_tasks', 0)
-            log.info(f"已加载检查点: {self.checkpoint_path}, 已完成任务: {self.completed_tasks}/{self.total_tasks}")
-            return True
+            try:
+                with open(self.checkpoint_path, 'rb') as f:
+                    checkpoint = pickle.load(f)
+                    self.completed_tasks = checkpoint.get('completed_tasks', 0)
+                    self.total_tasks = checkpoint.get('total_tasks', 0)
+                    # 加载已完成的关键词和城市索引信息
+                    self.completed_keywords = checkpoint.get('completed_keywords', [])
+                    self.current_keyword_index = checkpoint.get('current_keyword_index', 0)
+                    self.current_city_index = checkpoint.get('current_city_index', 0)
+                    self.current_date_range_index = checkpoint.get('current_date_range_index', 0)
+                log.info(f"已加载检查点: {self.checkpoint_path}, 已完成任务: {self.completed_tasks}/{self.total_tasks}")
+                return True
+            except Exception as e:
+                log.error(f"加载检查点文件失败: {e}")
+                return False
         return False
+
+    def _update_ab_sr_cookies(self):
+        """更新所有账号的ab_sr cookie"""
+        try:
+            log.info("开始更新所有账号的ab_sr cookie...")
+            # 导入需要的模块
+            from cookie_manager.cookie_manager import CookieManager
+            
+            # 创建Cookie管理器
+            cookie_manager = CookieManager()
+            
+            # 更新所有账号的ab_sr cookie
+            result = cookie_manager.update_ab_sr_for_all_accounts()
+            
+            # 关闭Cookie管理器连接
+            cookie_manager.close()
+            
+            if 'error' in result:
+                log.error(f"更新ab_sr cookie失败: {result['error']}")
+                return False
+            
+            log.info(f"成功更新ab_sr cookie: 更新{result['updated_count']}个，新增{result['added_count']}个，失败{result['failed_count']}个")
+            
+            # 更新完成后重置cookie轮换器的缓存
+            self.cookie_rotator.reset_cache()
+            
+            return True
+        except Exception as e:
+            log.error(f"更新ab_sr cookie时出错: {e}")
+            log.error(traceback.format_exc())
+            return False
     
     def _decrypt(self, key, data):
         """解密百度指数数据"""
@@ -514,6 +559,11 @@ class SearchIndexCrawler:
                 self.task_id = self._generate_task_id()
         else:
             self.task_id = task_id if task_id else self._generate_task_id()
+            # 初始化进度追踪变量
+            self.completed_keywords = []
+            self.current_keyword_index = 0
+            self.current_city_index = 0
+            self.current_date_range_index = 0
             
         # 设置输出路径和检查点路径
         self.output_path = os.path.join(OUTPUT_DIR, 'search_index',  self.task_id)
@@ -529,16 +579,59 @@ class SearchIndexCrawler:
         # 上次进度更新的百分比
         last_progress_percent = 0
         
+        # 记录上次更新ab_sr的任务数
+        last_ab_sr_update_task_count = 0
+        
+        # 开始爬取前先更新一次ab_sr cookie
+        self._update_ab_sr_cookies()
+        
         # 开始爬取
         try:
-            for keyword in keywords:
-                for city_code, city_name in self.city_dict.items():
-                    for start_date, end_date in date_ranges:
-                        # 检查是否已完成该任务
-                        current_task = self.completed_tasks + 1
-                        if current_task <= self.completed_tasks and resume:
+            # 如果是恢复任务，从上次中断的位置开始
+            if resume and hasattr(self, 'current_keyword_index') and hasattr(self, 'current_city_index') and hasattr(self, 'current_date_range_index'):
+                start_keyword_idx = self.current_keyword_index
+                log.info(f"从上次中断的位置恢复: 关键词索引={start_keyword_idx}, 城市索引={self.current_city_index}, 日期范围索引={self.current_date_range_index}")
+            else:
+                start_keyword_idx = 0
+            
+            for keyword_idx, keyword in enumerate(keywords):
+                # 跳过已处理的关键词
+                if keyword_idx < start_keyword_idx:
+                    log.info(f"跳过已处理的关键词: {keyword} (索引: {keyword_idx})")
+                    continue
+                    
+                self.current_keyword_index = keyword_idx
+                
+                # 确定城市循环的起始索引
+                start_city_idx = self.current_city_index if keyword_idx == start_keyword_idx else 0
+                
+                city_items = list(self.city_dict.items())
+                for city_idx, (city_code, city_name) in enumerate(city_items):
+                    # 跳过已处理的城市
+                    if keyword_idx == start_keyword_idx and city_idx < start_city_idx:
+                        log.info(f"跳过已处理的城市: {city_name} (索引: {city_idx})")
+                        continue
+                        
+                    self.current_city_index = city_idx
+                    
+                    # 确定日期范围循环的起始索引
+                    start_date_idx = self.current_date_range_index if (keyword_idx == start_keyword_idx and city_idx == start_city_idx) else 0
+                    
+                    for date_idx, (start_date, end_date) in enumerate(date_ranges):
+                        # 跳过已处理的日期范围
+                        if keyword_idx == start_keyword_idx and city_idx == start_city_idx and date_idx < start_date_idx:
+                            log.info(f"跳过已处理的日期范围: {start_date} 至 {end_date} (索引: {date_idx})")
                             continue
                             
+                        self.current_date_range_index = date_idx
+                        
+                        # 检查是否已完成该任务
+                        task_key = f"{keyword}_{city_code}_{start_date}_{end_date}"
+                        if task_key in self.completed_keywords:
+                            log.info(f"跳过已完成的任务: {task_key}")
+                            continue
+                        
+                        current_task = self.completed_tasks + 1
                         log.info(f"正在处理 [{current_task}/{self.total_tasks}] - 关键词: {keyword}, 城市: {city_name}, 日期: {start_date} 至 {end_date}")
                         
                         # 获取数据
@@ -561,6 +654,9 @@ class SearchIndexCrawler:
                             
                             # 更新完成任务数
                             self.completed_tasks += 1
+                            
+                            # 记录已完成的任务
+                            self.completed_keywords.append(task_key)
                             
                             # 保存检查点
                             self._save_global_checkpoint()
@@ -593,9 +689,21 @@ class SearchIndexCrawler:
                                     log.info(f"已更新数据库进度: {current_progress_percent}%, 完成任务: {self.completed_tasks}/{self.total_tasks}")
                                 except Exception as e:
                                     log.error(f"更新数据库进度失败: {e}")
+                            
+                            # 每完成500条任务更新一次ab_sr cookie
+                            if self.completed_tasks - last_ab_sr_update_task_count >= 500:
+                                log.info(f"已完成{self.completed_tasks}条任务，开始更新ab_sr cookie...")
+                                self._update_ab_sr_cookies()
+                                last_ab_sr_update_task_count = self.completed_tasks
                         else:
                             log.warning(f"处理数据失败，跳过当前任务")
-                            
+                    
+                    # 完成一个城市的所有日期范围后，重置日期范围索引
+                    self.current_date_range_index = 0
+                
+                # 完成一个关键词的所有城市后，重置城市索引
+                self.current_city_index = 0
+                        
             # 最后保存所有剩余数据
             self._save_data_cache(status="completed", force=True)
             
