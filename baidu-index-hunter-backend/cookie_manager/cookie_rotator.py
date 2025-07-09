@@ -75,6 +75,15 @@ class CookieRotator:
             except Exception as e:
                 log.error(f"更新Cookie列表失败: {e}")
     
+    def reset_cache(self):
+        """重置Cookie缓存，强制下次获取时重新从Redis加载"""
+        with self.cookie_lock:
+            self.cookie_list = []
+            self.cookie_index = 0
+            self.last_update_time = 0
+            log.info("已重置Cookie缓存，下次获取将重新加载")
+        return True
+    
     def get_cookie(self):
         """获取一个可用的Cookie（兼容性方法）
         
