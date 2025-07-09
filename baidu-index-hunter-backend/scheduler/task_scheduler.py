@@ -27,11 +27,11 @@ class TaskScheduler:
         """初始化任务调度器"""
         self.mysql = MySQLManager()
         self.task_queue = PriorityQueue()  # 优先级队列，用于存储待执行的任务
-        self.max_concurrent_tasks = 3  # 最大并发任务数
+        self.max_concurrent_tasks = 5  # 最大并发任务数
         self.running_tasks = {}  # 记录正在运行的任务 {task_id: thread}
         self.is_running = False  # 调度器是否正在运行
         self.scheduler_thread = None  # 调度器线程
-        self.worker_threads = 3  # 工作线程数
+        self.worker_threads = 8  # 工作线程数
         self.workers = []  # 工作线程列表
     
     def start(self):
