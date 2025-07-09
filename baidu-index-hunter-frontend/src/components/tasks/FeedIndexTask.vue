@@ -205,8 +205,7 @@
         <el-form-item>
           <el-button 
             type="primary" 
-            @click="submitTask" 
-            :loading="submitting"
+            @click="showTaskOverview" 
             :disabled="!canSubmit"
             size="large"
           >

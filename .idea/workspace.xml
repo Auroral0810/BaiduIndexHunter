@@ -5,28 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ffc61ac2-aff1-4d92-a630-60ecc81ee81f" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/BaiduIndexHunter.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/9f3d3647-c90c-4345-b44a-0813b75b3da1.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/9f3d3647-c90c-4345-b44a-0813b75b3da1/storage_v2/_src_/schema/BaiduIndexHunter.9x3aJw.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/9f3d3647-c90c-4345-b44a-0813b75b3da1/storage_v2/_src_/schema/BaiduIndexHunter.9x3aJw.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/9f3d3647-c90c-4345-b44a-0813b75b3da1/storage_v2/_src_/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/9f3d3647-c90c-4345-b44a-0813b75b3da1/storage_v2/_src_/schema/mysql.osA4Bg.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/9f3d3647-c90c-4345-b44a-0813b75b3da1/storage_v2/_src_/schema/performance_schema.kIw0nw.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/_localhost.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/alter_spider_statistics.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-backend/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/技术架构.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/技术架构设计.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/接口参数说明.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/搜索响应接口.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/InterestProfileTask.vue" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/InterestProfileTask.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/RegionDistributionTask.vue" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/RegionDistributionTask.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/SearchIndexTask.vue" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/SearchIndexTask.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/WordGraphTask.vue" beforeDir="false" afterPath="$PROJECT_DIR$/baidu-index-hunter-frontend/src/components/tasks/WordGraphTask.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -130,6 +112,7 @@
       <workItem from="1751362270523" duration="9772000" />
       <workItem from="1751377332324" duration="25700000" />
       <workItem from="1751563931971" duration="5052000" />
+      <workItem from="1752072916225" duration="12000" />
     </task>
     <servers />
   </component>
