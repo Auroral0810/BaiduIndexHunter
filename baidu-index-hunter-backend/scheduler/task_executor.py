@@ -100,10 +100,10 @@ class TaskExecutor:
         :return: 是否正在运行
         """
         return task_id in self.running_tasks and self.running_tasks[task_id]
-    
-    def _update_task_status(self, task_id, status, progress=None, total_items=None, 
-                           completed_items=None, failed_items=None, error_message=None, 
-                           checkpoint_path=None, output_files=None):
+
+    def _update_task_status(self, task_id, status, progress=None, total_items=None,
+                            completed_items=None, failed_items=None, error_message=None,
+                            checkpoint_path=None, output_files=None):
         """
         更新任务状态
         :param task_id: 任务ID
@@ -118,80 +118,130 @@ class TaskExecutor:
         :return: 是否成功
         """
         try:
+            # 验证必要参数
+            if not task_id:
+                log.error("任务ID不能为空")
+                return False
+
             # 构建更新数据
             update_data = {'status': status, 'update_time': datetime.now()}
-            
+
             if progress is not None:
+                # 确保进度值在有效范围内
+                progress = max(0, min(100, float(progress)))
                 update_data['progress'] = progress
-            
+
             if total_items is not None:
-                update_data['total_items'] = total_items
-            
+                update_data['total_items'] = int(total_items)
+
             if completed_items is not None:
-                update_data['completed_items'] = completed_items
-            
+                update_data['completed_items'] = int(completed_items)
+
             if failed_items is not None:
-                update_data['failed_items'] = failed_items
-            
+                update_data['failed_items'] = int(failed_items)
+
             if error_message is not None:
+                # 限制错误消息长度，防止数据库字段溢出
+                if len(str(error_message)) > 2000:
+                    error_message = str(error_message)[:2000] + "..."
                 update_data['error_message'] = error_message
-            
-            # 如果任务已完成，将文件上传到OSS
-            # if status == 'completed':
-            from utils.oss_manager import OSSManager
-            oss_manager = OSSManager()
-            
-            # 上传断点续传文件到OSS
-            if checkpoint_path is not None:
-                # print(f"checkpoint_path: {checkpoint_path},'isinstance(checkpoint_path, dict)': {isinstance(checkpoint_path, dict)}")
-                if isinstance(checkpoint_path, dict):
-                    # 如果是字典，先转为JSON字符串
-                    update_data['checkpoint_path'] = json.dumps(checkpoint_path)
-                else:
-                    # print(f"开始上传checkpoint_path: {checkpoint_path}")
-                    # 上传文件到OSS并更新路径
-                    oss_url = oss_manager.upload_checkpoint(checkpoint_path)
-                    if oss_url:
-                        update_data['checkpoint_path'] = oss_url
+
+            # 处理文件上传到OSS
+            try:
+                from utils.oss_manager import OSSManager
+                oss_manager = OSSManager()
+
+                # 上传断点续传文件到OSS
+                if checkpoint_path is not None:
+                    if isinstance(checkpoint_path, dict):
+                        # 如果是字典，先转为JSON字符串
+                        update_data['checkpoint_path'] = json.dumps(checkpoint_path, ensure_ascii=False)
+                    elif isinstance(checkpoint_path, str) and checkpoint_path.strip():
+                        # 如果是文件路径，尝试上传到OSS
+                        import os
+                        if os.path.exists(checkpoint_path):
+                            oss_url = oss_manager.upload_checkpoint(checkpoint_path)
+                            if oss_url:
+                                update_data['checkpoint_path'] = oss_url
+                            else:
+                                update_data['checkpoint_path'] = checkpoint_path
+                        else:
+                            # 如果文件不存在，可能是已经是URL或其他格式
+                            update_data['checkpoint_path'] = checkpoint_path
                     else:
-                        update_data['checkpoint_path'] = checkpoint_path
-            
-            # 上传输出文件到OSS
-            if output_files is not None:
-                if isinstance(output_files, list) and len(output_files) > 0:
-                    # 上传文件列表到OSS
-                    oss_urls = oss_manager.upload_output_files(output_files)
-                    if oss_urls:
-                        update_data['output_files'] = json.dumps(oss_urls)
+                        # 其他类型转为字符串
+                        update_data['checkpoint_path'] = str(checkpoint_path)
+
+                # 上传输出文件到OSS
+                if output_files is not None:
+                    if isinstance(output_files, list) and len(output_files) > 0:
+                        # 上传文件列表到OSS
+                        oss_urls = oss_manager.upload_output_files(output_files)
+                        if oss_urls:
+                            update_data['output_files'] = json.dumps(oss_urls, ensure_ascii=False)
+                        else:
+                            update_data['output_files'] = json.dumps(output_files, ensure_ascii=False)
+                    elif isinstance(output_files, str):
+                        update_data['output_files'] = output_files
                     else:
-                        update_data['output_files'] = json.dumps(output_files)
-                else:
-                    update_data['output_files'] = output_files
+                        update_data['output_files'] = json.dumps(output_files,
+                                                                 ensure_ascii=False) if output_files else None
+
+            except Exception as oss_error:
+                log.warning(f"OSS上传失败，使用本地路径: {oss_error}")
+                # 如果OSS上传失败，使用原始路径
+                if checkpoint_path is not None:
+                    if isinstance(checkpoint_path, dict):
+                        update_data['checkpoint_path'] = json.dumps(checkpoint_path, ensure_ascii=False)
+                    else:
+                        update_data['checkpoint_path'] = str(checkpoint_path)
+
+                if output_files is not None:
+                    if isinstance(output_files, list):
+                        update_data['output_files'] = json.dumps(output_files, ensure_ascii=False)
+                    else:
+                        update_data['output_files'] = str(output_files)
 
             # 过滤掉值为 None 的字段，防止 SQL 语法错误
             update_data = {k: v for k, v in update_data.items() if v is not None}
-            
+
             # 如果状态是已完成或失败，设置结束时间
             if status in ['completed', 'failed', 'cancelled']:
                 update_data['end_time'] = datetime.now()
-            
+
             # 如果状态是运行中且没有开始时间，设置开始时间
             if status == 'running':
-                # 检查任务是否有开始时间
-                query = "SELECT start_time FROM spider_tasks WHERE task_id = %s"
-                result = self.mysql.fetch_one(query, (task_id,))
-                
-                if result and result['start_time'] is None:
+                try:
+                    # 检查任务是否有开始时间
+                    query = "SELECT start_time FROM spider_tasks WHERE task_id = %s"
+                    result = self.mysql.fetch_one(query, (task_id,))
+
+                    if result and result.get('start_time') is None:
+                        update_data['start_time'] = datetime.now()
+                except Exception as e:
+                    log.warning(f"检查开始时间失败: {e}")
+                    # 如果查询失败，直接设置开始时间
                     update_data['start_time'] = datetime.now()
-            
+
+            # 确保有数据需要更新
+            if not update_data:
+                log.warning(f"没有数据需要更新，任务ID: {task_id}")
+                return True
+
             # 构建SQL更新语句
             set_clause = ", ".join([f"{key} = %s" for key in update_data.keys()])
             values = list(update_data.values())
             values.append(task_id)
-            
+
             query = f"UPDATE spider_tasks SET {set_clause} WHERE task_id = %s"
-            self.mysql.execute_query(query, values)
-            
+
+            # 执行更新
+            affected_rows = self.mysql.execute_query(query, values)
+
+            if affected_rows == 0:
+                log.warning(f"更新任务状态时没有找到任务: {task_id}")
+                return False
+
             # 如果任务状态为完成、失败或取消，更新task_queue表中的状态
             if status in ['completed', 'failed', 'cancelled']:
                 now = datetime.now()
@@ -201,11 +251,17 @@ class TaskExecutor:
                     SET status = %s, complete_time = %s 
                     WHERE task_id = %s
                 """
-                self.mysql.execute_query(queue_query, (queue_status, now, task_id))
-                
+                try:
+                    self.mysql.execute_query(queue_query, (queue_status, now, task_id))
+                except Exception as e:
+                    log.error(f"更新任务队列状态失败: {e}")
+
                 # 如果任务完成或失败，更新spider_statistics表
-                self._update_spider_statistics(task_id, status)
-            
+                try:
+                    self._update_spider_statistics(task_id, status)
+                except Exception as e:
+                    log.error(f"更新统计信息失败: {e}")
+
             # 如果任务状态为running，更新task_queue表中的状态为processing
             if status == 'running':
                 queue_query = """
@@ -213,23 +269,33 @@ class TaskExecutor:
                     SET status = 'processing', start_time = %s 
                     WHERE task_id = %s AND start_time IS NULL
                 """
-                self.mysql.execute_query(queue_query, (datetime.now(), task_id))
-            
+                try:
+                    self.mysql.execute_query(queue_query, (datetime.now(), task_id))
+                except Exception as e:
+                    log.error(f"更新任务队列处理状态失败: {e}")
+
             # 记录任务日志
             log_message = f"任务状态更新为: {status}"
             if progress is not None:
                 log_message += f", 进度: {progress}%"
+            if completed_items is not None and total_items is not None:
+                log_message += f", 完成: {completed_items}/{total_items}"
             if error_message is not None:
                 log_message += f", 错误: {error_message}"
-            
-            self._log_task(task_id, "INFO", log_message)
-            
+
+            try:
+                self._log_task(task_id, "INFO", log_message)
+            except Exception as e:
+                log.error(f"记录任务日志失败: {e}")
+
+            log.info(f"任务状态更新成功: {task_id} -> {status}")
             return True
+
         except Exception as e:
             log.error(f"更新任务状态失败: {e}")
+            log.error(f"任务ID: {task_id}, 状态: {status}")
             log.error(traceback.format_exc())
             return False
-    
     def _log_task(self, task_id, level, message):
         """
         记录任务日志
@@ -485,8 +551,8 @@ class TaskExecutor:
             # 使用年份范围
             year_range = parameters['year_range']
             if isinstance(year_range, list) and len(year_range) >= 2:
-                start_date = f"{year_range[0]}-01-01"
-                end_date = f"{year_range[1]}-12-31"
+                start_date = f"{year_range[0]}"
+                end_date = f"{year_range[1]}"
         else:
             # 默认使用全部数据范围（2011年至今）
             start_date = "2011-01-01"
@@ -546,11 +612,12 @@ class TaskExecutor:
                 'task_id': task_id,
                 'keywords': keywords,
                 'cities': city_dict,
-                'date_ranges': [(start_date, end_date)],
+                'date_ranges': [(start_date, end_date)] if 'date_ranges' in parameters and parameters['date_ranges'] else None,
+                'year_range': [(start_date, end_date)] if 'year_range' in parameters and parameters['year_range'] else None,
                 'resume': resume,
                 'checkpoint_task_id': checkpoint_task_id if resume else None
             }
-            
+            # print(spider_params)
             # 启动爬虫
             success = search_index_crawler.crawl(**spider_params)
             
