@@ -21,6 +21,11 @@
           <el-button type="text" size="small" @click="unselectAllProvinces">取消全选</el-button>
         </div>
         
+        <!-- 全选地级市按钮 -->
+        <div class="province-actions">
+          <el-button type="text" size="small" @click="selectAllCities">全选地级市</el-button>
+        </div>
+        
         <!-- 省份列表 -->
         <div class="province-item" 
           v-for="(province, code) in provincesList" 
@@ -384,6 +389,31 @@ const unselectAllCitiesInProvince = () => {
       cityChecked[cityCode] = false;
     });
   }
+  isUpdating.value = false;
+};
+
+// 选择所有地级市
+const selectAllCities = () => {
+  if (isUpdating.value) return;
+  
+  isUpdating.value = true;
+  
+  // 清除省份选择
+  Object.keys(selectedProvinceDirectly).forEach(code => {
+    selectedProvinceDirectly[code] = false;
+    provinceChecked[code] = false;
+  });
+  
+  // 选中所有城市
+  for (const provinceCode in provinceCities.value) {
+    const province = provinceCities.value[provinceCode];
+    if (province.cities) {
+      Object.keys(province.cities).forEach(cityCode => {
+        cityChecked[cityCode] = true;
+      });
+    }
+  }
+  
   isUpdating.value = false;
 };
 
