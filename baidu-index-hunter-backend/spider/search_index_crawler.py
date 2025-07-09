@@ -667,6 +667,9 @@ class SearchIndexCrawler:
                             # 计算当前进度百分比
                             current_progress_percent = int((self.completed_tasks / self.total_tasks) * 100)
                             
+                            # 添加调试日志，显示当前进度和上次进度
+                            log.info(f"当前进度: {current_progress_percent}%, 上次进度: {last_progress_percent}%, 差值: {current_progress_percent - last_progress_percent}%")
+                            
                             # 每完成5%的任务更新一次数据库进度
                             if current_progress_percent >= last_progress_percent + 5:
                                 last_progress_percent = current_progress_percent
@@ -681,14 +684,27 @@ class SearchIndexCrawler:
                                         SET progress = %s, completed_items = %s, update_time = %s
                                         WHERE task_id = %s
                                     """
-                                    mysql.execute_query(
+                                    log.info(f"执行SQL: {update_query} 参数: {current_progress_percent}, {self.completed_tasks}, {datetime.now()}, {self.task_id}")
+                                    affected_rows = mysql.execute_query(
                                         update_query, 
                                         (current_progress_percent, self.completed_tasks, datetime.now(), self.task_id)
                                     )
                                     
-                                    log.info(f"已更新数据库进度: {current_progress_percent}%, 完成任务: {self.completed_tasks}/{self.total_tasks}")
+                                    if affected_rows > 0:
+                                        log.info(f"已更新数据库进度: {current_progress_percent}%, 完成任务: {self.completed_tasks}/{self.total_tasks}, 影响行数: {affected_rows}")
+                                    else:
+                                        log.warning(f"数据库进度更新失败: 影响行数为0, task_id: {self.task_id}")
+                                        
+                                        # 检查任务是否存在
+                                        check_query = "SELECT id FROM spider_tasks WHERE task_id = %s"
+                                        task = mysql.fetch_one(check_query, (self.task_id,))
+                                        if task:
+                                            log.info(f"任务存在于数据库中, ID: {task['id']}")
+                                        else:
+                                            log.error(f"任务不存在于数据库中: {self.task_id}")
                                 except Exception as e:
                                     log.error(f"更新数据库进度失败: {e}")
+                                    log.error(traceback.format_exc())
                             
                             # 每完成500条任务更新一次ab_sr cookie
                             if self.completed_tasks - last_ab_sr_update_task_count >= 500:
