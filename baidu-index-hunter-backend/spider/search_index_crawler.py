@@ -260,7 +260,7 @@ class SearchIndexCrawler:
     def _get_search_index(self, area, keywords, start_date, end_date):
         """获取搜索指数数据"""
         # 使用rate_limiter来限制请求频率
-        rate_limiter.wait()
+        # rate_limiter.wait()
         
         # 构建word参数
         word_param = []
@@ -359,7 +359,14 @@ class SearchIndexCrawler:
         current_day = datetime.now().day
         
         date_ranges = []
-        
+        # 确保年份是整数类型
+        try:
+            start_year = int(start_year)
+            end_year = int(end_year)
+        except (ValueError, TypeError) as e:
+            log.error(f"年份格式错误: start_year={start_year}, end_year={end_year}, 错误: {e}")
+            return []
+
         for year in range(start_year, end_year + 1):
             if year < current_year:
                 # 完整年份
@@ -480,12 +487,13 @@ class SearchIndexCrawler:
             # 默认使用全国
             cities = {0: "全国"}
             self.city_dict = cities
-            
+        print("./////////处理年份数据"+str(year_range))
         # 处理日期范围
         if date_ranges_file:
             date_ranges = self._load_date_ranges_from_file(date_ranges_file)
         elif year_range:
-            date_ranges = self._process_year_range(year_range[0], year_range[1])
+            
+            date_ranges = self._process_year_range(year_range[0][0], year_range[0][1])
         elif days:
             # 使用预定义的天数
             end_date = datetime.now().strftime('%Y-%m-%d')

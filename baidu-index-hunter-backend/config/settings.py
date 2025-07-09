@@ -52,7 +52,7 @@ API_CONFIG = {
 
 # 任务配置
 TASK_CONFIG = {
-    'max_concurrent_tasks': int(os.getenv('MAX_CONCURRENT_TASKS', 5)),  # 最大并发任务数
+    'max_concurrent_tasks': int(os.getenv('MAX_CONCURRENT_TASKS', 10)),  # 最大并发任务数
     'task_queue_check_interval': int(os.getenv('TASK_QUEUE_CHECK_INTERVAL', 10)),  # 任务队列检查间隔（秒）
     'default_task_priority': int(os.getenv('DEFAULT_TASK_PRIORITY', 5)),  # 默认任务优先级（1-10）
     'max_retry_count': int(os.getenv('MAX_RETRY_COUNT', 3)),  # 任务最大重试次数
