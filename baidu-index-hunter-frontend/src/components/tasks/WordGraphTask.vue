@@ -159,8 +159,7 @@
         <el-form-item>
           <el-button 
             type="primary" 
-            @click="submitTask" 
-            :loading="submitting"
+            @click="showTaskOverview" 
             :disabled="!canSubmit"
             size="large"
           >
@@ -295,6 +294,78 @@
         </span>
       </template>
     </el-dialog>
+
+    <!-- 添加任务概览对话框 -->
+    <el-dialog
+      v-model="taskOverviewDialogVisible"
+      title="任务概览"
+      width="600px"
+      :close-on-click-modal="false"
+    >
+      <div class="task-overview">
+        <el-descriptions title="任务参数确认" :column="1" border>
+          <el-descriptions-item label="任务类型">
+            <el-tag>需求图谱采集</el-tag>
+          </el-descriptions-item>
+          
+          <el-descriptions-item label="关键词">
+            <div class="overview-keywords">
+              <span class="overview-count">共 {{ formData.keywords.length }} 个关键词</span>
+              <div class="overview-tags">
+                <el-tag 
+                  v-for="(keyword, index) in formData.keywords.slice(0, 10)" 
+                  :key="index"
+                  size="small"
+                  class="overview-tag"
+                >
+                  {{ keyword.value }}
+                </el-tag>
+                <el-tag v-if="formData.keywords.length > 10" type="info" size="small">
+                  ...等 {{ formData.keywords.length - 10 }} 个
+                </el-tag>
+              </div>
+            </div>
+          </el-descriptions-item>
+          
+          <el-descriptions-item label="日期">
+            <div class="overview-dates">
+              <span class="overview-count">共 {{ formData.datelists.length }} 个日期</span>
+              <div class="overview-tags">
+                <el-tag 
+                  v-for="(date, index) in formData.datelists.slice(0, 10)" 
+                  :key="index"
+                  size="small"
+                  class="overview-tag"
+                >
+                  {{ formatDisplayDate(date) }}
+                </el-tag>
+                <el-tag v-if="formData.datelists.length > 10" type="info" size="small">
+                  ...等 {{ formData.datelists.length - 10 }} 个
+                </el-tag>
+              </div>
+            </div>
+          </el-descriptions-item>
+          
+          <el-descriptions-item label="输出格式">
+            {{ formData.output_format === 'csv' ? 'CSV格式' : 'Excel格式' }}
+          </el-descriptions-item>
+          
+          <el-descriptions-item label="其他选项">
+            <div>优先级: {{ formData.priority }}</div>
+            <div v-if="formData.resume">恢复任务ID: {{ formData.task_id }}</div>
+          </el-descriptions-item>
+        </el-descriptions>
+      </div>
+      
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="taskOverviewDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirmSubmitTask" :loading="submitting">
+            确认提交
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -338,6 +409,9 @@ const importResults = reactive({
   validItems: [] as string[],
   invalidItems: [] as string[]
 })
+
+// 任务概览对话框
+const taskOverviewDialogVisible = ref(false)
 
 // 关键词检查结果
 const keywordCheckResults = reactive<Record<string, boolean | null>>({})
@@ -668,6 +742,17 @@ const goToTaskList = () => {
   successDialogVisible.value = false
 }
 
+// 显示任务概览
+const showTaskOverview = () => {
+  taskOverviewDialogVisible.value = true;
+};
+
+// 确认提交任务
+const confirmSubmitTask = async () => {
+  taskOverviewDialogVisible.value = false;
+  submitTask();
+};
+
 // 计算是否有不存在的关键词
 const hasInvalidKeywords = computed(() => {
   return Object.values(keywordCheckResults).some(result => result === false);
@@ -885,5 +970,37 @@ const removeInvalidKeywords = () => {
 
 .keyword-tag {
   margin: 5px;
+}
+
+.task-overview {
+  padding: 20px;
+}
+
+.overview-keywords, .overview-dates {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.overview-count {
+  font-weight: bold;
+  color: #409EFF;
+}
+
+.overview-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.overview-tag {
+  background-color: #E6F7FF;
+  color: #1890FF;
+  border: 1px solid #91D5FF;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
 }
 </style> 

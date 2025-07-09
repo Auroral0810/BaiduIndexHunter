@@ -205,8 +205,7 @@
         <el-form-item>
           <el-button 
             type="primary" 
-            @click="submitTask" 
-            :loading="submitting"
+            @click="showTaskOverview" 
             :disabled="!canSubmit"
             size="large"
           >
@@ -341,6 +340,96 @@
         </span>
       </template>
     </el-dialog>
+
+    <!-- 添加任务概览对话框 -->
+    <el-dialog
+      v-model="taskOverviewDialogVisible"
+      title="任务概览"
+      width="600px"
+      :close-on-click-modal="false"
+    >
+      <div class="task-overview">
+        <el-descriptions title="任务参数确认" :column="1" border>
+          <el-descriptions-item label="任务类型">
+            <el-tag>搜索指数采集</el-tag>
+          </el-descriptions-item>
+          
+          <el-descriptions-item label="关键词">
+            <div class="overview-keywords">
+              <span class="overview-count">共 {{ formData.keywords.length }} 个关键词</span>
+              <div class="overview-tags">
+                <el-tag 
+                  v-for="(keyword, index) in formData.keywords.slice(0, 10)" 
+                  :key="index"
+                  size="small"
+                  class="overview-tag"
+                >
+                  {{ keyword.value }}
+                </el-tag>
+                <el-tag v-if="formData.keywords.length > 10" type="info" size="small">
+                  ...等 {{ formData.keywords.length - 10 }} 个
+                </el-tag>
+              </div>
+            </div>
+          </el-descriptions-item>
+          
+          <el-descriptions-item label="地区">
+            <div class="overview-cities">
+              <span class="overview-count">共 {{ selectedCities.length }} 个地区</span>
+              <div class="overview-tags">
+                <template v-if="nationwideSelected">
+                  <el-tag size="small" class="overview-tag">全国</el-tag>
+                </template>
+                <template v-else>
+                  <el-tag 
+                    v-for="(code, index) in selectedCities.slice(0, 10)" 
+                    :key="index"
+                    size="small"
+                    class="overview-tag"
+                  >
+                    {{ getCityOrProvinceName(code) }}
+                  </el-tag>
+                  <el-tag v-if="selectedCities.length > 10" type="info" size="small">
+                    ...等 {{ selectedCities.length - 10 }} 个
+                  </el-tag>
+                </template>
+              </div>
+            </div>
+          </el-descriptions-item>
+          
+          <el-descriptions-item label="时间范围">
+            <div class="overview-time">
+              <template v-if="timeType === 'all'">
+                全部历史数据 (2011年1月1日至昨日)
+              </template>
+              <template v-else-if="timeType === 'preset'">
+                最近 {{ formData.days }} 天
+              </template>
+              <template v-else-if="timeType === 'custom' && dateRange">
+                {{ dateRange[0] }} 至 {{ dateRange[1] }}
+              </template>
+              <template v-else-if="timeType === 'year' && formData.yearRange[0] && formData.yearRange[1]">
+                {{ formData.yearRange[0] }}年 至 {{ formData.yearRange[1] }}年
+              </template>
+            </div>
+          </el-descriptions-item>
+          
+          <el-descriptions-item label="其他选项">
+            <div>优先级: {{ formData.priority }}</div>
+            <div v-if="formData.resume">恢复任务ID: {{ formData.taskId }}</div>
+          </el-descriptions-item>
+        </el-descriptions>
+      </div>
+      
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="taskOverviewDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirmSubmitTask" :loading="submitting">
+            确认提交
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -435,6 +524,9 @@ const checkResults = reactive({
   notExistsCount: 0,
   notExistsKeywords: [] as string[]
 })
+
+// 任务概览对话框
+const taskOverviewDialogVisible = ref(false)
 
 // 计算是否可以提交
 const canSubmit = computed(() => {
@@ -841,6 +933,32 @@ const goToTaskList = () => {
   successDialogVisible.value = false
 }
 
+// 显示任务概览
+const showTaskOverview = () => {
+  taskOverviewDialogVisible.value = true;
+};
+
+// 确认提交任务
+const confirmSubmitTask = async () => {
+  taskOverviewDialogVisible.value = false;
+  await submitTask();
+};
+
+// 获取城市或省份名称
+const getCityOrProvinceName = (code: string) => {
+  if (regionStore.getProvincesList[code]) {
+    return regionStore.getProvinceName(code);
+  } else if (regionStore.getAllCities[code]) {
+    return regionStore.getCityName(code);
+  }
+  return code; // 默认显示城市代码
+};
+
+// 判断是否选择了全国
+const nationwideSelected = computed(() => {
+  return selectedCities.value.length === 1 && selectedCities.value[0] === '0';
+});
+
 // 页面加载时获取城市映射
 onMounted(() => {
   fetchCityMap();
@@ -994,5 +1112,28 @@ onMounted(() => {
 
 .keyword-tag {
   margin: 5px;
+}
+
+.task-overview {
+  padding: 20px;
+}
+
+.overview-keywords, .overview-cities, .overview-time {
+  margin-top: 10px;
+}
+
+.overview-count {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.overview-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.overview-tag {
+  margin-bottom: 4px;
 }
 </style> 
