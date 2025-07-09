@@ -513,7 +513,7 @@ class SearchIndexCrawler:
                 log.warning(f"未找到任务ID为 {checkpoint_task_id} 的检查点，将创建新任务")
                 self.task_id = self._generate_task_id()
         else:
-            self.task_id = task_id
+            self.task_id = task_id if task_id else self._generate_task_id()
             
         # 设置输出路径和检查点路径
         self.output_path = os.path.join(OUTPUT_DIR, 'search_index',  self.task_id)
@@ -525,6 +525,9 @@ class SearchIndexCrawler:
         self.total_tasks = len(keywords) * len(self.city_dict) * len(date_ranges)
         log.info(f"任务ID: {self.task_id}")
         log.info(f"总任务数: {self.total_tasks} (关键词: {len(keywords)}, 城市: {len(self.city_dict)}, 日期范围: {len(date_ranges)})")
+        
+        # 上次进度更新的百分比
+        last_progress_percent = 0
         
         # 开始爬取
         try:
@@ -564,19 +567,82 @@ class SearchIndexCrawler:
                             
                             # 定期保存数据
                             self._save_data_cache()
+                            
+                            # 计算当前进度百分比
+                            current_progress_percent = int((self.completed_tasks / self.total_tasks) * 100)
+                            
+                            # 每完成5%的任务更新一次数据库进度
+                            if current_progress_percent >= last_progress_percent + 5:
+                                last_progress_percent = current_progress_percent
+                                try:
+                                    # 连接数据库
+                                    from db.mysql_manager import MySQLManager
+                                    mysql = MySQLManager()
+                                    
+                                    # 更新任务进度
+                                    update_query = """
+                                        UPDATE spider_tasks 
+                                        SET progress = %s, completed_items = %s, update_time = %s
+                                        WHERE task_id = %s
+                                    """
+                                    mysql.execute_query(
+                                        update_query, 
+                                        (current_progress_percent, self.completed_tasks, datetime.now(), self.task_id)
+                                    )
+                                    
+                                    log.info(f"已更新数据库进度: {current_progress_percent}%, 完成任务: {self.completed_tasks}/{self.total_tasks}")
+                                except Exception as e:
+                                    log.error(f"更新数据库进度失败: {e}")
                         else:
                             log.warning(f"处理数据失败，跳过当前任务")
                             
             # 最后保存所有剩余数据
             self._save_data_cache(status="completed", force=True)
-            log.info(f"任务完成! 总共处理了 {self.completed_tasks}/{self.total_tasks} 个任务")
+            
+            # 更新数据库中的最终状态
+            try:
+                from db.mysql_manager import MySQLManager
+                mysql = MySQLManager()
+                
+                update_query = """
+                    UPDATE spider_tasks 
+                    SET progress = 100, completed_items = %s, status = 'completed', update_time = %s, end_time = %s
+                    WHERE task_id = %s
+                """
+                now = datetime.now()
+                mysql.execute_query(update_query, (self.completed_tasks, now, now, self.task_id))
+                
+                log.info(f"任务完成! 总共处理了 {self.completed_tasks}/{self.total_tasks} 个任务")
+            except Exception as e:
+                log.error(f"更新最终任务状态失败: {e}")
+            
             return True
             
         except Exception as e:
             log.error(f"爬取过程中出错: {str(e)}")
+            log.error(traceback.format_exc())
             # 保存当前进度和数据
             self._save_data_cache(force=True)
             self._save_global_checkpoint()
+            
+            # 更新数据库中的错误状态
+            try:
+                from db.mysql_manager import MySQLManager
+                mysql = MySQLManager()
+                
+                update_query = """
+                    UPDATE spider_tasks 
+                    SET progress = %s, completed_items = %s, status = 'failed', error_message = %s, update_time = %s
+                    WHERE task_id = %s
+                """
+                progress = int((self.completed_tasks / self.total_tasks) * 100) if self.total_tasks > 0 else 0
+                mysql.execute_query(
+                    update_query, 
+                    (progress, self.completed_tasks, str(e)[:500], datetime.now(), self.task_id)
+                )
+            except Exception as db_error:
+                log.error(f"更新任务错误状态失败: {db_error}")
+                
             return False
     
     def resume_task(self, task_id):
