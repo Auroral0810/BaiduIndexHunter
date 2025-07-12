@@ -666,13 +666,40 @@ class TaskExecutor:
                 
                 return True
             else:
-                # 更新任务状态为失败
-                self._update_task_status(
-                    task_id, 'failed',
-                    error_message="爬虫执行失败",
-                    checkpoint_path=checkpoint_path,
-                    output_files=output_files
-                )
+                # 检查是否是由于cookie不可用导致的失败
+                # 查询任务状态，如果已经被爬虫设置为paused，则不再更新为failed
+                from db.mysql_manager import MySQLManager
+                mysql = MySQLManager()
+                query = "SELECT status, error_message FROM spider_tasks WHERE task_id = %s"
+                task_info = mysql.fetch_one(query, (task_id,))
+                
+                if task_info and task_info['status'] == 'paused':
+                    log.info(f"任务 {task_id} 已被爬虫设置为暂停状态，保持该状态")
+                    return False
+                
+                # 查看cookie管理器中是否有可用cookie
+                from cookie_manager.cookie_manager import CookieManager
+                cookie_manager = CookieManager()
+                available_count = cookie_manager.get_redis_available_cookie_count()
+                cookie_manager.close()
+                
+                if available_count <= 0:
+                    # 没有可用cookie，设置为暂停状态
+                    log.warning(f"没有可用cookie，任务 {task_id} 设置为暂停状态")
+                    self._update_task_status(
+                        task_id, 'paused',
+                        error_message="所有Cookie均被锁定，任务暂停等待可用Cookie",
+                        checkpoint_path=checkpoint_path,
+                        output_files=output_files
+                    )
+                else:
+                    # 有可用cookie但仍然失败，设置为失败状态
+                    self._update_task_status(
+                        task_id, 'failed',
+                        error_message="爬虫执行失败",
+                        checkpoint_path=checkpoint_path,
+                        output_files=output_files
+                    )
                 
                 return False
             
@@ -680,13 +707,23 @@ class TaskExecutor:
             log.error(f"执行搜索指数任务失败: {e}")
             log.error(traceback.format_exc())
             
-            # 更新任务状态
-            self._update_task_status(
-                task_id, 'failed',
-                error_message=str(e),
-                checkpoint_path=checkpoint_path,
-                output_files=output_files
-            )
+            # 检查是否是由于NoCookieAvailableError导致的异常
+            if "NoCookieAvailableError" in str(e) or "所有Cookie均被锁定" in str(e):
+                log.warning(f"由于Cookie不可用导致任务 {task_id} 失败，设置为暂停状态")
+                self._update_task_status(
+                    task_id, 'paused',
+                    error_message="所有Cookie均被锁定，任务暂停等待可用Cookie",
+                    checkpoint_path=checkpoint_path,
+                    output_files=output_files
+                )
+            else:
+                # 其他异常，设置为失败状态
+                self._update_task_status(
+                    task_id, 'failed',
+                    error_message=str(e),
+                    checkpoint_path=checkpoint_path,
+                    output_files=output_files
+                )
             
             return False
     

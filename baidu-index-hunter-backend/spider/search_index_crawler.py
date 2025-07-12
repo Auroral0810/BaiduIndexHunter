@@ -792,6 +792,7 @@ class SearchIndexCrawler:
                             continue
                         all_tasks.append((keyword, city_code, city_name, start_date, end_date))
             
+            self.total_tasks = len(all_tasks)
             log.info(f"准备执行 {len(all_tasks)} 个任务，使用 {self.max_workers} 个线程")
             
             # 如果所有任务都已完成
@@ -953,9 +954,10 @@ class SearchIndexCrawler:
                     # 保存当前进度
                     self._save_data_cache(force=True)
                     self._save_global_checkpoint()
-                    
+                    print(e)
                     # 如果是NoCookieAvailableError，更新任务状态为暂停
                     if isinstance(e, NoCookieAvailableError):
+                        print("NoCookieAvailableError")
                         try:
                             from db.mysql_manager import MySQLManager
                             mysql = MySQLManager()
@@ -973,6 +975,30 @@ class SearchIndexCrawler:
                             )
                             
                             log.info(f"任务已暂停，等待Cookie可用: {self.task_id}")
+                        except Exception as db_error:
+                            log.error(f"更新任务状态失败: {db_error}")
+                        
+                        return False
+                    else:
+                        print("else")
+                        # 只有非Cookie问题才标记为失败
+                        try:
+                            from db.mysql_manager import MySQLManager
+                            mysql = MySQLManager()
+                            
+                            update_query = """
+                                UPDATE spider_tasks 
+                                SET status = 'failed', progress = %s, completed_items = %s, 
+                                    error_message = %s, update_time = %s
+                                WHERE task_id = %s
+                            """
+                            progress = min(int((self.completed_tasks / self.total_tasks) * 100) if self.total_tasks > 0 else 0, 100)
+                            mysql.execute_query(
+                                update_query, 
+                                (progress, self.completed_tasks, f"任务执行出错: {str(e)[:500]}", datetime.now(), self.task_id)
+                            )
+                            
+                            log.error(f"任务执行失败: {self.task_id}")
                         except Exception as db_error:
                             log.error(f"更新任务状态失败: {db_error}")
                         
@@ -1026,6 +1052,14 @@ class SearchIndexCrawler:
                         WHERE task_id = %s
                     """
                     error_message = "所有Cookie均被锁定，任务暂停等待可用Cookie"
+                    
+                    progress = min(int((self.completed_tasks / self.total_tasks) * 100) if self.total_tasks > 0 else 0, 100)
+                    mysql.execute_query(
+                        update_query, 
+                        (progress, self.completed_tasks, error_message, datetime.now(), self.task_id)
+                    )
+                    
+                    log.info(f"任务已暂停，等待Cookie可用: {self.task_id}")
                 else:
                     update_query = """
                         UPDATE spider_tasks 
@@ -1034,20 +1068,71 @@ class SearchIndexCrawler:
                         WHERE task_id = %s
                     """
                     error_message = str(e)[:500]
-                
-                progress = min(int((self.completed_tasks / self.total_tasks) * 100) if self.total_tasks > 0 else 0, 100)
-                mysql.execute_query(
-                    update_query, 
-                    (progress, self.completed_tasks, error_message, datetime.now(), self.task_id)
-                )
+                    
+                    progress = min(int((self.completed_tasks / self.total_tasks) * 100) if self.total_tasks > 0 else 0, 100)
+                    mysql.execute_query(
+                        update_query, 
+                        (progress, self.completed_tasks, error_message, datetime.now(), self.task_id)
+                    )
+                    
+                    log.error(f"任务执行失败: {self.task_id}")
             except Exception as db_error:
                 log.error(f"更新任务错误状态失败: {db_error}")
                 
-            return False
+            # 如果是NoCookieAvailableError，返回False但不视为失败
+            if isinstance(e, NoCookieAvailableError):
+                return False
+            else:
+                return False
     
     def resume_task(self, task_id):
         """恢复指定的任务"""
-        return self.crawl(resume=True, task_id=task_id)
+        log.info(f"尝试恢复任务: {task_id}")
+        
+        # 检查检查点文件是否存在
+        checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/search_index_checkpoint_{task_id}.pkl")
+        if not os.path.exists(checkpoint_path):
+            log.warning(f"未找到任务 {task_id} 的检查点文件，无法恢复")
+            return False
+            
+        # 检查任务在数据库中的状态
+        try:
+            from db.mysql_manager import MySQLManager
+            mysql = MySQLManager()
+            
+            # 查询任务信息
+            query = """
+                SELECT status, progress, completed_items, error_message 
+                FROM spider_tasks 
+                WHERE task_id = %s
+            """
+            task_info = mysql.fetch_one(query, (task_id,))
+            
+            if not task_info:
+                log.warning(f"数据库中未找到任务 {task_id} 的信息，无法恢复")
+                return False
+                
+            log.info(f"任务 {task_id} 当前状态: {task_info['status']}, 进度: {task_info['progress']}%, 已完成项: {task_info['completed_items']}")
+            
+            # 更新任务状态为进行中
+            update_query = """
+                UPDATE spider_tasks 
+                SET status = 'running', error_message = %s, update_time = %s
+                WHERE task_id = %s
+            """
+            mysql.execute_query(
+                update_query, 
+                (f"任务于 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} 恢复执行", datetime.now(), task_id)
+            )
+            
+            log.info(f"已将任务 {task_id} 状态更新为进行中")
+            
+        except Exception as e:
+            log.error(f"查询或更新任务状态失败: {e}")
+            log.error(traceback.format_exc())
+        
+        # 恢复任务执行
+        return self.crawl(resume=True, checkpoint_task_id=task_id)
     
     def list_tasks(self):
         """列出所有任务及其状态"""
