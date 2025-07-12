@@ -846,7 +846,7 @@ class BaiduIndexDataProcessor:
             # 验证数据长度是否一致，如果不一致则使用最短的长度
             min_length = min(len(all_values), len(wise_values), len(pc_values))
             if min_length == 0:
-                log.warning(f"解密后的数据为空: all={len(all_values)}, wise={len(wise_values)}, pc={len(pc_values)}")
+                # log.warning(f"解密后的数据为空: all={len(all_values)}, wise={len(wise_values)}, pc={len(pc_values)}")
                 return None, None
                 
             if len(all_values) != len(wise_values) or len(all_values) != len(pc_values):
