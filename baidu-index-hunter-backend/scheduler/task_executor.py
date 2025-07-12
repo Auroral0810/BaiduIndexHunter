@@ -511,8 +511,17 @@ class TaskExecutor:
         resume = parameters.get('resume', False)
         checkpoint_task_id = None
         if resume:
+            # 修改这里，优先使用参数中的task_id作为checkpoint_task_id
             checkpoint_task_id = parameters.get('task_id')
+            if not checkpoint_task_id:
+                log.warning("恢复任务模式但未提供task_id参数，将使用当前任务ID")
+                checkpoint_task_id = task_id
             log.info(f"恢复任务模式，checkpoint_task_id: {checkpoint_task_id}")
+            
+            # 如果是断点续传模式，使用checkpoint_task_id作为输出路径的基础
+            task_id_for_output = checkpoint_task_id
+        else:
+            task_id_for_output = task_id
         
         # 处理关键词
         if not isinstance(keywords, list):
@@ -569,9 +578,11 @@ class TaskExecutor:
             return False
         
         # 获取输出目录和检查点文件路径
-        output_dir = os.path.join(OUTPUT_DIR, 'search_index', task_id)
-        checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/search_index_checkpoint_{task_id}.pkl")
+        # 在断点续传模式下，使用原始task_id作为目录名
+        output_dir = os.path.join(OUTPUT_DIR, 'search_index', task_id_for_output)
+        checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/search_index_checkpoint_{task_id_for_output}.pkl")
         os.makedirs(output_dir, exist_ok=True)
+        os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
         
         # 初始化检查点数据
         checkpoint_data = {
@@ -591,7 +602,8 @@ class TaskExecutor:
                     log.info(f"已加载检查点数据: {checkpoint_path}, 已完成任务: {completed_tasks}/{total_tasks}")
                     checkpoint_data.update({
                         'completed_tasks': completed_tasks,
-                        'total_tasks': total_tasks
+                        'total_tasks': total_tasks,
+                        'completed_keywords': checkpoint.get('completed_keywords', set())
                     })
             except Exception as e:
                 log.error(f"加载检查点文件失败: {e}")
@@ -615,7 +627,7 @@ class TaskExecutor:
         try:
             # 准备爬虫参数
             spider_params = {
-                'task_id': task_id,
+                'task_id': task_id_for_output,  # 使用正确的task_id作为爬虫任务ID
                 'keywords': keywords,
                 'cities': city_dict,
                 'date_ranges': [(start_date, end_date)] if 'date_ranges' in parameters and parameters['date_ranges'] else None,
@@ -623,14 +635,14 @@ class TaskExecutor:
                 'resume': resume,
                 'checkpoint_task_id': checkpoint_task_id if resume else None
             }
-            # print(spider_params)
+            
             # 启动爬虫
             success = search_index_crawler.crawl(**spider_params)
             
             if success:
-                # 获取输出文件路径
-                daily_path = os.path.join(output_dir, f"search_index_{task_id}_daily_data.csv")
-                stats_path = os.path.join(output_dir, f"search_index_{task_id}_stats_data.csv")
+                # 获取输出文件路径 - 使用task_id_for_output
+                daily_path = os.path.join(output_dir, f"search_index_{task_id_for_output}_daily_data.csv")
+                stats_path = os.path.join(output_dir, f"search_index_{task_id_for_output}_stats_data.csv")
                 output_files.append(daily_path)
                 output_files.append(stats_path)
 
