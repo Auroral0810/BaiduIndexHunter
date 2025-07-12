@@ -592,34 +592,42 @@ class TaskExecutor:
             'current_city_index': 0
         }
         
+        # 计算总任务数
+        total_items = len(keywords) * len(city_dict)
+        completed_items = 0
+        
         # 如果是恢复任务，尝试从检查点文件加载数据
         if resume and os.path.exists(checkpoint_path):
             try:
                 with open(checkpoint_path, 'rb') as f:
                     checkpoint = pickle.load(f)
                     completed_tasks = checkpoint.get('completed_tasks', 0)
-                    total_tasks = checkpoint.get('total_tasks', 0)
-                    log.info(f"已加载检查点数据: {checkpoint_path}, 已完成任务: {completed_tasks}/{total_tasks}")
+                    checkpoint_total_tasks = checkpoint.get('total_tasks', 0)
+                    
+                    # 如果检查点中的总任务数与当前计算的不一致，使用较大的值
+                    if checkpoint_total_tasks > total_items:
+                        log.info(f"检查点中的总任务数({checkpoint_total_tasks})大于当前计算的总任务数({total_items})，使用较大值")
+                        total_items = checkpoint_total_tasks
+                    
+                    # 使用检查点中的已完成任务数
+                    completed_items = completed_tasks
+                    
+                    log.info(f"已加载检查点数据: {checkpoint_path}, 已完成任务: {completed_items}/{total_items}")
                     checkpoint_data.update({
-                        'completed_tasks': completed_tasks,
-                        'total_tasks': total_tasks,
+                        'completed_tasks': completed_items,
+                        'total_tasks': total_items,
                         'completed_keywords': checkpoint.get('completed_keywords', set())
                     })
             except Exception as e:
                 log.error(f"加载检查点文件失败: {e}")
-        
-        # 初始化统计数据
-        total_items = len(keywords) * len(city_dict)
-        completed_items = len(checkpoint_data.get('completed_keywords', []))
-        failed_items = len(checkpoint_data.get('failed_keywords', []))
         
         # 更新任务状态
         self._update_task_status(
             task_id, 'running',
             total_items=total_items,
             completed_items=completed_items,
-            failed_items=failed_items,
-            progress=round((completed_items + failed_items) / total_items * 100, 2) if total_items > 0 else 0
+            failed_items=len(checkpoint_data.get('failed_keywords', [])),
+            progress=round((completed_items) / total_items * 100, 2) if total_items > 0 else 0
         )
         
         output_files = []
@@ -633,7 +641,8 @@ class TaskExecutor:
                 'date_ranges': [(start_date, end_date)] if 'date_ranges' in parameters and parameters['date_ranges'] else None,
                 'year_range': [(start_date, end_date)] if 'year_range' in parameters and parameters['year_range'] else None,
                 'resume': resume,
-                'checkpoint_task_id': checkpoint_task_id if resume else None
+                'checkpoint_task_id': checkpoint_task_id if resume else None,
+                'total_tasks': total_items  # 传递总任务数给爬虫
             }
             
             # 启动爬虫

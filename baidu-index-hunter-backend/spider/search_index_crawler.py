@@ -615,7 +615,7 @@ class SearchIndexCrawler:
     
     def crawl(self, task_id=None, keywords=None, cities=None, date_ranges=None, days=None, 
               keywords_file=None, cities_file=None, date_ranges_file=None,
-              year_range=None, resume=False, checkpoint_task_id=None):
+              year_range=None, resume=False, checkpoint_task_id=None, total_tasks=None):
         """
         爬取百度搜索指数数据
         
@@ -631,6 +631,7 @@ class SearchIndexCrawler:
             year_range (tuple): 年份范围，格式为 (start_year, end_year)
             resume (bool): 是否恢复上次任务
             checkpoint_task_id (str): 要恢复的任务ID
+            total_tasks (int): 总任务数（从task_executor传入）
         """
         # 设置任务ID和检查点路径
         if resume and checkpoint_task_id:
@@ -707,7 +708,16 @@ class SearchIndexCrawler:
         
         # 计算总任务数
         if not resume:
-            self.total_tasks = len(keywords) * len(self.city_dict) * len(date_ranges)
+            # 如果没有从task_executor传入总任务数，则自行计算
+            if total_tasks is None:
+                self.total_tasks = len(keywords) * len(self.city_dict) * len(date_ranges)
+            else:
+                self.total_tasks = total_tasks
+        else:
+            # 如果是恢复模式且传入了总任务数，检查是否需要更新总任务数
+            if total_tasks is not None and total_tasks > self.total_tasks:
+                log.info(f"更新总任务数: {self.total_tasks} -> {total_tasks}")
+                self.total_tasks = total_tasks
             
         log.info(f"任务ID: {self.task_id}")
         log.info(f"总任务数: {self.total_tasks} (关键词: {len(keywords)}, 城市: {len(self.city_dict)}, 日期范围: {len(date_ranges)})")
@@ -751,7 +761,7 @@ class SearchIndexCrawler:
                         WHERE task_id = %s
                     """
                     now = datetime.now()
-                    mysql.execute_query(update_query, (self.completed_tasks, now, now, self.task_id))
+                    mysql.execute_query(update_query, (self.total_tasks, now, now, self.task_id))
                     
                     log.info(f"任务完成! 总共处理了 {self.completed_tasks}/{self.total_tasks} 个任务")
                 except Exception as e:
@@ -815,11 +825,11 @@ class SearchIndexCrawler:
                                         """
                                         affected_rows = mysql.execute_query(
                                             update_query, 
-                                            (current_progress_percent, self.completed_tasks, datetime.now(), self.task_id)
+                                            (min(current_progress_percent, 100), self.completed_tasks, datetime.now(), self.task_id)
                                         )
                                         
                                         if affected_rows > 0:
-                                            log.info(f"已更新数据库进度: {current_progress_percent}%, 完成任务: {self.completed_tasks}/{self.total_tasks}")
+                                            log.info(f"已更新数据库进度: {min(current_progress_percent, 100)}%, 完成任务: {self.completed_tasks}/{self.total_tasks}")
                                         else:
                                             log.warning(f"数据库进度更新失败: 影响行数为0, task_id: {self.task_id}")
                                             
@@ -860,13 +870,17 @@ class SearchIndexCrawler:
                 from db.mysql_manager import MySQLManager
                 mysql = MySQLManager()
                 
+                # 确保进度不超过100%
+                final_progress = 100
+                final_completed = min(self.completed_tasks, self.total_tasks)
+                
                 update_query = """
                     UPDATE spider_tasks 
-                    SET progress = 100, completed_items = %s, status = 'completed', update_time = %s, end_time = %s
+                    SET progress = %s, completed_items = %s, status = 'completed', update_time = %s, end_time = %s
                     WHERE task_id = %s
                 """
                 now = datetime.now()
-                mysql.execute_query(update_query, (self.completed_tasks, now, now, self.task_id))
+                mysql.execute_query(update_query, (final_progress, final_completed, now, now, self.task_id))
                 
                 log.info(f"任务完成! 总共处理了 {self.completed_tasks}/{self.total_tasks} 个任务")
             except Exception as e:
@@ -891,7 +905,7 @@ class SearchIndexCrawler:
                     SET progress = %s, completed_items = %s, status = 'failed', error_message = %s, update_time = %s
                     WHERE task_id = %s
                 """
-                progress = int((self.completed_tasks / self.total_tasks) * 100) if self.total_tasks > 0 else 0
+                progress = min(int((self.completed_tasks / self.total_tasks) * 100) if self.total_tasks > 0 else 0, 100)
                 mysql.execute_query(
                     update_query, 
                     (progress, self.completed_tasks, str(e)[:500], datetime.now(), self.task_id)
