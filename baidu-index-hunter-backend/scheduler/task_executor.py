@@ -642,8 +642,9 @@ class TaskExecutor:
                 'year_range': [(start_date, end_date)] if 'year_range' in parameters and parameters['year_range'] else None,
                 'resume': resume,
                 'checkpoint_task_id': checkpoint_task_id if resume else None,
-                'total_tasks': total_items  # 传递总任务数给爬虫
+                'total_tasks': total_items # 传递总任务数给爬虫
             }
+            log.info(f"spider_params: {spider_params}")
             
             # 启动爬虫
             success = search_index_crawler.crawl(**spider_params)

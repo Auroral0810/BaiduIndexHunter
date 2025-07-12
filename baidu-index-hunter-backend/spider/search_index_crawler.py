@@ -203,7 +203,7 @@ class SearchIndexCrawler:
         
         with open(self.checkpoint_path, 'wb') as f:
             pickle.dump(checkpoint, f)
-        log.info(f"检查点已保存: {self.checkpoint_path}, 已完成任务: {self.completed_tasks}/{self.total_tasks}")
+        # log.info(f"检查点已保存: {self.checkpoint_path}, 已完成任务: {self.completed_tasks}/{self.total_tasks}")
         
     def _load_global_checkpoint(self, task_id):
         """加载全局检查点"""
@@ -758,8 +758,10 @@ class SearchIndexCrawler:
             # 如果没有从task_executor传入总任务数，则自行计算
             if total_tasks is None:
                 self.total_tasks = len(keywords) * len(self.city_dict) * len(date_ranges)
+                # print(f"总任务数: {self.total_tasks},keywords: {len(keywords)},city_dict: {len(self.city_dict)},date_ranges: {len(date_ranges)}")
             else:
-                self.total_tasks = total_tasks
+                self.total_tasks = total_tasks*len(date_ranges)
+                # print(f"在task_executor中总任务数: {self.total_tasks},keywords: {len(keywords)},city_dict: {len(self.city_dict)},date_ranges: {len(date_ranges)},date_ranges: {date_ranges}")
         else:
             # 如果是恢复模式且传入了总任务数，检查是否需要更新总任务数
             if total_tasks is not None and total_tasks > self.total_tasks:
