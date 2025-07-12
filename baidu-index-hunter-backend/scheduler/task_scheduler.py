@@ -96,17 +96,28 @@ class TaskScheduler:
             task_id = checkpoint_task_id
             
             # 检查原任务是否存在
-            check_query = "SELECT id FROM spider_tasks WHERE task_id = %s"
+            check_query = "SELECT id, parameters FROM spider_tasks WHERE task_id = %s"
             task = self.mysql.fetch_one(check_query, (task_id,))
             
             if task:
                 log.info(f"断点续传模式：使用原有任务ID {task_id}")
                 
+                # 获取原任务参数
+                original_parameters = {}
+                if task.get('parameters'):
+                    try:
+                        original_parameters = json.loads(task.get('parameters'))
+                    except:
+                        log.warning(f"解析原任务参数失败: {task.get('parameters')}")
+                
+                # 合并参数，保留原任务的关键配置
+                merged_parameters = original_parameters.copy()
+                merged_parameters.update(parameters)
+                merged_parameters['resume'] = True
+                merged_parameters['task_id'] = task_id
+                
                 # 将参数转为JSON字符串
-                if isinstance(parameters, dict):
-                    parameters_json = json.dumps(parameters, ensure_ascii=False)
-                else:
-                    parameters_json = parameters
+                parameters_json = json.dumps(merged_parameters, ensure_ascii=False)
                 
                 # 更新任务状态为待处理
                 now = datetime.now()

@@ -164,7 +164,7 @@ def create_task():
             # 添加任务ID（如果是恢复任务）
             if resume and 'task_id' in parameters:
                 spider_params['task_id'] = parameters['task_id']
-            log.info(f"111111:{spider_params}")
+            # log.info(f"111111:{spider_params}")
             
             # 创建任务
             task_id = task_scheduler.create_task(
