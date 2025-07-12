@@ -549,12 +549,13 @@ class TaskExecutor:
         # 处理时间参数
         start_date = None
         end_date = None
-        
+        data_length = 0
         if 'days' in parameters:
             # 使用预定义的天数
             days = int(parameters['days'])
             end_date = datetime.now().strftime('%Y-%m-%d')
             start_date = (datetime.now() - timedelta(days=days-1)).strftime('%Y-%m-%d')
+            data_length = 1
         elif 'date_ranges' in parameters and parameters['date_ranges']:
             # 使用自定义日期范围
             date_ranges = parameters['date_ranges']
@@ -562,17 +563,19 @@ class TaskExecutor:
                 if isinstance(date_ranges[0], list) and len(date_ranges[0]) >= 2:
                     start_date = date_ranges[0][0]
                     end_date = date_ranges[0][1]
+            data_length = 1
         elif 'year_range' in parameters and parameters['year_range']:
             # 使用年份范围
             year_range = parameters['year_range']
             if isinstance(year_range, list) and len(year_range) >= 2:
                 start_date = f"{year_range[0]}"
                 end_date = f"{year_range[1]}"
+            data_length = int(year_range[1])-int(year_range[0])+1
         else:
             # 默认使用全部数据范围（2011年至今）
             start_date = "2011-01-01"
             end_date = datetime.now().strftime('%Y-%m-%d')
-        
+            data_length = 1
         if not start_date or not end_date:
             self._update_task_status(task_id, 'failed', error_message="无效的时间参数")
             return False
@@ -593,7 +596,7 @@ class TaskExecutor:
         }
         
         # 计算总任务数
-        total_items = len(keywords) * len(city_dict)
+        total_items = len(keywords) * len(city_dict) * data_length
         completed_items = 0
         
         # 如果是恢复任务，尝试从检查点文件加载数据
@@ -644,7 +647,7 @@ class TaskExecutor:
                 'checkpoint_task_id': checkpoint_task_id if resume else None,
                 'total_tasks': total_items  # 传递基础总任务数（不乘以日期范围）
             }
-            log.info(f"spider_params: {spider_params}")
+            # log.info(f"spider_params: {spider_params}")
             
             # 启动爬虫
             success = search_index_crawler.crawl(**spider_params)

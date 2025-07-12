@@ -55,7 +55,8 @@ class SearchIndexCrawler:
         self.current_date_range_index = 0
         self.city_dict = {}
         # 设置线程池最大工作线程数
-        self.max_workers = 5  # 修改为5个线程
+        self.max_workers = 3
+        # 修改为5个线程
         
     def setup_signal_handlers(self):
         """设置信号处理器以捕获中断"""
@@ -530,6 +531,7 @@ class SearchIndexCrawler:
         参数:
             task_data (tuple): (keyword, city_code, city_name, start_date, end_date)
         """
+        rate_limiter.wait()
         keyword, city_code, city_name, start_date, end_date = task_data
         
         # 检查任务是否已完成
@@ -769,24 +771,30 @@ class SearchIndexCrawler:
             start_date = (datetime.now() - timedelta(days=29)).strftime('%Y-%m-%d')
             date_ranges = [(start_date, end_date)]
         
-        # 计算总任务数
-        if not resume:
-            # 如果没有从task_executor传入总任务数，则自行计算
-            if total_tasks is None:
-                # 计算理论上的总任务数，但实际执行时会根据all_tasks的长度重新设置
-                theoretical_total_tasks = len(keywords) * len(self.city_dict) * len(date_ranges)
-                # log.info(f"理论总任务数: {theoretical_total_tasks} (关键词: {len(keywords)}, 城市: {len(self.city_dict)}, 日期范围: {len(date_ranges)})")
-                # 初始设置，后面会根据实际任务列表更新
-                self.total_tasks = theoretical_total_tasks
-            else:
-                # 如果传入了总任务数，使用传入的值
-                self.total_tasks = total_tasks*len(date_ranges)
-                # log.info(f"使用传入的总任务数: {self.total_tasks}")
-        else:
-            # 如果是恢复模式且传入了总任务数，检查是否需要更新总任务数
-            if total_tasks is not None and total_tasks > self.total_tasks:
-                log.info(f"更新总任务数: {self.total_tasks} -> {total_tasks}")
-                self.total_tasks = total_tasks
+        
+        
+        theoretical_total_tasks = len(keywords) * len(self.city_dict) * len(date_ranges)
+        # log.info(f"理论总任务数: {theoretical_total_tasks} (关键词: {len(keywords)}, 城市: {len(self.city_dict)}, 日期范围: {len(date_ranges)})")
+        # 初始设置，后面会根据实际任务列表更新
+        self.total_tasks = theoretical_total_tasks
+        # # 计算总任务数
+        # if not resume:
+        #     # 如果没有从task_executor传入总任务数，则自行计算
+        #     if total_tasks is None:
+        #         # 计算理论上的总任务数，但实际执行时会根据all_tasks的长度重新设置
+        #         theoretical_total_tasks = len(keywords) * len(self.city_dict) * len(date_ranges)
+        #         # log.info(f"理论总任务数: {theoretical_total_tasks} (关键词: {len(keywords)}, 城市: {len(self.city_dict)}, 日期范围: {len(date_ranges)})")
+        #         # 初始设置，后面会根据实际任务列表更新
+        #         self.total_tasks = theoretical_total_tasks
+        #     else:
+        #         # 如果传入了总任务数，使用传入的值
+        #         self.total_tasks = total_tasks*len(date_ranges)
+        #         # log.info(f"使用传入的总任务数: {self.total_tasks}")
+        # else:
+        #     # 如果是恢复模式且传入了总任务数，检查是否需要更新总任务数
+        #     if total_tasks is not None and total_tasks > self.total_tasks:
+        #         log.info(f"更新总任务数: {self.total_tasks} -> {total_tasks}")
+        #         self.total_tasks = total_tasks
             
         log.info(f"任务ID: {self.task_id}")
         log.info(f"总任务数: {self.total_tasks} (关键词: {len(keywords)}, 城市: {len(self.city_dict)}, 日期范围: {len(date_ranges)})")
@@ -815,7 +823,7 @@ class SearchIndexCrawler:
                         all_tasks.append((keyword, city_code, city_name, start_date, end_date))
             
             # 更新实际总任务数为需要执行的任务数量
-            self.total_tasks = len(all_tasks)
+            # self.total_tasks = len(all_tasks)
             log.info(f"准备执行 {len(all_tasks)} 个任务，使用 {self.max_workers} 个线程")
             
             # 如果所有任务都已完成
