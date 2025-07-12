@@ -20,6 +20,9 @@ from constant.respond import ResponseCode, ResponseFormatter
 from region_manager.region_manager import get_region_manager, RegionManager
 from cookie_manager.cookie_manager import CookieManager
 from db.config_manager import config_manager
+import threading
+import time
+import schedule
 
 # 全局变量，用于确保区域数据只同步一次
 _region_data_synced = False
@@ -35,8 +38,136 @@ TASK_CONFIG = {
     'retry_delay': int(os.getenv('RETRY_DELAY', 120)),  # 任务重试延迟（秒），减少到120秒
 }
 
+# Cookie检查配置
+COOKIE_CHECK_CONFIG = {
+    'check_interval': int(os.getenv('COOKIE_CHECK_INTERVAL', 300)),  # Cookie状态检查间隔（秒），默认5分钟
+    'ab_sr_update_interval': int(os.getenv('AB_SR_UPDATE_INTERVAL', 3600)),  # ab_sr cookie更新间隔（秒），默认1小时
+    'resume_task_check_interval': int(os.getenv('RESUME_TASK_CHECK_INTERVAL', 600)),  # 恢复任务检查间隔（秒），默认10分钟
+}
+
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+
+# 定时任务线程
+_scheduler_thread = None
+_scheduler_running = False
+
+def check_cookie_status():
+    """检查所有cookie的状态，解封可用的cookie"""
+    try:
+        log.info("开始检查cookie状态...")
+        cookie_manager = CookieManager()
+        result = cookie_manager.check_and_update_cookie_status()
+        cookie_manager.close()
+        
+        available_count = result.get('available_count', 0)
+        total_count = result.get('total_count', 0)
+        log.info(f"Cookie状态检查完成: {available_count}/{total_count} 可用")
+    except Exception as e:
+        log.error(f"检查cookie状态时出错: {e}")
+
+def update_ab_sr_cookies():
+    """更新所有账号的ab_sr cookie"""
+    try:
+        log.info("开始更新所有账号的ab_sr cookie...")
+        cookie_manager = CookieManager()
+        result = cookie_manager.update_ab_sr_for_all_accounts()
+        cookie_manager.close()
+        
+        if 'error' in result:
+            log.error(f"更新ab_sr cookie失败: {result['error']}")
+            return
+        
+        log.info(f"成功更新ab_sr cookie: 更新{result['updated_count']}个，新增{result['added_count']}个，失败{result['failed_count']}个")
+        
+        # 更新完成后重置cookie轮换器的缓存
+        from cookie_manager.cookie_rotator import cookie_rotator
+        cookie_rotator.reset_cache()
+    except Exception as e:
+        log.error(f"更新ab_sr cookie时出错: {e}")
+
+def resume_paused_tasks():
+    """恢复因cookie不足而暂停的任务"""
+    try:
+        log.info("检查是否有因cookie不足而暂停的任务...")
+        
+        # 检查可用cookie数量
+        cookie_manager = CookieManager()
+        available_count = cookie_manager.get_redis_available_cookie_count()
+        cookie_manager.close()
+        
+        if available_count <= 0:
+            log.info("没有可用cookie，无法恢复任务")
+            return
+            
+        # 查找状态为paused的任务
+        from db.mysql_manager import MySQLManager
+        from scheduler.task_scheduler import task_scheduler
+        
+        mysql = MySQLManager()
+        query = """
+            SELECT task_id FROM spider_tasks 
+            WHERE status = 'paused' AND error_message LIKE '%Cookie%锁定%' 
+            ORDER BY update_time DESC LIMIT 5
+        """
+        paused_tasks = mysql.fetch_all(query)
+        
+        if not paused_tasks:
+            log.info("没有因cookie不足而暂停的任务")
+            return
+            
+        log.info(f"找到 {len(paused_tasks)} 个因cookie不足而暂停的任务")
+        
+        # 恢复任务
+        for task in paused_tasks:
+            task_id = task['task_id']
+            log.info(f"尝试恢复任务: {task_id}")
+            task_scheduler.resume_task(task_id)
+            
+        log.info("任务恢复检查完成")
+    except Exception as e:
+        log.error(f"恢复暂停任务时出错: {e}")
+
+def run_scheduler():
+    """运行定时任务调度器"""
+    global _scheduler_running
+    
+    _scheduler_running = True
+    log.info("定时任务调度器已启动")
+    
+    # 立即执行一次初始化检查
+    check_cookie_status()
+    update_ab_sr_cookies()
+    
+    # 设置定时任务
+    schedule.every(COOKIE_CHECK_CONFIG['check_interval']).seconds.do(check_cookie_status)
+    schedule.every(COOKIE_CHECK_CONFIG['ab_sr_update_interval']).seconds.do(update_ab_sr_cookies)
+    schedule.every(COOKIE_CHECK_CONFIG['resume_task_check_interval']).seconds.do(resume_paused_tasks)
+    
+    # 运行调度器
+    while _scheduler_running:
+        schedule.run_pending()
+        time.sleep(1)
+    
+    log.info("定时任务调度器已停止")
+
+def start_scheduler():
+    """启动定时任务调度器线程"""
+    global _scheduler_thread
+    
+    if _scheduler_thread is None or not _scheduler_thread.is_alive():
+        _scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
+        _scheduler_thread.start()
+        log.info("定时任务调度器线程已启动")
+    else:
+        log.info("定时任务调度器线程已在运行中")
+
+def stop_scheduler():
+    """停止定时任务调度器线程"""
+    global _scheduler_running
+    
+    _scheduler_running = False
+    log.info("定时任务调度器已标记为停止")
 
 def create_app(config=None):
     """创建Flask应用"""
@@ -144,6 +275,9 @@ def create_app(config=None):
     # 初始化数据
     init_data()
     
+    # 启动定时任务调度器
+    start_scheduler()
+    
     # 首页路由
     @app.route('/')
     def index():
@@ -162,6 +296,34 @@ def create_app(config=None):
             "status": "UP",
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }, "API服务正常"))
+    
+    # 添加cookie状态管理路由
+    @app.route('/api/cookie/check')
+    def check_cookies():
+        """手动检查cookie状态"""
+        check_cookie_status()
+        return jsonify(ResponseFormatter.success({
+            "status": "OK",
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }, "Cookie状态检查已触发"))
+    
+    @app.route('/api/cookie/update-ab-sr')
+    def update_ab_sr():
+        """手动更新ab_sr cookie"""
+        update_ab_sr_cookies()
+        return jsonify(ResponseFormatter.success({
+            "status": "OK",
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }, "ab_sr cookie更新已触发"))
+    
+    @app.route('/api/tasks/resume-paused')
+    def resume_paused():
+        """手动恢复暂停的任务"""
+        resume_paused_tasks()
+        return jsonify(ResponseFormatter.success({
+            "status": "OK",
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }, "暂停任务恢复已触发"))
         
     return app
 

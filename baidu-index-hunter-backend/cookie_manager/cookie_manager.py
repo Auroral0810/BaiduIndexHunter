@@ -1020,7 +1020,12 @@ class CookieManager:
         检查并更新cookie状态，将临时封禁过期的cookie恢复可用
         
         Returns:
-            更新的记录数
+            dict: 包含更新结果的字典
+                {
+                    'updated_count': 更新的记录数,
+                    'available_count': 可用cookie账号数量,
+                    'total_count': 总cookie账号数量
+                }
         """
         try:
             cursor = self._get_cursor()
@@ -1035,11 +1040,44 @@ class CookieManager:
             cursor.execute(sql)
             updated_count = cursor.rowcount
             self.conn.commit()
-            return updated_count
+            
+            # 如果有cookie被解封，更新Redis
+            if updated_count > 0:
+                log.info(f"已解封 {updated_count} 条临时封禁的cookie记录")
+                self.sync_to_redis()
+            
+            # 获取可用cookie账号数量
+            available_sql = """
+            SELECT COUNT(DISTINCT account_id) as count FROM cookies 
+            WHERE is_available = 1 
+            AND (expire_time IS NULL OR expire_time > NOW())
+            AND (temp_ban_until IS NULL OR temp_ban_until < NOW())
+            AND is_permanently_banned = 0
+            """
+            cursor.execute(available_sql)
+            available_result = cursor.fetchone()
+            available_count = available_result['count'] if available_result else 0
+            
+            # 获取总cookie账号数量
+            total_sql = "SELECT COUNT(DISTINCT account_id) as count FROM cookies"
+            cursor.execute(total_sql)
+            total_result = cursor.fetchone()
+            total_count = total_result['count'] if total_result else 0
+            
+            return {
+                'updated_count': updated_count,
+                'available_count': available_count,
+                'total_count': total_count
+            }
         except Exception as e:
             log.error(f"更新cookie状态失败: {e}")
             self.conn.rollback()
-            return 0
+            return {
+                'updated_count': 0,
+                'available_count': 0,
+                'total_count': 0,
+                'error': str(e)
+            }
     
     def cleanup_expired_cookies(self):
         """
