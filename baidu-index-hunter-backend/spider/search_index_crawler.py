@@ -46,9 +46,13 @@ class SearchIndexCrawler:
         self.task_lock = threading.Lock()  # 保护任务状态
         self.save_lock = threading.Lock()  # 保护文件写入
         self.setup_signal_handlers()
+        # 初始化任务计数器和状态变量
         self.total_tasks = 0
         self.completed_tasks = 0
         self.completed_keywords = set()  # 使用集合以加速查找
+        self.current_keyword_index = 0
+        self.current_city_index = 0
+        self.current_date_range_index = 0
         self.city_dict = {}
         # 设置线程池最大工作线程数
         self.max_workers = 5  # 修改为5个线程
@@ -217,6 +221,7 @@ class SearchIndexCrawler:
             try:
                 with open(self.checkpoint_path, 'rb') as f:
                     checkpoint = pickle.load(f)
+                    # 显式设置完成任务数和总任务数
                     self.completed_tasks = checkpoint.get('completed_tasks', 0)
                     self.total_tasks = checkpoint.get('total_tasks', 0)
                     # 加载已完成的关键词和城市索引信息
@@ -234,7 +239,13 @@ class SearchIndexCrawler:
             except Exception as e:
                 log.error(f"加载检查点文件失败: {e}")
                 log.error(traceback.format_exc())
+                # 加载失败时重置计数器
+                self.completed_tasks = 0
+                self.total_tasks = 0
                 return False
+        # 如果检查点不存在，确保计数器为0
+        self.completed_tasks = 0
+        self.total_tasks = 0
         return False
 
     def _update_ab_sr_cookies(self):
@@ -524,6 +535,7 @@ class SearchIndexCrawler:
         # 检查任务是否已完成
         task_key = f"{keyword}_{city_code}_{start_date}_{end_date}"
         if task_key in self.completed_keywords:
+            # 如果任务已完成，直接返回None，不增加completed_tasks计数
             return None
             
         # log.info(f"正在处理任务: {task_key}")
@@ -696,6 +708,8 @@ class SearchIndexCrawler:
             self.task_id = task_id if task_id else self._generate_task_id()
             # 初始化进度追踪变量
             self.completed_keywords = set()  # 改为使用set而不是list
+            # 重置任务计数器
+            self.completed_tasks = 0
             self.current_keyword_index = 0
             self.current_city_index = 0
             self.current_date_range_index = 0
@@ -706,6 +720,8 @@ class SearchIndexCrawler:
             os.makedirs(self.output_path, exist_ok=True)
             self.checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/search_index_checkpoint_{self.task_id}.pkl")
             os.makedirs(os.path.dirname(self.checkpoint_path), exist_ok=True)
+            # 确保非恢复模式下重置完成任务计数
+            self.completed_tasks = 0
 
         # 加载关键词
         if keywords_file:
@@ -757,11 +773,15 @@ class SearchIndexCrawler:
         if not resume:
             # 如果没有从task_executor传入总任务数，则自行计算
             if total_tasks is None:
-                self.total_tasks = len(keywords) * len(self.city_dict) * len(date_ranges)
-                # print(f"总任务数: {self.total_tasks},keywords: {len(keywords)},city_dict: {len(self.city_dict)},date_ranges: {len(date_ranges)}")
+                # 计算理论上的总任务数，但实际执行时会根据all_tasks的长度重新设置
+                theoretical_total_tasks = len(keywords) * len(self.city_dict) * len(date_ranges)
+                # log.info(f"理论总任务数: {theoretical_total_tasks} (关键词: {len(keywords)}, 城市: {len(self.city_dict)}, 日期范围: {len(date_ranges)})")
+                # 初始设置，后面会根据实际任务列表更新
+                self.total_tasks = theoretical_total_tasks
             else:
+                # 如果传入了总任务数，使用传入的值
                 self.total_tasks = total_tasks*len(date_ranges)
-                # print(f"在task_executor中总任务数: {self.total_tasks},keywords: {len(keywords)},city_dict: {len(self.city_dict)},date_ranges: {len(date_ranges)},date_ranges: {date_ranges}")
+                # log.info(f"使用传入的总任务数: {self.total_tasks}")
         else:
             # 如果是恢复模式且传入了总任务数，检查是否需要更新总任务数
             if total_tasks is not None and total_tasks > self.total_tasks:
@@ -794,6 +814,7 @@ class SearchIndexCrawler:
                             continue
                         all_tasks.append((keyword, city_code, city_name, start_date, end_date))
             
+            # 更新实际总任务数为需要执行的任务数量
             self.total_tasks = len(all_tasks)
             log.info(f"准备执行 {len(all_tasks)} 个任务，使用 {self.max_workers} 个线程")
             
