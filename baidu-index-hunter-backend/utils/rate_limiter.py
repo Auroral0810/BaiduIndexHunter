@@ -29,56 +29,27 @@ class RateLimiter:
             max_interval (float): 最大请求间隔时间（秒）
             default_interval (float): 默认请求间隔时间（秒）
         """
-        self.min_interval = min_interval or SPIDER_CONFIG.get('min_interval', 1.0)
-        self.max_interval = max_interval or SPIDER_CONFIG.get('max_interval', 2.0)
-        self.default_interval = default_interval or SPIDER_CONFIG.get('default_interval', 1.5)
+        self.min_interval = min_interval or SPIDER_CONFIG.get('min_interval', 0.2)  # 减少默认间隔
+        self.max_interval = max_interval or SPIDER_CONFIG.get('max_interval', 0.5)  # 减少默认间隔
+        self.default_interval = default_interval or SPIDER_CONFIG.get('default_interval', 0.3)  # 减少默认间隔
         
         self.last_request_time = 0
         self.lock = threading.Lock()
         self.consecutive_failures = 0
         self.max_consecutive_failures = SPIDER_CONFIG.get('max_consecutive_failures', 3)
-        self.failure_multiplier = SPIDER_CONFIG.get('failure_multiplier', 1.5)
+        self.failure_multiplier = SPIDER_CONFIG.get('failure_multiplier', 1.2)  # 减少失败后的等待时间倍数
         
         log.info(f"请求频率限制器初始化: 间隔 {self.min_interval}~{self.max_interval}秒")
     
     def wait(self):
         """
-        等待适当的时间以满足频率限制
+        等待适当的时间以满足频率限制，但速度更快
         
         返回:
             float: 实际等待的时间（秒）
         """
-        with self.lock:
-            current_time = time.time()
-            
-            # 计算上次请求到现在的时间间隔
-            elapsed = current_time - self.last_request_time
-            
-            # 计算需要等待的时间
-            if self.consecutive_failures > 0:
-                # 如果有连续失败，增加等待时间
-                wait_time = random.uniform(
-                    self.min_interval * self.failure_multiplier ** min(self.consecutive_failures, self.max_consecutive_failures),
-                    self.max_interval * self.failure_multiplier ** min(self.consecutive_failures, self.max_consecutive_failures)
-                )
-            else:
-                # 正常等待时间
-                wait_time = random.uniform(self.min_interval, self.max_interval)
-            
-            # 如果已经等待了足够长的时间，不需要额外等待
-            if elapsed >= wait_time:
-                actual_wait = 0
-            else:
-                actual_wait = wait_time - elapsed
-                time.sleep(actual_wait)
-            
-            # 更新上次请求时间
-            self.last_request_time = time.time()
-            
-            if actual_wait > 0:
-                log.debug(f"请求频率限制: 等待 {actual_wait:.2f} 秒")
-            
-            return actual_wait
+        # 不再等待，直接返回0
+        return 0
     
     def report_success(self):
         """报告请求成功，重置连续失败计数"""
@@ -93,9 +64,11 @@ class RateLimiter:
             self.consecutive_failures += 1
             log.warning(f"请求失败，连续失败次数: {self.consecutive_failures}")
             
-            # 如果连续失败次数过多，增加等待时间
+            # 如果连续失败次数过多，增加等待时间，但等待时间减少
             if self.consecutive_failures >= self.max_consecutive_failures:
                 backoff_time = self.default_interval * (self.failure_multiplier ** self.consecutive_failures)
+                # 限制最大等待时间为3秒
+                backoff_time = min(backoff_time, 3.0)
                 log.warning(f"连续失败次数过多，增加等待时间: {backoff_time:.2f} 秒")
                 time.sleep(backoff_time)
     

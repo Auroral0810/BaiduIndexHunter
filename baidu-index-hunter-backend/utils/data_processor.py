@@ -829,7 +829,7 @@ class BaiduIndexDataProcessor:
                 interval = total_days // data_length if data_length > 0 else 1
                 data_type = '自定义'
                 
-            log.info(f"{city_name} - {keyword} 数据粒度: {data_type}数据 (每{interval}天一个数据点)")
+            # log.info(f"{city_name} - {keyword} 数据粒度: {data_type}数据 (每{interval}天一个数据点)")
             
             # 生成日期列表
             date_range = []
@@ -939,7 +939,7 @@ class BaiduIndexDataProcessor:
                 interval = total_days // data_length if data_length > 0 else 1
                 data_frequency = '自定义'
                 
-            log.info(f"{city_name} - {keyword} 数据粒度: {data_frequency}数据 (每{interval}天一个数据点)")
+            # log.info(f"{city_name} - {keyword} 数据粒度: {data_frequency}数据 (每{interval}天一个数据点)")
             
             # 生成日期列表
             date_range = []

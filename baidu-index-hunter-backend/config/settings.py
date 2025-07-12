@@ -100,14 +100,14 @@ BAIDU_INDEX_API = {
 
 # 爬虫配置
 SPIDER_CONFIG = {
-    'min_interval': float(os.getenv('SPIDER_MIN_INTERVAL', 0.8)),  # 请求间隔最小秒数
-    'max_interval': float(os.getenv('SPIDER_MAX_INTERVAL', 1)),  # 请求间隔最大秒数
-    'default_interval': float(os.getenv('SPIDER_DEFAULT_INTERVAL', 0.8)),  # 默认请求间隔秒数
+    'min_interval': float(os.getenv('SPIDER_MIN_INTERVAL', 0.1)),  # 请求间隔最小秒数，降低到0.1秒
+    'max_interval': float(os.getenv('SPIDER_MAX_INTERVAL', 0.3)),  # 请求间隔最大秒数，降低到0.3秒
+    'default_interval': float(os.getenv('SPIDER_DEFAULT_INTERVAL', 0.2)),  # 默认请求间隔秒数，降低到0.2秒
     'retry_times': int(os.getenv('SPIDER_RETRY_TIMES', 2)),  # 请求失败重试次数
-    'timeout': int(os.getenv('SPIDER_TIMEOUT', 15)),     # 请求超时时间（秒）
-    'max_workers': int(os.getenv('SPIDER_MAX_WORKERS', min(12, multiprocessing.cpu_count()*4))),  # 最大工作线程数
+    'timeout': int(os.getenv('SPIDER_TIMEOUT', 10)),     # 请求超时时间（秒），降低到10秒
+    'max_workers': int(os.getenv('SPIDER_MAX_WORKERS', min(20, multiprocessing.cpu_count()*6))),  # 最大工作线程数，增加到20或CPU核心数的6倍
     'max_consecutive_failures': int(os.getenv('SPIDER_MAX_CONSECUTIVE_FAILURES', 2)),  # 最大连续失败次数
-    'failure_multiplier': float(os.getenv('SPIDER_FAILURE_MULTIPLIER', 1.2)),  # 失败后等待时间倍数
+    'failure_multiplier': float(os.getenv('SPIDER_FAILURE_MULTIPLIER', 1.1)),  # 失败后等待时间倍数，降低到1.1
     'user_agent_rotation': os.getenv('SPIDER_USER_AGENT_ROTATION', 'True').lower() == 'true',  # 是否轮换User-Agent
     'proxy_enabled': os.getenv('SPIDER_PROXY_ENABLED', 'False').lower() == 'true',  # 是否启用代理
     'proxy_url': os.getenv('SPIDER_PROXY_URL', ''),  # 代理URL
