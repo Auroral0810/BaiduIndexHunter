@@ -15,6 +15,8 @@ import execjs
 import redis
 from utils.ab_sr_update import AbSrUpdater
 from utils.logger import log
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # 添加项目根目录到路径，以便导入项目模块
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -43,20 +45,33 @@ class CookieManager:
     
     def _connect_db(self):
         """连接到MySQL数据库"""
-        try:
-            self.conn = pymysql.connect(
-                host=MYSQL_CONFIG['host'],
-                port=MYSQL_CONFIG['port'],
-                user=MYSQL_CONFIG['user'],
-                password=MYSQL_CONFIG['password'],
-                db=MYSQL_CONFIG['db'],
-                charset='utf8mb4',
-                cursorclass=pymysql.cursors.DictCursor
-            )
-            log.info("成功连接到MySQL数据库")
-        except Exception as e:
-            log.error(f"连接MySQL数据库失败: {e}")
-            self.conn = None
+        max_retries = 3
+        retry_delay = 2  # 秒
+        
+        for attempt in range(max_retries):
+            try:
+                self.conn = pymysql.connect(
+                    host=MYSQL_CONFIG['host'],
+                    port=MYSQL_CONFIG['port'],
+                    user=MYSQL_CONFIG['user'],
+                    password=MYSQL_CONFIG['password'],
+                    db=MYSQL_CONFIG['db'],
+                    charset='utf8mb4',
+                    cursorclass=pymysql.cursors.DictCursor,
+                    connect_timeout=10,  # 增加连接超时时间
+                    read_timeout=30,     # 增加读取超时时间
+                    write_timeout=30     # 增加写入超时时间
+                )
+                log.info("成功连接到MySQL数据库")
+                return
+            except Exception as e:
+                log.error(f"连接MySQL数据库失败: {e}")
+                if attempt < max_retries - 1:
+                    log.info(f"尝试重新连接MySQL，第 {attempt + 1} 次...")
+                    time.sleep(retry_delay)
+                else:
+                    log.error("已达到最大重试次数，无法连接到MySQL数据库")
+                    self.conn = None
     
     def _connect_redis(self):
         """连接Redis"""
@@ -75,23 +90,65 @@ class CookieManager:
     
     def _get_cursor(self):
         """获取数据库游标，确保连接是活跃的"""
-        try:
-            # 如果连接不存在或已关闭，重新连接
-            if self.conn is None or not self.conn.open:
+        max_retries = 3
+        retry_delay = 1  # 秒
+        
+        for attempt in range(max_retries):
+            try:
+                # 如果连接不存在或已关闭，重新连接
+                if self.conn is None or not self.conn.open:
+                    self._connect_db()
+                    if self.conn is None:
+                        log.error("无法建立数据库连接")
+                        if attempt < max_retries - 1:
+                            log.info(f"尝试重新连接，第 {attempt + 1} 次...")
+                            time.sleep(retry_delay)
+                            continue
+                        else:
+                            raise Exception("无法建立数据库连接，已达到最大重试次数")
+                
+                # 尝试ping一下，确保连接活跃
+                try:
+                    self.conn.ping(reconnect=True)
+                    return self.conn.cursor()
+                except pymysql.Error as e:
+                    log.warning(f"数据库连接已断开，尝试重新连接: {e}")
+                    try:
+                        self.conn.close()
+                    except:
+                        pass
+                    self.conn = None
+                    
+                    if attempt < max_retries - 1:
+                        log.info(f"尝试重新连接，第 {attempt + 1} 次...")
+                        time.sleep(retry_delay)
+                        continue
+                    else:
+                        raise Exception(f"无法重新连接到数据库，已达到最大重试次数: {e}")
+                    
+            except Exception as e:
+                log.error(f"获取数据库游标失败: {e}")
+                
+                # 尝试重新连接
+                try:
+                    if self.conn:
+                        self.conn.close()
+                except:
+                    pass
+                
+                self.conn = None
                 self._connect_db()
+                
                 if self.conn is None:
-                    raise Exception("无法建立数据库连接")
-            
-            # 尝试ping一下，确保连接活跃
-            self.conn.ping(reconnect=True)
-            return self.conn.cursor()
-        except Exception as e:
-            log.error(f"获取数据库游标失败: {e}")
-            # 尝试重新连接
-            self._connect_db()
-            if self.conn is None:
-                raise Exception("无法重新连接到数据库")
-            return self.conn.cursor()
+                    if attempt < max_retries - 1:
+                        log.info(f"尝试重新连接，第 {attempt + 1} 次...")
+                        time.sleep(retry_delay)
+                        continue
+                    else:
+                        raise Exception(f"无法重新连接到数据库，已达到最大重试次数: {e}")
+        
+        # 如果所有重试都失败了，但代码执行到这里（不应该发生），抛出异常
+        raise Exception("无法获取数据库游标，所有重试均已失败")
     
     def close(self):
         """关闭数据库连接"""
@@ -389,7 +446,7 @@ class CookieManager:
             
             return True
         except Exception as e:
-            print(f"添加cookie失败: {e}")
+            log.error(f"添加cookie失败: {e}")
             self.conn.rollback()
             return False
     
@@ -433,7 +490,7 @@ class CookieManager:
             
             return deleted_count
         except Exception as e:
-            print(f"删除cookie失败: {e}")
+            log.error(f"删除cookie失败: {e}")
             self.conn.rollback()
             return 0
     
@@ -541,7 +598,7 @@ class CookieManager:
             
             return cursor.rowcount > 0
         except Exception as e:
-            print(f"更新cookie失败: {e}")
+            log.error(f"更新cookie失败: {e}")
             self.conn.rollback()
             return False
     
@@ -577,7 +634,7 @@ class CookieManager:
             
             return banned_count
         except Exception as e:
-            print(f"永久封禁账号失败: {e}")
+            log.error(f"永久封禁账号失败: {e}")
             self.conn.rollback()
             return 0
     
@@ -628,7 +685,7 @@ class CookieManager:
             
             return banned_count
         except Exception as e:
-            print(f"暂时封禁账号失败: {e}")
+            log.error(f"暂时封禁账号失败: {e}")
             self.conn.rollback()
             return 0
     
@@ -688,7 +745,7 @@ class CookieManager:
                 
             return unbanned_count
         except Exception as e:
-            print(f"解封账号失败: {e}")
+            log.error(f"解封账号失败: {e}")
             self.conn.rollback()
             return 0
     
@@ -734,7 +791,7 @@ class CookieManager:
                 
             return unbanned_count
         except Exception as e:
-            print(f"强制解封账号失败: {e}")
+            log.error(f"强制解封账号失败: {e}")
             self.conn.rollback()
             return 0
     
@@ -754,7 +811,7 @@ class CookieManager:
             cursor.execute(sql, (account_id,))
             return cursor.fetchall()
         except Exception as e:
-            print(f"获取cookie失败: {e}")
+            log.error(f"获取cookie失败: {e}")
             return []
     
     def get_available_cookies(self):
@@ -776,7 +833,7 @@ class CookieManager:
             cursor.execute(sql)
             return cursor.fetchall()
         except Exception as e:
-            print(f"获取可用cookie失败: {e}")
+            log.error(f"获取可用cookie失败: {e}")
             return []
     
     def get_cookies_by_account_ids(self, account_ids=None):
@@ -823,7 +880,7 @@ class CookieManager:
             
             return grouped_cookies
         except Exception as e:
-            print(f"按账号ID获取cookie失败: {e}")
+            log.error(f"按账号ID获取cookie失败: {e}")
             return {}
     
     def get_assembled_cookies(self, account_ids=None):
@@ -851,10 +908,10 @@ class CookieManager:
                         'cookie_dict': cookie_dict
                     })
             
-            print(f"从数据库获取并组装了 {len(assembled_cookies)} 个完整cookie")
+            log.info(f"从数据库获取并组装了 {len(assembled_cookies)} 个完整cookie")
             return assembled_cookies
         except Exception as e:
-            print(f"获取组装的cookie失败: {e}")
+            log.error(f"获取组装的cookie失败: {e}")
             return []
     
     def get_available_account_ids(self):
@@ -864,21 +921,44 @@ class CookieManager:
         Returns:
             可用的账号ID列表
         """
-        try:
-            cursor = self._get_cursor()
-            sql = """
-            SELECT DISTINCT account_id FROM cookies 
-            WHERE is_available = 1 
-            AND (expire_time IS NULL OR expire_time > NOW())
-            AND (temp_ban_until IS NULL OR temp_ban_until < NOW())
-            AND is_permanently_banned = 0
-            """
-            cursor.execute(sql)
-            results = cursor.fetchall()
-            return [item['account_id'] for item in results]
-        except Exception as e:
-            print(f"获取可用账号ID失败: {e}")
-            return []
+        max_retries = 3
+        retry_delay = 1  # 秒
+        
+        for attempt in range(max_retries):
+            try:
+                cursor = self._get_cursor()
+                sql = """
+                SELECT DISTINCT account_id FROM cookies 
+                WHERE is_available = 1 
+                AND (expire_time IS NULL OR expire_time > NOW())
+                AND (temp_ban_until IS NULL OR temp_ban_until < NOW())
+                AND is_permanently_banned = 0
+                """
+                cursor.execute(sql)
+                results = cursor.fetchall()
+                return [item['account_id'] for item in results]
+            except pymysql.Error as e:
+                log.error(f"获取可用账号ID失败: {e}")
+                
+                if attempt < max_retries - 1:
+                    log.info(f"尝试重新获取可用账号ID，第 {attempt + 1} 次...")
+                    time.sleep(retry_delay)
+                    # 重新连接数据库
+                    try:
+                        if self.conn:
+                            self.conn.close()
+                    except:
+                        pass
+                    self.conn = None
+                    self._connect_db()
+                else:
+                    log.error("获取可用账号ID失败，已达到最大重试次数")
+                    return []
+            except Exception as e:
+                log.error(f"获取可用账号ID失败: {e}")
+                return []
+        
+        return []
     
     def update_account_id(self, old_account_id, new_account_id):
         """
@@ -931,7 +1011,7 @@ class CookieManager:
             
             return updated_count
         except Exception as e:
-            print(f"更新账号ID失败: {e}")
+            log.error(f"更新账号ID失败: {e}")
             self.conn.rollback()
             return 0
     
@@ -957,7 +1037,7 @@ class CookieManager:
             self.conn.commit()
             return updated_count
         except Exception as e:
-            print(f"更新cookie状态失败: {e}")
+            log.error(f"更新cookie状态失败: {e}")
             self.conn.rollback()
             return 0
     
@@ -979,7 +1059,7 @@ class CookieManager:
             self.conn.commit()
             return deleted_count
         except Exception as e:
-            print(f"清理过期cookie失败: {e}")
+            log.error(f"清理过期cookie失败: {e}")
             self.conn.rollback()
             return 0
 
@@ -1001,40 +1081,50 @@ class CookieManager:
         account_ids = self.get_available_account_ids()
         log.info(f"获取到 {len(account_ids)} 个可用账号")
         
-        # 测试参数
-        city_number = "911"  # 北京
-        word = "电脑"
-        # 计算日期范围（最近30天）
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=30)
-        startDate = start_date.strftime("%Y-%m-%d")
-        endDate = end_date.strftime("%Y-%m-%d")
-        
         valid_accounts = []
         banned_accounts = []
         not_login_accounts = []
         
-        # 创建UserAgent实例
-        ua = UserAgent()
+        # 创建线程锁，保护共享变量
+        valid_lock = threading.Lock()
+        banned_lock = threading.Lock()
+        not_login_lock = threading.Lock()
+        conn_lock = threading.Lock()  # 添加数据库连接锁
         
-        # 遍历所有账号进行测试
-        total_accounts = len(account_ids)
-        for index, account_id in enumerate(account_ids):
-            # 显示进度
-            if index % 10 == 0 or index == total_accounts - 1:
-                log.info(f"测试进度: {index+1}/{total_accounts} ({(index+1)/total_accounts*100:.1f}%)")
-            
+        # 定义单个账号测试函数
+        def test_single_account(account_id):
+            # 为每个线程创建独立的数据库连接
+            local_conn = None
             try:
                 # 获取账号的cookie
-                cookies = self.get_cookie_by_account_id(account_id)
+                with conn_lock:
+                    cookies = self.get_cookie_by_account_id(account_id)
+                
                 if not cookies:
                     log.warning(f"账号 {account_id} 没有可用的cookie")
-                    not_login_accounts.append(account_id)
+                    with not_login_lock:
+                        not_login_accounts.append(account_id)
                     
                     # 永久封禁并从Redis中删除
-                    self.ban_account_permanently(account_id)
+                    try:
+                        with conn_lock:
+                            self.ban_account_permanently(account_id)
+                    except Exception as e:
+                        log.error(f"永久封禁账号 {account_id} 时发生错误: {str(e)}")
                     
-                    continue
+                    return
+                
+                # 测试参数
+                city_number = "911"  # 北京
+                word = "电脑"
+                # 计算日期范围（最近30天）
+                end_date = datetime.now()
+                start_date = end_date - timedelta(days=30)
+                startDate = start_date.strftime("%Y-%m-%d")
+                endDate = end_date.strftime("%Y-%m-%d")
+                
+                # 创建UserAgent实例
+                ua = UserAgent()
                 
                 # 组装cookie字符串
                 cookie_str = "; ".join([f"{k}={v}" for k, v in cookies.items()])
@@ -1045,9 +1135,9 @@ class CookieManager:
                     with open('/Users/auroral/ProjectDevelopment/BaiduIndexHunter/baidu-index-hunter-backend/utils/Cipher-Text.js', 'r') as f:
                         js = f.read()
                         ctx = execjs.compile(js)
-                    cipyer_text = ctx.call('ascToken', url_cipyter,ua.random)
+                    cipyer_text = ctx.call('ascToken', url_cipyter, ua.random)
                 except Exception as e:
-                    print(f"生成cipher-text失败: {e}")
+                    log.error(f"生成cipher-text失败: {e}")
                     cipyer_text = ""
             
                 headers = {
@@ -1084,11 +1174,13 @@ class CookieManager:
                 if status == 0:
                     # 状态为0表示cookie有效可用
                     log.info(f"账号 {account_id} 的cookie有效可用")
-                    valid_accounts.append(account_id)
+                    with valid_lock:
+                        valid_accounts.append(account_id)
                     
                     # 确保Redis状态正确
                     if self.redis_client:
-                        cookies = self.get_cookies_by_account_id(account_id)
+                        with conn_lock:
+                            cookies = self.get_cookies_by_account_id(account_id)
                         if cookies:
                             # 组装cookie字典
                             cookie_dict = {}
@@ -1101,8 +1193,13 @@ class CookieManager:
                 elif status == 10000:
                     # 状态为10000表示账号未登录，需要将该账号的所有cookie永久锁定
                     log.warning(f"账号 {account_id} 未登录，将被永久锁定")
-                    self.ban_account_permanently(account_id)
-                    not_login_accounts.append(account_id)
+                    try:
+                        with conn_lock:
+                            self.ban_account_permanently(account_id)
+                    except Exception as e:
+                        log.error(f"永久封禁账号 {account_id} 时发生错误: {str(e)}")
+                    with not_login_lock:
+                        not_login_accounts.append(account_id)
                     
                     # Redis中直接删除该账号数据
                     if self.redis_client:
@@ -1113,8 +1210,13 @@ class CookieManager:
                 elif status == 10001:
                     # 状态为10001表示账号被锁定，需要将对应记录在MySQL中临时锁定30分钟
                     log.warning(f"账号 {account_id} 被锁定，将临时锁定30分钟")
-                    self.ban_account_temporarily(account_id, 1800)  # 30分钟
-                    banned_accounts.append(account_id)
+                    try:
+                        with conn_lock:
+                            self.ban_account_temporarily(account_id, 1800)  # 30分钟
+                    except Exception as e:
+                        log.error(f"临时封禁账号 {account_id} 时发生错误: {str(e)}")
+                    with banned_lock:
+                        banned_accounts.append(account_id)
                     
                     # 更新Redis中的状态
                     if self.redis_client:
@@ -1136,12 +1238,18 @@ class CookieManager:
                 elif status == 10002:
                     # 状态为10002表示请求错误，不需要任何操作，但仍视为有效cookie
                     log.info(f"账号 {account_id} 请求错误，但仍视为有效: {message}")
-                    valid_accounts.append(account_id)
+                    with valid_lock:
+                        valid_accounts.append(account_id)
                 else:
                     # 其他状态视为未登录，也需要永久封禁
                     log.warning(f"账号 {account_id} 状态异常: {status}, message: {message}，将被永久锁定")
-                    self.ban_account_permanently(account_id)
-                    banned_accounts.append(account_id)
+                    try:
+                        with conn_lock:
+                            self.ban_account_permanently(account_id)
+                    except Exception as e:
+                        log.error(f"永久封禁账号 {account_id} 时发生错误: {str(e)}")
+                    with banned_lock:
+                        banned_accounts.append(account_id)
                     
                     # Redis中直接删除该账号数据
                     if self.redis_client:
@@ -1150,7 +1258,47 @@ class CookieManager:
                         self.redis_client.hdel(self.REDIS_COOKIE_BAN_KEY, account_id)
             except Exception as e:
                 log.error(f"测试账号 {account_id} 时发生错误: {str(e)}")
-                not_login_accounts.append(account_id)
+                with not_login_lock:
+                    not_login_accounts.append(account_id)
+            finally:
+                # 确保连接被关闭
+                if local_conn and hasattr(local_conn, 'close'):
+                    try:
+                        local_conn.close()
+                    except:
+                        pass
+        
+        # 使用线程池并行测试
+        total_accounts = len(account_ids)
+        max_workers = min(8, total_accounts)  # 最多5个线程，避免创建过多线程
+        
+        if max_workers == 0:
+            log.warning("没有可用账号需要测试")
+            return {
+                "valid_accounts": [],
+                "banned_accounts": [],
+                "not_login_accounts": [],
+                "total_tested": 0,
+                "valid_count": 0,
+                "banned_count": 0,
+                "not_login_count": 0
+            }
+        
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # 提交所有任务
+            futures = [executor.submit(test_single_account, account_id) for account_id in account_ids]
+            
+            # 显示进度
+            completed = 0
+            for future in as_completed(futures):
+                completed += 1
+                if completed % 10 == 0 or completed == total_accounts:
+                    log.info(f"测试进度: {completed}/{total_accounts} ({completed/total_accounts*100:.1f}%)")
+                # 获取结果（如果有异常会在这里抛出）
+                try:
+                    future.result()
+                except Exception as e:
+                    log.error(f"线程执行异常: {e}")
         
         # 更新Redis中的可用账号计数
         if self.redis_client:

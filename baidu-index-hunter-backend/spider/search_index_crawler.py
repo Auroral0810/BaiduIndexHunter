@@ -517,7 +517,42 @@ class SearchIndexCrawler:
         result = self._get_search_index(city_code, [keyword], start_date, end_date)
         if not result:
             log.warning(f"获取数据失败，跳过当前任务: {task_key}")
-            return None
+            # 构造空结果
+            empty_daily_data = [{
+                '关键词': keyword,
+                '城市代码': city_code,
+                '城市': city_name,
+                '日期': start_date,
+                '数据类型': '日度',
+                '数据间隔(天)': 1,
+                '所属年份': start_date[:4],
+                'PC+移动指数': '0',
+                '移动指数': '0',
+                'PC指数': '0',
+                '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            }]
+            
+            empty_stats_record = {
+                '关键词': keyword,
+                '城市代码': city_code,
+                '城市': city_name,
+                '时间范围': f"{start_date} 至 {end_date}",
+                '整体日均值': 0,
+                '整体同比': '-',
+                '整体环比': '-',
+                '移动日均值': 0,
+                '移动同比': '-',
+                '移动环比': '-',
+                'PC日均值': 0,
+                'PC同比': '-',
+                'PC环比': '-',
+                '整体总值': 0,
+                '移动总值': 0,
+                'PC总值': 0,
+                '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            }
+            
+            return task_key, empty_daily_data, empty_stats_record
             
         data, cookie = result
         
@@ -526,11 +561,47 @@ class SearchIndexCrawler:
             data, cookie, keyword, city_code, city_name, start_date, end_date
         )
         
-        if daily_data:
-            return task_key, daily_data, stats_record
-        else:
-            log.warning(f"处理数据失败，跳过当前任务: {task_key}")
-            return None
+        # 如果处理结果为None，构造空结果
+        if daily_data is None or stats_record is None:
+            log.warning(f"处理数据失败，构造空结果: {task_key}")
+            empty_daily_data = [{
+                '关键词': keyword,
+                '城市代码': city_code,
+                '城市': city_name,
+                '日期': start_date,
+                '数据类型': '日度',
+                '数据间隔(天)': 1,
+                '所属年份': start_date[:4],
+                'PC+移动指数': '0',
+                '移动指数': '0',
+                'PC指数': '0',
+                '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            }]
+            
+            empty_stats_record = {
+                '关键词': keyword,
+                '城市代码': city_code,
+                '城市': city_name,
+                '时间范围': f"{start_date} 至 {end_date}",
+                '整体日均值': 0,
+                '整体同比': '-',
+                '整体环比': '-',
+                '移动日均值': 0,
+                '移动同比': '-',
+                '移动环比': '-',
+                'PC日均值': 0,
+                'PC同比': '-',
+                'PC环比': '-',
+                '整体总值': 0,
+                '移动总值': 0,
+                'PC总值': 0,
+                '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            }
+            
+            return task_key, empty_daily_data, empty_stats_record
+        
+        return task_key, daily_data, stats_record
+
     
     def crawl(self, task_id=None, keywords=None, cities=None, date_ranges=None, days=None, 
               keywords_file=None, cities_file=None, date_ranges_file=None,
@@ -662,65 +733,69 @@ class SearchIndexCrawler:
                         if result:
                             task_key, daily_data, stats_record = result
                             
-                            # 添加到本地缓存
-                            local_data_cache.extend(daily_data)
-                            local_stats_cache.append(stats_record)
-                            
-                            # 更新全局任务状态
-                            with self.task_lock:
-                                self.completed_keywords.add(task_key)
-                                self.completed_tasks += 1
-                            
-                            # 定期保存数据
-                            if len(local_data_cache) >= 100:
-                                with self.save_lock:
-                                    self._save_data_to_file(local_data_cache, local_stats_cache)
-                                local_data_cache = []
-                                local_stats_cache = []
-                            
-                            # 计算当前进度百分比
-                            current_progress_percent = int((self.completed_tasks / self.total_tasks) * 100)
-                            
-                            # 每完成5%的任务更新一次数据库进度
-                            if current_progress_percent >= last_progress_percent + 5:
-                                last_progress_percent = current_progress_percent
-                                try:
-                                    # 连接数据库
-                                    from db.mysql_manager import MySQLManager
-                                    mysql = MySQLManager()
-                                    
-                                    # 更新任务进度
-                                    update_query = """
-                                        UPDATE spider_tasks 
-                                        SET progress = %s, completed_items = %s, update_time = %s
-                                        WHERE task_id = %s
-                                    """
-                                    affected_rows = mysql.execute_query(
-                                        update_query, 
-                                        (current_progress_percent, self.completed_tasks, datetime.now(), self.task_id)
-                                    )
-                                    
-                                    if affected_rows > 0:
-                                        log.info(f"已更新数据库进度: {current_progress_percent}%, 完成任务: {self.completed_tasks}/{self.total_tasks}")
-                                    else:
-                                        log.warning(f"数据库进度更新失败: 影响行数为0, task_id: {self.task_id}")
+                            # 确保 daily_data 和 stats_record 不为 None
+                            if daily_data is not None and stats_record is not None:
+                                # 添加到本地缓存
+                                local_data_cache.extend(daily_data)
+                                local_stats_cache.append(stats_record)
+                                
+                                # 更新全局任务状态
+                                with self.task_lock:
+                                    self.completed_keywords.add(task_key)
+                                    self.completed_tasks += 1
+                                
+                                # 定期保存数据
+                                if len(local_data_cache) >= 100:
+                                    with self.save_lock:
+                                        self._save_data_to_file(local_data_cache, local_stats_cache)
+                                    local_data_cache = []
+                                    local_stats_cache = []
+                                
+                                # 计算当前进度百分比
+                                current_progress_percent = int((self.completed_tasks / self.total_tasks) * 100)
+                                
+                                # 每完成5%的任务更新一次数据库进度
+                                if current_progress_percent >= last_progress_percent + 5:
+                                    last_progress_percent = current_progress_percent
+                                    try:
+                                        # 连接数据库
+                                        from db.mysql_manager import MySQLManager
+                                        mysql = MySQLManager()
                                         
-                                        # 检查任务是否存在
-                                        check_query = "SELECT id FROM spider_tasks WHERE task_id = %s"
-                                        task = mysql.fetch_one(check_query, (self.task_id,))
-                                        if task:
-                                            log.info(f"任务存在于数据库中, ID: {task['id']}")
+                                        # 更新任务进度
+                                        update_query = """
+                                            UPDATE spider_tasks 
+                                            SET progress = %s, completed_items = %s, update_time = %s
+                                            WHERE task_id = %s
+                                        """
+                                        affected_rows = mysql.execute_query(
+                                            update_query, 
+                                            (current_progress_percent, self.completed_tasks, datetime.now(), self.task_id)
+                                        )
+                                        
+                                        if affected_rows > 0:
+                                            log.info(f"已更新数据库进度: {current_progress_percent}%, 完成任务: {self.completed_tasks}/{self.total_tasks}")
                                         else:
-                                            log.error(f"任务不存在于数据库中: {self.task_id}")
-                                except Exception as e:
-                                    log.error(f"更新数据库进度失败: {e}")
-                                    log.error(traceback.format_exc())
-                            
-                            # 每完成500条任务更新一次ab_sr cookie
-                            if self.completed_tasks - last_ab_sr_update_task_count >= 500:
-                                log.info(f"已完成{self.completed_tasks}条任务，开始更新ab_sr cookie...")
-                                self._update_ab_sr_cookies()
-                                last_ab_sr_update_task_count = self.completed_tasks
+                                            log.warning(f"数据库进度更新失败: 影响行数为0, task_id: {self.task_id}")
+                                            
+                                            # 检查任务是否存在
+                                            check_query = "SELECT id FROM spider_tasks WHERE task_id = %s"
+                                            task = mysql.fetch_one(check_query, (self.task_id,))
+                                            if task:
+                                                log.info(f"任务存在于数据库中, ID: {task['id']}")
+                                            else:
+                                                log.error(f"任务不存在于数据库中: {self.task_id}")
+                                    except Exception as e:
+                                        log.error(f"更新数据库进度失败: {e}")
+                                        log.error(traceback.format_exc())
+                                
+                                # 每完成500条任务更新一次ab_sr cookie
+                                if self.completed_tasks - last_ab_sr_update_task_count >= 500:
+                                    log.info(f"已完成{self.completed_tasks}条任务，开始更新ab_sr cookie...")
+                                    self._update_ab_sr_cookies()
+                                    last_ab_sr_update_task_count = self.completed_tasks
+                            else:
+                                log.warning(f"任务 {task_key} 返回了无效的数据结构")
                                 
                     except Exception as e:
                         log.error(f"处理任务时出错: {e}")
