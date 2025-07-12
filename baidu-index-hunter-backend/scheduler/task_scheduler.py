@@ -719,7 +719,7 @@ class TaskScheduler:
     
     def _worker(self):
         """工作线程函数"""
-        log.info("工作线程已启动")
+        # log.info("工作线程已启动")
         
         while self.is_running:
             try:
@@ -730,7 +730,7 @@ class TaskScheduler:
                 log.error(f"工作线程异常: {e}")
                 log.error(traceback.format_exc())
         
-        log.info("工作线程已停止")
+        # log.info("工作线程已停止")
     
     def _update_spider_statistics(self, task_id, status):
         """

@@ -189,12 +189,16 @@ class SearchIndexCrawler:
             'completed_keywords': self.completed_keywords,
             'current_keyword_index': self.current_keyword_index,
             'current_city_index': self.current_city_index,
-            'current_date_range_index': self.current_date_range_index
+            'current_date_range_index': self.current_date_range_index,
+            # 保存任务配置信息，用于恢复时重建任务上下文
+            'city_dict': self.city_dict,
+            'output_path': self.output_path,
+            'save_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
         
         with open(self.checkpoint_path, 'wb') as f:
             pickle.dump(checkpoint, f)
-        # log.info(f"检查点已保存: {self.checkpoint_path}")
+        log.info(f"检查点已保存: {self.checkpoint_path}, 已完成任务: {self.completed_tasks}/{self.total_tasks}")
         
     def _load_global_checkpoint(self, task_id):
         """加载全局检查点"""
@@ -215,10 +219,16 @@ class SearchIndexCrawler:
                     self.current_keyword_index = checkpoint.get('current_keyword_index', 0)
                     self.current_city_index = checkpoint.get('current_city_index', 0)
                     self.current_date_range_index = checkpoint.get('current_date_range_index', 0)
+                    # 加载任务配置信息
+                    self.city_dict = checkpoint.get('city_dict', {})
+                    self.output_path = checkpoint.get('output_path', os.path.join(OUTPUT_DIR, 'search_index', self.task_id))
+                    
                 log.info(f"已加载检查点: {self.checkpoint_path}, 已完成任务: {self.completed_tasks}/{self.total_tasks}")
+                log.info(f"已完成的任务项: {len(self.completed_keywords)}, 恢复时将跳过这些任务")
                 return True
             except Exception as e:
                 log.error(f"加载检查点文件失败: {e}")
+                log.error(traceback.format_exc())
                 return False
         return False
 
@@ -622,6 +632,33 @@ class SearchIndexCrawler:
             resume (bool): 是否恢复上次任务
             checkpoint_task_id (str): 要恢复的任务ID
         """
+        # 设置任务ID和检查点路径
+        if resume and checkpoint_task_id:
+            self.task_id = checkpoint_task_id
+            loaded = self._load_global_checkpoint(checkpoint_task_id)
+            if not loaded:
+                log.warning(f"未找到任务ID为 {checkpoint_task_id} 的检查点，将创建新任务")
+                self.task_id = self._generate_task_id()
+                resume = False
+            else:
+                # 如果成功加载了检查点，使用检查点中的城市字典
+                cities = self.city_dict
+                log.info(f"从检查点恢复任务: {checkpoint_task_id}, 已完成任务数: {self.completed_tasks}")
+        else:
+            self.task_id = task_id if task_id else self._generate_task_id()
+            # 初始化进度追踪变量
+            self.completed_keywords = set()  # 改为使用set而不是list
+            self.current_keyword_index = 0
+            self.current_city_index = 0
+            self.current_date_range_index = 0
+            
+        # 如果没有从检查点恢复，则需要设置输出路径和检查点路径
+        if not resume:
+            self.output_path = os.path.join(OUTPUT_DIR, 'search_index', self.task_id)
+            os.makedirs(self.output_path, exist_ok=True)
+            self.checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/search_index_checkpoint_{self.task_id}.pkl")
+            os.makedirs(os.path.dirname(self.checkpoint_path), exist_ok=True)
+
         # 加载关键词
         if keywords_file:
             keywords = self._load_keywords_from_file(keywords_file)
@@ -630,26 +667,27 @@ class SearchIndexCrawler:
             log.error("未提供关键词列表")
             return False
             
-        # 加载城市
-        if cities_file:
-            self.city_dict = self._load_cities_from_file(cities_file)
-            cities = self.city_dict
-        elif cities:
-            # 处理前端传来的城市参数格式
-            if isinstance(cities, dict):
-                processed_cities = {}
-                for code, city_info in cities.items():
-                    if isinstance(city_info, dict) and 'name' in city_info and 'code' in city_info:
-                        processed_cities[city_info['code']] = city_info['name']
-                    else:
-                        processed_cities[code] = str(city_info)
-                self.city_dict = processed_cities
+        # 加载城市（如果没有从检查点恢复）
+        if not resume:
+            if cities_file:
+                self.city_dict = self._load_cities_from_file(cities_file)
+                cities = self.city_dict
+            elif cities:
+                # 处理前端传来的城市参数格式
+                if isinstance(cities, dict):
+                    processed_cities = {}
+                    for code, city_info in cities.items():
+                        if isinstance(city_info, dict) and 'name' in city_info and 'code' in city_info:
+                            processed_cities[city_info['code']] = city_info['name']
+                        else:
+                            processed_cities[code] = str(city_info)
+                    self.city_dict = processed_cities
+                else:
+                    self.city_dict = cities
             else:
+                # 默认使用全国
+                cities = {0: "全国"}
                 self.city_dict = cities
-        else:
-            # 默认使用全国
-            cities = {0: "全国"}
-            self.city_dict = cities
         
         # 处理日期范围
         if date_ranges_file:
@@ -666,30 +704,11 @@ class SearchIndexCrawler:
             end_date = datetime.now().strftime('%Y-%m-%d')
             start_date = (datetime.now() - timedelta(days=29)).strftime('%Y-%m-%d')
             date_ranges = [(start_date, end_date)]
-            
-        # 设置任务ID和输出路径
-        if resume and checkpoint_task_id:
-            self.task_id = checkpoint_task_id
-            loaded = self._load_global_checkpoint(checkpoint_task_id)
-            if not loaded:
-                log.warning(f"未找到任务ID为 {checkpoint_task_id} 的检查点，将创建新任务")
-                self.task_id = self._generate_task_id()
-        else:
-            self.task_id = task_id if task_id else self._generate_task_id()
-            # 初始化进度追踪变量
-            self.completed_keywords = set()  # 改为使用set而不是list
-            self.current_keyword_index = 0
-            self.current_city_index = 0
-            self.current_date_range_index = 0
-            
-        # 设置输出路径和检查点路径
-        self.output_path = os.path.join(OUTPUT_DIR, 'search_index',  self.task_id)
-        os.makedirs(self.output_path, exist_ok=True)
-        self.checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/search_index_checkpoint_{self.task_id}.pkl")
-        os.makedirs(os.path.dirname(self.checkpoint_path), exist_ok=True)
         
         # 计算总任务数
-        self.total_tasks = len(keywords) * len(self.city_dict) * len(date_ranges)
+        if not resume:
+            self.total_tasks = len(keywords) * len(self.city_dict) * len(date_ranges)
+            
         log.info(f"任务ID: {self.task_id}")
         log.info(f"总任务数: {self.total_tasks} (关键词: {len(keywords)}, 城市: {len(self.city_dict)}, 日期范围: {len(date_ranges)})")
         
@@ -712,10 +731,33 @@ class SearchIndexCrawler:
                         task_key = f"{keyword}_{city_code}_{start_date}_{end_date}"
                         # 检查任务是否已完成
                         if task_key in self.completed_keywords:
+                            log.debug(f"跳过已完成的任务: {task_key}")
                             continue
                         all_tasks.append((keyword, city_code, city_name, start_date, end_date))
             
             log.info(f"准备执行 {len(all_tasks)} 个任务，使用 {self.max_workers} 个线程")
+            
+            # 如果所有任务都已完成
+            if not all_tasks:
+                log.info("所有任务都已完成，无需执行")
+                # 更新数据库中的最终状态
+                try:
+                    from db.mysql_manager import MySQLManager
+                    mysql = MySQLManager()
+                    
+                    update_query = """
+                        UPDATE spider_tasks 
+                        SET progress = 100, completed_items = %s, status = 'completed', update_time = %s, end_time = %s
+                        WHERE task_id = %s
+                    """
+                    now = datetime.now()
+                    mysql.execute_query(update_query, (self.completed_tasks, now, now, self.task_id))
+                    
+                    log.info(f"任务完成! 总共处理了 {self.completed_tasks}/{self.total_tasks} 个任务")
+                except Exception as e:
+                    log.error(f"更新最终任务状态失败: {e}")
+                
+                return True
             
             # 使用线程池执行任务
             with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
@@ -743,6 +785,9 @@ class SearchIndexCrawler:
                                 with self.task_lock:
                                     self.completed_keywords.add(task_key)
                                     self.completed_tasks += 1
+                                    # 每完成10个任务保存一次检查点
+                                    if self.completed_tasks % 10 == 0:
+                                        self._save_global_checkpoint()
                                 
                                 # 定期保存数据
                                 if len(local_data_cache) >= 100:
@@ -806,8 +851,9 @@ class SearchIndexCrawler:
                     with self.save_lock:
                         self._save_data_to_file(local_data_cache, local_stats_cache)
             
-            # 最后保存所有剩余数据
+            # 最后保存所有剩余数据和检查点
             self._save_data_cache(status="completed", force=True)
+            self._save_global_checkpoint()
             
             # 更新数据库中的最终状态
             try:
@@ -913,6 +959,11 @@ class SearchIndexCrawler:
                 # 判断文件是否存在，决定是否写入表头
                 file_exists = os.path.isfile(stats_path)
                 stats_df.to_csv(stats_path, mode='a', header=not file_exists, index=False, encoding='utf-8-sig')
+            
+            # 同时保存检查点，确保数据一致性
+            if data_cache or stats_cache:
+                self._save_global_checkpoint()
+                
         except Exception as e:
             log.error(f"保存数据到文件时出错: {e}")
             log.error(traceback.format_exc())

@@ -31,7 +31,7 @@ class MySQLManager:
         if self.conn:
             self.conn.close()
             self.conn = None
-            log.debug("MySQL连接已关闭")
+            # log.debug("MySQL连接已关闭")
     
     def get_cursor(self):
         """

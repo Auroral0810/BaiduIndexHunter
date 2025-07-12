@@ -51,8 +51,12 @@ class TaskExecutor:
             if isinstance(parameters, str):
                 parameters = json.loads(parameters)
             
+            # 修改这里的逻辑，只在checkpoint_path不为空且是有效的JSON字符串时才解析
             if checkpoint_path and isinstance(checkpoint_path, str):
-                checkpoint_path = json.loads(checkpoint_path)
+                try:
+                    checkpoint_path = json.loads(checkpoint_path)
+                except json.JSONDecodeError:
+                    log.warning(f"断点续传数据不是有效的JSON格式，将使用原始值: {checkpoint_path}")
             
             # 根据任务类型执行不同的爬虫任务
             if task_type == 'search_index':
@@ -505,8 +509,10 @@ class TaskExecutor:
         keywords = parameters['keywords']
         cities = parameters['cities']
         resume = parameters.get('resume', False)
+        checkpoint_task_id = None
         if resume:
             checkpoint_task_id = parameters.get('task_id')
+            log.info(f"恢复任务模式，checkpoint_task_id: {checkpoint_task_id}")
         
         # 处理关键词
         if not isinstance(keywords, list):

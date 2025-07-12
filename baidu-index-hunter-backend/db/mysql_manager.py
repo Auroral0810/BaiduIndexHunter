@@ -46,7 +46,7 @@ class MySQLManager:
                 cursorclass=DictCursor,
                 autocommit=True
             )
-            log.info(f"MySQL连接成功: {self.config['host']}:{self.config.get('port', 3306)}/{self.config['db']}")
+            # log.info(f"MySQL连接成功: {self.config['host']}:{self.config.get('port', 3306)}/{self.config['db']}")
         except Exception as e:
             log.error(f"MySQL连接失败: {e}")
             self.connection = None
@@ -308,7 +308,7 @@ class MySQLManager:
         if self.connection:
             try:
                 self.connection.close()
-                log.info("MySQL连接已关闭")
+                # log.info("MySQL连接已关闭")
             except Exception as e:
                 log.error(f"关闭MySQL连接失败: {e}")
             finally:
