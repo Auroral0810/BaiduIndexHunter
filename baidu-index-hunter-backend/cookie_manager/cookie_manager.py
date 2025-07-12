@@ -17,6 +17,7 @@ from utils.ab_sr_update import AbSrUpdater
 from utils.logger import log
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import traceback
 
 # 添加项目根目录到路径，以便导入项目模块
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -1024,11 +1025,25 @@ class CookieManager:
                 {
                     'updated_count': 更新的记录数,
                     'available_count': 可用cookie账号数量,
-                    'total_count': 总cookie账号数量
+                    'total_count': 总cookie账号数量,
+                    'unlocked_accounts': 解封的账号ID列表
                 }
         """
         try:
             cursor = self._get_cursor()
+            
+            # 首先查询哪些账号将被解封
+            check_sql = """
+            SELECT DISTINCT account_id FROM cookies 
+            WHERE is_available = 0 
+            AND is_permanently_banned = 0
+            AND temp_ban_until IS NOT NULL 
+            AND temp_ban_until < NOW()
+            """
+            cursor.execute(check_sql)
+            unlocked_accounts = [row['account_id'] for row in cursor.fetchall()]
+            
+            # 执行更新
             sql = """
             UPDATE cookies 
             SET is_available = 1
@@ -1043,8 +1058,60 @@ class CookieManager:
             
             # 如果有cookie被解封，更新Redis
             if updated_count > 0:
-                log.info(f"已解封 {updated_count} 条临时封禁的cookie记录")
-                self.sync_to_redis()
+                log.info(f"已解封 {updated_count} 条临时封禁的cookie记录，涉及 {len(unlocked_accounts)} 个账号")
+                
+                # 对每个解封的账号更新Redis
+                for account_id in unlocked_accounts:
+                    # 获取账号的cookie数据
+                    cookies = self.get_cookies_by_account_id(account_id)
+                    if cookies:
+                        # 组装cookie字典
+                        cookie_dict = {}
+                        for cookie in cookies:
+                            cookie_dict[cookie['cookie_name']] = cookie['cookie_value']
+                        
+                        # 更新Redis中的cookie状态
+                        if self.redis_client:
+                            # 更新状态信息
+                            status_data = {
+                                "is_available": 1,
+                                "is_permanently_banned": 0
+                            }
+                            self.redis_client.hset(self.REDIS_COOKIE_STATUS_KEY, account_id, json.dumps(status_data, ensure_ascii=False))
+                            
+                            # 删除封禁信息
+                            self.redis_client.hdel(self.REDIS_COOKIE_BAN_KEY, account_id)
+                            
+                            # 更新cookie数据
+                            cookie_data = {
+                                "account_id": account_id,
+                                "cookie": cookie_dict
+                            }
+                            self.redis_client.hset(self.REDIS_COOKIES_KEY, account_id, json.dumps(cookie_data, ensure_ascii=False))
+                            
+                            log.info(f"已更新Redis中解封的账号 {account_id} 数据")
+                
+                # 更新Redis中的可用cookie计数
+                if self.redis_client:
+                    # 获取当前可用cookie数量
+                    available_sql = """
+                    SELECT COUNT(DISTINCT account_id) as count FROM cookies 
+                    WHERE is_available = 1 
+                    AND (expire_time IS NULL OR expire_time > NOW())
+                    AND (temp_ban_until IS NULL OR temp_ban_until < NOW())
+                    AND is_permanently_banned = 0
+                    """
+                    cursor.execute(available_sql)
+                    available_result = cursor.fetchone()
+                    available_count = available_result['count'] if available_result else 0
+                    
+                    # 更新Redis中的计数
+                    self.redis_client.set(self.REDIS_COOKIE_COUNT_KEY, available_count)
+                    self.redis_client.expire(self.REDIS_COOKIE_COUNT_KEY, self.REDIS_EXPIRE)
+                    
+                    log.info(f"已更新Redis中的可用cookie计数: {available_count}")
+            else:
+                log.info("没有需要解封的cookie")
             
             # 获取可用cookie账号数量
             available_sql = """
@@ -1067,15 +1134,18 @@ class CookieManager:
             return {
                 'updated_count': updated_count,
                 'available_count': available_count,
-                'total_count': total_count
+                'total_count': total_count,
+                'unlocked_accounts': unlocked_accounts
             }
         except Exception as e:
             log.error(f"更新cookie状态失败: {e}")
+            log.error(traceback.format_exc())
             self.conn.rollback()
             return {
                 'updated_count': 0,
                 'available_count': 0,
                 'total_count': 0,
+                'unlocked_accounts': [],
                 'error': str(e)
             }
     

@@ -40,9 +40,9 @@ TASK_CONFIG = {
 
 # Cookie检查配置
 COOKIE_CHECK_CONFIG = {
-    'check_interval': int(os.getenv('COOKIE_CHECK_INTERVAL', 300)),  # Cookie状态检查间隔（秒），默认5分钟
+    'check_interval': int(os.getenv('COOKIE_CHECK_INTERVAL', 180)),  # Cookie状态检查间隔（秒），默认5分钟
     'ab_sr_update_interval': int(os.getenv('AB_SR_UPDATE_INTERVAL', 3600)),  # ab_sr cookie更新间隔（秒），默认1小时
-    'resume_task_check_interval': int(os.getenv('RESUME_TASK_CHECK_INTERVAL', 600)),  # 恢复任务检查间隔（秒），默认10分钟
+    'resume_task_check_interval': int(os.getenv('RESUME_TASK_CHECK_INTERVAL', 300)),  # 恢复任务检查间隔（秒），默认5分钟
 }
 
 # 添加项目根目录到Python路径
@@ -62,9 +62,23 @@ def check_cookie_status():
         
         available_count = result.get('available_count', 0)
         total_count = result.get('total_count', 0)
-        log.info(f"Cookie状态检查完成: {available_count}/{total_count} 可用")
+        updated_count = result.get('updated_count', 0)
+        unlocked_accounts = result.get('unlocked_accounts', [])
+        
+        if updated_count > 0:
+            log.info(f"Cookie状态检查完成: 已解封 {updated_count} 条记录，涉及 {len(unlocked_accounts)} 个账号")
+            log.info(f"当前可用账号: {available_count}/{total_count}")
+            
+            # 如果有账号被解封，检查是否有需要恢复的任务
+            if len(unlocked_accounts) > 0:
+                log.info("检测到有账号被解封，立即检查是否有需要恢复的任务")
+                resume_paused_tasks()
+        else:
+            log.info(f"Cookie状态检查完成: {available_count}/{total_count} 可用，无需解封")
     except Exception as e:
         log.error(f"检查cookie状态时出错: {e}")
+        import traceback
+        log.error(traceback.format_exc())
 
 def update_ab_sr_cookies():
     """更新所有账号的ab_sr cookie"""
@@ -93,6 +107,7 @@ def resume_paused_tasks():
         
         # 检查可用cookie数量
         cookie_manager = CookieManager()
+        cookie_manager.sync_to_redis()
         available_count = cookie_manager.get_redis_available_cookie_count()
         cookie_manager.close()
         
@@ -100,33 +115,51 @@ def resume_paused_tasks():
             log.info("没有可用cookie，无法恢复任务")
             return
             
+        log.info(f"当前有 {available_count} 个可用cookie，开始查找暂停的任务")
+            
         # 查找状态为paused的任务
         from db.mysql_manager import MySQLManager
         from scheduler.task_scheduler import task_scheduler
         
         mysql = MySQLManager()
+        # 修改SQL查询，使用更宽松的条件匹配所有暂停的任务
         query = """
-            SELECT task_id FROM spider_tasks 
-            WHERE status = 'paused' AND error_message LIKE '%Cookie%锁定%' 
-            ORDER BY update_time DESC LIMIT 5
+            SELECT task_id, error_message, update_time FROM spider_tasks 
+            WHERE status = 'paused'
+            ORDER BY update_time DESC LIMIT 10
         """
         paused_tasks = mysql.fetch_all(query)
         
         if not paused_tasks:
-            log.info("没有因cookie不足而暂停的任务")
+            log.info("没有暂停的任务需要恢复")
             return
             
-        log.info(f"找到 {len(paused_tasks)} 个因cookie不足而暂停的任务")
+        log.info(f"找到 {len(paused_tasks)} 个暂停的任务")
         
         # 恢复任务
+        resumed_count = 0
         for task in paused_tasks:
             task_id = task['task_id']
-            log.info(f"尝试恢复任务: {task_id}")
-            task_scheduler.resume_task(task_id)
+            error_message = task.get('error_message', '')
+            update_time = task.get('update_time')
             
-        log.info("任务恢复检查完成")
+            log.info(f"任务 {task_id} 暂停于 {update_time}，错误信息: {error_message}")
+            
+            # 尝试恢复任务
+            log.info(f"尝试恢复任务: {task_id}")
+            result = task_scheduler.resume_task(task_id)
+            
+            if result:
+                resumed_count += 1
+                log.info(f"成功恢复任务: {task_id}")
+            else:
+                log.warning(f"恢复任务失败: {task_id}")
+            
+        log.info(f"任务恢复检查完成，成功恢复 {resumed_count}/{len(paused_tasks)} 个任务")
     except Exception as e:
         log.error(f"恢复暂停任务时出错: {e}")
+        import traceback
+        log.error(traceback.format_exc())
 
 def run_scheduler():
     """运行定时任务调度器"""
