@@ -87,8 +87,73 @@ class TaskScheduler:
         :param priority: 优先级，范围1-10，数字越大优先级越高
         :return: 任务ID
         """
-        # 生成任务ID
-        task_id = self._generate_task_id()
+        # 检查是否为断点续传模式
+        is_resume = parameters.get('resume', False)
+        checkpoint_task_id = parameters.get('task_id') if is_resume else None
+        
+        # 如果是断点续传模式且提供了task_id，则使用原有task_id
+        if is_resume and checkpoint_task_id:
+            task_id = checkpoint_task_id
+            
+            # 检查原任务是否存在
+            check_query = "SELECT id FROM spider_tasks WHERE task_id = %s"
+            task = self.mysql.fetch_one(check_query, (task_id,))
+            
+            if task:
+                log.info(f"断点续传模式：使用原有任务ID {task_id}")
+                
+                # 将参数转为JSON字符串
+                if isinstance(parameters, dict):
+                    parameters_json = json.dumps(parameters, ensure_ascii=False)
+                else:
+                    parameters_json = parameters
+                
+                # 更新任务状态为待处理
+                now = datetime.now()
+                update_query = """
+                    UPDATE spider_tasks 
+                    SET status = 'pending', parameters = %s, update_time = %s, 
+                        progress = 0, error_message = NULL
+                    WHERE task_id = %s
+                """
+                self.mysql.execute_query(update_query, (parameters_json, now, task_id))
+                
+                # 检查任务是否在task_queue表中
+                check_queue_query = "SELECT id FROM task_queue WHERE task_id = %s"
+                queue_record = self.mysql.fetch_one(check_queue_query, (task_id,))
+                
+                if queue_record:
+                    # 更新队列状态
+                    queue_update_query = """
+                        UPDATE task_queue 
+                        SET status = 'waiting', priority = %s, enqueue_time = %s,
+                            start_time = NULL, complete_time = NULL
+                        WHERE task_id = %s
+                    """
+                    self.mysql.execute_query(queue_update_query, (priority, now, task_id))
+                else:
+                    # 添加到队列表
+                    queue_insert_query = """
+                        INSERT INTO task_queue (
+                            task_id, priority, status, enqueue_time
+                        ) VALUES (%s, %s, %s, %s)
+                    """
+                    queue_values = (task_id, priority, 'waiting', now)
+                    self.mysql.execute_query(queue_insert_query, queue_values)
+                
+                # 将任务加入队列
+                self._add_task_to_queue(task_id, -priority)  # 优先级取负值
+                
+                log.info(f"断点续传任务已更新: {task_id}, 类型: {task_type}, 优先级: {priority}")
+                return task_id
+            else:
+                log.warning(f"未找到原任务ID {task_id}，将创建新任务")
+        
+        # 如果不是断点续传模式或未找到原任务，则创建新任务
+        if not is_resume or not checkpoint_task_id:
+            task_id = self._generate_task_id()
+        else:
+            task_id = checkpoint_task_id
         
         # 如果没有提供任务名称，使用任务类型作为名称
         if not task_name:
