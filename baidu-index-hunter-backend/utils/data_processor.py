@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from utils.logger import log
 from region_manager.region_manager import get_region_manager
 import json
+import traceback
 
 # 获取region_manager实例
 region_manager = get_region_manager()
@@ -792,25 +793,76 @@ class BaiduIndexDataProcessor:
         :return: (daily_data, stats_record) 元组，分别为日度数据列表和统计数据记录
         """
         try:
-            if not data or not data.get('data') or not data['data'].get('userIndexes'):
+            # 检查数据完整性
+            if not data or not isinstance(data, dict):
                 log.warning(f"数据为空或格式不正确: {data}")
                 return None, None
                 
+            if not data.get('data'):
+                log.warning(f"数据中缺少data字段: {data}")
+                return None, None
+                
+            if not data['data'].get('userIndexes'):
+                log.warning(f"数据中缺少userIndexes字段: {data['data']}")
+                return None, None
+                
+            if not data['data']['userIndexes'] or len(data['data']['userIndexes']) == 0:
+                log.warning(f"userIndexes为空列表: {data['data']['userIndexes']}")
+                return None, None
+                
             # 获取统计数据
+            if not data['data'].get('generalRatio'):
+                log.warning(f"数据中缺少generalRatio字段: {data['data']}")
+                return None, None
+                
+            if len(data['data']['generalRatio']) == 0:
+                log.warning(f"generalRatio为空列表: {data['data']['generalRatio']}")
+                return None, None
+                
             general_ratio = data['data']['generalRatio'][0]
-            all_stats = general_ratio['all']
-            wise_stats = general_ratio['wise']
-            pc_stats = general_ratio['pc']
             
-            # 将解密后的数据转换为列表
-            all_values = decrypted_all.split(',')
-            wise_values = decrypted_wise.split(',')
-            pc_values = decrypted_pc.split(',')
+            # 安全获取统计数据字段，提供默认值
+            all_stats = general_ratio.get('all', {})
+            wise_stats = general_ratio.get('wise', {})
+            pc_stats = general_ratio.get('pc', {})
+            
+            if not all_stats:
+                log.warning(f"缺少all统计数据: {general_ratio}")
+                all_stats = {'avg': 0, 'yoy': '-', 'qoq': '-'}
+                
+            if not wise_stats:
+                log.warning(f"缺少wise统计数据: {general_ratio}")
+                wise_stats = {'avg': 0, 'yoy': '-', 'qoq': '-'}
+                
+            if not pc_stats:
+                log.warning(f"缺少pc统计数据: {general_ratio}")
+                pc_stats = {'avg': 0, 'yoy': '-', 'qoq': '-'}
+            
+            # 将解密后的数据转换为列表，并确保数据有效
+            all_values = decrypted_all.split(',') if decrypted_all else []
+            wise_values = decrypted_wise.split(',') if decrypted_wise else []
+            pc_values = decrypted_pc.split(',') if decrypted_pc else []
+            
+            # 验证数据长度是否一致，如果不一致则使用最短的长度
+            min_length = min(len(all_values), len(wise_values), len(pc_values))
+            if min_length == 0:
+                log.warning(f"解密后的数据为空: all={len(all_values)}, wise={len(wise_values)}, pc={len(pc_values)}")
+                return None, None
+                
+            if len(all_values) != len(wise_values) or len(all_values) != len(pc_values):
+                log.warning(f"解密后的数据长度不一致，将使用最短长度: all={len(all_values)}, wise={len(wise_values)}, pc={len(pc_values)}, min={min_length}")
+                all_values = all_values[:min_length]
+                wise_values = wise_values[:min_length]
+                pc_values = pc_values[:min_length]
             
             # 计算日期间隔
-            start = datetime.strptime(start_date, '%Y-%m-%d')
-            end = datetime.strptime(end_date, '%Y-%m-%d')
-            total_days = (end - start).days + 1
+            try:
+                start = datetime.strptime(start_date, '%Y-%m-%d')
+                end = datetime.strptime(end_date, '%Y-%m-%d')
+                total_days = (end - start).days + 1
+            except Exception as e:
+                log.warning(f"日期格式错误: {start_date} - {end_date}, 错误: {e}")
+                return None, None
             
             # 判断数据粒度
             data_length = len(all_values)
@@ -828,8 +880,6 @@ class BaiduIndexDataProcessor:
                 # 其他间隔 - 可能是月度数据或自定义间隔
                 interval = total_days // data_length if data_length > 0 else 1
                 data_type = '自定义'
-                
-            # log.info(f"{city_name} - {keyword} 数据粒度: {data_type}数据 (每{interval}天一个数据点)")
             
             # 生成日期列表
             date_range = []
@@ -840,46 +890,66 @@ class BaiduIndexDataProcessor:
             # 准备日度/周度数据
             daily_data = []
             for i in range(len(date_range)):
-                daily_record = {
+                # 确保索引在有效范围内
+                if i < len(all_values) and i < len(wise_values) and i < len(pc_values):
+                    daily_record = {
+                        '关键词': keyword,
+                        '城市代码': city_code,
+                        '城市': city_name,
+                        '日期': date_range[i],
+                        '数据类型': data_type,
+                        '数据间隔(天)': interval,
+                        '所属年份': date_range[i][:4],
+                        'PC+移动指数': all_values[i],
+                        '移动指数': wise_values[i],
+                        'PC指数': pc_values[i],
+                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    }
+                    daily_data.append(daily_record)
+                
+            # 如果没有有效数据，返回None
+            if not daily_data:
+                log.warning(f"处理后没有有效的日度数据: {keyword}, {city_name}")
+                return None, None
+                
+            # 准备统计数据
+            try:
+                # 安全获取统计数据字段，提供默认值
+                stats_record = {
                     '关键词': keyword,
                     '城市代码': city_code,
                     '城市': city_name,
-                    '日期': date_range[i],
-                    '数据类型': data_type,
-                    '数据间隔(天)': interval,
-                    '所属年份': date_range[i][:4],
-                    'PC+移动指数': all_values[i],
-                    '移动指数': wise_values[i],
-                    'PC指数': pc_values[i],
+                    '时间范围': f"{start_date} 至 {end_date}",
+                    '整体日均值': all_stats.get('avg', 0),
+                    '整体同比': all_stats.get('yoy', '-'),
+                    '整体环比': all_stats.get('qoq', '-'),
+                    '移动日均值': wise_stats.get('avg', 0),
+                    '移动同比': wise_stats.get('yoy', '-'),
+                    '移动环比': wise_stats.get('qoq', '-'),
+                    'PC日均值': pc_stats.get('avg', 0),
+                    'PC同比': pc_stats.get('yoy', '-'),
+                    'PC环比': pc_stats.get('qoq', '-'),
+                    '整体总值': sum(int(v) for v in all_values if v.isdigit()),
+                    '移动总值': sum(int(v) for v in wise_values if v.isdigit()),
+                    'PC总值': sum(int(v) for v in pc_values if v.isdigit()),
                     '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 }
-                daily_data.append(daily_record)
-                
-            # 准备统计数据
-            stats_record = {
-                '关键词': keyword,
-                '城市代码': city_code,
-                '城市': city_name,
-                '时间范围': f"{start_date} 至 {end_date}",
-                '整体日均值': all_stats['avg'],
-                '整体同比': all_stats['yoy'],
-                '整体环比': all_stats['qoq'],
-                '移动日均值': wise_stats['avg'],
-                '移动同比': wise_stats['yoy'],
-                '移动环比': wise_stats['qoq'],
-                'PC日均值': pc_stats['avg'],
-                'PC同比': pc_stats['yoy'],
-                'PC环比': pc_stats['qoq'],
-                '整体总值': sum(int(v) for v in all_values if v.isdigit()),
-                '移动总值': sum(int(v) for v in wise_values if v.isdigit()),
-                'PC总值': sum(int(v) for v in pc_values if v.isdigit()),
-                '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            }
+            except Exception as e:
+                log.warning(f"处理统计数据时出错: {e}")
+                # 提供一个基本的统计记录
+                stats_record = {
+                    '关键词': keyword,
+                    '城市代码': city_code,
+                    '城市': city_name,
+                    '时间范围': f"{start_date} 至 {end_date}",
+                    '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                }
             
             return daily_data, stats_record
             
         except Exception as e:
             log.error(f"处理搜索指数日度数据时出错: {str(e)}")
+            log.error(traceback.format_exc())
             return None, None
     
     def process_feed_index_data(self, data, cookie, keyword, city_code, city_name, start_date, end_date, decrypted_data, data_type='day'):
