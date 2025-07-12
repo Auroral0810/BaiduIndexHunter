@@ -26,6 +26,15 @@ _region_data_synced = False
 _cookie_data_synced = False
 _config_initialized = False
 
+# 任务配置
+TASK_CONFIG = {
+    'max_concurrent_tasks': int(os.getenv('MAX_CONCURRENT_TASKS', 20)),  # 最大并发任务数，增加到20
+    'task_queue_check_interval': int(os.getenv('TASK_QUEUE_CHECK_INTERVAL', 5)),  # 任务队列检查间隔（秒），减少到5秒
+    'default_task_priority': int(os.getenv('DEFAULT_TASK_PRIORITY', 5)),  # 默认任务优先级（1-10）
+    'max_retry_count': int(os.getenv('MAX_RETRY_COUNT', 3)),  # 任务最大重试次数
+    'retry_delay': int(os.getenv('RETRY_DELAY', 120)),  # 任务重试延迟（秒），减少到120秒
+}
+
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 

@@ -79,7 +79,7 @@ class SearchIndexCrawler:
                 
                 # 清空缓存
                 self.data_cache = []
-                log.info(f"已保存{data_count}条数据记录到 {daily_path}")
+                # log.info(f"已保存{data_count}条数据记录到 {daily_path}")
                 
             if (len(self.stats_cache) >= self.cache_limit or force) and self.stats_cache:
                 # 保存统计数据
@@ -182,7 +182,7 @@ class SearchIndexCrawler:
         
         with open(self.checkpoint_path, 'wb') as f:
             pickle.dump(checkpoint, f)
-        log.info(f"检查点已保存: {self.checkpoint_path}")
+        # log.info(f"检查点已保存: {self.checkpoint_path}")
         
     def _load_global_checkpoint(self, task_id):
         """加载全局检查点"""
@@ -304,7 +304,7 @@ class SearchIndexCrawler:
     @retry(max_retries=3, delay=2)
     def _get_search_index(self, area, keywords, start_date, end_date):
         """获取搜索指数数据"""
-        # 使用rate_limiter来限制请求频率
+        # 使用rate_limiter来限制请求频率 - 注释掉这行，不再等待
         # rate_limiter.wait()
         
         # 构建word参数
@@ -668,7 +668,7 @@ class SearchIndexCrawler:
                             current_progress_percent = int((self.completed_tasks / self.total_tasks) * 100)
                             
                             # 添加调试日志，显示当前进度和上次进度
-                            log.info(f"当前进度: {current_progress_percent}%, 上次进度: {last_progress_percent}%, 差值: {current_progress_percent - last_progress_percent}%")
+                            # log.info(f"当前进度: {current_progress_percent}%, 上次进度: {last_progress_percent}%, 差值: {current_progress_percent - last_progress_percent}%")
                             
                             # 每完成5%的任务更新一次数据库进度
                             if current_progress_percent >= last_progress_percent + 5:
