@@ -344,7 +344,7 @@ class SearchIndexCrawler:
     def _get_search_index(self, area, keywords, start_date, end_date):
         """获取搜索指数数据"""
         # 使用rate_limiter来限制请求频率 - 注释掉这行，不再等待
-        # rate_limiter.wait()
+        rate_limiter.wait()
         
         # 构建word参数
         word_param = []
@@ -924,8 +924,8 @@ class SearchIndexCrawler:
                                             log.error(f"更新数据库进度失败: {e}")
                                             log.error(traceback.format_exc())
                                     
-                                    # 每完成500条任务更新一次ab_sr cookie
-                                    if self.completed_tasks - last_ab_sr_update_task_count >= 500:
+                                    # 每完成10条任务更新一次ab_sr cookie
+                                    if self.completed_tasks - last_ab_sr_update_task_count >= 10:
                                         log.info(f"已完成{self.completed_tasks}条任务，开始更新ab_sr cookie...")
                                         self._update_ab_sr_cookies()
                                         last_ab_sr_update_task_count = self.completed_tasks
