@@ -1464,6 +1464,144 @@ def sync_to_redis(cookie_manager):
     except Exception as e:
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"同步到Redis失败: {str(e)}"))
 
+@admin_cookie_bp.route('/usage', methods=['GET'])
+@swag_from({
+    'tags': ['Cookie管理'],
+    'summary': '获取Cookie使用量统计',
+    'description': '获取指定时间范围内的Cookie使用量统计',
+    'parameters': [
+        {
+            'name': 'account_id',
+            'in': 'query',
+            'type': 'string',
+            'required': False,
+            'description': '账号ID，用于过滤指定账号的使用量'
+        },
+        {
+            'name': 'start_date',
+            'in': 'query',
+            'type': 'string',
+            'format': 'date',
+            'required': False,
+            'description': '开始日期，格式为YYYY-MM-DD'
+        },
+        {
+            'name': 'end_date',
+            'in': 'query',
+            'type': 'string',
+            'format': 'date',
+            'required': False,
+            'description': '结束日期，格式为YYYY-MM-DD'
+        }
+    ],
+    'responses': {
+        '200': {
+            'description': '请求成功',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
+                    'data': {
+                        'type': 'array',
+                        'items': {
+                            'type': 'object',
+                            'properties': {
+                                'account_id': {'type': 'string'},
+                                'usage_date': {'type': 'string', 'format': 'date'},
+                                'usage_count': {'type': 'integer'}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
+                }
+            }
+        }
+    }
+})
+def get_cookie_usage():
+    """获取Cookie使用量统计"""
+    try:
+        # 获取查询参数
+        account_id = request.args.get('account_id')
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        
+        # 导入cookie_rotator
+        from cookie_manager.cookie_rotator import cookie_rotator
+        
+        # 获取使用量统计
+        usage_data = cookie_rotator.get_cookie_usage(account_id, start_date, end_date)
+        
+        # 处理日期格式
+        for item in usage_data:
+            if 'usage_date' in item and item['usage_date']:
+                item['usage_date'] = item['usage_date'].strftime('%Y-%m-%d')
+        
+        return jsonify(ResponseFormatter.success(usage_data))
+    except Exception as e:
+        log.error(f"获取Cookie使用量统计失败: {e}")
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取Cookie使用量统计失败: {str(e)}"))
+
+@admin_cookie_bp.route('/usage/today', methods=['GET'])
+@swag_from({
+    'tags': ['Cookie管理'],
+    'summary': '获取今日Cookie使用量',
+    'description': '从Redis获取今日的Cookie使用量统计',
+    'responses': {
+        '200': {
+            'description': '请求成功',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '请求成功'},
+                    'data': {
+                        'type': 'object',
+                        'additionalProperties': {
+                            'type': 'integer'
+                        }
+                    }
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
+                }
+            }
+        }
+    }
+})
+def get_today_cookie_usage():
+    """获取今日Cookie使用量"""
+    try:
+        # 导入cookie_rotator
+        from cookie_manager.cookie_rotator import cookie_rotator
+        
+        # 获取今日使用量
+        usage_data = cookie_rotator.get_today_usage_from_redis()
+        
+        return jsonify(ResponseFormatter.success(usage_data))
+    except Exception as e:
+        log.error(f"获取今日Cookie使用量失败: {e}")
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取今日Cookie使用量失败: {str(e)}"))
+
 # 注册蓝图的函数
 def register_admin_cookie_blueprint(app):
     """注册Cookie管理API蓝图"""
