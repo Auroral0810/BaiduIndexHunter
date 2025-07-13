@@ -344,7 +344,7 @@ class SearchIndexCrawler:
     def _get_search_index(self, area, keywords, start_date, end_date):
         """获取搜索指数数据"""
         # 使用rate_limiter来限制请求频率 - 注释掉这行，不再等待
-        rate_limiter.wait()
+        # rate_limiter.wait()
         
         # 构建word参数
         word_param = []
