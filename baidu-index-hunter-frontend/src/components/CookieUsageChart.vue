@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted, onUnmounted, watch, computed } from 'vue'
 import * as echarts from 'echarts'
 import axios from 'axios'
@@ -11,16 +11,22 @@ const props = defineProps({
   }
 })
 
-const chartDom = ref(null)
-const usageChartInstance = ref(null)
-const cookieUsageData = ref([])
+interface CookieUsageItem {
+  account_id: string;
+  usage_date: string;
+  usage_count: number;
+}
+
+const chartDom = ref<HTMLElement | null>(null)
+const usageChartInstance = ref<echarts.ECharts | null>(null)
+const cookieUsageData = ref<CookieUsageItem[]>([])
 const cookieUsageLoading = ref(false)
-const dateRange = ref([])
+const dateRange = ref<Date[]>([])
 const topN = ref(10)
 const viewMode = ref('daily') // 'daily' | 'account' | 'line' | 'pie' | 'scatter' | 'heatmap'
 const chartType = ref('bar') // 'bar' | 'line' | 'pie' | 'scatter' | 'heatmap'
 const showDataTable = ref(false)
-const detailDate = ref(null)
+const detailDate = ref<string | null>(null)
 const dailyDetailVisible = ref(false)
 
 // 计算属性 - 获取所有日期
@@ -75,7 +81,7 @@ const dailyChartOption = reactive({
   },
   xAxis: {
     type: 'category',
-    data: [],
+    data: [] as string[],
     axisLabel: {
       rotate: 45
     }
@@ -88,7 +94,7 @@ const dailyChartOption = reactive({
     {
       name: '使用量',
       type: 'bar',
-      data: [],
+      data: [] as number[],
       itemStyle: {
         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
           { offset: 0, color: '#83bff6' },
@@ -157,7 +163,7 @@ const accountChartOption = reactive({
   },
   yAxis: {
     type: 'category',
-    data: [],
+    data: [] as string[],
     axisLabel: {
       width: 120,
       overflow: 'truncate'
@@ -167,7 +173,7 @@ const accountChartOption = reactive({
     {
       name: '使用量',
       type: 'bar',
-      data: [],
+      data: [] as number[],
       itemStyle: {
         color: new echarts.graphic.LinearGradient(1, 0, 0, 0, [
           { offset: 0, color: '#83bff6' },
@@ -236,7 +242,7 @@ const lineChartOption = reactive({
   },
   xAxis: {
     type: 'category',
-    data: [],
+    data: [] as string[],
     boundaryGap: false
   },
   yAxis: {
@@ -248,7 +254,7 @@ const lineChartOption = reactive({
       }
     }
   },
-  series: []
+  series: [] as echarts.SeriesOption[]
 })
 
 const pieChartOption = reactive({
@@ -299,7 +305,7 @@ const pieChartOption = reactive({
       labelLine: {
         show: false
       },
-      data: []
+      data: [] as {name: string, value: number}[]
     }
   ]
 })
@@ -311,7 +317,7 @@ const heatmapChartOption = reactive({
   },
   tooltip: {
     position: 'top',
-    formatter: function (params) {
+    formatter: function (params: any) {
       return `${params.data[1]} (${params.data[0]}): ${params.data[2]} 次`;
     }
   },
@@ -322,20 +328,52 @@ const heatmapChartOption = reactive({
       dataView: { readOnly: false }
     }
   },
+  dataZoom: [
+    {
+      type: 'slider',
+      show: true,
+      xAxisIndex: [0],
+      start: 0,
+      end: 100
+    },
+    {
+      type: 'slider',
+      show: true,
+      yAxisIndex: [0],
+      start: 0,
+      end: 100
+    },
+    {
+      type: 'inside',
+      xAxisIndex: [0],
+      start: 0,
+      end: 100
+    },
+    {
+      type: 'inside',
+      yAxisIndex: [0],
+      start: 0,
+      end: 100
+    }
+  ],
   grid: {
     height: '70%',
-    top: '10%'
+    top: '10%',
+    left: '3%',
+    right: '8%',
+    bottom: '15%',
+    containLabel: true
   },
   xAxis: {
     type: 'category',
-    data: [],
+    data: [] as string[],
     splitArea: {
       show: true
     }
   },
   yAxis: {
     type: 'category',
-    data: [],
+    data: [] as string[],
     splitArea: {
       show: true
     }
@@ -351,7 +389,7 @@ const heatmapChartOption = reactive({
   series: [{
     name: 'Cookie使用量',
     type: 'heatmap',
-    data: [],
+    data: [] as [string, string, number][],
     label: {
       show: true
     },
@@ -365,11 +403,11 @@ const heatmapChartOption = reactive({
 })
 
 // 加载Cookie使用量数据
-const loadCookieUsage = async (startDate = null, endDate = null) => {
+const loadCookieUsage = async (startDate: string | null = null, endDate: string | null = null) => {
   try {
     cookieUsageLoading.value = true
     
-    let params = {}
+    let params: Record<string, string> = {}
     if (startDate && endDate) {
       params.start_date = startDate
       params.end_date = endDate
@@ -394,6 +432,9 @@ const loadCookieUsage = async (startDate = null, endDate = null) => {
 const updateUsageChart = () => {
   if (!chartDom.value) return
   
+  // 重置图表实例，避免不同图表类型之间的配置冲突
+  resetChartInstance()
+  
   switch (viewMode.value) {
     case 'daily':
       updateDailyChart()
@@ -415,10 +456,28 @@ const updateUsageChart = () => {
   }
 }
 
+// 重置图表实例
+const resetChartInstance = () => {
+  if (usageChartInstance.value) {
+    // 先解绑所有事件
+    usageChartInstance.value.off('click')
+    // 销毁实例
+    usageChartInstance.value.dispose()
+    usageChartInstance.value = null
+  }
+  
+  // 创建新实例
+  if (chartDom.value) {
+    usageChartInstance.value = echarts.init(chartDom.value)
+  }
+}
+
 // 更新每日使用量图表
 const updateDailyChart = () => {
+  if (!usageChartInstance.value) return;
+  
   // 按日期分组数据
-  const groupedByDate = {}
+  const groupedByDate: {[key: string]: number} = {}
   cookieUsageData.value.forEach(item => {
     if (!groupedByDate[item.usage_date]) {
       groupedByDate[item.usage_date] = 0
@@ -433,25 +492,29 @@ const updateDailyChart = () => {
   // 更新图表配置
   dailyChartOption.xAxis.data = dates
   dailyChartOption.series[0].data = values
-  dailyChartOption.series[0].type = chartType.value
+  dailyChartOption.series[0].type = chartType.value as 'bar' | 'line'
   
-  // 渲染图表
-  if (!usageChartInstance.value) {
-    usageChartInstance.value = echarts.init(chartDom.value)
-    // 添加点击事件，显示单日详情
-    usageChartInstance.value.on('click', params => {
-      if (params.componentType === 'series') {
-        showDailyDetail(params.name)
-      }
-    })
+  // 添加点击事件，显示单日详情
+  usageChartInstance.value.on('click', params => {
+    if (params.componentType === 'series') {
+      showDailyDetail(params.name)
+    }
+  })
+  
+  try {
+    usageChartInstance.value.setOption(dailyChartOption, true)
+  } catch (error) {
+    console.error('渲染每日图表出错:', error)
+    ElMessage.error('渲染图表失败，请尝试切换其他图表类型')
   }
-  usageChartInstance.value.setOption(dailyChartOption, true)
 }
 
 // 更新账号使用量图表
 const updateAccountChart = () => {
+  if (!usageChartInstance.value) return;
+  
   // 按账号分组数据
-  const groupedByAccount = {}
+  const groupedByAccount: {[key: string]: number} = {}
   cookieUsageData.value.forEach(item => {
     if (!groupedByAccount[item.account_id]) {
       groupedByAccount[item.account_id] = 0
@@ -474,21 +537,24 @@ const updateAccountChart = () => {
   accountChartOption.yAxis.data = accounts
   accountChartOption.series[0].data = values
   
-  // 渲染图表
-  if (!usageChartInstance.value) {
-    usageChartInstance.value = echarts.init(chartDom.value)
+  try {
+    usageChartInstance.value.setOption(accountChartOption, true)
+  } catch (error) {
+    console.error('渲染账号图表出错:', error)
+    ElMessage.error('渲染图表失败，请尝试切换其他图表类型')
   }
-  usageChartInstance.value.setOption(accountChartOption, true)
 }
 
 // 更新趋势线图
 const updateLineChart = () => {
+  if (!usageChartInstance.value) return;
+  
   // 获取所有不同的账号和日期
   const accounts = [...new Set(cookieUsageData.value.map(item => item.account_id))]
   const dates = [...new Set(cookieUsageData.value.map(item => item.usage_date))].sort()
   
   // 对数据按照账号和日期进行分组
-  const accountData = {}
+  const accountData: {[key: string]: {[key: string]: number}} = {}
   accounts.forEach(account => {
     accountData[account] = {}
     dates.forEach(date => {
@@ -502,7 +568,7 @@ const updateLineChart = () => {
   })
   
   // 选择前N个使用量最高的账号
-  const totalUsageByAccount = {}
+  const totalUsageByAccount: {[key: string]: number} = {}
   accounts.forEach(account => {
     totalUsageByAccount[account] = Object.values(accountData[account]).reduce((sum, count) => sum + count, 0)
   })
@@ -512,35 +578,93 @@ const updateLineChart = () => {
     .slice(0, topN.value)
     .map(item => item[0])
   
-  // 创建线图系列数据
-  const series = topAccounts.map(account => {
-    return {
+  // 创建新的配置对象，而不是修改原有的
+  const option = {
+    title: {
+      text: 'Cookie使用量趋势',
+      left: 'center'
+    },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'cross'
+      }
+    },
+    legend: {
+      type: 'scroll',
+      bottom: 0
+    },
+    toolbox: {
+      feature: {
+        saveAsImage: { name: 'cookie_usage_trend' },
+        dataZoom: {
+          yAxisIndex: 'none'
+        },
+        restore: {},
+        dataView: { readOnly: false }
+      }
+    },
+    dataZoom: [
+      {
+        type: 'slider',
+        show: true,
+        xAxisIndex: [0],
+        start: 0,
+        end: 100
+      },
+      {
+        type: 'inside',
+        xAxisIndex: [0],
+        start: 0,
+        end: 100
+      }
+    ],
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '15%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: dates,
+      boundaryGap: false
+    },
+    yAxis: {
+      type: 'value',
+      name: '使用次数',
+      splitLine: {
+        lineStyle: {
+          type: 'dashed'
+        }
+      }
+    },
+    series: topAccounts.map(account => ({
       name: account,
-      type: 'line',
+      type: 'line' as const,
       data: dates.map(date => accountData[account][date]),
       smooth: true,
       showSymbol: false,
       emphasis: {
         focus: 'series'
       }
-    }
-  })
+    }))
+  };
   
-  // 更新图表配置
-  lineChartOption.xAxis.data = dates
-  lineChartOption.series = series
-  
-  // 渲染图表
-  if (!usageChartInstance.value) {
-    usageChartInstance.value = echarts.init(chartDom.value)
+  try {
+    usageChartInstance.value.setOption(option, true);
+  } catch (error) {
+    console.error('渲染趋势图出错:', error)
+    ElMessage.error('渲染图表失败，请尝试切换其他图表类型')
   }
-  usageChartInstance.value.setOption(lineChartOption, true)
 }
 
 // 更新饼图
 const updatePieChart = () => {
+  if (!usageChartInstance.value) return;
+  
   // 按账号分组数据
-  const groupedByAccount = {}
+  const groupedByAccount: {[key: string]: number} = {}
   cookieUsageData.value.forEach(item => {
     if (!groupedByAccount[item.account_id]) {
       groupedByAccount[item.account_id] = 0
@@ -574,15 +698,18 @@ const updatePieChart = () => {
   // 更新图表配置
   pieChartOption.series[0].data = pieData
   
-  // 渲染图表
-  if (!usageChartInstance.value) {
-    usageChartInstance.value = echarts.init(chartDom.value)
+  try {
+    usageChartInstance.value.setOption(pieChartOption, true)
+  } catch (error) {
+    console.error('渲染饼图出错:', error)
+    ElMessage.error('渲染图表失败，请尝试切换其他图表类型')
   }
-  usageChartInstance.value.setOption(pieChartOption, true)
 }
 
 // 更新热力图
 const updateHeatmapChart = () => {
+  if (!usageChartInstance.value) return;
+  
   // 获取所有不同的账号和日期
   const accounts = [...new Set(cookieUsageData.value.map(item => item.account_id))]
     .sort((a, b) => a.localeCompare(b))
@@ -591,7 +718,7 @@ const updateHeatmapChart = () => {
   const dates = [...new Set(cookieUsageData.value.map(item => item.usage_date))].sort()
   
   // 准备热力图数据
-  const heatmapData = []
+  const heatmapData: any[] = []
   const maxValue = {value: 0}
   
   cookieUsageData.value.forEach(item => {
@@ -603,17 +730,105 @@ const updateHeatmapChart = () => {
     }
   })
   
-  // 更新图表配置
-  heatmapChartOption.xAxis.data = dates
-  heatmapChartOption.yAxis.data = accounts
-  heatmapChartOption.series[0].data = heatmapData
-  heatmapChartOption.visualMap.max = maxValue.value
+  // 创建新的配置对象，而不是修改原有的
+  const option = {
+    title: {
+      text: 'Cookie使用量热力图',
+      left: 'center'
+    },
+    tooltip: {
+      position: 'top',
+      formatter: function (params: any) {
+        return `${params.data[1]} (${params.data[0]}): ${params.data[2]} 次`;
+      }
+    },
+    toolbox: {
+      feature: {
+        saveAsImage: { name: 'cookie_usage_heatmap' },
+        restore: {},
+        dataView: { readOnly: false }
+      }
+    },
+    dataZoom: [
+      {
+        type: 'slider',
+        show: true,
+        xAxisIndex: [0],
+        start: 0,
+        end: 100
+      },
+      {
+        type: 'slider',
+        show: true,
+        yAxisIndex: [0],
+        start: 0,
+        end: 100
+      },
+      {
+        type: 'inside',
+        xAxisIndex: [0],
+        start: 0,
+        end: 100
+      },
+      {
+        type: 'inside',
+        yAxisIndex: [0],
+        start: 0,
+        end: 100
+      }
+    ],
+    grid: {
+      height: '70%',
+      top: '10%',
+      left: '3%',
+      right: '8%',
+      bottom: '15%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: dates,
+      splitArea: {
+        show: true
+      }
+    },
+    yAxis: {
+      type: 'category',
+      data: accounts,
+      splitArea: {
+        show: true
+      }
+    },
+    visualMap: {
+      min: 0,
+      max: maxValue.value,
+      calculable: true,
+      orient: 'horizontal',
+      left: 'center',
+      bottom: '0%'
+    },
+    series: [{
+      name: 'Cookie使用量',
+      type: 'heatmap',
+      data: heatmapData,
+      label: {
+        show: true
+      },
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowColor: 'rgba(0, 0, 0, 0.5)'
+        }
+      }
+    }]
+  };
   
-  // 渲染图表
-  if (!usageChartInstance.value) {
-    usageChartInstance.value = echarts.init(chartDom.value)
+  try {
+    usageChartInstance.value.setOption(option, true);
+  } catch (error) {
+    console.error('渲染热力图出错:', error)
+    ElMessage.error('渲染热力图失败，请尝试切换其他图表类型')
   }
-  usageChartInstance.value.setOption(heatmapChartOption, true)
 }
 
 // 处理日期范围变化
@@ -626,7 +841,7 @@ const handleDateRangeChange = () => {
 }
 
 // 格式化日期
-const formatDate = (date) => {
+const formatDate = (date: Date): string => {
   if (!date) return ''
   const d = new Date(date)
   const year = d.getFullYear()
@@ -656,13 +871,13 @@ const syncUsageData = async () => {
 }
 
 // 切换视图模式
-const switchViewMode = (mode) => {
+const switchViewMode = (mode: string) => {
   viewMode.value = mode
   updateUsageChart()
 }
 
 // 切换图表类型
-const switchChartType = (type) => {
+const switchChartType = (type: string) => {
   chartType.value = type
   updateUsageChart()
 }
@@ -697,7 +912,7 @@ const exportToCsv = () => {
 }
 
 // 显示单日详情
-const showDailyDetail = (date) => {
+const showDailyDetail = (date: string) => {
   detailDate.value = date
   dailyDetailVisible.value = true
 }
