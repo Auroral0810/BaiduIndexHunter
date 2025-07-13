@@ -29,9 +29,9 @@ class RateLimiter:
             max_interval (float): 最大请求间隔时间（秒）
             default_interval (float): 默认请求间隔时间（秒）
         """
-        self.min_interval = min_interval or SPIDER_CONFIG.get('min_interval', 0.2)  # 减少默认间隔
-        self.max_interval = max_interval or SPIDER_CONFIG.get('max_interval', 0.5)  # 减少默认间隔
-        self.default_interval = default_interval or SPIDER_CONFIG.get('default_interval', 0.3)  # 减少默认间隔
+        self.min_interval = min_interval or SPIDER_CONFIG.get('min_interval', 0.8)  # 减少默认间隔
+        self.max_interval = max_interval or SPIDER_CONFIG.get('max_interval', 1)  # 减少默认间隔
+        self.default_interval = default_interval or SPIDER_CONFIG.get('default_interval', 0.8)  # 减少默认间隔
         
         self.last_request_time = 0
         self.lock = threading.Lock()
