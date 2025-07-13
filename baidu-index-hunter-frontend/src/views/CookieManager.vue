@@ -1526,6 +1526,297 @@ const processExcelFile = async (file: File) => {
     ElMessage.error('处理Excel文件失败，请确保安装了xlsx库')
   }
 }
+
+// 添加多选相关的变量
+const multipleSelection = ref([])
+const batchActionLoading = ref(false)
+const batchTempBanDialogVisible = ref(false)
+const batchTempBanForm = reactive({
+  duration_minutes: 30
+})
+
+// 处理表格多选变化
+const handleSelectionChange = (selection) => {
+  multipleSelection.value = selection
+}
+
+// 批量封禁所有Cookie
+const batchBanAll = async () => {
+  try {
+    await ElMessageBox.confirm('确定要临时封禁所有Cookie吗？此操作可以通过批量解封恢复。', '确认批量封禁', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    
+    batchActionLoading.value = true
+    
+    // 获取所有可用账号ID
+    const response = await axios.get(`${API_BASE_URL}/admin/cookie/available-accounts`)
+    if (response.data.code === 10000) {
+      const accountIds = response.data.data.account_ids || []
+      
+      if (accountIds.length === 0) {
+        ElMessage.warning('没有可用的Cookie可以封禁')
+        batchActionLoading.value = false
+        return
+      }
+      
+      // 批量封禁
+      let successCount = 0
+      for (const accountId of accountIds) {
+        try {
+          const banResponse = await axios.post(`${API_BASE_URL}/admin/cookie/ban/temporary/${accountId}`, {
+            duration_seconds: 1800 // 默认30分钟
+          })
+          
+          if (banResponse.data.code === 10000) {
+            successCount++
+          }
+        } catch (error) {
+          console.error(`封禁账号 ${accountId} 失败:`, error)
+        }
+      }
+      
+      ElMessage.success(`成功封禁 ${successCount}/${accountIds.length} 个Cookie`)
+      
+      // 重新加载数据
+      refreshCookieStatus()
+      loadCookies()
+      loadAvailableAccounts()
+      loadBannedAccounts()
+    } else {
+      ElMessage.error(`获取可用账号失败: ${response.data.msg}`)
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('批量封禁失败:', error)
+      ElMessage.error('批量封禁失败，请检查网络连接')
+    }
+  } finally {
+    batchActionLoading.value = false
+  }
+}
+
+// 批量解封所有Cookie
+const batchUnbanAll = async () => {
+  try {
+    await ElMessageBox.confirm('确定要解封所有被临时封禁的Cookie吗？', '确认批量解封', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    
+    batchActionLoading.value = true
+    
+    // 获取所有临时封禁的账号
+    const response = await axios.get(`${API_BASE_URL}/admin/cookie/banned-accounts`)
+    if (response.data.code === 10000) {
+      const tempBannedAccounts = response.data.data.temp_banned || []
+      
+      if (tempBannedAccounts.length === 0) {
+        ElMessage.warning('没有临时封禁的Cookie可以解封')
+        batchActionLoading.value = false
+        return
+      }
+      
+      // 批量解封
+      let successCount = 0
+      for (const account of tempBannedAccounts) {
+        try {
+          const unbanResponse = await axios.post(`${API_BASE_URL}/admin/cookie/unban/${account.account_id}`)
+          
+          if (unbanResponse.data.code === 10000) {
+            successCount++
+          }
+        } catch (error) {
+          console.error(`解封账号 ${account.account_id} 失败:`, error)
+        }
+      }
+      
+      ElMessage.success(`成功解封 ${successCount}/${tempBannedAccounts.length} 个Cookie`)
+      
+      // 重新加载数据
+      refreshCookieStatus()
+      loadCookies()
+      loadAvailableAccounts()
+      loadBannedAccounts()
+    } else {
+      ElMessage.error(`获取被封禁账号失败: ${response.data.msg}`)
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('批量解封失败:', error)
+      ElMessage.error('批量解封失败，请检查网络连接')
+    }
+  } finally {
+    batchActionLoading.value = false
+  }
+}
+
+// 批量临时封禁选中的Cookie
+const batchTempBan = () => {
+  if (multipleSelection.value.length === 0) {
+    ElMessage.warning('请先选择要封禁的Cookie')
+    return
+  }
+  
+  batchTempBanDialogVisible.value = true
+}
+
+// 提交批量临时封禁
+const submitBatchTempBan = async () => {
+  try {
+    batchActionLoading.value = true
+    
+    const durationSeconds = batchTempBanForm.duration_minutes * 60
+    let successCount = 0
+    
+    for (const item of multipleSelection.value) {
+      try {
+        const response = await axios.post(`${API_BASE_URL}/admin/cookie/ban/temporary/${item.account_id}`, {
+          duration_seconds: durationSeconds
+        })
+        
+        if (response.data.code === 10000) {
+          successCount++
+        }
+      } catch (error) {
+        console.error(`临时封禁账号 ${item.account_id} 失败:`, error)
+      }
+    }
+    
+    ElMessage.success(`成功临时封禁 ${successCount}/${multipleSelection.value.length} 个Cookie，持续时间 ${batchTempBanForm.duration_minutes} 分钟`)
+    batchTempBanDialogVisible.value = false
+    
+    // 重新加载数据
+    refreshCookieStatus()
+    loadCookies()
+    loadAvailableAccounts()
+    loadBannedAccounts()
+    
+    // 清空选择
+    multipleSelection.value = []
+  } catch (error) {
+    console.error('批量临时封禁失败:', error)
+    ElMessage.error('批量临时封禁失败，请检查网络连接')
+  } finally {
+    batchActionLoading.value = false
+  }
+}
+
+// 批量永久封禁选中的Cookie
+const batchPermBan = async () => {
+  if (multipleSelection.value.length === 0) {
+    ElMessage.warning('请先选择要封禁的Cookie')
+    return
+  }
+  
+  try {
+    await ElMessageBox.confirm(`确定要永久封禁选中的 ${multipleSelection.value.length} 个Cookie吗？此操作可以通过强制解封恢复。`, '确认批量永久封禁', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    
+    batchActionLoading.value = true
+    
+    let successCount = 0
+    for (const item of multipleSelection.value) {
+      try {
+        const response = await axios.post(`${API_BASE_URL}/admin/cookie/ban/permanent/${item.account_id}`)
+        
+        if (response.data.code === 10000) {
+          successCount++
+        }
+      } catch (error) {
+        console.error(`永久封禁账号 ${item.account_id} 失败:`, error)
+      }
+    }
+    
+    ElMessage.success(`成功永久封禁 ${successCount}/${multipleSelection.value.length} 个Cookie`)
+    
+    // 重新加载数据
+    refreshCookieStatus()
+    loadCookies()
+    loadAvailableAccounts()
+    loadBannedAccounts()
+    
+    // 清空选择
+    multipleSelection.value = []
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('批量永久封禁失败:', error)
+      ElMessage.error('批量永久封禁失败，请检查网络连接')
+    }
+  } finally {
+    batchActionLoading.value = false
+  }
+}
+
+// 批量解封选中的Cookie
+const batchUnban = async () => {
+  if (multipleSelection.value.length === 0) {
+    ElMessage.warning('请先选择要解封的Cookie')
+    return
+  }
+  
+  try {
+    await ElMessageBox.confirm(`确定要解封选中的 ${multipleSelection.value.length} 个Cookie吗？`, '确认批量解封', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    
+    batchActionLoading.value = true
+    
+    let successCount = 0
+    for (const item of multipleSelection.value) {
+      try {
+        // 对于临时封禁的使用普通解封
+        if (item.temp_ban_until) {
+          const response = await axios.post(`${API_BASE_URL}/admin/cookie/unban/${item.account_id}`)
+          
+          if (response.data.code === 10000) {
+            successCount++
+          }
+        } 
+        // 对于永久封禁的使用强制解封
+        else if (item.is_permanently_banned === 1) {
+          const response = await axios.post(`${API_BASE_URL}/admin/cookie/force-unban/${item.account_id}`)
+          
+          if (response.data.code === 10000) {
+            successCount++
+          }
+        }
+        // 对于正常状态的Cookie不需要操作
+        else {
+          successCount++
+        }
+      } catch (error) {
+        console.error(`解封账号 ${item.account_id} 失败:`, error)
+      }
+    }
+    
+    ElMessage.success(`成功解封 ${successCount}/${multipleSelection.value.length} 个Cookie`)
+    
+    // 重新加载数据
+    refreshCookieStatus()
+    loadCookies()
+    loadAvailableAccounts()
+    loadBannedAccounts()
+    
+    // 清空选择
+    multipleSelection.value = []
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('批量解封失败:', error)
+      ElMessage.error('批量解封失败，请检查网络连接')
+    }
+  } finally {
+    batchActionLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -1723,6 +2014,21 @@ const processExcelFile = async (file: File) => {
             </el-button>
           </div>
           
+          <div class="batch-actions" v-if="cookieList.length > 0">
+            <el-button-group>
+              <el-button type="danger" @click="batchBanAll" :loading="batchActionLoading">批量封禁所有Cookie</el-button>
+              <el-button type="success" @click="batchUnbanAll" :loading="batchActionLoading">批量解封所有Cookie</el-button>
+            </el-button-group>
+            <el-button-group v-if="multipleSelection.length > 0" class="ml-10">
+              <el-button type="warning" @click="batchTempBan" :loading="batchActionLoading">临时封禁选中</el-button>
+              <el-button type="danger" @click="batchPermBan" :loading="batchActionLoading">永久封禁选中</el-button>
+              <el-button type="success" @click="batchUnban" :loading="batchActionLoading">解封选中</el-button>
+            </el-button-group>
+            <span v-if="multipleSelection.length > 0" class="selection-info">
+              已选择 {{ multipleSelection.length }} 项
+            </span>
+          </div>
+          
           <el-table
             v-loading="listLoading"
             :data="cookieList"
@@ -1730,12 +2036,10 @@ const processExcelFile = async (file: File) => {
             border
             row-key="id"
             :default-sort="{ prop: 'account_id', order: 'ascending' }"
+            @selection-change="handleSelectionChange"
           >
-            <!-- 隐藏ID列 -->
-            <!-- <el-table-column prop="id" label="ID" width="70" sortable /> -->
+            <el-table-column type="selection" width="55" />
             <el-table-column prop="account_id" label="Cookie名" width="120" show-overflow-tooltip sortable />
-            <!-- 隐藏Cookie名称列 -->
-            <!-- <el-table-column prop="cookie_name" label="Cookie名称" width="120" sortable /> -->
             <el-table-column label="字段数量" width="90">
               <template #default="scope">
                 <el-tag size="small" effect="plain" type="info">
@@ -2162,6 +2466,41 @@ const processExcelFile = async (file: File) => {
         <el-empty v-else description="暂无测试结果" />
       </div>
     </el-dialog>
+    
+    <!-- 添加批量临时封禁对话框 -->
+    <el-dialog
+      v-model="batchTempBanDialogVisible"
+      title="批量临时封禁Cookie"
+      width="400px"
+      destroy-on-close
+    >
+      <el-form :model="batchTempBanForm" label-width="100px">
+        <el-form-item label="封禁时长">
+          <el-input-number v-model="batchTempBanForm.duration_minutes" :min="1" :max="1440" />
+          <span class="form-tip">分钟</span>
+        </el-form-item>
+        <el-form-item label="选中账号">
+          <div class="selected-accounts">
+            <el-tag
+              v-for="item in multipleSelection"
+              :key="item.account_id"
+              size="small"
+              class="mr-5 mb-5"
+            >
+              {{ item.account_id }}
+            </el-tag>
+          </div>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="batchTempBanDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitBatchTempBan" :loading="batchActionLoading">
+            确认
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -2431,5 +2770,37 @@ const processExcelFile = async (file: File) => {
   font-size: 16px;
   border-bottom: 1px solid #EBEEF5;
   color: #409EFF;
+}
+
+.batch-actions {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+}
+
+.selection-info {
+  margin-left: 15px;
+  color: #606266;
+  font-size: 14px;
+}
+
+.ml-10 {
+  margin-left: 10px;
+}
+
+.mr-5 {
+  margin-right: 5px;
+}
+
+.mb-5 {
+  margin-bottom: 5px;
+}
+
+.selected-accounts {
+  max-height: 100px;
+  overflow-y: auto;
+  padding: 5px;
+  border: 1px solid #EBEEF5;
+  border-radius: 4px;
 }
 </style>
