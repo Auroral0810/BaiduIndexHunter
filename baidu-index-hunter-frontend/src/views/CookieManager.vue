@@ -1965,6 +1965,7 @@ const batchUnban = async () => {
               </el-tab-pane>
             </el-tabs>
           </div>
+        </el-card>
         <!-- Cookie使用量图表卡片 -->
         <el-card class="usage-chart-card" shadow="hover">
           <template #header>
@@ -1974,7 +1975,6 @@ const batchUnban = async () => {
           </template>
           
           <CookieUsageChart :api-base-url="API_BASE_URL" />
-        </el-card>
         </el-card>
       </el-col>
       
