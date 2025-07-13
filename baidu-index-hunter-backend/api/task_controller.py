@@ -649,7 +649,7 @@ def list_tasks():
         except (ValueError, TypeError):
             offset = 0
         
-        log.info(f"查询任务列表: status={status}, task_type={task_type}, created_by={created_by}, keyword={keyword}, limit={limit}, offset={offset}")
+        # log.info(f"查询任务列表: status={status}, task_type={task_type}, created_by={created_by}, keyword={keyword}, limit={limit}, offset={offset}")
         
         # 获取任务列表
         tasks = task_scheduler.list_tasks(
@@ -667,7 +667,7 @@ def list_tasks():
             created_by=created_by
         )
         
-        log.info(f"查询到 {len(tasks)} 条任务记录，总计 {total} 条")
+        # log.info(f"查询到 {len(tasks)} 条任务记录，总计 {total} 条")
         
         # 处理日期时间格式
         for task in tasks:

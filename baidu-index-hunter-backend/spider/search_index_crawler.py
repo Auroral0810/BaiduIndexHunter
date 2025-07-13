@@ -252,7 +252,7 @@ class SearchIndexCrawler:
     def _update_ab_sr_cookies(self):
         """更新所有账号的ab_sr cookie"""
         try:
-            log.info("开始更新所有账号的ab_sr cookie...")
+            # log.info("开始更新所有账号的ab_sr cookie...")
             # 导入需要的模块
             from cookie_manager.cookie_manager import CookieManager
             

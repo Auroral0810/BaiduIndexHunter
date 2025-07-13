@@ -91,7 +91,7 @@ class RegionManager:
             # 同步省份城市关系数据
             self.sync_province_cities()
             
-            log.info("区域数据同步到Redis完成")
+            # log.info("区域数据同步到Redis完成")
             return True
         except Exception as e:
             log.error(f"同步区域数据到Redis失败: {e}")
@@ -645,7 +645,7 @@ class RegionManager:
         :return: 是否同步成功
         """
         try:
-            log.info("开始统计各省份下属城市数据...")
+            # log.info("开始统计各省份下属城市数据...")
             
             province_cities = {}
             

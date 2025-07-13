@@ -39,7 +39,7 @@ class TaskScheduler:
         启动任务调度器
         """
         try:
-            log.info("启动任务调度器")
+            # log.info("启动任务调度器")
             
             # 初始化表结构
             self._init_tables()
@@ -539,7 +539,7 @@ class TaskScheduler:
     
     def _scheduler_loop(self):
         """调度器主循环"""
-        log.info("调度器主循环已启动")
+        # log.info("调度器主循环已启动")
         
         while self.is_running:
             try:
@@ -780,7 +780,7 @@ class TaskScheduler:
     
     def _scheduler(self):
         """调度器线程函数"""
-        log.info("调度器线程已启动")
+        # log.info("调度器线程已启动")
         self.is_running = True
         
         while self.is_running:

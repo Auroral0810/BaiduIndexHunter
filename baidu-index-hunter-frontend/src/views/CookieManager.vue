@@ -7,6 +7,7 @@ import {
   RefreshRight, ArrowDown, Check
 } from '@element-plus/icons-vue'
 import axios from 'axios'
+import CookieUsageChart from '@/components/CookieUsageChart.vue'
 import { useClipboard } from '@vueuse/core'
 import { useTaskStore } from '@/stores/task'
 import 'element-plus/es/components/message/style/css'
@@ -1964,6 +1965,16 @@ const batchUnban = async () => {
               </el-tab-pane>
             </el-tabs>
           </div>
+        <!-- Cookie使用量图表卡片 -->
+        <el-card class="usage-chart-card" shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <span>Cookie使用量统计</span>
+            </div>
+          </template>
+          
+          <CookieUsageChart :api-base-url="API_BASE_URL" />
+        </el-card>
         </el-card>
       </el-col>
       
@@ -2784,6 +2795,11 @@ const batchUnban = async () => {
   font-size: 14px;
 }
 
+
+.usage-chart-card {
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
 .ml-10 {
   margin-left: 10px;
 }

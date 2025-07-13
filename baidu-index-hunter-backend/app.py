@@ -23,6 +23,8 @@ from db.config_manager import config_manager
 import threading
 import time
 import schedule
+# 在文件顶部导入统一日志
+from utils.logger import setup_unified_logger, setup_flask_request_logging, log_database_operation, log_task_operation
 
 # 全局变量，用于确保区域数据只同步一次
 _region_data_synced = False
@@ -52,6 +54,7 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 _scheduler_thread = None
 _scheduler_running = False
 
+@log_task_operation("cookie_status_check")
 def check_cookie_status():
     """检查所有cookie的状态，解封可用的cookie"""
     try:
@@ -83,7 +86,7 @@ def check_cookie_status():
 def update_ab_sr_cookies():
     """更新所有账号的ab_sr cookie"""
     try:
-        log.info("开始更新所有账号的ab_sr cookie...")
+        # log.info("开始更新所有账号的ab_sr cookie...")
         cookie_manager = CookieManager()
         result = cookie_manager.update_ab_sr_for_all_accounts()
         cookie_manager.close()
@@ -92,8 +95,8 @@ def update_ab_sr_cookies():
             log.error(f"更新ab_sr cookie失败: {result['error']}")
             return
         
-        log.info(f"成功更新ab_sr cookie: 更新{result['updated_count']}个，新增{result['added_count']}个，失败{result['failed_count']}个")
-        
+        # log.info(f"成功更新ab_sr cookie: 更新{result['updated_count']}个，新增{result['added_count']}个，失败{result['failed_count']}个")
+        # 
         # 更新完成后重置cookie轮换器的缓存
         from cookie_manager.cookie_rotator import cookie_rotator
         cookie_rotator.reset_cache()
@@ -166,7 +169,7 @@ def run_scheduler():
     global _scheduler_running
     
     _scheduler_running = True
-    log.info("定时任务调度器已启动")
+    # log.info("定时任务调度器已启动")
     
     # 立即执行一次初始化检查
     check_cookie_status()
@@ -191,7 +194,7 @@ def start_scheduler():
     if _scheduler_thread is None or not _scheduler_thread.is_alive():
         _scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
         _scheduler_thread.start()
-        log.info("定时任务调度器线程已启动")
+        # log.info("定时任务调度器线程已启动")
     else:
         log.info("定时任务调度器线程已在运行中")
 
@@ -203,12 +206,18 @@ def stop_scheduler():
     log.info("定时任务调度器已标记为停止")
 
 def create_app(config=None):
+    
+    # 首先设置统一日志系统
+    unified_log = setup_unified_logger()
+    
     """创建Flask应用"""
     global _region_data_synced
     global _cookie_data_synced
     global _config_initialized
     
     app = Flask(__name__)
+    # 设置Flask请求日志（这会统一HTTP请求日志格式）
+    setup_flask_request_logging(app, unified_log)
     
     # 配置跨域
     CORS(app, supports_credentials=True)
@@ -263,7 +272,7 @@ def create_app(config=None):
             config_manager.refresh_cache()
             config_manager.init_default_configs()
             _config_initialized = True
-            log.info("系统配置初始化成功")
+            # log.info("系统配置初始化成功")
         except Exception as e:
             log.error(f"初始化系统配置失败: {e}")
     
@@ -273,7 +282,7 @@ def create_app(config=None):
             region_manager = get_region_manager()
             region_manager.sync_to_redis()
             _region_data_synced = True
-            log.info("区域数据同步到Redis成功")
+            # log.info("区域数据同步到Redis成功")
         except Exception as e:
             log.error(f"同步区域数据到Redis失败: {e}")
     else:
@@ -285,7 +294,7 @@ def create_app(config=None):
             cookie_manager = CookieManager()
             cookie_manager.sync_to_redis()
             _cookie_data_synced = True
-            log.info("Cookie数据同步到Redis成功")
+            # log.info("Cookie数据同步到Redis成功")
         except Exception as e:
             log.error(f"同步Cookie数据到Redis失败: {e}")
         finally:
@@ -390,21 +399,21 @@ def init_data():
             config_manager.refresh_cache()
             config_manager.init_default_configs()
             _config_initialized = True
-            log.info("系统配置初始化成功")
+            # log.info("系统配置初始化成功")
         
         # 初始化城市数据
         if not _region_data_synced:
             region_manager = get_region_manager()
             region_manager.sync_to_redis()
             _region_data_synced = True
-            log.info("区域数据同步到Redis成功")
+            # log.info("区域数据同步到Redis成功")
         
         # 初始化Cookie数据
         if not _cookie_data_synced:
             cookie_manager = CookieManager()
             cookie_manager.sync_to_redis()
             _cookie_data_synced = True
-            log.info("Cookie数据同步到Redis成功")
+            # log.info("Cookie数据同步到Redis成功")
             cookie_manager.close()
         
     except Exception as e:
@@ -417,7 +426,7 @@ if __name__ == '__main__':
     # 获取环境变量或使用默认值
     host = os.environ.get('FLASK_HOST', '0.0.0.0')
     port = int(os.environ.get('FLASK_PORT', 5001))
-    debug = os.environ.get('FLASK_DEBUG', 'true').lower() == 'true'
+    debug = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
     
     # 在调试模式下，通过设置环境变量来控制是否跳过数据同步
     if debug and os.environ.get('SKIP_DATA_SYNC', 'false').lower() == 'true':

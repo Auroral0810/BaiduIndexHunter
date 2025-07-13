@@ -63,7 +63,7 @@ class CookieManager:
                     read_timeout=30,     # 增加读取超时时间
                     write_timeout=30     # 增加写入超时时间
                 )
-                log.info("成功连接到MySQL数据库")
+                # log.info("成功连接到MySQL数据库")
                 return
             except Exception as e:
                 log.error(f"连接MySQL数据库失败: {e}")
@@ -84,7 +84,7 @@ class CookieManager:
                 password=REDIS_CONFIG['password'],
                 decode_responses=True  # 自动将字节解码为字符串
             )
-            log.info("成功连接到Redis")
+            # log.info("成功连接到Redis")
         except Exception as e:
             log.error(f"连接Redis失败: {e}")
             self.redis_client = None
@@ -163,7 +163,7 @@ class CookieManager:
     def sync_to_redis(self):
         """将MySQL中的cookie数据同步到Redis"""
         try:
-            log.info("开始同步cookie数据到Redis...")
+            # log.info("开始同步cookie数据到Redis...")
             
             # 清除Redis中的旧数据
             self._clear_redis_cookies()
@@ -232,7 +232,7 @@ class CookieManager:
             self.redis_client.delete(self.REDIS_COOKIE_STATUS_KEY)
             self.redis_client.delete(self.REDIS_COOKIE_BAN_KEY)
             
-            log.info("已清空Redis中的cookie数据")
+            # log.info("已清空Redis中的cookie数据")
         except Exception as e:
             log.error(f"清空Redis cookie数据失败: {e}")
     
