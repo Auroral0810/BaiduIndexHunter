@@ -107,7 +107,7 @@ class AbSrUpdater:
             ab_sr = response.cookies.get('ab_sr')
             
             if ab_sr:
-                log.info(f"成功更新ab_sr: {ab_sr}")
+                # log.info(f"成功更新ab_sr: {ab_sr}")
                 return ab_sr
             else:
                 log.error("更新ab_sr失败: 响应中没有ab_sr cookie")

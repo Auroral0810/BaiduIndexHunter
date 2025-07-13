@@ -269,7 +269,7 @@ class SearchIndexCrawler:
                 log.error(f"更新ab_sr cookie失败: {result['error']}")
                 return False
             
-            log.info(f"成功更新ab_sr cookie: 更新{result['updated_count']}个，新增{result['added_count']}个，失败{result['failed_count']}个")
+            # log.info(f"成功更新ab_sr cookie: 更新{result['updated_count']}个，新增{result['added_count']}个，失败{result['failed_count']}个")
             
             # 更新完成后重置cookie轮换器的缓存
             self.cookie_rotator.reset_cache()
@@ -355,7 +355,7 @@ class SearchIndexCrawler:
         encoded_word_param = json.dumps([word_param])
         url = f"{BAIDU_INDEX_API['search_url']}?area={area}&word={encoded_word_param}&startDate={start_date}&endDate={end_date}"
         
-        # 获取有效的Cookie
+        # 获取有效的Cookie - cookie_rotator.get_cookie()方法内部会记录使用量，不需要额外记录
         account_id, cookie_dict = self.cookie_rotator.get_cookie()
         if not cookie_dict:
             # 修改这里：不再等待，而是抛出特定异常，以便上层处理

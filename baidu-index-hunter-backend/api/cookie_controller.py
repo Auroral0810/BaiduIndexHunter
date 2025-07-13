@@ -1602,6 +1602,60 @@ def get_today_cookie_usage():
         log.error(f"获取今日Cookie使用量失败: {e}")
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取今日Cookie使用量失败: {str(e)}"))
 
+@admin_cookie_bp.route('/usage/sync', methods=['POST'])
+@swag_from({
+    'tags': ['Cookie管理'],
+    'summary': '同步Redis和MySQL中的Cookie使用量数据',
+    'description': '手动同步Redis和MySQL中的Cookie使用量数据，确保两者一致',
+    'responses': {
+        '200': {
+            'description': '同步成功',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10000},
+                    'msg': {'type': 'string', 'example': '同步成功'},
+                    'data': {
+                        'type': 'object',
+                        'properties': {
+                            'synced_accounts': {'type': 'integer', 'description': '同步的账号数量'}
+                        }
+                    }
+                }
+            }
+        },
+        '500': {
+            'description': '服务器错误',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'code': {'type': 'integer', 'example': 10102},
+                    'msg': {'type': 'string', 'example': '服务器内部错误'},
+                    'data': {'type': 'null'}
+                }
+            }
+        }
+    }
+})
+def sync_cookie_usage():
+    """同步Redis和MySQL中的Cookie使用量数据"""
+    try:
+        # 导入cookie_rotator
+        from cookie_manager.cookie_rotator import cookie_rotator
+        
+        # 手动调用同步方法
+        cookie_rotator._sync_usage_data()
+        
+        # 获取同步后的使用量数据
+        usage_data = cookie_rotator.get_today_usage_from_redis()
+        
+        return jsonify(ResponseFormatter.success({
+            'synced_accounts': len(usage_data)
+        }, "Cookie使用量数据同步成功"))
+    except Exception as e:
+        log.error(f"同步Cookie使用量数据失败: {e}")
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"同步Cookie使用量数据失败: {str(e)}"))
+
 # 注册蓝图的函数
 def register_admin_cookie_blueprint(app):
     """注册Cookie管理API蓝图"""
