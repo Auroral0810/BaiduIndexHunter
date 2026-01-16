@@ -570,13 +570,18 @@ class TaskExecutor:
             start_date = (datetime.now() - timedelta(days=days-1)).strftime('%Y-%m-%d')
             data_length = 1
         elif 'date_ranges' in parameters and parameters['date_ranges']:
-            # 使用自定义日期范围
+            # 使用自定义日期范围数组
             date_ranges = parameters['date_ranges']
             if isinstance(date_ranges, list) and len(date_ranges) > 0:
+                # data_length 是日期范围的数量
+                data_length = len(date_ranges)
+                # start_date 和 end_date 用于显示，取第一个和最后一个范围
                 if isinstance(date_ranges[0], list) and len(date_ranges[0]) >= 2:
                     start_date = date_ranges[0][0]
-                    end_date = date_ranges[0][1]
-            data_length = 1
+                if isinstance(date_ranges[-1], list) and len(date_ranges[-1]) >= 2:
+                    end_date = date_ranges[-1][1]
+            else:
+                data_length = 1
         elif 'year_range' in parameters and parameters['year_range']:
             # 使用年份范围
             year_range = parameters['year_range']
@@ -676,12 +681,21 @@ class TaskExecutor:
                 'task_id': task_id_for_output,  # 使用正确的task_id作为爬虫任务ID
                 'keywords': keywords,
                 'cities': city_dict,
-                'date_ranges': [(start_date, end_date)] if 'date_ranges' in parameters and parameters['date_ranges'] else None,
-                'year_range': [(start_date, end_date)] if 'year_range' in parameters and parameters['year_range'] else None,
                 'resume': resume,
                 'checkpoint_task_id': checkpoint_task_id if resume else None,
                 'total_tasks': total_items  # 传递基础总任务数（不乘以日期范围）
             }
+            
+            # 处理时间参数 - 优先使用 date_ranges
+            if 'date_ranges' in parameters and parameters['date_ranges']:
+                # 将嵌套列表转换为元组列表：[[start, end], ...] -> [(start, end), ...]
+                spider_params['date_ranges'] = [tuple(dr) for dr in parameters['date_ranges']]
+            elif 'year_range' in parameters and parameters['year_range']:
+                spider_params['year_range'] = [(start_date, end_date)]
+            else:
+                # 默认使用单个日期范围
+                spider_params['date_ranges'] = [(start_date, end_date)]
+            
             # log.info(f"spider_params: {spider_params}")
             
             # 启动爬虫
@@ -821,19 +835,25 @@ class TaskExecutor:
         days = None
         date_ranges = None
         year_range = None
+        data_length = 1  # 默认长度为1
         
         if 'days' in parameters:
             # 使用预定义的天数
             days = int(parameters['days'])
             end_date = datetime.now().strftime('%Y-%m-%d')
             start_date = (datetime.now() - timedelta(days=days-1)).strftime('%Y-%m-%d')
+            data_length = 1
         elif 'date_ranges' in parameters and parameters['date_ranges']:
-            # 使用自定义日期范围
+            # 使用自定义日期范围数组
             date_ranges = parameters['date_ranges']
             if isinstance(date_ranges, list) and len(date_ranges) > 0:
+                # data_length 是日期范围的数量
+                data_length = len(date_ranges)
+                # start_date 和 end_date 用于显示，取第一个和最后一个范围
                 if isinstance(date_ranges[0], list) and len(date_ranges[0]) >= 2:
                     start_date = date_ranges[0][0]
-                    end_date = date_ranges[0][1]
+                if isinstance(date_ranges[-1], list) and len(date_ranges[-1]) >= 2:
+                    end_date = date_ranges[-1][1]
         elif 'year_range' in parameters and parameters['year_range']:
             # 使用年份范围
             year_range = parameters['year_range']
@@ -856,6 +876,7 @@ class TaskExecutor:
                     end_date = f"{end_year}-12-31"
                     # 保存年份范围用于爬虫参数
                     year_range = (int(start_year), int(end_year))
+                    data_length = int(end_year) - int(start_year) + 1
                 else:
                     start_date = None
                     end_date = None
@@ -866,6 +887,7 @@ class TaskExecutor:
             # 默认使用全部数据范围（2011年至今）
             start_date = "2011-01-01"
             end_date = datetime.now().strftime('%Y-%m-%d')
+            data_length = 1
         
         if not start_date or not end_date:
             self._update_task_status(task_id, 'failed', error_message="无效的时间参数")
@@ -878,7 +900,7 @@ class TaskExecutor:
         os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
         
         # 初始化统计数据
-        total_items = len(keywords) * len(city_dict)
+        total_items = len(keywords) * len(city_dict) * data_length
         completed_items = 0
         failed_items = 0
         
@@ -907,7 +929,8 @@ class TaskExecutor:
             if days:
                 spider_params['days'] = days
             elif date_ranges:
-                spider_params['date_ranges'] = date_ranges
+                # 将嵌套列表转换为元组列表：[[start, end], ...] -> [(start, end), ...]
+                spider_params['date_ranges'] = [tuple(dr) for dr in date_ranges]
             elif year_range:
                 spider_params['year_range'] = year_range
             else:
@@ -1326,17 +1349,24 @@ class TaskExecutor:
         start_date = None
         end_date = None
         days = None
+        date_ranges = None
+        data_length = 1  # 默认长度为1
         
         if 'days' in parameters:
             # 使用预定义的天数
             days = int(parameters['days'])
+            data_length = 1
         elif 'date_ranges' in parameters and parameters['date_ranges']:
-            # 使用自定义日期范围
+            # 使用自定义日期范围数组
             date_ranges = parameters['date_ranges']
             if isinstance(date_ranges, list) and len(date_ranges) > 0:
+                # data_length 是日期范围的数量
+                data_length = len(date_ranges)
+                # start_date 和 end_date 用于显示，取第一个和最后一个范围
                 if isinstance(date_ranges[0], list) and len(date_ranges[0]) >= 2:
                     start_date = date_ranges[0][0]
-                    end_date = date_ranges[0][1]
+                if isinstance(date_ranges[-1], list) and len(date_ranges[-1]) >= 2:
+                    end_date = date_ranges[-1][1]
         elif 'year_range' in parameters and parameters['year_range']:
             # 使用年份范围
             year_range = parameters['year_range']
@@ -1357,6 +1387,7 @@ class TaskExecutor:
                 if start_year and end_year:
                     start_date = f"{start_year}-01-01"
                     end_date = f"{end_year}-12-31"
+                    data_length = int(end_year) - int(start_year) + 1
                 else:
                     start_date = None
                     end_date = None
@@ -1367,6 +1398,7 @@ class TaskExecutor:
             # 使用明确的开始和结束日期
             start_date = parameters['start_date']
             end_date = parameters['end_date']
+            data_length = 1
         
         # 获取输出目录和检查点文件路径
         output_dir = os.path.join(OUTPUT_DIR, 'region_distributions', task_id)
@@ -1375,7 +1407,7 @@ class TaskExecutor:
         os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
         
         # 初始化统计数据
-        total_items = len(keywords) * len(regions)
+        total_items = len(keywords) * len(regions) * data_length
         completed_items = 0
         failed_items = 0
         
@@ -1404,6 +1436,9 @@ class TaskExecutor:
             # 添加时间相关参数
             if days:
                 spider_params['days'] = days
+            elif date_ranges:
+                # 将嵌套列表转换为元组列表：[[start, end], ...] -> [(start, end), ...]
+                spider_params['date_ranges'] = [tuple(dr) for dr in date_ranges]
             elif start_date and end_date:
                 spider_params['start_date'] = start_date
                 spider_params['end_date'] = end_date
