@@ -903,17 +903,44 @@ const submitTask = async () => {
       params.parameters.start_date = dateRange.value[0]
       params.parameters.end_date = dateRange.value[1]
     } else if (timeType.value === 'all') {
-      // 全部数据类型：根据数据来源设置年份范围
+      // 全部数据类型：生成按年份分割的日期范围数组
       const currentYear = new Date().getFullYear()
+      const currentDate = new Date()
       let startYear
+      
       if (formData.kind === 'pc') {
         startYear = 2006 // PC端从2006年开始
       } else {
         startYear = 2011 // 移动端和PC+移动从2011年开始
       }
       
-      // 只发送起始和结束年份，让后端处理拆分
-      params.parameters.year_range = [startYear.toString(), currentYear.toString()]
+      // 生成年度日期范围数组
+      const dateRanges = []
+      for (let year = startYear; year <= currentYear; year++) {
+        let startDate, endDate
+        
+        if (year === startYear && formData.kind === 'pc') {
+          // PC端第一年从6月1日开始
+          startDate = `${year}-06-01`
+        } else {
+          // 其他情况从1月1日开始
+          startDate = `${year}-01-01`
+        }
+        
+        if (year === currentYear) {
+          // 当前年份到今天
+          const month = String(currentDate.getMonth() + 1).padStart(2, '0')
+          const day = String(currentDate.getDate()).padStart(2, '0')
+          endDate = `${year}-${month}-${day}`
+        } else {
+          // 其他年份到12月31日
+          endDate = `${year}-12-31`
+        }
+        
+        dateRanges.push([startDate, endDate])
+      }
+      
+      params.parameters.date_ranges = dateRanges
     }
     
     // 添加任务ID（如果是恢复任务）

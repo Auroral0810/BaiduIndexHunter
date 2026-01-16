@@ -128,7 +128,7 @@
                 :show-text="false"
               />
               <span v-if="typeof scope.row.progress === 'number'" style="min-width: 38px; text-align: right; font-size: 14px; color: #606266;">
-                {{ scope.row.progress }}%
+                {{ scope.row.progress.toFixed(1) }}%
               </span>
             </div>
           </template>
@@ -1063,7 +1063,7 @@ const handleWebSocketUpdate = (data) => {
   const taskIndex = tasks.value.findIndex(t => t.taskId === taskId)
   if (taskIndex !== -1) {
     const task = tasks.value[taskIndex]
-    if (progress !== undefined) task.progress = progress
+    if (progress !== undefined) task.progress = parseFloat(progress.toFixed(1))
     if (status !== undefined) task.status = status
     if (completed_items !== undefined) task.completed_items = completed_items
     if (total_items !== undefined) task.total_items = total_items
@@ -1073,7 +1073,7 @@ const handleWebSocketUpdate = (data) => {
 
   // 如果是在详情弹窗中的任务，也同步更新
   if (selectedTask.value && selectedTask.value.taskId === taskId) {
-    if (progress !== undefined) selectedTask.value.progress = progress
+    if (progress !== undefined) selectedTask.value.progress = parseFloat(progress.toFixed(1))
     if (status !== undefined) selectedTask.value.status = status
     if (completed_items !== undefined) selectedTask.value.completed_items = completed_items
     if (total_items !== undefined) selectedTask.value.total_items = total_items
