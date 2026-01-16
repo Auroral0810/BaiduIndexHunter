@@ -4,15 +4,35 @@
     <div class="dashboard-header">
       <h1 class="dashboard-title">百度指数爬虫数据大屏</h1>
       <div class="dashboard-filters">
-        <el-select v-model="selectedTaskType" placeholder="选择任务类型" @change="handleTaskTypeChange">
+        <el-select v-model="selectedTaskType" placeholder="选择任务类型" @change="handleTaskTypeChange" class="task-type-select">
           <el-option label="全部统计" value="all" />
           <el-option v-for="type in taskTypes" :key="type" :label="formatTaskType(type)" :value="type" />
         </el-select>
-        <el-select v-model="selectedDays" placeholder="统计周期" @change="loadDashboardData">
+        <el-select v-model="selectedDays" placeholder="统计周期" @change="handleDaysChange" class="time-select">
+          <el-option label="最近24小时" :value="1" />
+          <el-option label="最近3天" :value="3" />
           <el-option label="最近7天" :value="7" />
           <el-option label="最近30天" :value="30" />
           <el-option label="最近90天" :value="90" />
+          <el-option label="最近半年" :value="180" />
+          <el-option label="最近一年" :value="365" />
+          <el-option label="全部时间" :value="-1" />
+          <el-option label="自定义时间范围" value="custom" />
         </el-select>
+        
+        <el-date-picker
+          v-if="selectedDays === 'custom'"
+          v-model="dateRange"
+          type="daterange"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          format="YYYY-MM-DD"
+          value-format="YYYY-MM-DD"
+          @change="loadDashboardData"
+          class="date-range-picker"
+        />
+        
         <el-button type="primary" @click="loadDashboardData">刷新数据</el-button>
       </div>
     </div>
@@ -147,6 +167,7 @@ const formatNumber = (num, decimals = 0) => {
 // 状态定义
 const selectedTaskType = ref('all')
 const selectedDays = ref(30)
+const dateRange = ref([])
 const taskTypes = ref([])
 const dashboardData = reactive({
   overall: {},
@@ -176,7 +197,21 @@ let dataVolumeChartInstance = null
 // 加载大屏数据
 const loadDashboardData = async () => {
   try {
-    const res = await getDashboardData({ days: selectedDays.value })
+    const params = {}
+    
+    if (selectedDays.value === 'custom') {
+      if (dateRange.value && dateRange.value.length === 2) {
+        params.start_date = dateRange.value[0]
+        params.end_date = dateRange.value[1]
+      } else {
+        // 如果选择了自定义但没有选日期，默认显示最近30天
+        params.days = 30
+      }
+    } else {
+      params.days = selectedDays.value
+    }
+    
+    const res = await getDashboardData(params)
     if (res.code === 10000) {
       // 更新数据
       Object.assign(dashboardData, res.data)
@@ -196,6 +231,15 @@ const loadDashboardData = async () => {
     console.error('加载大屏数据失败:', error)
     ElMessage.error('加载大屏数据失败')
   }
+}
+
+// 处理统计周期变更
+const handleDaysChange = (val) => {
+  if (val !== 'custom') {
+    dateRange.value = [] // 清空自定义日期
+    loadDashboardData()
+  }
+  // 如果是 custom，等待用户选择日期后再加载，或者用户手动点击刷新
 }
 
 // 更新当前统计数据
@@ -518,8 +562,8 @@ window.addEventListener('resize', () => {
   if (dataVolumeChartInstance) dataVolumeChartInstance.resize()
 })
 
-// 监听任务类型和统计天数变化
-watch([selectedTaskType, selectedDays], () => {
+// 监听任务类型变化，更新当前显示数据和图表
+watch(selectedTaskType, () => {
   updateCurrentStats()
   nextTick(() => {
     initCharts()
@@ -571,6 +615,18 @@ onMounted(() => {
   display: flex;
   gap: 16px;
   align-items: center;
+}
+
+.dashboard-filters .task-type-select {
+  width: 160px;
+}
+
+.dashboard-filters .time-select {
+  width: 140px;
+}
+
+.date-range-picker {
+  width: 260px !important;
 }
 
 :deep(.el-select .el-input__wrapper) {

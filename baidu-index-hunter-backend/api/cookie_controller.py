@@ -226,7 +226,7 @@ def list_cookies(cookie_manager):
                 temp_ban_until = temp_ban_until.strftime('%Y-%m-%d %H:%M:%S')
             
             # 添加到结果列表
-            result.append({
+            result_item = {
                 'account_id': acc_id,
                 'cookies': cookie_dict,
                 'cookie_count': len(cookie_dict),
@@ -234,7 +234,20 @@ def list_cookies(cookie_manager):
                 'is_permanently_banned': 1 if is_permanently_banned else 0,
                 'temp_ban_until': temp_ban_until,
                 'expire_time': expire_time
-            })
+            }
+            
+            # 二次过滤：确保聚合后的结果符合状态筛选条件
+            if status:
+                if status == 'perm_banned' and result_item['is_permanently_banned'] != 1:
+                    continue
+                elif status == 'temp_banned' and not (result_item['temp_ban_until'] and result_item['is_permanently_banned'] == 0):
+                    continue
+                elif status == 'available' and result_item['is_available'] != 1:
+                    continue
+                elif status == 'expired' and not (result_item['expire_time'] and datetime.strptime(result_item['expire_time'], '%Y-%m-%d %H:%M:%S') < datetime.now()):
+                    continue
+            
+            result.append(result_item)
         
         # 返回结果，包含分页信息
         response_data = {

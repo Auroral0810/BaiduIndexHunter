@@ -1460,7 +1460,18 @@ const handleCookieCommand = (command: string, cookie: any) => {
       deleteCookie(cookie.account_id)
       break
     case 'unban':
-      unbanCookie(cookie.account_id)
+      // 判断是临时封禁还是永久封禁
+      if (cookie.is_permanently_banned === 1) {
+        forceUnbanAccount(cookie.account_id)
+      } else {
+        unbanCookie(cookie.account_id)
+      }
+      break
+    case 'temp_ban':
+      openTempBanDialog(cookie.account_id)
+      break
+    case 'perm_ban':
+      banAccountPermanently(cookie.account_id)
       break
   }
 }
@@ -2181,7 +2192,7 @@ const batchUnban = async () => {
             :data="cookieList"
             style="width: 100%"
             border
-            row-key="id"
+            row-key="account_id"
             :default-sort="{ prop: 'account_id', order: 'ascending' }"
             @selection-change="handleSelectionChange"
           >
@@ -2231,8 +2242,10 @@ const batchUnban = async () => {
                   <template #dropdown>
                     <el-dropdown-menu>
                       <el-dropdown-item command="edit">编辑</el-dropdown-item>
+                      <el-dropdown-item command="temp_ban" v-if="!scope.row.temp_ban_until && scope.row.is_permanently_banned !== 1">临时封禁</el-dropdown-item>
+                      <el-dropdown-item command="perm_ban" v-if="scope.row.is_permanently_banned !== 1">永久封禁</el-dropdown-item>
+                      <el-dropdown-item command="unban" v-if="scope.row.temp_ban_until || scope.row.is_permanently_banned === 1">解封</el-dropdown-item>
                       <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
-                      <el-dropdown-item v-if="scope.row.temp_ban_until" command="unban">解封</el-dropdown-item>
                     </el-dropdown-menu>
                   </template>
                 </el-dropdown>

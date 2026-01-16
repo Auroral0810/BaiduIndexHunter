@@ -158,10 +158,27 @@ def get_dashboard_data():
     try:
         # 获取查询参数
         days = request.args.get('days', default=30, type=int)
+        start_date_str = request.args.get('start_date')
+        end_date_str = request.args.get('end_date')
         
         # 计算日期范围
-        end_date = datetime.now().date()
-        start_date = end_date - timedelta(days=days)
+        if start_date_str and end_date_str:
+            # 如果提供了具体的开始和结束日期
+            try:
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            except ValueError:
+                # 日期格式错误，回退到默认逻辑
+                end_date = datetime.now().date()
+                start_date = end_date - timedelta(days=30)
+        elif days == -1:
+            # 全部时间：设置一个很久以前的开始时间
+            end_date = datetime.now().date()
+            start_date = datetime(2000, 1, 1).date()
+        else:
+            # 正常按天数计算
+            end_date = datetime.now().date()
+            start_date = end_date - timedelta(days=days)
         
         mysql = MySQLManager()
         

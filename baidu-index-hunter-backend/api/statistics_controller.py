@@ -96,18 +96,28 @@ def get_task_summary():
         # 获取参数
         days = int(request.args.get('days', 7))
         
+        # 构建时间筛选条件
+        time_condition = ""
+        params = []
+        
+        if days > 0:
+            start_date = datetime.now() - timedelta(days=days)
+            time_condition = "WHERE create_time >= %s"
+            params.append(start_date)
+        
         # 获取总任务数
-        query = "SELECT COUNT(*) AS count FROM spider_tasks"
-        result = mysql.fetch_one(query)
+        query = f"SELECT COUNT(*) AS count FROM spider_tasks {time_condition}"
+        result = mysql.fetch_one(query, params)
         total_tasks = result['count'] if result else 0
         
         # 获取不同状态的任务数
-        query = """
+        query = f"""
             SELECT status, COUNT(*) AS count 
             FROM spider_tasks 
+            {time_condition}
             GROUP BY status
         """
-        status_results = mysql.fetch_all(query)
+        status_results = mysql.fetch_all(query, params)
         
         # 初始化状态计数
         status_counts = {
@@ -126,23 +136,30 @@ def get_task_summary():
                 status_counts[status] = item['count']
         
         # 获取任务类型分布
-        query = """
+        query = f"""
             SELECT task_type, COUNT(*) AS count 
             FROM spider_tasks 
+            {time_condition}
             GROUP BY task_type
         """
-        type_results = mysql.fetch_all(query)
+        type_results = mysql.fetch_all(query, params)
         
         # 获取每日任务数量
-        start_date = datetime.now() - timedelta(days=days)
-        query = """
+        # 如果是全部时间，或者时间跨度较大，可以考虑按月统计，这里暂时保持按日
+        daily_condition = time_condition
+        if not daily_condition:
+            # 如果是全部时间，为了图表不过于密集，只取最近365天的数据用于趋势图，或者不做限制
+            # 这里不做限制，但在前端展示时可能需要注意
+            daily_condition = "" 
+        
+        query = f"""
             SELECT DATE(create_time) AS date, COUNT(*) AS count 
             FROM spider_tasks 
-            WHERE create_time >= %s 
+            {daily_condition}
             GROUP BY DATE(create_time)
             ORDER BY date
         """
-        daily_results = mysql.fetch_all(query, (start_date,))
+        daily_results = mysql.fetch_all(query, params)
         
         # 格式化日期
         for item in daily_results:
