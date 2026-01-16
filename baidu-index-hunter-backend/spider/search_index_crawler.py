@@ -1580,6 +1580,18 @@ class SearchIndexCrawler:
                                             
                                             if affected_rows > 0:
                                                 log.info(f"已更新数据库进度: {min(current_progress_percent, 100)}%, 完成任务: {self.completed_tasks}/{self.total_tasks}")
+                                                
+                                                # 推送 WebSocket 更新
+                                                try:
+                                                    from utils.websocket_manager import emit_task_update
+                                                    emit_task_update(self.task_id, {
+                                                        'progress': min(current_progress_percent, 100),
+                                                        'completed_items': self.completed_tasks,
+                                                        'total_items': self.total_tasks,
+                                                        'status': 'running'
+                                                    })
+                                                except Exception as ws_error:
+                                                    log.debug(f"推送 WebSocket 更新失败: {ws_error}")
                                             else:
                                                 log.warning(f"数据库进度更新失败: 影响行数为0, task_id: {self.task_id}")
                                                 
