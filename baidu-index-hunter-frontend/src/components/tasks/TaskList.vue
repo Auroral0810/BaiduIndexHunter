@@ -105,6 +105,10 @@
               <div v-if="scope.row.parameters.batch_size">
                 <strong>批处理大小:</strong> {{ scope.row.parameters.batch_size }}
               </div>
+              <div v-if="scope.row.parameters.kind">
+                <strong>数据来源:</strong>
+                {{ scope.row.parameters.kind === 'all' ? 'PC+移动' : (scope.row.parameters.kind === 'pc' ? 'PC' : '移动') }}
+              </div>
               <div v-if="scope.row.parameters.output_format">
                 <strong>输出格式:</strong>
                 {{ scope.row.parameters.output_format === 'csv' ? 'CSV' : 'Excel' }}
@@ -358,6 +362,9 @@
                 </el-descriptions-item>
                 <el-descriptions-item v-if="selectedTask.parameters && selectedTask.parameters.batch_size" label="批处理大小" :span="1">
                   {{ selectedTask.parameters.batch_size }}
+                </el-descriptions-item>
+                <el-descriptions-item v-if="selectedTask.parameters && selectedTask.parameters.kind" label="数据来源" :span="1">
+                  {{ selectedTask.parameters.kind === 'all' ? 'PC+移动' : (selectedTask.parameters.kind === 'pc' ? 'PC' : '移动') }}
                 </el-descriptions-item>
                 <el-descriptions-item v-if="selectedTask.parameters && selectedTask.parameters.output_format" label="输出格式" :span="1">
                   {{ selectedTask.parameters.output_format === 'csv' ? 'CSV' : 'Excel' }}

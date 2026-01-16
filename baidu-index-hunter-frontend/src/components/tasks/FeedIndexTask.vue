@@ -115,6 +115,14 @@
         <!-- 时间设置 -->
         <el-divider content-position="left">时间设置</el-divider>
         
+        <el-form-item label="数据来源">
+          <el-radio-group v-model="formData.kind">
+            <el-radio-button label="all">PC+移动</el-radio-button>
+            <el-radio-button label="pc">PC</el-radio-button>
+            <el-radio-button label="wise">移动</el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+
         <el-form-item label="时间类型">
           <el-radio-group v-model="timeType">
             <el-radio-button label="all">全部数据</el-radio-button>
@@ -172,7 +180,7 @@
         <el-form-item v-if="timeType === 'all'" label="数据说明">
           <div class="time-info">
             <el-alert
-              title="将获取从2011年1月1日至昨日的所有历史数据"
+              :title="`将获取从${formData.kind === 'pc' ? '2006' : '2011'}年1月1日至昨日的所有历史数据`"
               type="info"
               :closable="false"
               show-icon
@@ -364,7 +372,8 @@ const formData = reactive({
   yearRange: ['', ''] as [string, string],
   resume: false,
   taskId: '',
-  priority: 5
+  priority: 5,
+  kind: 'all'
 })
 
 // 城市数据
@@ -381,7 +390,7 @@ const timeType = ref('all') // 默认为全部数据
 const dateRange = ref<[string, string] | null>(null)
 
 // 日期范围限制
-const MIN_DATE = new Date('2011-01-01')
+const MIN_DATE = new Date(2011, 0, 1)
 const TODAY = new Date()
 TODAY.setHours(0, 0, 0, 0)
 const YESTERDAY = new Date(TODAY)
@@ -389,19 +398,21 @@ YESTERDAY.setDate(YESTERDAY.getDate() - 1)
 
 // 禁用日期函数
 const disabledDate = (date: Date) => {
-  return date.getTime() < MIN_DATE.getTime() || date.getTime() > YESTERDAY.getTime()
+  const minDate = formData.kind === 'pc' ? new Date(2006, 0, 1) : new Date(2011, 0, 1)
+  return date.getTime() < minDate.getTime() || date.getTime() > YESTERDAY.getTime()
 }
 
 // 禁用年份开始函数
 const disabledYearStart = (date: Date) => {
   const year = date.getFullYear()
-  return year < 2011 || year > new Date().getFullYear()
+  const minYear = formData.kind === 'pc' ? 2006 : 2011
+  return year < minYear || year > new Date().getFullYear()
 }
 
 // 禁用年份结束函数
 const disabledYearEnd = (date: Date) => {
   const year = date.getFullYear()
-  const startYear = formData.yearRange[0] ? parseInt(formData.yearRange[0]) : 2011
+  const startYear = formData.yearRange[0] ? parseInt(formData.yearRange[0]) : (formData.kind === 'pc' ? 2006 : 2011)
   return year < startYear || year > new Date().getFullYear()
 }
 
@@ -785,6 +796,7 @@ const submitTask = async () => {
         keywords: formData.keywords.map(k => k.value),
         cities: citiesParam,
         resume: formData.resume,
+        kind: formData.kind
       },
       priority: formData.priority
     }
@@ -832,6 +844,7 @@ const resetForm = () => {
   formData.resume = false
   formData.taskId = ''
   formData.priority = 5
+  formData.kind = 'all'
 }
 
 // 前往任务列表页面

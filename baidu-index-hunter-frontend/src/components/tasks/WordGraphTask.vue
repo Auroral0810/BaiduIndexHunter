@@ -85,6 +85,14 @@
         <!-- 日期设置 -->
         <el-divider content-position="left">日期设置</el-divider>
         
+        <el-form-item label="数据来源">
+          <el-radio-group v-model="formData.kind">
+            <el-radio-button label="all">PC+移动</el-radio-button>
+            <el-radio-button label="pc">PC</el-radio-button>
+            <el-radio-button label="wise">移动</el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+
         <el-form-item label="日期选择">
           <div class="date-selection">
             <el-date-picker
@@ -351,6 +359,7 @@
           </el-descriptions-item>
           
           <el-descriptions-item label="其他选项">
+            <div>数据来源: {{ formData.kind === 'all' ? 'PC+移动' : (formData.kind === 'pc' ? 'PC' : '移动') }}</div>
             <div>优先级: {{ formData.priority }}</div>
             <div v-if="formData.resume">恢复任务ID: {{ formData.task_id }}</div>
           </el-descriptions-item>
@@ -387,7 +396,8 @@ const formData = reactive({
   output_format: 'csv',
   resume: false,
   task_id: '',
-  priority: 5
+  priority: 5,
+  kind: 'all'
 })
 
 // 关键词输入
@@ -431,13 +441,14 @@ const priorityMarks = {
 }
 
 // 日期范围限制
-const MIN_DATE = new Date('2011-01-01')
+const MIN_DATE = new Date(2011, 0, 1)
 const TODAY = new Date()
 TODAY.setHours(0, 0, 0, 0)
 
 // 禁用日期函数
 const disabledDate = (date: Date) => {
-  return date.getTime() < MIN_DATE.getTime() || date.getTime() > TODAY.getTime()
+  const minDate = formData.kind === 'pc' ? new Date(2006, 0, 1) : new Date(2011, 0, 1)
+  return date.getTime() < minDate.getTime() || date.getTime() > TODAY.getTime()
 }
 
 // 计算是否可以提交
@@ -698,7 +709,8 @@ const submitTask = async () => {
         keywords: formData.keywords.map(k => k.value),
         datelists: formData.datelists,
         output_format: formData.output_format,
-        resume: formData.resume
+        resume: formData.resume,
+        kind: formData.kind
       },
       priority: formData.priority
     }
@@ -734,6 +746,7 @@ const resetForm = () => {
   formData.resume = false
   formData.task_id = ''
   formData.priority = 5
+  formData.kind = 'all'
 }
 
 // 前往任务列表页面

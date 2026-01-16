@@ -86,6 +86,14 @@
         <!-- 输出设置 -->
         <el-divider content-position="left">输出设置</el-divider>
         
+        <el-form-item label="数据来源">
+          <el-radio-group v-model="formData.kind">
+            <el-radio-button label="all">PC+移动</el-radio-button>
+            <el-radio-button label="pc">PC</el-radio-button>
+            <el-radio-button label="wise">移动</el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+        
         <el-form-item label="输出格式">
           <el-radio-group v-model="formData.output_format">
             <el-radio label="csv">CSV格式</el-radio>
@@ -302,6 +310,7 @@
           </el-descriptions-item>
           
           <el-descriptions-item label="其他选项">
+            <div>数据来源: {{ formData.kind === 'all' ? 'PC+移动' : (formData.kind === 'pc' ? 'PC' : '移动') }}</div>
             <div>优先级: {{ formData.priority }}</div>
             <div v-if="formData.resume">恢复任务ID: {{ formData.task_id }}</div>
           </el-descriptions-item>
@@ -338,7 +347,8 @@ const formData = reactive({
   batch_size: 10,
   resume: false,
   task_id: '',
-  priority: 5
+  priority: 5,
+  kind: 'all'
 })
 
 // 关键词输入
@@ -645,7 +655,8 @@ const submitTask = async () => {
         keywords: formData.keywords.map(k => k.value),
         output_format: formData.output_format,
         batch_size: formData.batch_size,
-        resume: formData.resume
+        resume: formData.resume,
+        kind: formData.kind
       },
       priority: formData.priority
     }
@@ -679,6 +690,7 @@ const resetForm = () => {
   formData.resume = false
   formData.task_id = ''
   formData.priority = 5
+  formData.kind = 'all'
   batchKeywords.value = ''
 }
 
