@@ -2,9 +2,9 @@ from flask_socketio import SocketIO
 from utils.logger import log
 
 # 初始化 SocketIO 实例
-# async_mode='eventlet' 配合 eventlet 库使用，提供更好的并发性能
+# async_mode='threading' 提供最广的平台兼容性
 # cors_allowed_origins="*" 允许所有来源的连接，实际生产环境建议配置为前端域名
-socketio = SocketIO(cors_allowed_origins="*", async_mode='eventlet')
+socketio = SocketIO(cors_allowed_origins="*", async_mode='threading')
 
 def emit_task_update(task_id, data):
     """
