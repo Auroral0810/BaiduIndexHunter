@@ -530,6 +530,12 @@ class TaskExecutor:
         else:
             task_id_for_output = task_id
         
+        # 调试日志：打印接收到的参数
+        log.info(f"任务参数 - year_range: {parameters.get('year_range')}, type: {type(parameters.get('year_range'))}")
+        log.info(f"任务参数 - date_ranges: {parameters.get('date_ranges')}")
+        log.info(f"任务参数 - days: {parameters.get('days')}")
+        log.info(f"任务参数 - kind: {parameters.get('kind')}")
+        
         # 处理关键词
         if not isinstance(keywords, list):
             keywords = [keywords]
@@ -574,10 +580,32 @@ class TaskExecutor:
         elif 'year_range' in parameters and parameters['year_range']:
             # 使用年份范围
             year_range = parameters['year_range']
-            if isinstance(year_range, list) and len(year_range) >= 2:
-                start_date = f"{year_range[0]}"
-                end_date = f"{year_range[1]}"
-            data_length = int(year_range[1])-int(year_range[0])+1
+            # 处理嵌套列表格式 [[start, end]] 或直接列表格式 [start, end]
+            if isinstance(year_range, list) and len(year_range) > 0:
+                if isinstance(year_range[0], list) and len(year_range[0]) >= 2:
+                    # 嵌套格式 [[start, end]]
+                    start_year = year_range[0][0]
+                    end_year = year_range[0][1]
+                elif len(year_range) >= 2:
+                    # 直接格式 [start, end]
+                    start_year = year_range[0]
+                    end_year = year_range[1]
+                else:
+                    start_year = None
+                    end_year = None
+                
+                if start_year and end_year:
+                    start_date = f"{start_year}"
+                    end_date = f"{end_year}"
+                    data_length = int(end_year) - int(start_year) + 1
+                else:
+                    start_date = None
+                    end_date = None
+                    data_length = 1
+            else:
+                start_date = None
+                end_date = None
+                data_length = 1
         else:
             # 默认使用全部数据范围（2011年至今）
             start_date = "2011-01-01"
@@ -809,11 +837,31 @@ class TaskExecutor:
         elif 'year_range' in parameters and parameters['year_range']:
             # 使用年份范围
             year_range = parameters['year_range']
-            if isinstance(year_range, list) and len(year_range) >= 2:
-                start_date = f"{year_range[0]}-01-01"
-                end_date = f"{year_range[1]}-12-31"
-                # 保存年份范围用于爬虫参数
-                year_range = (int(year_range[0]), int(year_range[1]))
+            # 处理嵌套列表格式 [[start, end]] 或直接列表格式 [start, end]
+            if isinstance(year_range, list) and len(year_range) > 0:
+                if isinstance(year_range[0], list) and len(year_range[0]) >= 2:
+                    # 嵌套格式 [[start, end]]
+                    start_year = year_range[0][0]
+                    end_year = year_range[0][1]
+                elif len(year_range) >= 2:
+                    # 直接格式 [start, end]
+                    start_year = year_range[0]
+                    end_year = year_range[1]
+                else:
+                    start_year = None
+                    end_year = None
+                
+                if start_year and end_year:
+                    start_date = f"{start_year}-01-01"
+                    end_date = f"{end_year}-12-31"
+                    # 保存年份范围用于爬虫参数
+                    year_range = (int(start_year), int(end_year))
+                else:
+                    start_date = None
+                    end_date = None
+            else:
+                start_date = None
+                end_date = None
         else:
             # 默认使用全部数据范围（2011年至今）
             start_date = "2011-01-01"
@@ -1292,9 +1340,29 @@ class TaskExecutor:
         elif 'year_range' in parameters and parameters['year_range']:
             # 使用年份范围
             year_range = parameters['year_range']
-            if isinstance(year_range, list) and len(year_range) >= 2:
-                start_date = f"{year_range[0]}-01-01"
-                end_date = f"{year_range[1]}-12-31"
+            # 处理嵌套列表格式 [[start, end]] 或直接列表格式 [start, end]
+            if isinstance(year_range, list) and len(year_range) > 0:
+                if isinstance(year_range[0], list) and len(year_range[0]) >= 2:
+                    # 嵌套格式 [[start, end]]
+                    start_year = year_range[0][0]
+                    end_year = year_range[0][1]
+                elif len(year_range) >= 2:
+                    # 直接格式 [start, end]
+                    start_year = year_range[0]
+                    end_year = year_range[1]
+                else:
+                    start_year = None
+                    end_year = None
+                
+                if start_year and end_year:
+                    start_date = f"{start_year}-01-01"
+                    end_date = f"{end_year}-12-31"
+                else:
+                    start_date = None
+                    end_date = None
+            else:
+                start_date = None
+                end_date = None
         elif 'start_date' in parameters and 'end_date' in parameters:
             # 使用明确的开始和结束日期
             start_date = parameters['start_date']

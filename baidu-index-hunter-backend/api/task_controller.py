@@ -151,17 +151,26 @@ def create_task():
                 spider_params['days'] = parameters['days']
             elif 'date_ranges' in parameters:
                 spider_params['date_ranges'] = parameters['date_ranges']
-            elif 'year_range' in parameters:
+            elif 'year_range' in parameters and parameters['year_range']:
                 # 将年份字符串转换为整数
                 try:
-                    start_year = int(parameters['year_range'][0])
-                    end_year = int(parameters['year_range'][1])
+                    year_range = parameters['year_range']
                     
-                    # 直接传递整数年份，让爬虫内部处理日期范围
-                    spider_params['year_range'] = [[start_year, end_year]]
+                    # 检查是否已经是嵌套格式
+                    if isinstance(year_range, list) and len(year_range) > 0:
+                        if isinstance(year_range[0], list):
+                            # 已经是嵌套格式 [[start, end]]
+                            spider_params['year_range'] = year_range
+                        elif len(year_range) >= 2:
+                            # 直接格式 [start, end]，转换为嵌套格式
+                            start_year = int(year_range[0])
+                            end_year = int(year_range[1])
+                            spider_params['year_range'] = [[start_year, end_year]]
+                        else:
+                            raise ValueError("year_range 格式错误：列表长度不足")
+                    else:
+                        raise ValueError("year_range 格式错误：不是有效的列表")
                     
-                    # 移除下面的代码，因为在爬虫中已经有_process_year_range函数来处理年份范围
-                    # 不要在这里生成date_ranges，避免格式问题
                 except (ValueError, TypeError, IndexError) as e:
                     return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, f"无效的年份范围: {str(e)}"))
             
@@ -228,17 +237,26 @@ def create_task():
                 spider_params['days'] = parameters['days']
             elif 'date_ranges' in parameters:
                 spider_params['date_ranges'] = parameters['date_ranges']
-            elif 'year_range' in parameters:
+            elif 'year_range' in parameters and parameters['year_range']:
                 # 将年份字符串转换为整数
                 try:
-                    start_year = int(parameters['year_range'][0])
-                    end_year = int(parameters['year_range'][1])
+                    year_range = parameters['year_range']
                     
-                    # 直接传递整数年份，让爬虫内部处理日期范围
-                    spider_params['year_range'] = [[start_year, end_year]]
+                    # 检查是否已经是嵌套格式
+                    if isinstance(year_range, list) and len(year_range) > 0:
+                        if isinstance(year_range[0], list):
+                            # 已经是嵌套格式 [[start, end]]
+                            spider_params['year_range'] = year_range
+                        elif len(year_range) >= 2:
+                            # 直接格式 [start, end]，转换为嵌套格式
+                            start_year = int(year_range[0])
+                            end_year = int(year_range[1])
+                            spider_params['year_range'] = [[start_year, end_year]]
+                        else:
+                            raise ValueError("year_range 格式错误：列表长度不足")
+                    else:
+                        raise ValueError("year_range 格式错误：不是有效的列表")
                     
-                    # 移除下面的代码，因为在爬虫中已经有_process_year_range函数来处理年份范围
-                    # 不要在这里生成date_ranges，避免格式问题
                 except (ValueError, TypeError, IndexError) as e:
                     return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, f"无效的年份范围: {str(e)}"))
             
@@ -490,17 +508,26 @@ def create_task():
                 spider_params['days'] = parameters['days']
             elif 'date_ranges' in parameters:
                 spider_params['date_ranges'] = parameters['date_ranges']
-            elif 'year_range' in parameters:
+            elif 'year_range' in parameters and parameters['year_range']:
                 # 将年份字符串转换为整数
                 try:
-                    start_year = int(parameters['year_range'][0])
-                    end_year = int(parameters['year_range'][1])
+                    year_range = parameters['year_range']
                     
-                    # 直接传递整数年份，让爬虫内部处理日期范围
-                    spider_params['year_range'] = [[start_year, end_year]]
+                    # 检查是否已经是嵌套格式
+                    if isinstance(year_range, list) and len(year_range) > 0:
+                        if isinstance(year_range[0], list):
+                            # 已经是嵌套格式 [[start, end]]
+                            spider_params['year_range'] = year_range
+                        elif len(year_range) >= 2:
+                            # 直接格式 [start, end]，转换为嵌套格式
+                            start_year = int(year_range[0])
+                            end_year = int(year_range[1])
+                            spider_params['year_range'] = [[start_year, end_year]]
+                        else:
+                            raise ValueError("year_range 格式错误：列表长度不足")
+                    else:
+                        raise ValueError("year_range 格式错误：不是有效的列表")
                     
-                    # 移除下面的代码，因为在爬虫中已经有_process_year_range函数来处理年份范围
-                    # 不要在这里生成date_ranges，避免格式问题
                 except (ValueError, TypeError, IndexError) as e:
                     return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, f"无效的年份范围: {str(e)}"))
             elif 'start_date' in parameters and 'end_date' in parameters:

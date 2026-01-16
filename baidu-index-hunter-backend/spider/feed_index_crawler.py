@@ -480,7 +480,18 @@ class FeedIndexCrawler:
         if date_ranges_file:
             date_ranges = self._load_date_ranges_from_file(date_ranges_file)
         elif year_range:
-            date_ranges = self._process_year_range(year_range[0], year_range[1])
+            # 处理嵌套列表格式 [[start, end]] 或直接列表格式 [start, end]
+            if isinstance(year_range, list) and len(year_range) > 0:
+                if isinstance(year_range[0], list) and len(year_range[0]) >= 2:
+                    # 嵌套格式 [[start, end]]
+                    date_ranges = self._process_year_range(year_range[0][0], year_range[0][1])
+                elif len(year_range) >= 2:
+                    # 直接格式 [start, end]
+                    date_ranges = self._process_year_range(year_range[0], year_range[1])
+                else:
+                    date_ranges = None
+            else:
+                date_ranges = None
         elif days:
             # 使用预定义的天数
             end_date = datetime.now().strftime('%Y-%m-%d')
