@@ -110,12 +110,12 @@ class OSSManager:
         """
         上传输出文件列表
         :param output_files: 输出文件路径列表
-        :return: OSS文件URL列表
+        :return: 文件路径列表（上传成功则为URL，失败则保留本地路径）
         """
         if not output_files:
             return None
         
-        oss_urls = []
+        result_paths = []
         for file_path in output_files:
             if os.path.exists(file_path):
                 file_name = os.path.basename(file_path)
@@ -125,9 +125,17 @@ class OSSManager:
                 
                 url = self.upload_file(file_path, oss_file_path)
                 if url:
-                    oss_urls.append(url)
+                    result_paths.append(url)
+                else:
+                    # 上传失败，保留本地路径
+                    log.warning(f"文件 {file_path} 上传OSS失败，保留本地路径")
+                    result_paths.append(file_path)
+            else:
+                # 文件不存在（理论上不应该发生），保留原路径
+                log.warning(f"准备上传的文件不存在: {file_path}")
+                result_paths.append(file_path)
         
-        return oss_urls if oss_urls else None
+        return result_paths
 
 
 # 创建OSS管理器实例

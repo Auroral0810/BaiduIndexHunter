@@ -107,7 +107,7 @@ class ConfigManager:
                 VALUES (%s, %s)
                 ON DUPLICATE KEY UPDATE config_value = %s, update_time = NOW()
             """
-            self.mysql.execute(query, (key, value_str, value_str))
+            self.mysql.execute_query(query, (key, value_str, value_str))
             
             # 更新缓存
             self.config_cache[key] = value
@@ -131,7 +131,7 @@ class ConfigManager:
         """
         try:
             query = "DELETE FROM system_config WHERE config_key = %s"
-            result = self.mysql.execute(query, (key,))
+            result = self.mysql.execute_query(query, (key,))
             
             # 从缓存中移除
             if key in self.config_cache:
