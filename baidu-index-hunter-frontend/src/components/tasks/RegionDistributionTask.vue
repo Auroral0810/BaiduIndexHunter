@@ -902,6 +902,11 @@ const submitTask = async () => {
     } else if (timeType.value === 'custom' && dateRange.value && dateRange.value.length === 2) {
       params.parameters.start_date = dateRange.value[0]
       params.parameters.end_date = dateRange.value[1]
+    } else if (timeType.value === 'all') {
+      // 全部数据类型：根据数据来源自动设置年份范围
+      const currentYear = new Date().getFullYear()
+      const startYear = formData.kind === 'pc' ? 2006 : 2011
+      params.parameters.year_range = [startYear, currentYear]
     }
     
     // 添加任务ID（如果是恢复任务）

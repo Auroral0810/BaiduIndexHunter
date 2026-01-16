@@ -142,6 +142,10 @@ def create_task():
                 'resume': resume
             }
             
+            # 添加 kind 参数（数据来源：PC/移动/PC+移动）
+            if 'kind' in parameters:
+                spider_params['kind'] = parameters['kind']
+            
             # 添加时间相关参数
             if 'days' in parameters:
                 spider_params['days'] = parameters['days']
@@ -154,7 +158,7 @@ def create_task():
                     end_year = int(parameters['year_range'][1])
                     
                     # 直接传递整数年份，让爬虫内部处理日期范围
-                    spider_params['year_range'] = [start_year, end_year]
+                    spider_params['year_range'] = [[start_year, end_year]]
                     
                     # 移除下面的代码，因为在爬虫中已经有_process_year_range函数来处理年份范围
                     # 不要在这里生成date_ranges，避免格式问题
@@ -215,6 +219,10 @@ def create_task():
                 'resume': resume
             }
             
+            # 添加 kind 参数（数据来源：PC/移动/PC+移动）
+            if 'kind' in parameters:
+                spider_params['kind'] = parameters['kind']
+            
             # 添加时间相关参数
             if 'days' in parameters:
                 spider_params['days'] = parameters['days']
@@ -227,7 +235,7 @@ def create_task():
                     end_year = int(parameters['year_range'][1])
                     
                     # 直接传递整数年份，让爬虫内部处理日期范围
-                    spider_params['year_range'] = [start_year, end_year]
+                    spider_params['year_range'] = [[start_year, end_year]]
                     
                     # 移除下面的代码，因为在爬虫中已经有_process_year_range函数来处理年份范围
                     # 不要在这里生成date_ranges，避免格式问题
@@ -289,6 +297,10 @@ def create_task():
                 'resume': resume
             }
             
+            # 添加 kind 参数（数据来源：PC/移动/PC+移动）
+            if 'kind' in parameters:
+                spider_params['kind'] = parameters['kind']
+            
             # 添加任务ID（如果是恢复任务）
             if resume and 'task_id' in parameters:
                 spider_params['task_id'] = parameters['task_id']
@@ -346,6 +358,10 @@ def create_task():
                 'resume': resume
             }
             
+            # 添加 kind 参数（数据来源：PC/移动/PC+移动）
+            if 'kind' in parameters:
+                spider_params['kind'] = parameters['kind']
+            
             # 添加任务ID（如果是恢复任务）
             if resume and 'task_id' in parameters:
                 spider_params['task_id'] = parameters['task_id']
@@ -402,6 +418,10 @@ def create_task():
                 'batch_size': batch_size,
                 'resume': resume
             }
+            
+            # 添加 kind 参数（数据来源：PC/移动/PC+移动）
+            if 'kind' in parameters:
+                spider_params['kind'] = parameters['kind']
             
             # 添加任务ID（如果是恢复任务）
             if resume and 'task_id' in parameters:
@@ -461,6 +481,10 @@ def create_task():
                 'resume': resume
             }
             
+            # 添加 kind 参数（数据来源：PC/移动/PC+移动）
+            if 'kind' in parameters:
+                spider_params['kind'] = parameters['kind']
+            
             # 添加时间相关参数
             if 'days' in parameters:
                 spider_params['days'] = parameters['days']
@@ -473,7 +497,7 @@ def create_task():
                     end_year = int(parameters['year_range'][1])
                     
                     # 直接传递整数年份，让爬虫内部处理日期范围
-                    spider_params['year_range'] = [start_year, end_year]
+                    spider_params['year_range'] = [[start_year, end_year]]
                     
                     # 移除下面的代码，因为在爬虫中已经有_process_year_range函数来处理年份范围
                     # 不要在这里生成date_ranges，避免格式问题

@@ -1051,10 +1051,7 @@ watch(() => taskDetailDialogVisible.value, (newVal) => {
 
 const startAutoRefresh = () => {
   if (!useMockData.value) {
-    const intervalId = setupRefreshInterval()
-    onUnmounted(() => {
-      clearInterval(intervalId)
-    })
+    setupRefreshInterval()
   }
 }
 
@@ -1097,8 +1094,11 @@ onMounted(() => {
 onUnmounted(() => {
   // 断开 WebSocket 并在组件卸载时移除监听
   webSocketService.off('task_update', handleWebSocketUpdate)
-  // 注意：如果其他组件也用单例 WebSocket，这里可能不应该 disconnect，除非确定只有一个地方用
-  // 考虑到项目结构，保留连接可能更合适，或者在 App.vue 统一管理
+  
+  // 清理定时器
+  if (refreshInterval) {
+    clearInterval(refreshInterval)
+  }
 })
 
 defineExpose({

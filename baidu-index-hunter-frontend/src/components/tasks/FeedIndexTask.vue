@@ -808,8 +808,12 @@ const submitTask = async () => {
       params.parameters.date_ranges = [[dateRange.value[0], dateRange.value[1]]]
     } else if (timeType.value === 'year' && formData.yearRange[0] && formData.yearRange[1]) {
       params.parameters.year_range = [formData.yearRange[0], formData.yearRange[1]]
+    } else if (timeType.value === 'all') {
+      // 全部数据类型：根据数据来源自动设置年份范围
+      const currentYear = new Date().getFullYear()
+      const startYear = formData.kind === 'pc' ? 2006 : 2011
+      params.parameters.year_range = [startYear, currentYear]
     }
-    // 全部数据类型不需要添加时间参数
     
     // 添加任务ID（如果是恢复任务）
     if (formData.resume && formData.taskId) {
