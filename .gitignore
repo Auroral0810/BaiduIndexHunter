@@ -1,0 +1,150 @@
+# ==================== Python ====================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+
+# PyCharm
+.idea/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# ==================== Node.js / Frontend ====================
+# Dependencies
+node_modules/
+jspm_packages/
+
+# Production builds
+dist/
+dist-ssr/
+build/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+.DS_Store
+*.local
+
+# ==================== Project Specific ====================
+# Backend outputs
+baidu-index-hunter-backend/output/
+baidu-index-hunter-backend/logs/
+baidu-index-hunter-backend/data/
+baidu-index-hunter-backend/*.pkl
+baidu-index-hunter-backend/*.csv
+baidu-index-hunter-backend/*.xlsx
+baidu-index-hunter-backend/*.json
+
+# Checkpoints and progress files
+*.pkl
+*.checkpoint
+checkpoints/
+
+# Static data (if not needed in version control)
+static/data/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# ==================== IDE / Editor ====================
+# VSCode
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# ==================== OS ====================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+
+# ==================== Others ====================
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Sensitive information (keep these commented if you need to track them)
+# credentials.json
+# config.json
+# secrets/
