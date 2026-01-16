@@ -152,20 +152,30 @@ def create_task():
             elif 'date_ranges' in parameters:
                 spider_params['date_ranges'] = parameters['date_ranges']
             elif 'year_range' in parameters and parameters['year_range']:
-                # 将年份字符串转换为整数
+                # 处理年份参数，支持多种格式
                 try:
                     year_range = parameters['year_range']
                     
-                    # 检查是否已经是嵌套格式
                     if isinstance(year_range, list) and len(year_range) > 0:
-                        if isinstance(year_range[0], list):
-                            # 已经是嵌套格式 [[start, end]]
+                        # 检查第一个元素的类型来判断格式
+                        first_element = year_range[0]
+                        
+                        if isinstance(first_element, list):
+                            # 格式1: 嵌套格式 [[start, end]]
                             spider_params['year_range'] = year_range
-                        elif len(year_range) >= 2:
-                            # 直接格式 [start, end]，转换为嵌套格式
+                        elif len(year_range) == 2 and not isinstance(first_element, str):
+                            # 格式2: 两个元素的数字列表 [2006, 2026]，转换为嵌套格式
                             start_year = int(year_range[0])
                             end_year = int(year_range[1])
                             spider_params['year_range'] = [[start_year, end_year]]
+                        elif len(year_range) > 2 or isinstance(first_element, str):
+                            # 格式3: 年份列表 ["2006", "2007", "2008", ...]
+                            # 将字符串年份转换为年份范围列表
+                            year_ranges = []
+                            for year_str in year_range:
+                                year = int(year_str)
+                                year_ranges.append([year, year])  # 每个年份作为独立的范围
+                            spider_params['year_range'] = year_ranges
                         else:
                             raise ValueError("year_range 格式错误：列表长度不足")
                     else:
@@ -242,20 +252,30 @@ def create_task():
             elif 'date_ranges' in parameters:
                 spider_params['date_ranges'] = parameters['date_ranges']
             elif 'year_range' in parameters and parameters['year_range']:
-                # 将年份字符串转换为整数
+                # 处理年份参数，支持多种格式
                 try:
                     year_range = parameters['year_range']
                     
-                    # 检查是否已经是嵌套格式
                     if isinstance(year_range, list) and len(year_range) > 0:
-                        if isinstance(year_range[0], list):
-                            # 已经是嵌套格式 [[start, end]]
+                        # 检查第一个元素的类型来判断格式
+                        first_element = year_range[0]
+                        
+                        if isinstance(first_element, list):
+                            # 格式1: 嵌套格式 [[start, end]]
                             spider_params['year_range'] = year_range
-                        elif len(year_range) >= 2:
-                            # 直接格式 [start, end]，转换为嵌套格式
+                        elif len(year_range) == 2 and not isinstance(first_element, str):
+                            # 格式2: 两个元素的数字列表 [2006, 2026]，转换为嵌套格式
                             start_year = int(year_range[0])
                             end_year = int(year_range[1])
                             spider_params['year_range'] = [[start_year, end_year]]
+                        elif len(year_range) > 2 or isinstance(first_element, str):
+                            # 格式3: 年份列表 ["2006", "2007", "2008", ...]
+                            # 将字符串年份转换为年份范围列表
+                            year_ranges = []
+                            for year_str in year_range:
+                                year = int(year_str)
+                                year_ranges.append([year, year])  # 每个年份作为独立的范围
+                            spider_params['year_range'] = year_ranges
                         else:
                             raise ValueError("year_range 格式错误：列表长度不足")
                     else:
@@ -513,20 +533,30 @@ def create_task():
             elif 'date_ranges' in parameters:
                 spider_params['date_ranges'] = parameters['date_ranges']
             elif 'year_range' in parameters and parameters['year_range']:
-                # 将年份字符串转换为整数
+                # 处理年份参数，支持多种格式
                 try:
                     year_range = parameters['year_range']
                     
-                    # 检查是否已经是嵌套格式
                     if isinstance(year_range, list) and len(year_range) > 0:
-                        if isinstance(year_range[0], list):
-                            # 已经是嵌套格式 [[start, end]]
+                        # 检查第一个元素的类型来判断格式
+                        first_element = year_range[0]
+                        
+                        if isinstance(first_element, list):
+                            # 格式1: 嵌套格式 [[start, end]]
                             spider_params['year_range'] = year_range
-                        elif len(year_range) >= 2:
-                            # 直接格式 [start, end]，转换为嵌套格式
+                        elif len(year_range) == 2 and not isinstance(first_element, str):
+                            # 格式2: 两个元素的数字列表 [2006, 2026]，转换为嵌套格式
                             start_year = int(year_range[0])
                             end_year = int(year_range[1])
                             spider_params['year_range'] = [[start_year, end_year]]
+                        elif len(year_range) > 2 or isinstance(first_element, str):
+                            # 格式3: 年份列表 ["2006", "2007", "2008", ...]
+                            # 将字符串年份转换为年份范围列表
+                            year_ranges = []
+                            for year_str in year_range:
+                                year = int(year_str)
+                                year_ranges.append([year, year])  # 每个年份作为独立的范围
+                            spider_params['year_range'] = year_ranges
                         else:
                             raise ValueError("year_range 格式错误：列表长度不足")
                     else:

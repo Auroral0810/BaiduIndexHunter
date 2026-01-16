@@ -903,15 +903,17 @@ const submitTask = async () => {
       params.parameters.start_date = dateRange.value[0]
       params.parameters.end_date = dateRange.value[1]
     } else if (timeType.value === 'all') {
-      // 全部数据类型：根据数据来源自动设置日期范围
-      const endDate = new Date().toISOString().split('T')[0] // 今天的日期
-      let startDate
+      // 全部数据类型：根据数据来源设置年份范围
+      const currentYear = new Date().getFullYear()
+      let startYear
       if (formData.kind === 'pc') {
-        startDate = '2006-06-01' // PC端从2006年6月1日开始
+        startYear = 2006 // PC端从2006年开始
       } else {
-        startDate = '2011-01-01' // 移动端和PC+移动从2011年1月1日开始
+        startYear = 2011 // 移动端和PC+移动从2011年开始
       }
-      params.parameters.date_ranges = [[startDate, endDate]]
+      
+      // 只发送起始和结束年份，让后端处理拆分
+      params.parameters.year_range = [startYear.toString(), currentYear.toString()]
     }
     
     // 添加任务ID（如果是恢复任务）
