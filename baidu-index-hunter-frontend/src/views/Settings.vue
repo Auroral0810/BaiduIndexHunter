@@ -46,7 +46,7 @@ const resetConfigs = async () => {
 
 // 获取配置项类型
 const getConfigType = (key: string, value: any) => {
-  if (typeof value === 'boolean') return 'boolean'
+  if (typeof value === 'boolean' || value === 'True' || value === 'False') return 'boolean'
   if (typeof value === 'number') {
     if (key.includes('interval') || key.includes('timeout')) return 'number'
     if (key.includes('port')) return 'port'
@@ -54,13 +54,20 @@ const getConfigType = (key: string, value: any) => {
   }
   if (typeof value === 'string') {
     if (key.includes('url') || key.includes('host')) return 'url'
-    if (key.includes('password') || key.includes('secret')) return 'password'
+    if (key.includes('password') || key.includes('secret') || key.includes('key_id')) return 'string' // Key ID usually visible
+    if (key.includes('secret') || key.includes('password')) return 'password'
     return 'string'
   }
   return 'string'
 }
 
-// 获取配置项标签
+// 获取显示标签（优先使用中文描述）
+const getDisplayLabel = (key: string) => {
+  const description = getConfigDescription(key)
+  return description !== '配置项描述' ? description : getConfigLabel(key)
+}
+
+// 获取配置项标签（英文/键名）
 const getConfigLabel = (key: string) => {
   const parts = key.split('.')
   if (parts.length < 2) return key
@@ -102,6 +109,14 @@ const getConfigDescription = (key: string) => {
     'output.csv_encoding': 'CSV文件编码',
     'output.excel_sheet_name': 'Excel工作表名称',
     'output.file_name_template': '文件名模板',
+    'output.use_oss': '是否上传到阿里云OSS',
+    
+    'oss.access_key_id': '阿里云AccessKey ID',
+    'oss.access_key_secret': '阿里云AccessKey Secret',
+    'oss.bucket_name': 'OSS Bucket名称',
+    'oss.endpoint': 'OSS Endpoint（例如 oss-cn-beijing.aliyuncs.com）',
+    'oss.region': 'OSS Region（例如 cn-beijing）',
+    'oss.url': '自定义访问域名（可选）',
     
     'cookie.block_cooldown': 'Cookie封禁冷却时间（秒）',
     'cookie.max_usage_per_day': '每日最大使用次数',
@@ -121,11 +136,6 @@ const getConfigDescription = (key: string) => {
   }
   
   return descriptions[key] || '配置项描述'
-}
-
-// 更新配置值
-const updateConfigValue = (key: string, value: any) => {
-  configStore.updateConfig(key, value)
 }
 
 // 生命周期钩子
@@ -192,13 +202,14 @@ onMounted(async () => {
                 <el-form-item 
                   v-for="(value, key) in getGroupConfigs(activeGroup)" 
                   :key="key"
-                  :label="getConfigLabel(key)"
+                  :label="getDisplayLabel(key)"
                 >
                   <!-- 布尔类型 -->
                   <el-switch 
                     v-if="getConfigType(key, value) === 'boolean'"
                     v-model="configStore.configs[key]"
-                    @change="(val) => updateConfigValue(key, val)"
+                    :active-value="typeof value === 'string' ? 'True' : true"
+                    :inactive-value="typeof value === 'string' ? 'False' : false"
                   />
                   
                   <!-- 数字类型 -->
@@ -207,7 +218,6 @@ onMounted(async () => {
                     v-model="configStore.configs[key]"
                     :min="0"
                     :step="key.includes('interval') ? 0.1 : 1"
-                    @change="(val) => updateConfigValue(key, val)"
                   />
                   
                   <!-- 端口类型 -->
@@ -216,7 +226,6 @@ onMounted(async () => {
                     v-model="configStore.configs[key]"
                     :min="1"
                     :max="65535"
-                    @change="(val) => updateConfigValue(key, val)"
                   />
                   
                   <!-- 密码类型 -->
@@ -224,7 +233,6 @@ onMounted(async () => {
                     v-else-if="getConfigType(key, value) === 'password'"
                     v-model="configStore.configs[key]"
                     show-password
-                    @input="(val) => updateConfigValue(key, val)"
                   />
                   
                   <!-- URL类型 -->
@@ -232,18 +240,16 @@ onMounted(async () => {
                     v-else-if="getConfigType(key, value) === 'url'"
                     v-model="configStore.configs[key]"
                     placeholder="例如: http://localhost:5000"
-                    @input="(val) => updateConfigValue(key, val)"
                   />
                   
                   <!-- 默认字符串类型 -->
                   <el-input 
                     v-else
                     v-model="configStore.configs[key]"
-                    @input="(val) => updateConfigValue(key, val)"
                   />
                   
                   <div class="form-item-tip">
-                    {{ getConfigDescription(key) }}
+                    {{ key }}
                   </div>
                 </el-form-item>
               </el-form>

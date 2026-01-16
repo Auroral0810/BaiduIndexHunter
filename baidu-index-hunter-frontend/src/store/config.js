@@ -1,13 +1,12 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import request from '../utils/request'
 
 export const useConfigStore = defineStore('config', {
   state: () => ({
     configs: {},
     loading: false,
     error: null,
-    initialized: false,
-    apiBaseUrl: 'http://127.0.0.1:5001/api'
+    initialized: false
   }),
   
   getters: {
@@ -28,25 +27,19 @@ export const useConfigStore = defineStore('config', {
   },
   
   actions: {
-    setApiBaseUrl(url) {
-      this.apiBaseUrl = url;
-    },
-    
     async fetchConfigs() {
       this.loading = true;
       this.error = null;
       
       try {
-        const response = await axios.get(`${this.apiBaseUrl}/config/list`);
-        if (response.data.code === 0 || response.data.code === 10000) {
-          this.configs = response.data.data || {};
-          this.initialized = true;
-        } else {
-          this.error = response.data.message || '获取配置失败';
-        }
+        const response = await request.get('/config/list');
+        // request拦截器已经处理了 code !== 10000 的情况并返回response.data
+        // 这里response是后端返回的完整json对象
+        this.configs = response.data || {};
+        this.initialized = true;
       } catch (error) {
         console.error('获取配置数据出错:', error);
-        this.error = '网络错误，请稍后重试';
+        this.error = error.message || '获取配置失败';
       } finally {
         this.loading = false;
       }
@@ -57,20 +50,14 @@ export const useConfigStore = defineStore('config', {
       this.error = null;
       
       try {
-        const response = await axios.post(`${this.apiBaseUrl}/config/batch_set`, configsToSave);
-        if (response.data.code === 0 || response.data.code === 10000) {
-          // 更新本地存储的配置
-          for (const key in configsToSave) {
-            this.configs[key] = configsToSave[key];
-          }
-          return true;
-        } else {
-          this.error = response.data.message || '保存配置失败';
-          return false;
-        }
+        await request.post('/config/batch_set', configsToSave);
+        // 保存成功后，本地状态已经是最新的（因为是v-model绑定的），
+        // 但为了保险起见，可以重新获取一次，或者直接认为本地已经是新的
+        // 这里我们不需要手动更新 this.configs，因为 Settings.vue 是直接修改的 store state
+        return true;
       } catch (error) {
         console.error('保存配置数据出错:', error);
-        this.error = '网络错误，请稍后重试';
+        this.error = error.message || '保存配置失败';
         return false;
       } finally {
         this.loading = false;
@@ -87,18 +74,13 @@ export const useConfigStore = defineStore('config', {
       this.error = null;
       
       try {
-        const response = await axios.post(`${this.apiBaseUrl}/config/init_defaults`);
-        if (response.data.code === 0 || response.data.code === 10000) {
-          // 重新获取配置
-          await this.fetchConfigs();
-          return true;
-        } else {
-          this.error = response.data.message || '重置配置失败';
-          return false;
-        }
+        await request.post('/config/init_defaults');
+        // 重新获取配置
+        await this.fetchConfigs();
+        return true;
       } catch (error) {
         console.error('重置配置数据出错:', error);
-        this.error = '网络错误，请稍后重试';
+        this.error = error.message || '重置配置失败';
         return false;
       } finally {
         this.loading = false;
