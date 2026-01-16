@@ -24,6 +24,7 @@
         <!-- 全选地级市按钮 -->
         <div class="province-actions">
           <el-button type="text" size="small" @click="selectAllCities">全选地级市</el-button>
+          <el-button type="text" size="small" @click="unselectAllCities">取消全选</el-button>
         </div>
         
         <!-- 省份列表 -->
@@ -95,7 +96,7 @@
         
         <!-- 省份标签 -->
         <el-tag
-          v-for="provinceCode in getSelectedProvinces()"
+          v-for="provinceCode in selectedProvincesList"
           :key="'p-' + provinceCode"
           closable
           size="small"
@@ -105,9 +106,9 @@
           {{ getProvinceName(provinceCode) }}
         </el-tag>
         
-        <!-- 城市标签 (显示所有选中的城市) -->
+        <!-- 城市标签 (显示选中的城市) -->
         <el-tag
-          v-for="cityCode in getSelectedCityCodes()"
+          v-for="cityCode in displayedCityCodes"
           :key="'c-' + cityCode"
           closable
           size="small"
@@ -116,6 +117,29 @@
         >
           {{ getCityName(cityCode) }}
         </el-tag>
+
+        <!-- 剩余数量提示/展开按钮 -->
+        <el-tag
+          v-if="remainingCityCount > 0"
+          type="info"
+          size="small"
+          class="city-tag expand-tag"
+          @click="showAllCities = true"
+        >
+          +{{ remainingCityCount }} 更多...
+        </el-tag>
+
+        <!-- 收起按钮 -->
+        <el-button 
+          v-if="showAllCities && selectedCityCodesList.length > CITY_DISPLAY_LIMIT" 
+          type="primary" 
+          link
+          size="small" 
+          @click="showAllCities = false"
+          class="collapse-btn"
+        >
+          收起
+        </el-button>
       </div>
     </div>
   </div>
@@ -183,15 +207,30 @@ const getProvinceName = (provinceCode) => {
   return regionStore.getProvinceName(provinceCode);
 };
 
-// 获取选中的城市代码列表
-const getSelectedCityCodes = () => {
-  return Object.keys(cityChecked).filter(code => cityChecked[code]);
-};
-
 // 获取选中的省份代码列表
-const getSelectedProvinces = () => {
+const selectedProvincesList = computed(() => {
   return Object.keys(selectedProvinceDirectly).filter(code => selectedProvinceDirectly[code]);
-};
+});
+
+// 获取选中的城市代码列表
+const selectedCityCodesList = computed(() => {
+  return Object.keys(cityChecked).filter(code => cityChecked[code]);
+});
+
+// 显示控制
+const showAllCities = ref(false);
+const CITY_DISPLAY_LIMIT = 20;
+
+const displayedCityCodes = computed(() => {
+  if (showAllCities.value) {
+    return selectedCityCodesList.value;
+  }
+  return selectedCityCodesList.value.slice(0, CITY_DISPLAY_LIMIT);
+});
+
+const remainingCityCount = computed(() => {
+  return selectedCityCodesList.value.length - displayedCityCodes.value.length;
+});
 
 // 获取城市名称
 const getCityName = (cityCode) => {
@@ -231,11 +270,11 @@ const generateFinalSelection = () => {
   }
   
   // 添加选中的省份代码
-  const selectedProvinces = getSelectedProvinces();
+  const selectedProvinces = selectedProvincesList.value;
   result = [...result, ...selectedProvinces];
   
   // 添加选中的城市代码
-  const selectedCities = getSelectedCityCodes();
+  const selectedCities = selectedCityCodesList.value;
   result = [...result, ...selectedCities];
   
   emit('update:modelValue', result);
@@ -413,6 +452,20 @@ const selectAllCities = () => {
       });
     }
   }
+  
+  isUpdating.value = false;
+};
+
+// 取消选择所有地级市
+const unselectAllCities = () => {
+  if (isUpdating.value) return;
+  
+  isUpdating.value = true;
+  
+  // 取消选中所有城市
+  Object.keys(cityChecked).forEach(cityCode => {
+    cityChecked[cityCode] = false;
+  });
   
   isUpdating.value = false;
 };
@@ -601,6 +654,19 @@ onMounted(async () => {
 .city-tag {
   margin-right: 8px;
   margin-bottom: 8px;
+}
+
+.expand-tag {
+  cursor: pointer;
+}
+
+.expand-tag:hover {
+  opacity: 0.8;
+}
+
+.collapse-btn {
+  margin-bottom: 8px;
+  vertical-align: middle;
 }
 
 @media (max-width: 768px) {

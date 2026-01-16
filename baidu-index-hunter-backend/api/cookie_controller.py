@@ -52,6 +52,14 @@ def with_cookie_manager(func):
             'description': '账号ID，用于过滤指定账号的Cookie'
         },
         {
+            'name': 'status',
+            'in': 'query',
+            'type': 'string',
+            'required': False,
+            'enum': ['available', 'temp_banned', 'perm_banned', 'expired'],
+            'description': 'Cookie状态筛选'
+        },
+        {
             'name': 'available_only',
             'in': 'query',
             'type': 'boolean',
@@ -122,6 +130,7 @@ def list_cookies(cookie_manager):
         # 获取查询参数
         account_id = request.args.get('account_id')
         available_only = request.args.get('available_only', 'false').lower() == 'true'
+        status = request.args.get('status')
         page = int(request.args.get('page', 1))
         limit = int(request.args.get('limit', 10))
         
@@ -131,6 +140,29 @@ def list_cookies(cookie_manager):
         if account_id:
             # 获取指定账号的cookie
             cursor.execute("SELECT DISTINCT account_id FROM cookies WHERE account_id = %s", (account_id,))
+        elif status:
+            # 根据状态过滤
+            if status == 'perm_banned':
+                cursor.execute("SELECT DISTINCT account_id FROM cookies WHERE is_permanently_banned = 1")
+            elif status == 'temp_banned':
+                cursor.execute("""
+                    SELECT DISTINCT account_id FROM cookies 
+                    WHERE temp_ban_until IS NOT NULL AND temp_ban_until > NOW()
+                    AND is_permanently_banned = 0
+                """)
+            elif status == 'expired':
+                cursor.execute("SELECT DISTINCT account_id FROM cookies WHERE expire_time IS NOT NULL AND expire_time < NOW()")
+            elif status == 'available':
+                cursor.execute("""
+                    SELECT DISTINCT account_id FROM cookies 
+                    WHERE is_available = 1 
+                    AND (expire_time IS NULL OR expire_time >= NOW())
+                    AND (temp_ban_until IS NULL OR temp_ban_until <= NOW())
+                    AND is_permanently_banned = 0
+                """)
+            else:
+                # 未知状态，返回所有
+                cursor.execute("SELECT DISTINCT account_id FROM cookies")
         elif available_only:
             # 获取所有可用的账号ID
             cursor.execute("""

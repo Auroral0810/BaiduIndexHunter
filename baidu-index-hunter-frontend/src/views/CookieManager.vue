@@ -50,6 +50,19 @@ const tempBannedAccounts = ref<any[]>([])
 const permBannedAccounts = ref<string[]>([])
 const bannedTabActive = ref('temp')
 
+// 封禁Cookie的多选状态
+const tempBannedSelection = ref<string[]>([])
+const permBannedSelection = ref<string[]>([])
+const checkAllTemp = ref(false)
+const checkAllPerm = ref(false)
+
+const isTempIndeterminate = computed(() => {
+  return tempBannedSelection.value.length > 0 && tempBannedSelection.value.length < tempBannedAccounts.value.length
+})
+const isPermIndeterminate = computed(() => {
+  return permBannedSelection.value.length > 0 && permBannedSelection.value.length < permBannedAccounts.value.length
+})
+
 // Cookie列表
 const cookieList = ref<any[]>([])
 const cookies = ref([])
@@ -266,7 +279,8 @@ const loadCookies = async () => {
       page: currentPage.value,
       limit: pageSize.value,
       account_id: searchAccount.value || undefined,
-      available_only: statusFilter.value === 'available' ? true : undefined
+      available_only: statusFilter.value === 'available' ? true : undefined,
+      status: statusFilter.value || undefined
     }
     
     const response = await axios.get(`${API_BASE_URL}/admin/cookie/list`, { params })
@@ -1541,6 +1555,120 @@ const handleSelectionChange = (selection) => {
   multipleSelection.value = selection
 }
 
+// 处理临时封禁全选
+const handleCheckAllTempChange = (val: boolean) => {
+  tempBannedSelection.value = val ? tempBannedAccounts.value.map(item => item.account_id) : []
+  checkAllTemp.value = val
+}
+
+// 处理永久封禁全选
+const handleCheckAllPermChange = (val: boolean) => {
+  permBannedSelection.value = val ? [...permBannedAccounts.value] : []
+  checkAllPerm.value = val
+}
+
+// 批量解封选中的临时封禁Cookie
+const unbanSelectedTemp = async () => {
+  if (tempBannedSelection.value.length === 0) return
+  
+  try {
+    bannedLoading.value = true
+    let successCount = 0
+    for (const accountId of tempBannedSelection.value) {
+      const response = await axios.post(`${API_BASE_URL}/admin/cookie/unban/${accountId}`)
+      if (response.data.code === 10000) successCount++
+    }
+    ElMessage.success(`成功解封 ${successCount} 个Cookie`)
+    loadBannedAccounts()
+    refreshCookieStatus()
+    loadCookies()
+    tempBannedSelection.value = []
+    checkAllTemp.value = false
+  } catch (error) {
+    ElMessage.error('批量解封失败')
+  } finally {
+    bannedLoading.value = false
+  }
+}
+
+// 解封所有临时封禁Cookie
+const unbanAllTemp = async () => {
+  if (tempBannedAccounts.value.length === 0) return
+  
+  try {
+    await ElMessageBox.confirm('确定要解封所有临时封禁的Cookie吗？', '提示', { type: 'warning' })
+    bannedLoading.value = true
+    
+    let successCount = 0
+    for (const item of tempBannedAccounts.value) {
+      const response = await axios.post(`${API_BASE_URL}/admin/cookie/unban/${item.account_id}`)
+      if (response.data.code === 10000) successCount++
+    }
+    
+    ElMessage.success(`成功解封 ${successCount} 个Cookie`)
+    loadBannedAccounts()
+    refreshCookieStatus()
+    loadCookies()
+    tempBannedSelection.value = []
+    checkAllTemp.value = false
+  } catch (error) {
+    if (error !== 'cancel') ElMessage.error('解封所有失败')
+  } finally {
+    bannedLoading.value = false
+  }
+}
+
+// 批量强制解封选中的永久封禁Cookie
+const unbanSelectedPerm = async () => {
+  if (permBannedSelection.value.length === 0) return
+  
+  try {
+    bannedLoading.value = true
+    let successCount = 0
+    for (const accountId of permBannedSelection.value) {
+      const response = await axios.post(`${API_BASE_URL}/admin/cookie/force-unban/${accountId}`)
+      if (response.data.code === 10000) successCount++
+    }
+    ElMessage.success(`成功解封 ${successCount} 个Cookie`)
+    loadBannedAccounts()
+    refreshCookieStatus()
+    loadCookies()
+    permBannedSelection.value = []
+    checkAllPerm.value = false
+  } catch (error) {
+    ElMessage.error('批量解封失败')
+  } finally {
+    bannedLoading.value = false
+  }
+}
+
+// 解封所有永久封禁Cookie
+const unbanAllPerm = async () => {
+  if (permBannedAccounts.value.length === 0) return
+  
+  try {
+    await ElMessageBox.confirm('确定要强制解封所有永久封禁的Cookie吗？', '提示', { type: 'warning' })
+    bannedLoading.value = true
+    
+    let successCount = 0
+    for (const accountId of permBannedAccounts.value) {
+      const response = await axios.post(`${API_BASE_URL}/admin/cookie/force-unban/${accountId}`)
+      if (response.data.code === 10000) successCount++
+    }
+    
+    ElMessage.success(`成功解封 ${successCount} 个Cookie`)
+    loadBannedAccounts()
+    refreshCookieStatus()
+    loadCookies()
+    permBannedSelection.value = []
+    checkAllPerm.value = false
+  } catch (error) {
+    if (error !== 'cancel') ElMessage.error('解封所有失败')
+  } finally {
+    bannedLoading.value = false
+  }
+}
+
 // 批量封禁所有Cookie
 const batchBanAll = async () => {
   try {
@@ -1933,33 +2061,51 @@ const batchUnban = async () => {
           <div v-loading="bannedLoading" class="banned-accounts">
             <el-tabs v-model="bannedTabActive">
               <el-tab-pane label="临时封禁" name="temp">
+                <div class="banned-toolbar" v-if="tempBannedAccounts.length > 0">
+                  <el-checkbox v-model="checkAllTemp" :indeterminate="isTempIndeterminate" @change="handleCheckAllTempChange">全选</el-checkbox>
+                  <el-button type="primary" link size="small" :disabled="tempBannedSelection.length === 0" @click="unbanSelectedTemp">解封选中</el-button>
+                  <el-button type="danger" link size="small" @click="unbanAllTemp">解封所有</el-button>
+                </div>
                 <template v-if="tempBannedAccounts.length > 0">
-                  <div v-for="account in tempBannedAccounts" :key="account.account_id" class="banned-account-item">
-                    <div class="banned-account-info">
-                      <div class="account-id">{{ account.account_id }}</div>
-                      <div class="ban-time">
-                        <el-tooltip :content="account.temp_ban_until" placement="top">
-                          <span>解封剩余: {{ formatBanTimeRemaining(account.remaining_seconds) }}</span>
-                        </el-tooltip>
+                  <el-checkbox-group v-model="tempBannedSelection">
+                    <div v-for="account in tempBannedAccounts" :key="account.account_id" class="banned-account-item">
+                      <el-checkbox :value="account.account_id" class="banned-checkbox" />
+                      <div class="banned-account-info">
+                        <div class="account-id">{{ account.account_id }}</div>
+                        <div class="ban-time">
+                          剩余: {{ formatBanTimeRemaining(account.remaining_seconds) }}
+                        </div>
+                        <div class="ban-time-tooltip">
+                          {{ account.temp_ban_until }}
+                        </div>
+                      </div>
+                      <div class="banned-account-actions">
+                        <el-button size="small" type="primary" @click.stop="unbanAccount(account.account_id)" plain>解封</el-button>
                       </div>
                     </div>
-                    <div class="banned-account-actions">
-                      <el-button size="small" type="primary" @click="unbanAccount(account.account_id)" plain>解封</el-button>
-                    </div>
-                  </div>
+                  </el-checkbox-group>
                 </template>
                 <el-empty v-else description="暂无临时封禁账号" />
               </el-tab-pane>
               <el-tab-pane label="永久封禁" name="perm">
+                <div class="banned-toolbar" v-if="permBannedAccounts.length > 0">
+                  <el-checkbox v-model="checkAllPerm" :indeterminate="isPermIndeterminate" @change="handleCheckAllPermChange">全选</el-checkbox>
+                  <el-button type="primary" link size="small" :disabled="permBannedSelection.length === 0" @click="unbanSelectedPerm">强制解封选中</el-button>
+                  <el-button type="danger" link size="small" @click="unbanAllPerm">强制解封所有</el-button>
+                </div>
                 <template v-if="permBannedAccounts.length > 0">
-                  <div v-for="account in permBannedAccounts" :key="account" class="banned-account-item">
-                    <div class="banned-account-info">
-                      <div class="account-id">{{ account }}</div>
+                  <el-checkbox-group v-model="permBannedSelection">
+                    <div v-for="account in permBannedAccounts" :key="account" class="banned-account-item">
+                      <el-checkbox :value="account" class="banned-checkbox" />
+                      <div class="banned-account-info">
+                        <div class="account-id">{{ account }}</div>
+                        <div class="ban-status">永久封禁</div>
+                      </div>
+                      <div class="banned-account-actions">
+                        <el-button size="small" type="danger" @click.stop="forceUnbanAccount(account)" plain>强制解封</el-button>
+                      </div>
                     </div>
-                    <div class="banned-account-actions">
-                      <el-button size="small" type="danger" @click="forceUnbanAccount(account)" plain>强制解封</el-button>
-                    </div>
-                  </div>
+                  </el-checkbox-group>
                 </template>
                 <el-empty v-else description="暂无永久封禁账号" />
               </el-tab-pane>
@@ -2667,36 +2813,90 @@ const batchUnban = async () => {
   gap: 5px;
 }
 
+.banned-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  background-color: #f5f7fa;
+  border-bottom: 1px solid #ebeef5;
+  margin-bottom: 10px;
+}
+
+.banned-checkbox {
+  margin-right: 10px;
+}
+
 .banned-accounts {
-  max-height: 400px;
+  max-height: 500px;
   overflow-y: auto;
 }
 
 .banned-account-item {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
+  align-items: flex-start;
+  padding: 16px 15px;
   border-bottom: 1px solid #EBEEF5;
+  gap: 15px;
 }
 
 .banned-account-item:last-child {
   border-bottom: none;
 }
 
+.banned-account-item:hover {
+  background-color: #F5F7FA;
+}
+
+.banned-checkbox {
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+
+.banned-checkbox :deep(.el-checkbox__label) {
+  display: none;
+}
+
 .banned-account-info {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 6px;
 }
 
 .account-id {
   font-weight: bold;
-  margin-bottom: 5px;
+  font-size: 16px;
+  color: #303133;
+  line-height: 1.5;
+  word-break: break-all;
+  margin-bottom: 4px;
 }
 
 .ban-time {
+  font-size: 13px;
+  color: #67C23A;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.ban-time-tooltip {
   font-size: 12px;
   color: #909399;
+  line-height: 1.5;
+}
+
+.ban-status {
+  font-size: 13px;
+  color: #F56C6C;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.banned-account-actions {
+  flex-shrink: 0;
+  margin-top: 4px;
 }
 
 .filter-section {

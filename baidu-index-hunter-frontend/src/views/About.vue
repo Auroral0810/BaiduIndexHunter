@@ -6,7 +6,11 @@ import {
   User,
   DocumentCopy,
   TrendCharts,
-  Monitor
+  Monitor,
+  Service,
+  Tools,
+  DataLine,
+  Refresh
 } from '@element-plus/icons-vue'
 
 const version = ref('1.0.0')
@@ -70,6 +74,33 @@ const faqs = ref([
   {
     question: '产品技术支持与售后',
     answer: '我们提供完善的技术支持服务，包括安装部署指导、使用培训、问题排查等。购买后可获得专属技术支持渠道，响应时间不超过24小时。'
+  }
+])
+
+const services = ref([
+  {
+    title: '企业定制服务',
+    description: '根据您的业务需求，提供定制化功能开发和系统集成服务。',
+    icon: Service,
+    color: '#409EFF'
+  },
+  {
+    title: '技术支持',
+    description: '提供安装部署指导、使用培训、问题排查等全方位技术支持。',
+    icon: Tools,
+    color: '#E6A23C'
+  },
+  {
+    title: '数据分析咨询',
+    description: '协助您解读数据，提供专业的市场分析建议和决策支持。',
+    icon: DataLine,
+    color: '#67C23A'
+  },
+  {
+    title: '持续更新维护',
+    description: '定期更新系统功能，及时适配百度指数平台变化，确保长期稳定使用。',
+    icon: Refresh,
+    color: '#F56C6C'
   }
 ])
 </script>
@@ -146,7 +177,7 @@ const faqs = ref([
           <div class="features-list">
             <div v-for="(feature, index) in features" :key="index" class="feature-item">
               <div class="feature-icon">
-                <el-icon :size="32" color="#4facfe">
+                <el-icon :size="24" color="#4facfe">
                   <component :is="feature.icon" />
                 </el-icon>
               </div>
@@ -192,30 +223,27 @@ const faqs = ref([
             </div>
           </div>
         </section>
-        
-        <section class="service-section">
-          <h2>服务支持</h2>
-          <div class="service-content">
-            <div class="service-item">
-              <h3>💼 企业定制服务</h3>
-              <p>根据您的业务需求，提供定制化功能开发和系统集成服务。</p>
-            </div>
-            <div class="service-item">
-              <h3>🔧 技术支持</h3>
-              <p>提供安装部署指导、使用培训、问题排查等全方位技术支持。</p>
-            </div>
-            <div class="service-item">
-              <h3>📈 数据分析咨询</h3>
-              <p>协助您解读数据，提供专业的市场分析建议和决策支持。</p>
-            </div>
-            <div class="service-item">
-              <h3>🔄 持续更新维护</h3>
-              <p>定期更新系统功能，及时适配百度指数平台变化，确保长期稳定使用。</p>
-            </div>
-          </div>
-        </section>
       </div>
     </div>
+
+    <!-- 服务支持 - 移至底部全宽显示 -->
+    <section class="service-section">
+      <div class="service-header">
+        <h2>服务支持</h2>
+        <p class="service-subtitle">全方位的专业服务，为您保驾护航</p>
+      </div>
+      <div class="service-content">
+        <div v-for="(service, index) in services" :key="index" class="service-item">
+          <div class="service-icon-wrapper" :style="{ backgroundColor: service.color + '15' }">
+             <el-icon :size="32" :color="service.color">
+               <component :is="service.icon" />
+             </el-icon>
+          </div>
+          <h3>{{ service.title }}</h3>
+          <p>{{ service.description }}</p>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -224,6 +252,7 @@ const faqs = ref([
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  padding-bottom: 60px;
 }
 
 .hero-section {
@@ -265,29 +294,32 @@ const faqs = ref([
 .content-wrapper {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 40px;
+  gap: 30px;
+  margin-bottom: 40px;
 }
 
 .left-column, .right-column {
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 30px;
 }
 
 .intro-section, .advantages-section, .faq-section,
-.features-section, .tech-stack-section, .service-section {
+.features-section, .tech-stack-section {
   background-color: white;
   border-radius: var(--border-radius-large);
   padding: 30px;
   box-shadow: var(--shadow-light);
+  border: 1px solid var(--border-lighter);
 }
 
 h2 {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   margin-bottom: 25px;
   color: var(--text-primary);
   position: relative;
   padding-bottom: 10px;
+  display: inline-block;
 }
 
 h2:after {
@@ -295,10 +327,11 @@ h2:after {
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 40px;
+  width: 100%;
   height: 3px;
   background: var(--primary-gradient);
   border-radius: 3px;
+  opacity: 0.6;
 }
 
 .intro-text {
@@ -314,29 +347,32 @@ h2:after {
 .advantages-list {
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 20px;
 }
 
 .advantage-item {
   display: flex;
   gap: 20px;
   padding: 20px;
-  background-color: #f9f9f9;
+  background-color: #f8fafc;
   border-radius: var(--border-radius-medium);
   transition: all 0.3s ease;
+  border: 1px solid transparent;
 }
 
 .advantage-item:hover {
   transform: translateX(5px);
-  box-shadow: var(--shadow-light);
+  background-color: white;
+  box-shadow: var(--shadow-medium);
+  border-color: var(--primary-light);
 }
 
 .advantage-number {
   font-size: 2rem;
   font-weight: bold;
   color: var(--primary-color);
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -348,7 +384,7 @@ h2:after {
 }
 
 .advantage-content h3 {
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   margin-bottom: 8px;
   color: var(--text-primary);
 }
@@ -364,10 +400,11 @@ h2:after {
   line-height: 1.6;
 }
 
+/* Features List Styles */
 .features-list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
 }
 
 .feature-item {
@@ -376,36 +413,37 @@ h2:after {
   padding: 15px;
   border-radius: var(--border-radius-medium);
   transition: all 0.3s ease;
+  align-items: flex-start;
 }
 
 .feature-item:hover {
-  background-color: #f9f9f9;
-  transform: translateX(5px);
+  background-color: #f8fafc;
 }
 
 .feature-icon {
-  width: 60px;
-  height: 60px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: var(--primary-light);
-  border-radius: 50%;
+  border-radius: 10px;
   flex-shrink: 0;
 }
 
 .feature-title {
-  font-size: 1.2rem;
-  margin-bottom: 8px;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
   color: var(--text-primary);
 }
 
 .feature-description {
-  color: var(--text-regular);
-  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
   line-height: 1.5;
 }
 
+/* Tech Stack Styles */
 .tech-list {
   display: flex;
   flex-direction: column;
@@ -416,6 +454,12 @@ h2:after {
   font-size: 1.1rem;
   margin-bottom: 10px;
   color: var(--text-primary);
+  border: none;
+  padding: 0;
+}
+
+.tech-category h3:after {
+  display: none;
 }
 
 .tech-category ul {
@@ -425,10 +469,11 @@ h2:after {
 }
 
 .tech-category ul li {
-  padding: 5px 0;
+  padding: 6px 0;
   color: var(--text-regular);
   position: relative;
-  padding-left: 20px;
+  padding-left: 18px;
+  font-size: 0.95rem;
 }
 
 .tech-category ul li:before {
@@ -441,30 +486,88 @@ h2:after {
   height: 6px;
   border-radius: 50%;
   background-color: var(--primary-color);
+  opacity: 0.7;
+}
+
+/* Service Section - New Bottom Layout */
+.service-section {
+  background: white;
+  border-radius: var(--border-radius-large);
+  padding: 40px;
+  box-shadow: var(--shadow-light);
+  border: 1px solid var(--border-lighter);
+}
+
+.service-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.service-header h2 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.service-header h2:after {
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+}
+
+.service-subtitle {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
 }
 
 .service-content {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 30px;
 }
 
 .service-item {
-  padding: 15px;
-  background-color: #f9f9f9;
+  padding: 30px 20px;
+  background-color: #fff;
   border-radius: var(--border-radius-medium);
   transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border: 1px solid #eee;
 }
 
 .service-item:hover {
-  background-color: #f0f2f5;
-  transform: translateY(-2px);
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-medium);
+  border-color: transparent;
+}
+
+.service-icon-wrapper {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.service-item:hover .service-icon-wrapper {
+  transform: scale(1.1);
 }
 
 .service-item h3 {
-  font-size: 1.1rem;
-  margin-bottom: 8px;
+  font-size: 1.2rem;
+  margin-bottom: 15px;
   color: var(--text-primary);
+  border: none;
+  padding: 0;
+}
+
+.service-item h3:after {
+  display: none;
 }
 
 .service-item p {
@@ -480,11 +583,11 @@ h2:after {
   }
   
   .right-column {
-    order: -1;
+    /* 保持原来的顺序，或者根据需要调整 */
   }
   
-  .features-section {
-    margin-bottom: 0;
+  .service-content {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -503,13 +606,8 @@ h2:after {
     text-align: center;
   }
   
-  h2:after {
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  
-  h2 {
-    text-align: center;
+  .service-content {
+    grid-template-columns: 1fr;
   }
 }
-</style> 
+</style>
