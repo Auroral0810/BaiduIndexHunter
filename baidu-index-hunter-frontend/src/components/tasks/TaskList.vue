@@ -321,6 +321,7 @@
               :percentage="selectedTask.progress || 0" 
               :status="getProgressStatus(selectedTask.status)"
               :stroke-width="15"
+              :format="(percentage) => percentage.toFixed(1) + '%'"
             />
           </div>
         </el-card>
