@@ -638,6 +638,7 @@ const statusFilter = ref('')
 const taskDetailDialogVisible = ref(false)
 const selectedTask = ref<Task | null>(null)
 const downloading = ref(false)
+let refreshInterval: any = null
 
 // 加载任务列表
 const loadTasks = async () => {
@@ -1035,12 +1036,13 @@ const formatDatelists = (datelists: string[]) => {
 
 // 自动刷新任务列表
 const setupRefreshInterval = () => {
-  const intervalId = setInterval(() => {
+  if (refreshInterval) clearInterval(refreshInterval)
+  refreshInterval = setInterval(() => {
     if (!taskDetailDialogVisible.value) {
       loadTasks()
     }
   }, 30000)
-  return intervalId
+  return refreshInterval
 }
 
 // 监听详情对话框关闭
