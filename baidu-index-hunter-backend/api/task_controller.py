@@ -177,6 +177,10 @@ def create_task():
             # 添加任务ID（如果是恢复任务）
             if resume and 'task_id' in parameters:
                 spider_params['task_id'] = parameters['task_id']
+            
+            # 调试日志：打印转换后的爬虫参数
+            from utils.logger import log
+            log.info(f"搜索指数任务 - 转换后的 year_range: {spider_params.get('year_range')}")
             # log.info(f"111111:{spider_params}")
             
             # 创建任务
