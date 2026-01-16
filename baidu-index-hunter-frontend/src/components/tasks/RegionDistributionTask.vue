@@ -420,7 +420,7 @@
           <el-descriptions-item label="时间范围">
             <div class="overview-time">
               <template v-if="timeType === 'all'">
-                全部历史数据 (2011年1月1日至昨日)
+                全部历史数据 ({{ formData.kind === 'pc' ? '2006年6月1日' : '2011年1月1日' }}至今)
               </template>
               <template v-else-if="timeType === 'preset'">
                 最近 {{ formData.days }} 天
