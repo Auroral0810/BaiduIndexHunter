@@ -246,6 +246,13 @@ class TaskExecutor:
                 log.warning(f"更新任务状态时没有找到任务: {task_id}")
                 return False
 
+            # 推送 WebSocket 更新
+            try:
+                from utils.websocket_manager import emit_task_update
+                emit_task_update(task_id, update_data)
+            except Exception as ws_error:
+                log.warning(f"推送 WebSocket 更新失败: {ws_error}")
+
             # 如果任务状态为完成、失败或取消，更新task_queue表中的状态
             if status in ['completed', 'failed', 'cancelled']:
                 now = datetime.now()

@@ -525,6 +525,7 @@ import { ElMessage } from 'element-plus'
 import axios from 'axios'
 import { Download, InfoFilled, Document } from '@element-plus/icons-vue'
 import { ArrowDown, View, RefreshRight, Close } from '@element-plus/icons-vue'
+import { webSocketService } from '@/utils/websocket'
 
 // 定义任务接口
 interface TaskParameter {
@@ -1057,9 +1058,47 @@ const startAutoRefresh = () => {
   }
 }
 
+// 处理 WebSocket 实时更新
+const handleWebSocketUpdate = (data) => {
+  const { taskId, progress, status, completed_items, total_items, error_message } = data
+  
+  // 更新列表中的任务
+  const taskIndex = tasks.value.findIndex(t => t.taskId === taskId)
+  if (taskIndex !== -1) {
+    const task = tasks.value[taskIndex]
+    if (progress !== undefined) task.progress = progress
+    if (status !== undefined) task.status = status
+    if (completed_items !== undefined) task.completed_items = completed_items
+    if (total_items !== undefined) task.total_items = total_items
+    if (error_message !== undefined) task.error_message = error_message
+    task.updatedAt = new Date().toLocaleString()
+  }
+
+  // 如果是在详情弹窗中的任务，也同步更新
+  if (selectedTask.value && selectedTask.value.taskId === taskId) {
+    if (progress !== undefined) selectedTask.value.progress = progress
+    if (status !== undefined) selectedTask.value.status = status
+    if (completed_items !== undefined) selectedTask.value.completed_items = completed_items
+    if (total_items !== undefined) selectedTask.value.total_items = total_items
+    if (error_message !== undefined) selectedTask.value.error_message = error_message
+    selectedTask.value.updatedAt = new Date().toLocaleString()
+  }
+}
+
 onMounted(() => {
   loadTasks()
   startAutoRefresh()
+  
+  // 连接 WebSocket 并监听更新
+  webSocketService.connect()
+  webSocketService.on('task_update', handleWebSocketUpdate)
+})
+
+onUnmounted(() => {
+  // 断开 WebSocket 并在组件卸载时移除监听
+  webSocketService.off('task_update', handleWebSocketUpdate)
+  // 注意：如果其他组件也用单例 WebSocket，这里可能不应该 disconnect，除非确定只有一个地方用
+  // 考虑到项目结构，保留连接可能更合适，或者在 App.vue 统一管理
 })
 
 defineExpose({

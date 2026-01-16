@@ -16,6 +16,7 @@ from api.statistics_controller import register_statistics_blueprint
 from api.statistics import register_statistics_bp
 from api.config_api import config_bp
 from api.word_check_controller import register_word_check_blueprint
+from utils.websocket_manager import init_socketio
 from constant.respond import ResponseCode, ResponseFormatter
 from region_manager.region_manager import get_region_manager, RegionManager
 from cookie_manager.cookie_manager import CookieManager
@@ -316,6 +317,9 @@ def create_app(config=None):
     
     # 初始化数据
     init_data()
+    
+    # 初始化 WebSocket
+    socketio = init_socketio(app)
     
     # 启动定时任务调度器
     start_scheduler()
