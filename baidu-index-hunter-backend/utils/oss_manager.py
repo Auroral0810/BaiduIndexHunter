@@ -15,12 +15,18 @@ class OSSManager:
     
     def __init__(self):
         """初始化OSS管理器"""
-        self.url = OSS_CONFIG['url']
-        self.endpoint = OSS_CONFIG['endpoint']
-        self.access_key_id = OSS_CONFIG['access_key_id']
-        self.access_key_secret = OSS_CONFIG['access_key_secret']
-        self.bucket_name = OSS_CONFIG['bucket_name']
-        self.region = OSS_CONFIG['region']
+        from db.config_manager import config_manager
+        
+        # 优先从数据库加载配置，如果不存在则使用配置文件中的默认值
+        self.url = config_manager.get('oss.url', OSS_CONFIG.get('url'))
+        self.endpoint = config_manager.get('oss.endpoint', OSS_CONFIG.get('endpoint'))
+        self.access_key_id = config_manager.get('oss.access_key_id', OSS_CONFIG.get('access_key_id'))
+        self.access_key_secret = config_manager.get('oss.access_key_secret', OSS_CONFIG.get('access_key_secret'))
+        self.bucket_name = config_manager.get('oss.bucket_name', OSS_CONFIG.get('bucket_name'))
+        self.region = config_manager.get('oss.region', OSS_CONFIG.get('region'))
+        
+        # 记录配置来源（仅调试用，不在生产环境记录敏感信息）
+        # log.debug(f"OSS配置加载完成: endpoint={self.endpoint}, bucket={self.bucket_name}")
         
         # 初始化OSS认证和Bucket
         self.auth = oss2.Auth(self.access_key_id, self.access_key_secret)

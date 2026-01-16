@@ -56,8 +56,12 @@ class SearchIndexCrawler:
         self.current_date_range_index = 0
         self.city_dict = {}
         # 设置线程池最大工作线程数
-        self.max_workers = 3
-        # 修改为5个线程
+        from db.config_manager import config_manager
+        self.max_workers = int(config_manager.get('spider.max_workers', 5))
+        self.timeout = int(config_manager.get('spider.timeout', 15))
+        self.retry_times = int(config_manager.get('spider.retry_times', 2))
+        log.info(f"爬虫配置已加载: max_workers={self.max_workers}, timeout={self.timeout}, retry_times={self.retry_times}")
+        # 修改为动态配置线程
         
     def setup_signal_handlers(self):
         """设置信号处理器以捕获中断"""

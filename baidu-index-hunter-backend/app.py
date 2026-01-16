@@ -33,12 +33,13 @@ _cookie_data_synced = False
 _config_initialized = False
 
 # 任务配置
+# 任务配置
 TASK_CONFIG = {
-    'max_concurrent_tasks': int(os.getenv('MAX_CONCURRENT_TASKS', 20)),  # 最大并发任务数，增加到20
-    'task_queue_check_interval': int(os.getenv('TASK_QUEUE_CHECK_INTERVAL', 5)),  # 任务队列检查间隔（秒），减少到5秒
-    'default_task_priority': int(os.getenv('DEFAULT_TASK_PRIORITY', 5)),  # 默认任务优先级（1-10）
-    'max_retry_count': int(os.getenv('MAX_RETRY_COUNT', 3)),  # 任务最大重试次数
-    'retry_delay': int(os.getenv('RETRY_DELAY', 120)),  # 任务重试延迟（秒），减少到120秒
+    'max_concurrent_tasks': int(config_manager.get('task.max_concurrent_tasks', 20)),
+    'task_queue_check_interval': int(config_manager.get('task.queue_check_interval', 5)),
+    'default_task_priority': int(config_manager.get('task.default_priority', 5)),
+    'max_retry_count': int(config_manager.get('task.max_retry_count', 3)),
+    'retry_delay': int(config_manager.get('task.retry_delay', 120)),
 }
 
 # Cookie检查配置
@@ -46,6 +47,8 @@ COOKIE_CHECK_CONFIG = {
     'check_interval': int(os.getenv('COOKIE_CHECK_INTERVAL', 180)),  # Cookie状态检查间隔（秒），默认5分钟
     'ab_sr_update_interval': int(os.getenv('AB_SR_UPDATE_INTERVAL', 3600)),  # ab_sr cookie更新间隔（秒），默认1小时
     'resume_task_check_interval': int(os.getenv('RESUME_TASK_CHECK_INTERVAL', 300)),  # 恢复任务检查间隔（秒），默认5分钟
+    'min_available_count': int(config_manager.get('cookie.min_available_count', 3)),
+    'block_cooldown': int(config_manager.get('cookie.block_cooldown', 1800)),
 }
 
 # 添加项目根目录到Python路径
