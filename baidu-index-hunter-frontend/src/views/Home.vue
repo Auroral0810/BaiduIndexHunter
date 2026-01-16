@@ -144,12 +144,12 @@ const workflowSteps = [
     <!-- 开始使用区域 -->
     <section class="cta-section">
       <div class="cta-content">
-        <h2 class="cta-title">准备好开始采集数据了吗？</h2>
+        <h2 class="cta-title">深度挖掘数据价值，抢占市场先机</h2>
         <p class="cta-description">
-          只需简单几步，即可获取您需要的百度指数数据，助力您的研究与决策。
+          专业级百度指数采集引擎，助您实时掌控行业风向，用数据驱动业务的每一次飞跃。
         </p>
         <el-button type="primary" size="large" @click="goToDataCollection" class="cta-button">
-          立即开始
+          立即开启体验
         </el-button>
       </div>
     </section>
@@ -162,48 +162,37 @@ const workflowSteps = [
   margin: 0 auto;
 }
 
-/* 主横幅区域样式 */
+/* 主横幅区域样式 - 极简风格 */
 .hero-section {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 100px;
-  padding: 80px 40px;
-  background: white;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xl);
+  padding: 100px 0 60px;
   position: relative;
-  overflow: hidden;
 }
 
-/* 背景装饰元素 */
+/* 移除之前的圆球背景，改用极淡的顶部光晕 */
 .hero-section::before {
   content: '';
   position: absolute;
-  top: -50%;
-  right: -20%;
-  width: 800px;
-  height: 800px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
-  border-radius: 50%;
-  z-index: 0;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  height: 600px;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(37, 99, 235, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+  z-index: -1;
+  pointer-events: none;
 }
 
 .hero-section::after {
-  content: '';
-  position: absolute;
-  bottom: -30%;
-  left: -10%;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.05) 0%, transparent 70%);
-  border-radius: 50%;
-  z-index: 0;
+  display: none;
 }
 
 .hero-content {
   flex: 1;
-  padding-right: 60px;
+  padding-right: 80px;
   z-index: 1;
 }
 
@@ -211,59 +200,60 @@ const workflowSteps = [
   font-size: 4rem;
   font-weight: 800;
   margin-bottom: 24px;
-  background: var(--primary-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text-primary);
+  /* 移除文字渐变，改用纯深色，更高级 */
+  background: none;
+  -webkit-text-fill-color: initial;
   line-height: 1.1;
-  letter-spacing: -1px;
+  letter-spacing: -1.5px;
 }
 
 .hero-subtitle {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   color: var(--text-regular);
-  margin-bottom: 40px;
+  margin-bottom: 48px;
   line-height: 1.6;
-  max-width: 600px;
+  max-width: 540px;
 }
 
 .hero-buttons {
   display: flex;
-  gap: 20px;
+  gap: 16px;
 }
 
 .hero-buttons .el-button--primary {
-  background: var(--primary-color);
+  background-color: var(--primary-color);
   border: none;
   font-weight: 600;
-  padding: 24px 36px;
-  font-size: 1.1rem;
-  border-radius: var(--radius-full);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+  padding: 24px 32px;
+  font-size: 1rem;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+  transition: all 0.2s ease;
 }
 
 .hero-buttons .el-button--primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.4);
-  background: var(--primary-hover);
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
 }
 
 .hero-buttons .el-button--default {
-  border: 2px solid var(--border-color);
+  background-color: white;
+  border: 1px solid var(--border-color);
   color: var(--text-primary);
-  font-weight: 600;
-  padding: 24px 36px;
-  font-size: 1.1rem;
-  border-radius: var(--radius-full);
-  transition: all 0.3s ease;
-  background: transparent;
+  font-weight: 500;
+  padding: 24px 32px;
+  font-size: 1rem;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
 }
 
 .hero-buttons .el-button--default:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-  background-color: rgba(59, 130, 246, 0.05);
+  background-color: var(--background-color);
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .hero-image {
@@ -278,154 +268,121 @@ const workflowSteps = [
 
 .hero-image img {
   width: 100%;
-  max-width: 400px;
-  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.1));
+  max-width: 420px;
+  /* 更自然的投影 */
+  filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.08));
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hero-image img:hover {
-  transform: scale(1.05) rotate(2deg);
+  transform: scale(1.02);
 }
 
 /* 特性区域样式 */
 .section-title {
   text-align: center;
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 60px;
+  font-size: 2.25rem;
+  font-weight: 800;
+  margin-bottom: 80px;
   color: var(--text-primary);
-  position: relative;
   letter-spacing: -0.5px;
 }
 
 .features-section {
-  margin-bottom: 120px;
+  margin-bottom: 160px;
   padding: 0 20px;
 }
 
 .features-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 40px;
+  gap: 32px;
 }
 
 .feature-card {
   background-color: white;
   border-radius: var(--radius-lg);
-  padding: 40px 30px;
-  box-shadow: var(--shadow-md);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 40px 32px;
+  /* 极简边框，代替投影 */
+  border: 1px solid var(--border-color);
+  box-shadow: none;
+  transition: all 0.3s ease;
   height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  border: 1px solid rgba(0, 0, 0, 0.02);
+  align-items: flex-start; /* 左对齐更现代 */
+  text-align: left;
 }
 
 .feature-card:hover {
-  transform: translateY(-10px);
-  box-shadow: var(--shadow-xl);
-  border-color: rgba(59, 130, 246, 0.1);
+  transform: translateY(-4px);
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-lg);
 }
 
 .feature-icon {
   margin-bottom: 24px;
-  width: 80px;
-  height: 80px;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-  border-radius: 24px;
+  /* 极淡的蓝色背景 */
+  background-color: var(--primary-light);
+  border-radius: 12px;
   color: var(--primary-color);
   transition: transform 0.3s ease;
 }
 
 .feature-card:hover .feature-icon {
-  transform: scale(1.1) rotate(5deg);
+  transform: none; /* 移除旋转动画，保持稳重 */
+  background-color: var(--primary-color);
+  color: white;
 }
 
 .feature-title {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  margin-bottom: 16px;
-  text-align: center;
+  margin-bottom: 12px;
   color: var(--text-primary);
 }
 
 .feature-description {
-  color: var(--text-regular);
-  text-align: center;
-  line-height: 1.7;
-  font-size: 1.05rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-size: 1rem;
+  text-align: left;
 }
 
 /* 工作流程区域样式 */
 .workflow-section {
-  margin-bottom: 120px;
-  padding: 80px 0;
-  background-color: white;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  position: relative;
-  overflow: hidden;
+  margin-bottom: 160px;
+  padding: 0; /* 移除背景容器 */
+  background-color: transparent;
+  box-shadow: none;
+  overflow: visible;
 }
 
 .workflow-container {
   position: relative;
-  padding: 40px 60px;
+  padding: 0;
 }
 
 .workflow-progress {
-  position: absolute;
-  top: 150px;
-  left: 100px;
-  right: 100px;
-  display: flex;
-  justify-content: center;
-  z-index: 1;
-}
-
-.progress-line {
-  height: 3px;
-  background: linear-gradient(90deg, #e5e7eb 0%, #e5e7eb 100%);
-  width: 100%;
-  border-radius: 2px;
-  position: relative;
-  overflow: hidden;
-}
-
-.progress-line::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--primary-gradient);
-  transform: translateX(-100%);
-  animation: progressFlow 3s infinite ease-in-out;
-}
-
-@keyframes progressFlow {
-  0% { transform: translateX(-100%); }
-  50% { transform: translateX(0); }
-  100% { transform: translateX(100%); }
+  display: none; /* 移除进度条线条，改用更简洁的布局 */
 }
 
 .steps-container {
-  display: flex;
-  justify-content: space-between;
-  position: relative;
-  z-index: 2;
-  gap: 30px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 24px;
 }
 
 .workflow-step {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 200px;
+  width: auto;
   text-align: center;
   position: relative;
   transition: all 0.3s ease;
@@ -436,84 +393,84 @@ const workflowSteps = [
 }
 
 .step-number {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: white;
-  color: var(--primary-color);
-  border: 2px solid var(--primary-color);
-  border-radius: 50%;
-  font-weight: 800;
-  font-size: 20px;
-  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2);
-  margin-bottom: 20px;
-  z-index: 2;
-  position: relative;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: none;
+  border: none;
+  box-shadow: none;
+  width: auto;
+  height: auto;
 }
 
 .step-icon-container {
-  width: 120px;
-  height: 120px;
+  width: 80px;
+  height: 80px;
   background-color: white;
-  border-radius: 30px;
+  border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   box-shadow: var(--shadow-md);
   border: 1px solid var(--border-color);
   transition: all 0.3s ease;
-  color: var(--primary-color);
+  color: var(--text-regular);
 }
 
 .workflow-step:hover .step-icon-container {
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--shadow-lg);
   border-color: var(--primary-color);
-  background: var(--primary-light);
-  transform: scale(1.05);
+  color: var(--primary-color);
+  transform: none;
 }
 
 .step-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
   color: var(--text-primary);
 }
 
 .step-description {
-  color: var(--text-regular);
-  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
   line-height: 1.5;
 }
 
-/* 开始使用区域样式 */
+/* 箭头连接 */
+.workflow-step:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  top: 65px; /* 对齐图标中心 */
+  right: -20px;
+  font-size: 24px;
+  color: var(--border-color);
+  font-family: sans-serif;
+  font-weight: 300;
+}
+
+/* 开始使用区域样式 - 深色主题 */
 .cta-section {
-  background: var(--primary-gradient);
+  background-color: #0f172a; /* Slate 900 - 深邃午夜色 */
+  /* 移除复杂的背景图片 */
+  background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 100%);
   padding: 100px 40px;
-  border-radius: var(--radius-lg);
+  border-radius: 24px;
   margin-bottom: 60px;
   text-align: center;
   color: white;
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--shadow-2xl);
   position: relative;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .cta-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-}
-
-.cta-content {
-  position: relative;
-  z-index: 1;
+  display: none;
 }
 
 .cta-title {
@@ -521,33 +478,34 @@ const workflowSteps = [
   margin-bottom: 24px;
   font-weight: 800;
   letter-spacing: -1px;
+  color: white; /* 确保是纯白 */
 }
 
 .cta-description {
   font-size: 1.25rem;
   margin-bottom: 48px;
-  max-width: 700px;
+  max-width: 600px;
   margin-left: auto;
   margin-right: auto;
   line-height: 1.6;
-  opacity: 0.95;
+  color: #94a3b8; /* Slate 400 */
 }
 
 .cta-button {
   background-color: white !important;
-  color: var(--primary-color) !important;
-  font-weight: 700 !important;
-  padding: 24px 48px !important;
-  font-size: 1.25rem !important;
+  color: #0f172a !important; /* 深色文字 */
+  font-weight: 600 !important;
+  padding: 20px 40px !important;
+  font-size: 1.1rem !important;
   border: none !important;
-  border-radius: var(--radius-full) !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: 0 0 0 0 transparent !important;
+  transition: all 0.2s ease !important;
 }
 
 .cta-button:hover {
-  transform: translateY(-4px) scale(1.02) !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2) !important;
+  background-color: #f1f5f9 !important; /* Slate 100 */
+  transform: translateY(-2px) !important;
 }
 
 /* 响应式设计 */
@@ -557,11 +515,10 @@ const workflowSteps = [
   }
   
   .steps-container {
-    flex-wrap: wrap;
-    justify-content: center;
+    grid-template-columns: repeat(3, 1fr);
   }
   
-  .workflow-progress {
+  .workflow-step:not(:last-child)::after {
     display: none;
   }
 }
@@ -594,9 +551,13 @@ const workflowSteps = [
     grid-template-columns: 1fr;
   }
   
+  .steps-container {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  
   .workflow-step {
     width: 100%;
-    margin-bottom: 40px;
   }
   
   .cta-title {

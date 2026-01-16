@@ -132,37 +132,41 @@ const handleSelect = (key) => {
 
 <style>
 :root {
-  /* 品牌色系 - 现代蓝紫渐变 */
-  --primary-color: #3b82f6;
-  --primary-hover: #2563eb;
-  --primary-light: #eff6ff;
-  --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-  --secondary-gradient: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  /* 品牌色 - 更加稳重的深邃科技蓝 */
+  --primary-color: #2563eb; /* Royal Blue 600 */
+  --primary-hover: #1d4ed8; /* Royal Blue 700 */
+  --primary-light: #eff6ff; /* Blue 50 */
   
-  /* 文字颜色 */
-  --text-primary: #111827;
-  --text-regular: #4b5563;
-  --text-secondary: #9ca3af;
-  --text-placeholder: #d1d5db;
+  /* 渐变改为同色系微渐变，不再跨色相，提升专业感 */
+  --primary-gradient: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  
+  /* 深色强调色 */
+  --accent-color: #0f172a; /* Slate 900 */
+  
+  /* 文字颜色 - 使用 Slate 色系，冷淡高级 */
+  --text-primary: #0f172a; /* Slate 900 */
+  --text-regular: #334155; /* Slate 700 */
+  --text-secondary: #64748b; /* Slate 500 */
+  --text-placeholder: #cbd5e1; /* Slate 300 */
   
   /* 背景颜色 */
-  --background-color: #f3f4f6;
+  --background-color: #f8fafc; /* Slate 50 - 极淡的灰蓝背景 */
   --surface-color: #ffffff;
-  --border-color: #e5e7eb;
+  --border-color: #e2e8f0; /* Slate 200 */
   
-  /* 阴影系统 */
+  /* 阴影系统 - 更弥散、更柔和 */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
   
   /* 圆角 */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
-  --radius-lg: 1rem;
+  --radius-lg: 0.75rem;
   --radius-full: 9999px;
   
-  --content-width: 1280px;
+  --content-width: 1200px;
 }
 
 body {
@@ -177,8 +181,8 @@ body {
 
 /* 滚动条美化 */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -187,7 +191,7 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -200,20 +204,18 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.05) 0px, transparent 50%);
-  background-attachment: fixed;
+  background-color: var(--background-color);
+  background-image: none; /* 移除复杂的背景渐变 */
 }
 
 .app-header {
-  background-color: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   position: sticky;
   top: 0;
   z-index: 1000;
-  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+  border-bottom: 1px solid var(--border-color);
   transition: all 0.3s ease;
 }
 
