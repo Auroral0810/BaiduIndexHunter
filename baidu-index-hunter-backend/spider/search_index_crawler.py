@@ -1375,6 +1375,8 @@ class SearchIndexCrawler:
                 self.city_dict = cities
         
         # 处理日期范围
+        log.info(f"爬虫接收到的 date_ranges 参数: {date_ranges}, 类型: {type(date_ranges)}, 长度: {len(date_ranges) if date_ranges else 0}")
+        
         if date_ranges_file:
             date_ranges = self._load_date_ranges_from_file(date_ranges_file)
         elif year_range:
@@ -1389,6 +1391,8 @@ class SearchIndexCrawler:
             end_date = datetime.now().strftime('%Y-%m-%d')
             start_date = (datetime.now() - timedelta(days=29)).strftime('%Y-%m-%d')
             date_ranges = [(start_date, end_date)]
+        
+        log.info(f"最终使用的 date_ranges 长度: {len(date_ranges)}")
         
         
         

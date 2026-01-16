@@ -572,6 +572,7 @@ class TaskExecutor:
         elif 'date_ranges' in parameters and parameters['date_ranges']:
             # 使用自定义日期范围数组
             date_ranges = parameters['date_ranges']
+            log.info(f"接收到的 date_ranges 数量: {len(date_ranges)}")
             if isinstance(date_ranges, list) and len(date_ranges) > 0:
                 # data_length 是日期范围的数量
                 data_length = len(date_ranges)
@@ -582,6 +583,7 @@ class TaskExecutor:
                     end_date = date_ranges[-1][1]
             else:
                 data_length = 1
+            log.info(f"计算的 data_length: {data_length}, total_items 将是: {len(keywords) * len(city_dict) * data_length}")
         elif 'year_range' in parameters and parameters['year_range']:
             # 使用年份范围
             year_range = parameters['year_range']
@@ -690,13 +692,14 @@ class TaskExecutor:
             if 'date_ranges' in parameters and parameters['date_ranges']:
                 # 将嵌套列表转换为元组列表：[[start, end], ...] -> [(start, end), ...]
                 spider_params['date_ranges'] = [tuple(dr) for dr in parameters['date_ranges']]
+                log.info(f"传递给爬虫的 date_ranges 数量: {len(spider_params['date_ranges'])}")
             elif 'year_range' in parameters and parameters['year_range']:
                 spider_params['year_range'] = [(start_date, end_date)]
             else:
                 # 默认使用单个日期范围
                 spider_params['date_ranges'] = [(start_date, end_date)]
             
-            # log.info(f"spider_params: {spider_params}")
+            log.info(f"spider_params keys: {spider_params.keys()}, date_ranges count: {len(spider_params.get('date_ranges', []))}")
             
             # 启动爬虫
             success = search_index_crawler.crawl(**spider_params)
@@ -712,6 +715,7 @@ class TaskExecutor:
                 self._update_task_status(
                     task_id, 'completed',
                     progress=100,
+                    total_items=total_items,
                     completed_items=total_items,
                     checkpoint_path=checkpoint_path,
                     output_files=output_files
@@ -951,6 +955,7 @@ class TaskExecutor:
                 self._update_task_status(
                     task_id, 'completed',
                     progress=100,
+                    total_items=total_items,
                     completed_items=total_items,
                     checkpoint_path=checkpoint_path,
                     output_files=output_files
@@ -1063,6 +1068,7 @@ class TaskExecutor:
                 self._update_task_status(
                     task_id, 'completed',
                     progress=100,
+                    total_items=total_items,
                     completed_items=total_items,
                     checkpoint_path=checkpoint_path,
                     output_files=output_files
@@ -1167,6 +1173,7 @@ class TaskExecutor:
                 self._update_task_status(
                     task_id, 'completed',
                     progress=100,
+                    total_items=total_items,
                     completed_items=total_items,
                     checkpoint_path=checkpoint_path,
                     output_files=output_files
@@ -1271,6 +1278,7 @@ class TaskExecutor:
                 self._update_task_status(
                     task_id, 'completed',
                     progress=100,
+                    total_items=total_items,
                     completed_items=total_items,
                     checkpoint_path=checkpoint_path,
                     output_files=output_files
@@ -1456,6 +1464,7 @@ class TaskExecutor:
                 self._update_task_status(
                     task_id, 'completed',
                     progress=100,
+                    total_items=total_items,
                     completed_items=total_items,
                     checkpoint_path=checkpoint_path,
                     output_files=output_files
