@@ -180,7 +180,7 @@
         <el-form-item v-if="timeType === 'all'" label="数据说明">
           <div class="time-info">
             <el-alert
-              :title="`将获取从${formData.kind === 'pc' ? '2006' : '2011'}年1月1日至昨日的所有历史数据`"
+              :title="`将获取从${formData.kind === 'pc' ? '2006年6月1日' : '2011年1月1日'}至今的所有历史数据`"
               type="info"
               :closable="false"
               show-icon
@@ -903,10 +903,15 @@ const submitTask = async () => {
     } else if (timeType.value === 'year' && formData.yearRange[0] && formData.yearRange[1]) {
       params.parameters.year_range = [formData.yearRange[0], formData.yearRange[1]]
     } else if (timeType.value === 'all') {
-      // 全部数据类型：根据数据来源自动设置年份范围
-      const currentYear = new Date().getFullYear()
-      const startYear = formData.kind === 'pc' ? 2006 : 2011
-      params.parameters.year_range = [startYear, currentYear]
+      // 全部数据类型：根据数据来源自动设置日期范围
+      const endDate = new Date().toISOString().split('T')[0] // 今天的日期
+      let startDate
+      if (formData.kind === 'pc') {
+        startDate = '2006-06-01' // PC端从2006年6月1日开始
+      } else {
+        startDate = '2011-01-01' // 移动端和PC+移动从2011年1月1日开始
+      }
+      params.parameters.date_ranges = [[startDate, endDate]]
     }
     
     // 添加任务ID（如果是恢复任务）

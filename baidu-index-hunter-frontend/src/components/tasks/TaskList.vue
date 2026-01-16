@@ -42,7 +42,7 @@
       <div v-if="loading" class="loading-container">
         <el-empty description="正在加载数据..." :image-size="100">
           <template #image>
-            <el-icon class="loading-icon"><i-ep-loading /></el-icon>
+            <el-icon class="loading-icon is-loading"><Loading /></el-icon>
           </template>
         </el-empty>
       </div>
@@ -524,7 +524,7 @@ import { ref, onMounted, watch, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import axios from 'axios'
 import { Download, InfoFilled, Document } from '@element-plus/icons-vue'
-import { ArrowDown, View, RefreshRight, Close } from '@element-plus/icons-vue'
+import { ArrowDown, View, RefreshRight, Close, Loading } from '@element-plus/icons-vue'
 import { webSocketService } from '@/utils/websocket'
 
 // 定义任务接口

@@ -10,6 +10,8 @@ import DemographicAttributesTask from '@/components/tasks/DemographicAttributesT
 import InterestProfileTask from '@/components/tasks/InterestProfileTask.vue'
 import RegionDistributionTask from '@/components/tasks/RegionDistributionTask.vue'
 import TaskList from '@/components/tasks/TaskList.vue'
+import { webSocketService } from '@/utils/websocket'
+import { Close } from '@element-plus/icons-vue'
 
 const API_BASE_URL = 'http://127.0.0.1:5001/api'
 
@@ -20,6 +22,49 @@ const activeTab = ref('search_index')
 const apiStatus = ref(false)
 const apiStatusDialog = ref(false)
 const taskListRef = ref(null)
+
+// 当前运行的任务
+const currentRunningTask = ref(null)
+const showProgressPanel = ref(false)
+
+// 处理 WebSocket 更新
+const handleWebSocketUpdate = (data) => {
+  if (data.status === 'running' || data.status === 'pending') {
+    currentRunningTask.value = {
+      ...data,
+      updateTime: new Date()
+    }
+    showProgressPanel.value = true
+  } else if (data.status === 'completed' || data.status === 'failed' || data.status === 'cancelled') {
+    // 任务结束，更新状态并延迟关闭面板
+    if (currentRunningTask.value && currentRunningTask.value.taskId === data.taskId) {
+      currentRunningTask.value = {
+        ...currentRunningTask.value,
+        ...data,
+        progress: data.status === 'completed' ? 100 : data.progress
+      }
+      
+      // 3秒后自动关闭面板
+      setTimeout(() => {
+        if (currentRunningTask.value && currentRunningTask.value.taskId === data.taskId) {
+           showProgressPanel.value = false
+           // 延迟清空，避免面板突然消失内容
+           setTimeout(() => {
+             currentRunningTask.value = null
+           }, 300)
+        }
+      }, 5000)
+    }
+  }
+}
+
+// 格式化进度状态
+const getProgressStatus = (status) => {
+  if (status === 'completed') return 'success'
+  if (status === 'failed') return 'exception'
+  if (status === 'cancelled') return 'warning'
+  return ''
+}
 
 // 监听路由查询参数变化
 watch(() => route.query, (query) => {
@@ -89,6 +134,10 @@ const checkApiHealth = async () => {
 
 onMounted(() => {
   checkApiHealth()
+  
+  // 连接 WebSocket 并监听
+  webSocketService.connect()
+  webSocketService.on('task_update', handleWebSocketUpdate)
 })
 </script>
 
@@ -167,6 +216,38 @@ onMounted(() => {
         </el-result>
       </div>
     </el-dialog>
+
+    <!-- 全局任务进度悬浮面板 -->
+    <transition name="slide-fade">
+      <div v-if="showProgressPanel && currentRunningTask" class="global-progress-panel">
+        <div class="panel-header">
+          <span class="panel-title">
+            <span class="status-indicator" :class="currentRunningTask.status"></span>
+            当前任务: {{ currentRunningTask.taskId }}
+          </span>
+          <el-icon class="close-btn" @click="showProgressPanel = false"><Close /></el-icon>
+        </div>
+        <div class="panel-content">
+          <div class="progress-info">
+            <span class="progress-text">
+              进度: {{ currentRunningTask.completed_items || 0 }} / {{ currentRunningTask.total_items || '?' }} 
+              ({{ currentRunningTask.progress ? currentRunningTask.progress.toFixed(2) : 0 }}%)
+            </span>
+            <span class="status-text">{{ currentRunningTask.status === 'running' ? '正在执行...' : currentRunningTask.status }}</span>
+          </div>
+          <el-progress 
+            :percentage="currentRunningTask.progress || 0" 
+            :status="getProgressStatus(currentRunningTask.status)"
+            :stroke-width="10"
+            striped
+            striped-flow
+          />
+          <div v-if="currentRunningTask.error_message" class="error-msg">
+            {{ currentRunningTask.error_message }}
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -283,5 +364,90 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   font-size: 14px;
+}
+
+/* 全局进度悬浮面板 */
+.global-progress-panel {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 350px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  z-index: 2000;
+  overflow: hidden;
+  border: 1px solid #ebeef5;
+}
+
+.panel-header {
+  padding: 12px 15px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ebeef5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panel-title {
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #909399;
+}
+
+.status-indicator.running { background-color: #409EFF; box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2); }
+.status-indicator.completed { background-color: #67C23A; }
+.status-indicator.failed { background-color: #F56C6C; }
+
+.close-btn {
+  cursor: pointer;
+  color: #909399;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #303133;
+}
+
+.panel-content {
+  padding: 15px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #606266;
+}
+
+.error-msg {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #F56C6C;
+  line-height: 1.4;
+}
+
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateY(20px);
+  opacity: 0;
 }
 </style>
