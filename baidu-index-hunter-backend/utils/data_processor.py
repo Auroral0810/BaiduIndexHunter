@@ -483,17 +483,14 @@ class BaiduIndexDataProcessor:
                     keyword_items.append(item)
             
             # 处理关键词数据
+            # API返回的interest数组已经是top10，直接使用，不需要排序和限制
             for item in keyword_items:
                 word = item.get('word', '')
                 
-                # 处理兴趣分布（API返回的interest数组已经是top10，按rate降序排列）
+                # 直接使用API返回的interest数组（已经是top10）
                 interest_data = item.get('interest', [])
                 
-                # 确保只处理top10数据（按rate降序排序，取前10条）
-                sorted_interests = sorted(interest_data, key=lambda x: float(x.get('rate', 0)) if isinstance(x.get('rate'), (int, float)) else 0, reverse=True)
-                top10_interests = sorted_interests[:10]
-                
-                for interest in top10_interests:
+                for interest in interest_data:
                     desc = interest.get('desc', '')
                     tgi = interest.get('tgi', '')
                     # 处理TGI为空字符串的情况
@@ -513,15 +510,11 @@ class BaiduIndexDataProcessor:
                     })
             
             # 处理全网分布数据（如果有）
+            # API返回的interest数组已经是top10，直接使用，不需要排序和限制
             if overall_item:
-                # 处理兴趣分布（API返回的interest数组已经是top10，按rate降序排列）
                 interest_data = overall_item.get('interest', [])
                 
-                # 确保只处理top10数据（按rate降序排序，取前10条）
-                sorted_interests = sorted(interest_data, key=lambda x: float(x.get('rate', 0)) if isinstance(x.get('rate'), (int, float)) else 0, reverse=True)
-                top10_interests = sorted_interests[:10]
-                
-                for interest in top10_interests:
+                for interest in interest_data:
                     desc = interest.get('desc', '')
                     tgi = interest.get('tgi', '')
                     # 处理TGI为空字符串的情况（全网分布的TGI通常为空）

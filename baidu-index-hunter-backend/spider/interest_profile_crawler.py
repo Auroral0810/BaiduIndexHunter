@@ -99,19 +99,55 @@ class InterestProfileCrawler:
                 log.warning("无法获取当前任务ID，使用时间戳作为文件名")
                 task_id = datetime.now().strftime('%Y%m%d%H%M%S')
             
-            # 创建DataFrame
+            # 创建DataFrame - 直接保存API返回的原始数据，不做去重处理
             df = pd.DataFrame(self.data_cache)
+            log.info(f"准备保存 {len(df)} 条记录")
             
             # 构建输出文件路径
-            output_path = os.path.join(self.output_dir,task_id, f"interest_profiles_{task_id}.csv")
+            output_path = os.path.join(self.output_dir, task_id, f"interest_profiles_{task_id}.csv")
             
-            # 保存数据
+            # 确保输出目录存在
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            
+            # 保存数据 - 每个关键词+周期的数据完全替换为新的API数据
             try:
                 if os.path.exists(output_path):
-                    # 追加到现有文件
-                    data_processor.append_to_csv(df, output_path)
+                    # 读取现有文件
+                    existing_df = pd.read_csv(output_path, encoding='utf-8-sig')
+                    
+                    # 获取新数据中的所有关键词和数据周期组合
+                    new_keyword_periods = set()
+                    for _, row in df.iterrows():
+                        keyword = row.get('关键词', '')
+                        period = row.get('数据周期', '')
+                        if keyword and period:
+                            new_keyword_periods.add((keyword, period))
+                    
+                    log.info(f"新数据包含 {len(new_keyword_periods)} 个关键词+周期组合")
+                    
+                    # 从现有数据中移除与新数据有相同关键词+数据周期的所有记录
+                    # 这样确保每个关键词在每个周期只保留最新的完整API数据
+                    if '关键词' in existing_df.columns and '数据周期' in existing_df.columns:
+                        # 创建一个mask标记需要保留的行
+                        keep_mask = ~existing_df.apply(
+                            lambda row: (row['关键词'], row['数据周期']) in new_keyword_periods, 
+                            axis=1
+                        )
+                        filtered_existing = existing_df[keep_mask]
+                        removed_count = len(existing_df) - len(filtered_existing)
+                        log.info(f"从旧数据中移除 {removed_count} 条记录（与新数据关键词+周期相同）")
+                    else:
+                        filtered_existing = existing_df
+                    
+                    # 合并过滤后的旧数据和新数据
+                    combined_df = pd.concat([filtered_existing, df], ignore_index=True)
+                    
+                    log.info(f"合并数据：保留 {len(filtered_existing)} 条旧记录，添加 {len(df)} 条新记录，共 {len(combined_df)} 条")
+                    
+                    # 保存合并后的数据（覆盖原文件）
+                    data_processor.save_to_csv(combined_df, output_path)
                 else:
-                    # 创建新文件
+                    # 创建新文件 - 直接保存API返回的数据
                     data_processor.save_to_csv(df, output_path)
                 
                 log.info(f"成功保存 {len(self.data_cache)} 条数据到 {output_path}")
