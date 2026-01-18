@@ -947,6 +947,9 @@ class TaskExecutor:
             
             # 启动爬虫
             from spider.feed_index_crawler import feed_index_crawler
+            # 添加batch_size参数，默认5个关键词一批
+            spider_params['batch_size'] = 5
+            spider_params['total_tasks'] = total_items
             success = feed_index_crawler.crawl(**spider_params)
             
             if success:
