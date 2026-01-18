@@ -364,22 +364,36 @@ class FeedIndexCrawler:
     def _decrypt(self, key, data):
         """解密百度指数数据"""
         if not key or not data:
+            log.warning(f"解密失败: key为空={not key}, data为空={not data}")
             return ""
+        
+        try:
+            i = list(key)
+            n = list(data)
+            a = {}
+            r = []
             
-        i = list(key)
-        n = list(data)
-        a = {}
-        r = []
-        
-        # 构建映射字典
-        for A in range(len(i) // 2):
-            a[i[A]] = i[len(i) // 2 + A]
-        
-        # 根据映射解密数据
-        for o in range(len(n)):
-            r.append(a.get(n[o], n[o]))
-        
-        return ''.join(r)
+            # 构建映射字典
+            for A in range(len(i) // 2):
+                a[i[A]] = i[len(i) // 2 + A]
+            
+            # 根据映射解密数据
+            for o in range(len(n)):
+                r.append(a.get(n[o], n[o]))
+            
+            result = ''.join(r)
+            
+            # 验证解密结果
+            if result and ',' in result:
+                log.debug(f"解密成功, 输入长度: {len(data)}, 输出长度: {len(result)}, 数据点数量: {result.count(',') + 1}")
+            else:
+                log.warning(f"解密结果可能不正确: 输入长度={len(data)}, 输出长度={len(result)}, 包含逗号={(',' in result) if result else False}")
+            
+            return result
+            
+        except Exception as e:
+            log.error(f"解密时发生异常: {str(e)}")
+            return ""
     
     @retry(max_retries=3, delay=2)
     def _get_cipher_text(self, keyword):
@@ -403,23 +417,35 @@ class FeedIndexCrawler:
             'User-Agent': self.ua.random,
         }
         
-        response = requests.get(
-            'https://index.baidu.com/Interface/ptbk', 
-            params=params, 
-            cookies=cookie, 
-            headers=headers
-        )
-        
-        if response.status_code != 200:
-            log.error(f"获取解密密钥失败: {response.status_code}")
-            return None
+        try:
+            response = requests.get(
+                'https://index.baidu.com/Interface/ptbk', 
+                params=params, 
+                cookies=cookie, 
+                headers=headers,
+                timeout=10
+            )
             
-        data = response.json()
-        if data.get('status') != 0:
-            log.error(f"获取解密密钥失败: {data}")
-            return None
+            if response.status_code != 200:
+                log.error(f"获取解密密钥失败, HTTP状态码: {response.status_code}, uniqid: {uniqid}")
+                return None
+                
+            data = response.json()
+            if data.get('status') != 0:
+                log.error(f"获取解密密钥失败, API返回: {data}, uniqid: {uniqid}")
+                return None
             
-        return data.get('data')
+            key = data.get('data')
+            if not key:
+                log.error(f"获取解密密钥失败, data字段为空, uniqid: {uniqid}")
+                return None
+            
+            log.debug(f"成功获取解密密钥, 长度: {len(key)}, uniqid: {uniqid}")
+            return key
+            
+        except Exception as e:
+            log.error(f"获取解密密钥时发生异常: {str(e)}, uniqid: {uniqid}")
+            return None
     
     @retry(max_retries=3, delay=2)
     def _get_feed_index(self, area, keywords, start_date=None, end_date=None, days=None):
@@ -428,17 +454,23 @@ class FeedIndexCrawler:
         rate_limiter.wait()
         
         # 构建word参数
-        word_param = []
+        word_param_list = []
         for keyword in keywords:
-            word_param.append({"name": keyword, "wordType": 1})
+            word_param_list.append([{"name": keyword, "wordType": 1}])
         
-        # 构建请求URL
-        encoded_word_param = json.dumps([word_param])
+        # 构建请求URL - 使用separators去除空格，ensure_ascii=False保留中文(让quote处理编码)
+        json_str = json.dumps(word_param_list, separators=(',', ':'), ensure_ascii=False)
+        encoded_word_param = urllib.parse.quote(json_str)
+        
+        log.debug(f"构建的word参数: {json_str}")
+        log.debug(f"编码后的word参数: {encoded_word_param}")
         
         if days:
             url = f"{BAIDU_INDEX_API['trend_url']}?area={area}&word={encoded_word_param}&days={days}"
         else:
             url = f"{BAIDU_INDEX_API['trend_url']}?area={area}&word={encoded_word_param}&startDate={start_date}&endDate={end_date}"
+            
+        log.debug(f"请求URL: {url}")
         
         # 获取有效的Cookie - cookie_rotator.get_cookie()方法内部会记录使用量，不需要额外记录
         account_id, cookie_dict = self.cookie_rotator.get_cookie()
@@ -498,15 +530,30 @@ class FeedIndexCrawler:
             # 获取解密密钥
             key = self._get_key(uniqid, cookie)
             if not key:
-                log.error("获取解密密钥失败")
+                log.error(f"获取解密密钥失败, uniqid: {uniqid}")
                 return None, None
+            
+            log.debug(f"获取到解密密钥, 长度: {len(key)}")
                 
             # 获取数据类型和原始数据
             data_type = index_data.get('type', 'day')  # 'day'或'week'
             raw_data = index_data.get('data', '')
             
+            log.debug(f"原始数据类型: {data_type}, 原始数据长度: {len(raw_data) if raw_data else 0}")
+            
             # 解密数据
             decrypted_data = self._decrypt(key, raw_data)
+            
+            # 验证解密数据
+            if not decrypted_data:
+                log.error(f"解密数据为空, keyword: {keyword}, city: {city_name}")
+                return None, None
+            
+            # 检查解密后是否包含逗号（正确解密的数据应该包含逗号分隔的数字）
+            if ',' not in decrypted_data:
+                log.warning(f"解密数据可能不正确（不包含逗号）, keyword: {keyword}, data_length: {len(decrypted_data)}")
+            
+            log.debug(f"解密数据长度: {len(decrypted_data)}, 前100字符: {decrypted_data[:100] if len(decrypted_data) > 100 else decrypted_data}")
             
             # 调用data_processor处理数据
             return data_processor.process_feed_index_data(
@@ -516,6 +563,8 @@ class FeedIndexCrawler:
             
         except Exception as e:
             log.error(f"处理数据时出错: {str(e)}")
+            import traceback
+            log.error(traceback.format_exc())
             return None, None
     
     def _process_multi_feed_index_data(self, data, cookie, keywords, city_code, city_name, start_date, end_date):
@@ -554,6 +603,13 @@ class FeedIndexCrawler:
             # 检查数据完整性
             if len(index_list) != len(keywords):
                 log.warning(f"关键词数量与返回的数据不匹配: keywords={len(keywords)}, index={len(index_list)}")
+                # 打印返回的数据结构，帮助调试
+                if len(index_list) > 0:
+                    try:
+                        key_info = index_list[0].get('key', [])
+                        log.warning(f"返回的第一个index数据的key信息: {json.dumps(key_info, ensure_ascii=False)}")
+                    except:
+                        pass
                 
                 # 为缺少的关键词构造空数据
                 if len(index_list) < len(keywords):
@@ -777,11 +833,15 @@ class FeedIndexCrawler:
             keywords = task_data[0]
             city_code, city_name, start_date, end_date = task_data[1:]
             is_batch = True
+            task_desc = f"Batch[{len(keywords)}]: {keywords[0]}... - {city_name}"
         else:
             keyword = task_data[0]
             keywords = [keyword]
             city_code, city_name, start_date, end_date = task_data[1:]
             is_batch = False
+            task_desc = f"Single: {keyword} - {city_name}"
+        
+        log.debug(f"开始处理任务: {task_desc}, 日期: {start_date} 至 {end_date}")
         
         # 检查任务是否已完成
         if not is_batch:
@@ -805,7 +865,7 @@ class FeedIndexCrawler:
             # 获取数据
             result = self._get_feed_index(city_code, keywords, start_date, end_date)
             if not result:
-                log.warning(f"获取数据失败，跳过当前任务: {city_code}, {start_date}-{end_date}, 关键词数量: {len(keywords)}")
+                log.warning(f"获取数据失败(Result is None)，构造空结果: {task_desc}")
                 
                 # 构造空结果
                 if not is_batch:
@@ -1453,6 +1513,7 @@ class FeedIndexCrawler:
             
             # 如果batch_size为1或者只有一个关键词，使用原来的方式
             if batch_size == 1 or len(keywords) == 1:
+                log.info(f"使用单任务模式生成任务 (batch_size={batch_size}, keywords={len(keywords)})")
                 for keyword in keywords:
                     for city_code, city_name in self.city_dict.items():
                         for start_date, end_date in date_ranges:
@@ -1464,6 +1525,7 @@ class FeedIndexCrawler:
                             all_tasks.append((keyword, city_code, city_name, start_date, end_date))
             else:
                 # 批量处理模式
+                log.info(f"使用批量模式生成任务 (batch_size={batch_size}, batches={len(keyword_batches)})")
                 for keyword_batch in keyword_batches:
                     for city_code, city_name in self.city_dict.items():
                         for start_date, end_date in date_ranges:

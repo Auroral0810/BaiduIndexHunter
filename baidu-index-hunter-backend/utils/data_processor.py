@@ -1075,7 +1075,7 @@ class BaiduIndexDataProcessor:
         :param keyword: 关键词
         :param city_code: 城市代码
         :param city_name: 城市名称
-        :param start_date: 开始日期
+        :param start_date: 开始日期 
         :param end_date: 结束日期
         :param decrypted_data: 解密后的数据
         :param data_type: 数据类型，'day'或'week'
@@ -1084,6 +1084,11 @@ class BaiduIndexDataProcessor:
         try:
             if not data or not data.get('data') or not data['data'].get('index'):
                 log.warning(f"数据为空或格式不正确: {data}")
+                return None, None
+            
+            # 验证解密数据
+            if not decrypted_data or not isinstance(decrypted_data, str):
+                log.error(f"解密数据无效: {type(decrypted_data)}")
                 return None, None
                 
             # 获取统计数据
@@ -1095,12 +1100,22 @@ class BaiduIndexDataProcessor:
             yoy_value = general_ratio.get('yoy', '-')  # 同比
             qoq_value = general_ratio.get('qoq', '-')  # 环比
             
+            log.debug(f"统计数据: avg={avg_value}, yoy={yoy_value}, qoq={qoq_value}")
+            
             # 获取起止日期
             api_start_date = index_data.get('startDate', start_date)
             api_end_date = index_data.get('endDate', end_date)
             
-            # 将解密后的数据转换为列表
-            values = decrypted_data.split(',')
+            # 将解密后的数据转换为列表，保留空值并替换为'0'
+            raw_values = decrypted_data.split(',')
+            values = [v if v.strip() else '0' for v in raw_values]
+            
+            # 如果列表为空，返回错误
+            if not values:
+                log.error(f"解密数据分割后为空, keyword: {keyword}, city: {city_name}")
+                return None, None
+            
+            log.debug(f"解密数据分割后共 {len(values)} 个值")
             
             # 计算日期间隔
             start = datetime.strptime(api_start_date, '%Y-%m-%d')
@@ -1110,13 +1125,18 @@ class BaiduIndexDataProcessor:
             # 判断数据粒度
             data_length = len(values)
             
-            # 确定数据间隔
-            if data_type == 'day' or (data_length == total_days):
+            # 确定数据间隔 - 优先使用API返回的data_type
+            if data_type == 'week':
+                # API明确返回week类型，使用周度数据
+                interval = 7
+                data_frequency = '周度'
+                log.info(f"{city_name} - {keyword}: API返回周度数据, 共 {data_length} 周")
+            elif data_type == 'day' or (data_length == total_days):
                 # 每天一个数据点 - 日度数据
                 interval = 1
                 data_frequency = '日度'
-            elif data_type == 'week' or abs(total_days - data_length * 7) <= 7:
-                # 每周一个数据点 - 周度数据
+            elif abs(total_days - data_length * 7) <= 7:
+                # 每周一个数据点 - 周度数据（通过数据量推断）
                 interval = 7
                 data_frequency = '周度'
             else:
@@ -1124,7 +1144,7 @@ class BaiduIndexDataProcessor:
                 interval = total_days // data_length if data_length > 0 else 1
                 data_frequency = '自定义'
                 
-            # log.info(f"{city_name} - {keyword} 数据粒度: {data_frequency}数据 (每{interval}天一个数据点)")
+            log.debug(f"{city_name} - {keyword} 数据粒度: {data_frequency} (每{interval}天一个数据点, 共{data_length}个数据点)")
             
             # 生成日期列表
             date_range = []
@@ -1135,6 +1155,8 @@ class BaiduIndexDataProcessor:
             # 准备日度/周度数据
             daily_data = []
             for i in range(len(date_range)):
+                # 确保索引不越界
+                value = values[i] if i < len(values) else '0'
                 daily_record = {
                     '关键词': keyword,
                     '城市代码': city_code,
@@ -1143,28 +1165,40 @@ class BaiduIndexDataProcessor:
                     '数据类型': data_frequency,
                     '数据间隔(天)': interval,
                     '所属年份': date_range[i][:4],
-                    '资讯指数': values[i],
+                    '资讯指数': value,
                     '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 }
                 daily_data.append(daily_record)
+            
+            # 计算总值
+            total_value = 0
+            for v in values:
+                try:
+                    total_value += int(v)
+                except (ValueError, TypeError):
+                    pass
                 
-            # 准备统计数据
+            # 准备统计数据 - 使用与默认数据一致的字段名
             stats_record = {
                 '关键词': keyword,
                 '城市代码': city_code,
                 '城市': city_name,
                 '时间范围': f"{api_start_date} 至 {api_end_date}",
-                '资讯日均值': avg_value,
-                '资讯同比': yoy_value,
-                '资讯环比': qoq_value,
-                '资讯总值': sum(int(v) for v in values if v.isdigit()),
+                '日均值': avg_value,
+                '同比': yoy_value,
+                '环比': qoq_value,
+                '总值': total_value,
                 '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             }
+            
+            log.info(f"成功处理资讯指数数据: {keyword} - {city_name}, {data_frequency}, 共 {len(daily_data)} 条记录, 日均值: {avg_value}")
             
             return daily_data, stats_record
             
         except Exception as e:
             log.error(f"处理资讯指数日度数据时出错: {str(e)}")
+            import traceback
+            log.error(traceback.format_exc())
             return None, None
 
 
