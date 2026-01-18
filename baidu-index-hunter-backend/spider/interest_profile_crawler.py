@@ -428,8 +428,7 @@ class InterestProfileCrawler:
                     'output_file': self._get_output_path(task_id, output_format),
                     'results': {},  # 存储已完成任务的状态，格式：{keyword: {'status': 'success|failed', ...}}
                     'checkpoint_time': datetime.now(),
-                    'processed_batches': [],  # 存储已处理的批次
-                    'processed_typeids': []   # 存储已处理的兴趣类型ID
+                    'processed_batches': []  # 存储已处理的批次
                 }
                 
                 # 保存初始检查点
@@ -446,7 +445,6 @@ class InterestProfileCrawler:
         
         # 将关键词分批处理
         processed_batches = self.task_status[task_id].get('processed_batches', [])
-        processed_typeids = self.task_status[task_id].get('processed_typeids', [])
         
         # 将关键词列表分成多个批次
         keyword_batches = [keywords[i:i + batch_size] for i in range(0, len(keywords), batch_size)]
@@ -510,14 +508,6 @@ class InterestProfileCrawler:
                     if len(self.data_cache) >= self.data_cache_size:
                         self._save_data_cache(status="completed")
                 
-                # 提取所有唯一的typeId值
-                unique_typeids = set()
-                for item in result.get('data', {}).get('result', []):
-                    for interest in item.get('interest', []):
-                        typeid = interest.get('typeId')
-                        if typeid:
-                            unique_typeids.add(typeid)
-                
                 # 更新任务状态
                 with self.lock:
                     # 标记批次中的每个关键词为已完成
@@ -542,39 +532,8 @@ class InterestProfileCrawler:
                 log.info(f"成功爬取批次 {batch_idx+1}/{len(keyword_batches)}，共 {len(df)} 条记录，"
                        f"总进度：{self.task_status[task_id]['progress']}%")
                 
-                # 对每个唯一的typeId进行单独的请求（如果尚未处理过）
-                for typeid in unique_typeids:
-                    if typeid in processed_typeids:
-                        log.info(f"跳过已处理的兴趣类型ID: {typeid}")
-                        continue
-                    
-                    log.info(f"使用兴趣类型ID {typeid} 获取详细数据")
-                    
-                    # 获取特定类型的兴趣分布数据
-                    type_result = self.get_interest_profiles(batch_to_process, typeid)
-                    
-                    if type_result:
-                        # 处理数据
-                        type_df = data_processor.process_interest_profile_data(type_result, typeid)
-                        
-                        # 将数据添加到缓存
-                        with self.lock:
-                            self.data_cache.extend(type_df.to_dict('records'))
-                            
-                            # 如果缓存达到阈值，保存数据
-                            if len(self.data_cache) >= self.data_cache_size:
-                                self._save_data_cache(status="completed")
-                        
-                        # 标记该typeid为已处理
-                        with self.lock:
-                            if 'processed_typeids' not in self.task_status[task_id]:
-                                self.task_status[task_id]['processed_typeids'] = []
-                            self.task_status[task_id]['processed_typeids'].append(typeid)
-                            self._save_global_checkpoint(task_id)
-                        
-                        log.info(f"成功处理兴趣类型ID {typeid}，获取 {len(type_df)} 条记录")
-                    else:
-                        log.error(f"获取兴趣类型ID {typeid} 的数据失败")
+                # 注意：API返回的result中每个关键词的interest数组已经是top10数据
+                # 不需要再对每个typeid单独请求，直接使用API返回的top10数据即可
             else:
                 # 更新任务状态
                 with self.lock:

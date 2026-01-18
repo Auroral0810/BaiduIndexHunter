@@ -1432,8 +1432,10 @@ class FeedIndexCrawler:
         log.info(f"任务ID: {self.task_id}")
         log.info(f"总任务数: {self.total_tasks} (关键词: {len(keywords)}, 城市: {len(self.city_dict)}, 日期范围: {len(date_ranges)})")
         
-        # 上次进度更新的百分比，用于每增加5%进度时更新一次数据库
+        # 上次进度更新的百分比，用于每增加0.05%进度时更新一次数据库
         last_progress_percent = 0
+        # 上次WebSocket推送的进度百分比，用于控制推送频率
+        last_ws_progress_percent = 0
         
         # 开始爬取
         try:
@@ -1530,7 +1532,9 @@ class FeedIndexCrawler:
                                         local_data_cache.extend(daily_data)
                                         local_stats_cache.extend(stats_records)
                                         
-                                        # 更新全局任务状态
+                                        # 更新全局任务状态并计算进度
+                                        current_progress_percent = 0
+                                        current_completed_tasks = 0
                                         with self.task_lock:
                                             for task_key in task_keys:
                                                 self.completed_keywords.add(task_key)
@@ -1538,6 +1542,27 @@ class FeedIndexCrawler:
                                             # 每完成10个任务保存一次检查点
                                             if self.completed_tasks % 10 == 0:
                                                 self._save_global_checkpoint()
+                                            
+                                            # 保存当前值用于锁外使用
+                                            current_completed_tasks = self.completed_tasks
+                                            # 计算当前进度百分比
+                                            current_progress_percent = ((self.completed_tasks / self.total_tasks) * 100) if self.total_tasks > 0 else 0
+                                        
+                                        # 在锁外推送WebSocket，避免阻塞
+                                        # 每完成5个任务或进度增加0.1%时推送WebSocket更新
+                                        if current_progress_percent >= last_ws_progress_percent + 0.1 or current_completed_tasks % 5 == 0:
+                                            last_ws_progress_percent = current_progress_percent
+                                            # 立即推送 WebSocket 更新（不等待数据库更新）
+                                            try:
+                                                from utils.websocket_manager import emit_task_update
+                                                emit_task_update(self.task_id, {
+                                                    'progress': min(current_progress_percent, 100),
+                                                    'completed_items': current_completed_tasks,
+                                                    'total_items': self.total_tasks,
+                                                    'status': 'running'
+                                                })
+                                            except Exception as ws_error:
+                                                log.debug(f"推送 WebSocket 更新失败: {ws_error}")
                                 else:
                                     # 单个任务
                                     task_key, daily_data, stats_record = result
@@ -1548,13 +1573,36 @@ class FeedIndexCrawler:
                                         local_data_cache.extend(daily_data)
                                         local_stats_cache.append(stats_record)
                                         
-                                        # 更新全局任务状态
+                                        # 更新全局任务状态并计算进度
+                                        current_progress_percent = 0
+                                        current_completed_tasks = 0
                                         with self.task_lock:
                                             self.completed_keywords.add(task_key)
                                             self.completed_tasks += 1
                                             # 每完成10个任务保存一次检查点
                                             if self.completed_tasks % 10 == 0:
                                                 self._save_global_checkpoint()
+                                            
+                                            # 保存当前值用于锁外使用
+                                            current_completed_tasks = self.completed_tasks
+                                            # 计算当前进度百分比
+                                            current_progress_percent = ((self.completed_tasks / self.total_tasks) * 100) if self.total_tasks > 0 else 0
+                                        
+                                        # 在锁外推送WebSocket，避免阻塞
+                                        # 每完成5个任务或进度增加0.1%时推送WebSocket更新
+                                        if current_progress_percent >= last_ws_progress_percent + 0.1 or current_completed_tasks % 5 == 0:
+                                            last_ws_progress_percent = current_progress_percent
+                                            # 立即推送 WebSocket 更新（不等待数据库更新）
+                                            try:
+                                                from utils.websocket_manager import emit_task_update
+                                                emit_task_update(self.task_id, {
+                                                    'progress': min(current_progress_percent, 100),
+                                                    'completed_items': current_completed_tasks,
+                                                    'total_items': self.total_tasks,
+                                                    'status': 'running'
+                                                })
+                                            except Exception as ws_error:
+                                                log.debug(f"推送 WebSocket 更新失败: {ws_error}")
                                 
                                 # 定期保存数据
                                 if len(local_data_cache) >= 200:
@@ -1586,18 +1634,6 @@ class FeedIndexCrawler:
                                             
                                             if affected_rows > 0:
                                                 log.info(f"已更新数据库进度: {min(current_progress_percent, 100)}%, 完成任务: {self.completed_tasks}/{self.total_tasks}")
-                                                
-                                                # 推送 WebSocket 更新
-                                                try:
-                                                    from utils.websocket_manager import emit_task_update
-                                                    emit_task_update(self.task_id, {
-                                                        'progress': min(current_progress_percent, 100),
-                                                        'completed_items': self.completed_tasks,
-                                                        'total_items': self.total_tasks,
-                                                        'status': 'running'
-                                                    })
-                                                except Exception as ws_error:
-                                                    log.debug(f"推送 WebSocket 更新失败: {ws_error}")
                                             else:
                                                 log.warning(f"数据库进度更新失败: 影响行数为0, task_id: {self.task_id}")
                                         except Exception as e:

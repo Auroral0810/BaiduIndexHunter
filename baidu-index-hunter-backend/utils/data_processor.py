@@ -486,11 +486,19 @@ class BaiduIndexDataProcessor:
             for item in keyword_items:
                 word = item.get('word', '')
                 
-                # 处理兴趣分布
+                # 处理兴趣分布（API返回的interest数组已经是top10，按rate降序排列）
                 interest_data = item.get('interest', [])
-                for interest in interest_data:
+                
+                # 确保只处理top10数据（按rate降序排序，取前10条）
+                sorted_interests = sorted(interest_data, key=lambda x: float(x.get('rate', 0)) if isinstance(x.get('rate'), (int, float)) else 0, reverse=True)
+                top10_interests = sorted_interests[:10]
+                
+                for interest in top10_interests:
                     desc = interest.get('desc', '')
                     tgi = interest.get('tgi', '')
+                    # 处理TGI为空字符串的情况
+                    if tgi == '' or tgi is None:
+                        tgi = '-'
                     rate = interest.get('rate', 0)
                     type_id = interest.get('typeId', '')
                     
@@ -506,11 +514,19 @@ class BaiduIndexDataProcessor:
             
             # 处理全网分布数据（如果有）
             if overall_item:
-                # 处理兴趣分布
+                # 处理兴趣分布（API返回的interest数组已经是top10，按rate降序排列）
                 interest_data = overall_item.get('interest', [])
-                for interest in interest_data:
+                
+                # 确保只处理top10数据（按rate降序排序，取前10条）
+                sorted_interests = sorted(interest_data, key=lambda x: float(x.get('rate', 0)) if isinstance(x.get('rate'), (int, float)) else 0, reverse=True)
+                top10_interests = sorted_interests[:10]
+                
+                for interest in top10_interests:
                     desc = interest.get('desc', '')
                     tgi = interest.get('tgi', '')
+                    # 处理TGI为空字符串的情况（全网分布的TGI通常为空）
+                    if tgi == '' or tgi is None:
+                        tgi = '-'
                     rate = interest.get('rate', 0)
                     type_id = interest.get('typeId', '')
                     
