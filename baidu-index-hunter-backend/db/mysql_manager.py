@@ -15,6 +15,8 @@ from utils.logger import log
 from config.settings import MYSQL_CONFIG
 
 
+import threading
+
 class MySQLManager:
     """MySQL数据库连接管理器"""
     
@@ -26,17 +28,16 @@ class MySQLManager:
             config: MySQL配置，如果为None则使用settings.py中的配置
         """
         self.config = MYSQL_CONFIG
-        self.connection = None
         self.max_retries = 3
         self.retry_delay = 2  # 秒
         
-        # 尝试建立连接
-        self._connect()
+        # 使用thread-local存储每个线程的连接
+        self.local = threading.local()
     
     def _connect(self):
         """建立MySQL连接"""
         try:
-            self.connection = pymysql.connect(
+            connection = pymysql.connect(
                 host=self.config['host'],
                 port=self.config.get('port', 3306),
                 user=self.config['user'],
@@ -47,26 +48,42 @@ class MySQLManager:
                 autocommit=True
             )
             # log.info(f"MySQL连接成功: {self.config['host']}:{self.config.get('port', 3306)}/{self.config['db']}")
+            return connection
         except Exception as e:
             log.error(f"MySQL连接失败: {e}")
-            self.connection = None
+            return None
     
-    def ensure_connection(self):
-        """确保MySQL连接有效"""
-        if self.connection is None:
-            self._connect()
-            return
-        
-        try:
-            # 检查连接是否有效
-            self.connection.ping(reconnect=False)
-        except:
-            log.warning("MySQL连接已断开，尝试重新连接")
+    def _get_connection(self):
+        """获取当前线程的MySQL连接"""
+        if not hasattr(self.local, 'connection') or self.local.connection is None:
+            self.local.connection = self._connect()
+        else:
             try:
-                self.connection.close()
+                # 检查连接是否有效
+                self.local.connection.ping(reconnect=False)
             except:
-                pass
-            self._connect()
+                log.warning("MySQL连接已断开，尝试重新连接")
+                try:
+                    self.local.connection.close()
+                except:
+                    pass
+                self.local.connection = self._connect()
+        
+        return self.local.connection
+
+    def ensure_connection(self):
+        """确保MySQL连接有效（为了兼容旧代码接口，实际逻辑已移至_get_connection）"""
+        self._get_connection()
+    
+    @property
+    def connection(self):
+        """兼容旧代码的connection属性访问"""
+        return self._get_connection()
+
+    @connection.setter
+    def connection(self, value):
+        """兼容旧代码的connection属性设置"""
+        self.local.connection = value
     
     def execute_query(self, query: str, params: tuple = None) -> int:
         """

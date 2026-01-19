@@ -32,6 +32,7 @@ REDIS_CONFIG = {
 
 # 阿里云OSS配置
 OSS_CONFIG = {
+    'enabled': os.getenv('OSS_ENABLED', 'False').lower() == 'true',  # 是否启用OSS上传，默认False
     'url': os.getenv('OSS_URL'),
     'endpoint': os.getenv('OSS_ENDPOINT'),
     'access_key_id': os.getenv('OSS_ACCESS_KEY_ID'),

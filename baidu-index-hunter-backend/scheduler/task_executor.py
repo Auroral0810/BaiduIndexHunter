@@ -154,62 +154,47 @@ class TaskExecutor:
             # 注意：无论OSS上传是否成功，文件都已经保存在本地output目录中
             # 这里只是尝试上传并将数据库中的路径更新为OSS URL
             try:
-                from utils.oss_manager import OSSManager
-                oss_manager = OSSManager()
-
-                # 上传断点续传文件到OSS
+                # 默认先设置为本地路径
                 if checkpoint_path is not None:
                     if isinstance(checkpoint_path, dict):
-                        # 如果是字典，先转为JSON字符串
                         update_data['checkpoint_path'] = json.dumps(checkpoint_path, ensure_ascii=False)
-                    elif isinstance(checkpoint_path, str) and checkpoint_path.strip():
-                        # 如果是文件路径，尝试上传到OSS
+                    elif isinstance(checkpoint_path, str):
+                        update_data['checkpoint_path'] = checkpoint_path
+                    else:
+                        update_data['checkpoint_path'] = str(checkpoint_path)
+                
+                if output_files is not None:
+                    if isinstance(output_files, list):
+                        update_data['output_files'] = json.dumps(output_files, ensure_ascii=False)
+                    elif isinstance(output_files, str):
+                        update_data['output_files'] = output_files
+                    else:
+                        update_data['output_files'] = json.dumps(output_files, ensure_ascii=False) if output_files else None
+
+                # 检查是否启用OSS上传
+                from config.settings import OSS_CONFIG
+                if OSS_CONFIG.get('enabled', False):
+                    from utils.oss_manager import OSSManager
+                    oss_manager = OSSManager()
+
+                    # 上传断点续传文件到OSS
+                    if checkpoint_path is not None and isinstance(checkpoint_path, str) and checkpoint_path.strip():
                         import os
                         if os.path.exists(checkpoint_path):
                             oss_url = oss_manager.upload_checkpoint(checkpoint_path)
                             if oss_url:
                                 update_data['checkpoint_path'] = oss_url
-                            else:
-                                # 上传失败，保持本地路径
-                                update_data['checkpoint_path'] = checkpoint_path
-                        else:
-                            # 如果文件不存在，可能是已经是URL或其他格式
-                            update_data['checkpoint_path'] = checkpoint_path
-                    else:
-                        # 其他类型转为字符串
-                        update_data['checkpoint_path'] = str(checkpoint_path)
 
-                # 上传输出文件到OSS
-                if output_files is not None:
-                    if isinstance(output_files, list) and len(output_files) > 0:
+                    # 上传输出文件到OSS
+                    if output_files is not None and isinstance(output_files, list) and len(output_files) > 0:
                         # 上传文件列表到OSS
-                        # upload_output_files 现在会返回混合列表（URL或本地路径），确保列表长度不变
                         processed_files = oss_manager.upload_output_files(output_files)
                         if processed_files:
                             update_data['output_files'] = json.dumps(processed_files, ensure_ascii=False)
-                        else:
-                            # 理论上不应该走到这里，除非输入为空
-                            update_data['output_files'] = json.dumps(output_files, ensure_ascii=False)
-                    elif isinstance(output_files, str):
-                        update_data['output_files'] = output_files
-                    else:
-                        update_data['output_files'] = json.dumps(output_files,
-                                                                 ensure_ascii=False) if output_files else None
 
             except Exception as oss_error:
                 log.warning(f"OSS上传模块不可用或发生错误，降级使用本地路径: {oss_error}")
-                # 如果OSS上传失败，确保数据库记录指向本地文件
-                if checkpoint_path is not None:
-                    if isinstance(checkpoint_path, dict):
-                        update_data['checkpoint_path'] = json.dumps(checkpoint_path, ensure_ascii=False)
-                    else:
-                        update_data['checkpoint_path'] = str(checkpoint_path)
-
-                if output_files is not None:
-                    if isinstance(output_files, list):
-                        update_data['output_files'] = json.dumps(output_files, ensure_ascii=False)
-                    else:
-                        update_data['output_files'] = str(output_files)
+                # 由于已经预先设置了本地路径，此处无需额外操作
 
             # 过滤掉值为 None 的字段，防止 SQL 语法错误
             update_data = {k: v for k, v in update_data.items() if v is not None}
