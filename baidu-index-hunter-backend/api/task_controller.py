@@ -189,9 +189,7 @@ def create_task():
                 spider_params['task_id'] = parameters['task_id']
             
             # 调试日志：打印转换后的爬虫参数
-            from utils.logger import log
             log.info(f"搜索指数任务 - 转换后的 year_range: {spider_params.get('year_range')}")
-            # log.info(f"111111:{spider_params}")
             
             # 创建任务
             task_id = task_scheduler.create_task(
@@ -532,10 +530,44 @@ def create_task():
                 spider_params['days'] = parameters['days']
             elif 'date_ranges' in parameters:
                 spider_params['date_ranges'] = parameters['date_ranges']
+            elif 'yearRange' in parameters and parameters['yearRange']:
+                # 处理年份参数（驼峰格式）
+                try:
+                    year_range = parameters['yearRange']
+                    log.info(f"识别到 yearRange (驼峰格式): {year_range}")
+                    
+                    if isinstance(year_range, list) and len(year_range) > 0:
+                        # 检查第一个元素的类型来判断格式
+                        first_element = year_range[0]
+                        
+                        if isinstance(first_element, list):
+                            # 格式1: 嵌套格式 [[start, end]]
+                            spider_params['year_range'] = year_range
+                        elif len(year_range) == 2:
+                            # 格式2: 两个元素的列表 [2006, 2026] 或 ["2006", "2026"]，转换为嵌套格式 [[2006, 2026]]
+                            start_year = int(year_range[0])
+                            end_year = int(year_range[1])
+                            spider_params['year_range'] = [[start_year, end_year]]
+                        elif len(year_range) > 2:
+                            # 格式3: 多个年份列表 ["2006", "2007", "2008", ...]
+                            # 将每个年份转换为独立的范围
+                            year_ranges = []
+                            for year_str in year_range:
+                                year = int(year_str)
+                                year_ranges.append([year, year])
+                            spider_params['year_range'] = year_ranges
+                        else:
+                            raise ValueError("yearRange 格式错误：列表长度不足")
+                    else:
+                        raise ValueError("yearRange 格式错误：不是有效的列表")
+                    
+                except (ValueError, TypeError, IndexError) as e:
+                    return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, f"无效的年份范围: {str(e)}"))
             elif 'year_range' in parameters and parameters['year_range']:
-                # 处理年份参数，支持多种格式
+                # 处理年份参数（下划线格式）
                 try:
                     year_range = parameters['year_range']
+                    log.info(f"识别到 year_range (下划线格式): {year_range}")
                     
                     if isinstance(year_range, list) and len(year_range) > 0:
                         # 检查第一个元素的类型来判断格式

@@ -65,12 +65,16 @@ class AbSrUpdater:
         :return: JS代码字符串
         """
         try:
-            with open(self.js_path, 'r') as f:
+            with open(self.js_path, 'r', encoding='utf-8') as f:
                 return f.read()
-        except Exception as e:
-            log.error(f"加载ab_sr.js文件失败: {e}")
-            return None
-    
+        except UnicodeDecodeError:
+            try:
+                with open(self.js_path, 'r', encoding='gbk', errors='ignore') as f:
+                    return f.read()
+            except Exception as e:
+                log.error(f"加载ab_sr.js文件失败: {e}")
+                return None
+
     def update_ab_sr(self):
         """
         更新ab_sr cookie

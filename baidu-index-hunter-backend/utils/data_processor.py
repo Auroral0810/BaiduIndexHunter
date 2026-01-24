@@ -546,91 +546,163 @@ class BaiduIndexDataProcessor:
             log.error(f"处理兴趣分布数据失败: {e}")
             return pd.DataFrame()  # 返回空DataFrame表示处理失败
     
-    def process_region_distribution_data(self, data, region_code=0):
+    def process_region_distribution_data(self, data, region_code=0, keyword=None, start_date=None, end_date=None):
         """
         处理地域分布数据
         :param data: API返回的原始数据
         :param region_code: 地区代码，0表示全国
+        :param keyword: 关键词（用于空数据构造）
+        :param start_date: 开始日期（用于空数据构造）
+        :param end_date: 结束日期（用于空数据构造）
         :return: 处理后的DataFrame
         """
         try:
             # 检查数据是否为空或结构不完整
             if data is None or 'status' not in data or data['status'] != 0:
-                log.error(f"处理地域分布数据失败: 数据为空或API返回错误")
+                log.warning(f"处理地域分布数据失败: 数据为空或API返回错误, keyword={keyword}, region={region_code}")
+                # 如果提供了keyword和日期，构造空数据记录
+                if keyword and start_date:
+                    return self._create_empty_region_data(keyword, region_code, start_date, end_date)
                 return pd.DataFrame()
             
             if 'data' not in data or 'region' not in data['data']:
-                log.error(f"处理地域分布数据失败: 数据结构不完整")
+                log.warning(f"处理地域分布数据失败: 数据结构不完整, keyword={keyword}, region={region_code}")
+                # 如果提供了keyword和日期，构造空数据记录
+                if keyword and start_date:
+                    return self._create_empty_region_data(keyword, region_code, start_date, end_date)
                 return pd.DataFrame()
             
             # 获取数据
             region_data = data['data']['region']
+            
+            # 如果region_data为空，构造空数据记录
+            if not region_data or len(region_data) == 0:
+                log.warning(f"地域分布数据为空，构造空数据记录: keyword={keyword}, region={region_code}, date={start_date} 至 {end_date}")
+                if keyword and start_date:
+                    return self._create_empty_region_data(keyword, region_code, start_date, end_date)
+                return pd.DataFrame()
             
             # 初始化结果列表
             results = []
             
             # 处理每个关键词的数据
             for item in region_data:
-                keyword = item.get('key', '')
+                item_keyword = item.get('key', keyword or '')
                 period = item.get('period', '')
+                # 如果没有period，使用start_date和end_date构造
+                if not period and start_date and end_date:
+                    period = f"{start_date}|{end_date}"
+                elif not period and start_date:
+                    period = start_date
+                
                 area = item.get('area', region_code)
                 area_name = item.get('areaName', self._get_region_name(region_code))
                 
-                # 处理省份数据（如果有）
-                if 'prov' in item and item['prov']:
-                    prov_data = item['prov']
-                    prov_real_data = item.get('provReal', {}) or item.get('prov_real', {})
-                    
-                    for prov_code, value in prov_data.items():
-                        real_value = prov_real_data.get(prov_code, value)
-                        prov_name = self._get_province_name(prov_code)
-                        
-                        results.append({
-                            '关键词': keyword,
-                            '地区类型': '省份',
-                            '地区代码': prov_code,
-                            '地区名称': prov_name,
-                            '指数值': value,
-                            '真实指数值': real_value,
-                            '所属地区代码': area,
-                            '所属地区名称': area_name,
-                            '数据周期': period,
-                            '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                        })
+                # 获取所有数据
+                prov_data = item.get('prov', {})
+                prov_real_data = item.get('provReal', {}) or item.get('prov_real', {})
+                city_data = item.get('city', {})
+                city_real_data = item.get('cityReal', {}) or item.get('city_real', {})
                 
-                # 处理城市数据（如果有）
-                if 'city' in item and item['city']:
-                    city_data = item['city']
-                    city_real_data = item.get('cityReal', {}) or item.get('city_real', {})
+                # 处理省份数据（prov和provReal）
+                all_prov_codes = set(prov_data.keys()) | set(prov_real_data.keys())
+                for prov_code in all_prov_codes:
+                    prov_name = self._get_province_name(prov_code)
+                    prov_value = prov_data.get(prov_code, 0)
+                    prov_real_value = prov_real_data.get(prov_code, 0.0)
+                    if isinstance(prov_real_value, str) or prov_real_value is None:
+                        prov_real_value = 0.0
                     
-                    for city_code, value in city_data.items():
-                        real_value = city_real_data.get(city_code, value)
-                        city_name = region_manager.get_city_name_by_code(city_code) or f"未知城市({city_code})"
-                        
-                        results.append({
-                            '关键词': keyword,
-                            '地区类型': '城市',
-                            '地区代码': city_code,
-                            '地区名称': city_name,
-                            '指数值': value,
-                            '真实指数值': real_value,
-                            '所属地区代码': area,
-                            '所属地区名称': area_name,
-                            '数据周期': period,
-                            '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                        })
+                    results.append({
+                        '关键词': item_keyword,
+                        '地区代码': region_code,
+                        '地区名称': area_name,
+                        '时间范围': period,
+                        '地区级别': 'province',
+                        '地区代码（具体）': prov_code,
+                        '地区名称（具体）': prov_name,
+                        '指数': prov_value,
+                        '占比': prov_real_value,
+                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    })
+                
+                # 处理城市数据（city和cityReal）
+                all_city_codes = set(city_data.keys()) | set(city_real_data.keys())
+                for city_code in all_city_codes:
+                    city_name = region_manager.get_city_name_by_code(city_code) or f"未知城市({city_code})"
+                    city_value = city_data.get(city_code, 0)
+                    city_real_value = city_real_data.get(city_code, 0.0)
+                    if isinstance(city_real_value, str) or city_real_value is None:
+                        city_real_value = 0.0
+                    
+                    results.append({
+                        '关键词': item_keyword,
+                        '地区代码': region_code,
+                        '地区名称': area_name,
+                        '时间范围': period,
+                        '地区级别': 'city',
+                        '地区代码（具体）': city_code,
+                        '地区名称（具体）': city_name,
+                        '指数': city_value,
+                        '占比': city_real_value,
+                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    })
+            
+            # 如果结果为空，构造空数据记录
+            if not results:
+                log.warning(f"处理后的地域分布数据为空，构造空数据记录: keyword={keyword}, region={region_code}, date={start_date} 至 {end_date}")
+                if keyword and start_date:
+                    return self._create_empty_region_data(keyword, region_code, start_date, end_date)
+                return pd.DataFrame()
             
             # 创建DataFrame
             df = pd.DataFrame(results)
             
             # 打印日志
-            log.info(f"成功处理地域分布数据，地区代码: {region_code}，共 {len(df)} 条记录")
+            log.info(f"成功处理地域分布数据: keyword={keyword}, region={region_code}, date={start_date} 至 {end_date}, 共 {len(df)} 条记录")
             
             return df
             
         except Exception as e:
             log.error(f"处理地域分布数据失败: {e}")
+            log.error(traceback.format_exc())
+            # 如果提供了keyword和日期，构造空数据记录
+            if keyword and start_date:
+                return self._create_empty_region_data(keyword, region_code, start_date, end_date)
             return pd.DataFrame()  # 返回空DataFrame表示处理失败
+    
+    def _create_empty_region_data(self, keyword, region_code, start_date, end_date=None):
+        """
+        创建空的地域分布数据记录（用于保持数据维度一致性）
+        :param keyword: 关键词
+        :param region_code: 地区代码
+        :param start_date: 开始日期
+        :param end_date: 结束日期（可选）
+        :return: 包含空数据记录的DataFrame
+        """
+        region_name = self._get_region_name(region_code)
+        # 构造period字段
+        if start_date and end_date:
+            period = f"{start_date}|{end_date}"
+        elif start_date:
+            period = start_date
+        else:
+            period = datetime.now().strftime('%Y-%m-%d')
+        
+        empty_record = {
+            '关键词': keyword,
+            '地区代码': region_code,
+            '地区名称': region_name,
+            '时间范围': period,
+            '地区级别': '',
+            '地区代码（具体）': '',
+            '地区名称（具体）': '',
+            '指数': 0,
+            '占比': 0.0,
+            '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+        
+        return pd.DataFrame([empty_record])
     
     def _get_region_name(self, region_code):
         """
@@ -1086,11 +1158,6 @@ class BaiduIndexDataProcessor:
                 log.warning(f"数据为空或格式不正确: {data}")
                 return None, None
             
-            # 验证解密数据
-            if not decrypted_data or not isinstance(decrypted_data, str):
-                log.error(f"解密数据无效: {type(decrypted_data)}")
-                return None, None
-                
             # 获取统计数据
             index_data = data['data']['index'][0]
             general_ratio = index_data.get('generalRatio', {})
@@ -1106,6 +1173,68 @@ class BaiduIndexDataProcessor:
             api_start_date = index_data.get('startDate', start_date)
             api_end_date = index_data.get('endDate', end_date)
             
+            # 计算日期间隔
+            start = datetime.strptime(api_start_date, '%Y-%m-%d')
+            end = datetime.strptime(api_end_date, '%Y-%m-%d')
+            total_days = (end - start).days + 1
+            
+            # 验证解密数据
+            if not decrypted_data or not isinstance(decrypted_data, str) or not decrypted_data.strip():
+                # 如果解密数据为空，说明该时间段内所有值都是0，需要根据时间范围生成空数据
+                log.info(f"解密数据为空，为该时间段生成空数据: keyword={keyword}, city={city_name}, start={api_start_date}, end={api_end_date}, data_type={data_type}")
+                
+                # 确定数据间隔和频率
+                if data_type == 'week':
+                    interval = 7
+                    data_frequency = '周度'
+                    # 计算周数
+                    data_length = (total_days + 6) // 7  # 向上取整
+                else:
+                    interval = 1
+                    data_frequency = '日度'
+                    data_length = total_days
+                
+                # 生成日期列表
+                date_range = []
+                for i in range(data_length):
+                    current_date = (start + timedelta(days=i*interval)).strftime('%Y-%m-%d')
+                    # 确保不超过结束日期
+                    if current_date > api_end_date:
+                        break
+                    date_range.append(current_date)
+                
+                # 生成空数据记录（所有值都是0）
+                daily_data = []
+                for date_str in date_range:
+                    daily_record = {
+                        '关键词': keyword,
+                        '城市代码': city_code,
+                        '城市': city_name,
+                        '日期': date_str,
+                        '数据类型': data_frequency,
+                        '数据间隔(天)': interval,
+                        '所属年份': date_str[:4],
+                        '资讯指数': '0',
+                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    }
+                    daily_data.append(daily_record)
+                
+                # 准备统计数据
+                stats_record = {
+                    '关键词': keyword,
+                    '城市代码': city_code,
+                    '城市': city_name,
+                    '时间范围': f"{api_start_date} 至 {api_end_date}",
+                    '日均值': avg_value,
+                    '同比': yoy_value,
+                    '环比': qoq_value,
+                    '总值': 0,
+                    '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                }
+                
+                log.info(f"成功生成空数据: {keyword} - {city_name}, {data_frequency}, 共 {len(daily_data)} 条记录")
+                return daily_data, stats_record
+            
             # 将解密后的数据转换为列表，保留空值并替换为'0'
             raw_values = decrypted_data.split(',')
             values = [v if v.strip() else '0' for v in raw_values]
@@ -1117,12 +1246,7 @@ class BaiduIndexDataProcessor:
             
             log.debug(f"解密数据分割后共 {len(values)} 个值")
             
-            # 计算日期间隔
-            start = datetime.strptime(api_start_date, '%Y-%m-%d')
-            end = datetime.strptime(api_end_date, '%Y-%m-%d')
-            total_days = (end - start).days + 1
-            
-            # 判断数据粒度
+            # 判断数据粒度（start 和 end 已在上面计算过）
             data_length = len(values)
             
             # 确定数据间隔 - 优先使用API返回的data_type

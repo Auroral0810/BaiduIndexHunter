@@ -514,6 +514,21 @@ class FeedIndexCrawler:
         elif status != 0:
             log.error(f"请求失败: {data}")
             return None
+        
+        # 打印调试信息：检查返回的数据结构
+        log.debug(f"API响应状态: status={status}, 关键词数量: {len(keywords)}, 城市代码: {area}")
+        if data.get('data') and data['data'].get('index'):
+            index_list = data['data']['index']
+            log.debug(f"返回的index数组长度: {len(index_list)}")
+            for idx, index_item in enumerate(index_list):
+                key_info = index_item.get('key', [])
+                data_type = index_item.get('type', 'unknown')
+                raw_data_len = len(index_item.get('data', ''))
+                log.debug(f"index[{idx}]: key={json.dumps(key_info, ensure_ascii=False)}, type={data_type}, data长度={raw_data_len}")
+                if raw_data_len == 0:
+                    log.warning(f"警告: index[{idx}] 的data字段为空! key={json.dumps(key_info, ensure_ascii=False)}")
+        else:
+            log.warning(f"API返回数据格式异常: data字段={data.get('data')}, message={data.get('message', '')}")
             
         return data, cookie_dict
     
@@ -527,10 +542,14 @@ class FeedIndexCrawler:
             index_data = data['data']['index'][0]
             uniqid = data['data']['uniqid']
             
+            # 打印调试信息
+            log.debug(f"处理数据: keyword={keyword}, city={city_name}, uniqid={uniqid}")
+            log.debug(f"index_data keys: {list(index_data.keys())}")
+            
             # 获取解密密钥
             key = self._get_key(uniqid, cookie)
             if not key:
-                log.error(f"获取解密密钥失败, uniqid: {uniqid}")
+                log.error(f"获取解密密钥失败, uniqid: {uniqid}, keyword: {keyword}, city: {city_name}")
                 return None, None
             
             log.debug(f"获取到解密密钥, 长度: {len(key)}")
@@ -541,21 +560,31 @@ class FeedIndexCrawler:
             
             log.debug(f"原始数据类型: {data_type}, 原始数据长度: {len(raw_data) if raw_data else 0}")
             
+            # 如果原始数据为空，打印更多调试信息
+            if not raw_data:
+                log.warning(f"原始数据为空! keyword: {keyword}, city: {city_name}, data_type: {data_type}")
+                log.warning(f"index_data完整内容: {json.dumps(index_data, ensure_ascii=False)}")
+                log.warning(f"API返回的完整data结构: status={data.get('status')}, message={data.get('message', '')}")
+                if data.get('data', {}).get('generalRatio'):
+                    log.warning(f"generalRatio: {data['data']['generalRatio']}")
+            
             # 解密数据
             decrypted_data = self._decrypt(key, raw_data)
             
-            # 验证解密数据
+            # 如果解密数据为空，仍然调用data_processor处理（它会根据时间范围生成空数据）
             if not decrypted_data:
-                log.error(f"解密数据为空, keyword: {keyword}, city: {city_name}")
-                return None, None
+                log.info(f"解密数据为空，将生成空数据记录: keyword: {keyword}, city: {city_name}, raw_data长度: {len(raw_data) if raw_data else 0}, key长度: {len(key) if key else 0}")
+                # 将空字符串传递给data_processor，让它处理空数据情况
+                decrypted_data = ""
             
             # 检查解密后是否包含逗号（正确解密的数据应该包含逗号分隔的数字）
-            if ',' not in decrypted_data:
+            if decrypted_data and ',' not in decrypted_data:
                 log.warning(f"解密数据可能不正确（不包含逗号）, keyword: {keyword}, data_length: {len(decrypted_data)}")
             
-            log.debug(f"解密数据长度: {len(decrypted_data)}, 前100字符: {decrypted_data[:100] if len(decrypted_data) > 100 else decrypted_data}")
+            if decrypted_data:
+                log.debug(f"解密数据长度: {len(decrypted_data)}, 前100字符: {decrypted_data[:100] if len(decrypted_data) > 100 else decrypted_data}")
             
-            # 调用data_processor处理数据
+            # 调用data_processor处理数据（即使decrypted_data为空，也会生成对应时间范围的空数据）
             return data_processor.process_feed_index_data(
                 data, cookie, keyword, city_code, city_name, 
                 start_date, end_date, decrypted_data, data_type
@@ -634,6 +663,13 @@ class FeedIndexCrawler:
                     data_type = index_data.get('type', 'day')
                     raw_data = index_data.get('data', '')
                     
+                    # 打印调试信息
+                    log.debug(f"处理关键词[{i}]: {keyword}, data_type: {data_type}, raw_data长度: {len(raw_data) if raw_data else 0}")
+                    
+                    # 如果原始数据为空，打印更多调试信息
+                    if not raw_data:
+                        log.warning(f"关键词 '{keyword}' 的原始数据为空! index_data: {json.dumps(index_data, ensure_ascii=False)}")
+                    
                     # 解密数据
                     decrypted_data = self._decrypt(key, raw_data)
                     
@@ -646,38 +682,12 @@ class FeedIndexCrawler:
                         'status': 0
                     }
                     
-                    # 检查解密后的数据是否为空
+                    # 如果解密数据为空，仍然调用data_processor处理（它会根据时间范围生成空数据）
                     if not decrypted_data or decrypted_data.strip() == '':
-                        # log.warning(f"关键词 '{keyword}' 的解密数据为空，创建默认数据")
-                        default_daily_data = [{
-                            '关键词': keyword,
-                            '城市代码': city_code,
-                            '城市': city_name,
-                            '日期': start_date,
-                            '数据类型': '日度',
-                            '数据间隔(天)': 1,
-                            '所属年份': start_date[:4],
-                            '资讯指数': '0',
-                            '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                        }]
-                        
-                        default_stats_record = {
-                            '关键词': keyword,
-                            '城市代码': city_code,
-                            '城市': city_name,
-                            '时间范围': f"{start_date} 至 {end_date}",
-                            '日均值': 0,
-                            '同比': '-',
-                            '环比': '-',
-                            '总值': 0,
-                            '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                        }
-                        
-                        all_daily_data.extend(default_daily_data)
-                        all_stats_records.append(default_stats_record)
-                        continue
+                        log.info(f"关键词 '{keyword}' 的解密数据为空，将生成空数据记录")
+                        decrypted_data = ""  # 确保是空字符串，让data_processor处理
                     
-                    # 调用data_processor处理数据
+                    # 调用data_processor处理数据（即使decrypted_data为空，也会生成对应时间范围的空数据）
                     daily_data, stats_record = data_processor.process_feed_index_data(
                         single_data, cookie, keyword, city_code, city_name, 
                         start_date, end_date, decrypted_data, data_type
@@ -865,7 +875,7 @@ class FeedIndexCrawler:
             # 获取数据
             result = self._get_feed_index(city_code, keywords, start_date, end_date)
             if not result:
-                log.warning(f"获取数据失败(Result is None)，构造空结果: {task_desc}")
+                log.warning(f"获取数据失败，构造空结果: {task_desc}")
                 
                 # 构造空结果
                 if not is_batch:
@@ -1367,24 +1377,32 @@ class FeedIndexCrawler:
             date_ranges = self._load_date_ranges_from_file(date_ranges_file)
         elif year_range:
             # 处理嵌套列表格式 [[start, end]] 或直接列表格式 [start, end]
-            if isinstance(year_range, list) and len(year_range) > 0:
-                if isinstance(year_range[0], list) and len(year_range[0]) >= 2:
+            # 支持 list 和 tuple
+            if isinstance(year_range, (list, tuple)) and len(year_range) > 0:
+                first_elem = year_range[0]
+                # 检查首元素是否也是序列 (list/tuple)，且长度>=2
+                if isinstance(first_elem, (list, tuple)) and len(first_elem) >= 2:
                     # 嵌套格式 [[start, end]]
-                    date_ranges = self._process_year_range(year_range[0][0], year_range[0][1])
+                    date_ranges = self._process_year_range(first_elem[0], first_elem[1])
                 elif len(year_range) >= 2:
                     # 直接格式 [start, end]
                     date_ranges = self._process_year_range(year_range[0], year_range[1])
                 else:
+                    log.warning(f"year_range 格式错误 (长度不足): {year_range}")
                     date_ranges = None
             else:
+                log.warning(f"year_range 为空或格式错误: {year_range}")
                 date_ranges = None
         elif days:
             # 使用预定义的天数
             end_date = datetime.now().strftime('%Y-%m-%d')
             start_date = (datetime.now() - timedelta(days=days-1)).strftime('%Y-%m-%d')
             date_ranges = [(start_date, end_date)]
-        elif not date_ranges:
+            
+        # 如果经过上述处理后 date_ranges 仍为空（包括传入为None的情况，或者year_range解析失败），使用默认值
+        if not date_ranges:
             # 默认使用最近30天
+            log.info("未检测到有效的日期范围，使用默认最近30天")
             end_date = datetime.now().strftime('%Y-%m-%d')
             start_date = (datetime.now() - timedelta(days=29)).strftime('%Y-%m-%d')
             date_ranges = [(start_date, end_date)]
@@ -1459,24 +1477,32 @@ class FeedIndexCrawler:
             date_ranges = self._load_date_ranges_from_file(date_ranges_file)
         elif year_range:
             # 处理嵌套列表格式 [[start, end]] 或直接列表格式 [start, end]
-            if isinstance(year_range, list) and len(year_range) > 0:
-                if isinstance(year_range[0], list) and len(year_range[0]) >= 2:
+            # 支持 list 和 tuple
+            if isinstance(year_range, (list, tuple)) and len(year_range) > 0:
+                first_elem = year_range[0]
+                # 检查首元素是否也是序列 (list/tuple)，且长度>=2
+                if isinstance(first_elem, (list, tuple)) and len(first_elem) >= 2:
                     # 嵌套格式 [[start, end]]
-                    date_ranges = self._process_year_range(year_range[0][0], year_range[0][1])
+                    date_ranges = self._process_year_range(first_elem[0], first_elem[1])
                 elif len(year_range) >= 2:
                     # 直接格式 [start, end]
                     date_ranges = self._process_year_range(year_range[0], year_range[1])
                 else:
+                    log.warning(f"year_range 格式错误 (长度不足): {year_range}")
                     date_ranges = None
             else:
+                log.warning(f"year_range 为空或格式错误: {year_range}")
                 date_ranges = None
         elif days:
             # 使用预定义的天数
             end_date = datetime.now().strftime('%Y-%m-%d')
             start_date = (datetime.now() - timedelta(days=days-1)).strftime('%Y-%m-%d')
             date_ranges = [(start_date, end_date)]
-        elif not date_ranges:
+            
+        # 如果经过上述处理后 date_ranges 仍为空（包括传入为None的情况，或者year_range解析失败），使用默认值
+        if not date_ranges:
             # 默认使用最近30天
+            log.info("未检测到有效的日期范围，使用默认最近30天")
             end_date = datetime.now().strftime('%Y-%m-%d')
             start_date = (datetime.now() - timedelta(days=29)).strftime('%Y-%m-%d')
             date_ranges = [(start_date, end_date)]

@@ -1312,6 +1312,7 @@ class TaskExecutor:
         :return: 是否成功
         """
         log.info(f"执行地域分布任务: {task_id}")
+        log.info(f"接收到的完整 parameters: {json.dumps(parameters, ensure_ascii=False, indent=2)}")
         
         # 验证必要参数
         if 'keywords' not in parameters or not parameters['keywords']:
@@ -1351,7 +1352,12 @@ class TaskExecutor:
         end_date = None
         days = None
         date_ranges = None
+        year_range = None
         data_length = 1  # 默认长度为1
+        
+        log.info(f"处理地域分布任务时间参数: parameters keys = {list(parameters.keys())}")
+        log.info(f"yearRange in parameters: {'yearRange' in parameters}, value: {parameters.get('yearRange')}")
+        log.info(f"year_range in parameters: {'year_range' in parameters}, value: {parameters.get('year_range')}")
         
         if 'days' in parameters:
             # 使用预定义的天数
@@ -1368,9 +1374,18 @@ class TaskExecutor:
                     start_date = date_ranges[0][0]
                 if isinstance(date_ranges[-1], list) and len(date_ranges[-1]) >= 2:
                     end_date = date_ranges[-1][1]
+        elif 'yearRange' in parameters and parameters['yearRange']:
+            # 使用年份范围（驼峰格式）
+            year_range = parameters['yearRange']
+            log.info(f"使用 yearRange (驼峰格式): {year_range}")
         elif 'year_range' in parameters and parameters['year_range']:
-            # 使用年份范围
+            # 使用年份范围（下划线格式）
             year_range = parameters['year_range']
+            log.info(f"使用 year_range (下划线格式): {year_range}")
+        
+        if year_range:
+            log.info(f"处理 year_range: {year_range}, 类型: {type(year_range)}")
+            # 处理年份范围，计算 data_length（用于统计）
             # 处理嵌套列表格式 [[start, end]] 或直接列表格式 [start, end]
             if isinstance(year_range, list) and len(year_range) > 0:
                 if isinstance(year_range[0], list) and len(year_range[0]) >= 2:
@@ -1386,15 +1401,21 @@ class TaskExecutor:
                     end_year = None
                 
                 if start_year and end_year:
-                    start_date = f"{start_year}-01-01"
-                    end_date = f"{end_year}-12-31"
-                    data_length = int(end_year) - int(start_year) + 1
+                    # 计算 data_length（年份数量），但不设置 start_date 和 end_date
+                    # 让爬虫自己处理 year_range，生成每年的日期范围
+                    try:
+                        start_year_int = int(start_year)
+                        end_year_int = int(end_year)
+                        data_length = end_year_int - start_year_int + 1
+                        log.info(f"year_range 解析成功: start_year={start_year}, end_year={end_year}, data_length={data_length}")
+                    except (ValueError, TypeError) as e:
+                        log.error(f"年份转换失败: {e}")
+                        data_length = 1
                 else:
-                    start_date = None
-                    end_date = None
+                    data_length = 1
             else:
-                start_date = None
-                end_date = None
+                data_length = 1
+            # 注意：不设置 start_date 和 end_date，让爬虫自己处理 year_range
         elif 'start_date' in parameters and 'end_date' in parameters:
             # 使用明确的开始和结束日期
             start_date = parameters['start_date']
@@ -1434,15 +1455,22 @@ class TaskExecutor:
                 'checkpoint_task_id': checkpoint_task_id if resume else None
             }
             
-            # 添加时间相关参数
+            # 添加时间相关参数（和 search_index_crawler.py 一样的逻辑）
+            log.info(f"准备传递给爬虫的时间参数: days={days}, date_ranges={date_ranges}, year_range={year_range}, start_date={start_date}, end_date={end_date}")
             if days:
                 spider_params['days'] = days
             elif date_ranges:
                 # 将嵌套列表转换为元组列表：[[start, end], ...] -> [(start, end), ...]
                 spider_params['date_ranges'] = [tuple(dr) for dr in date_ranges]
+            elif year_range:
+                # 传递 year_range 参数给爬虫，让它自己处理
+                log.info(f"传递 year_range 给爬虫: {year_range}")
+                spider_params['year_range'] = year_range
             elif start_date and end_date:
                 spider_params['start_date'] = start_date
                 spider_params['end_date'] = end_date
+            else:
+                log.warning("没有找到有效的时间参数，将使用默认值")
             
             # 启动爬虫
             from spider.region_distribution_crawler import region_distribution_crawler

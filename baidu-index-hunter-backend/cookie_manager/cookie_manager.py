@@ -23,6 +23,8 @@ import traceback
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config.settings import MYSQL_CONFIG, REDIS_CONFIG
 
+
+
 class CookieManager:
     """Cookie管理器，负责cookie的增删改查和状态管理"""
     
@@ -43,7 +45,31 @@ class CookieManager:
         # 初始化Redis连接
         self.redis_client = None
         self._connect_redis()
-    
+
+    # ============================================
+    # 1. 在 CookieManager 类中添加这个辅助方法
+    # ============================================
+
+    def _get_cipher_js_path(self):
+        """获取Cipher-Text.js文件的绝对路径
+
+        Returns:
+            str: Cipher-Text.js文件的绝对路径
+        """
+        # 获取当前文件(cookie_manager.py)所在的目录
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        # 构建相对于当前文件的路径: ../utils/Cipher-Text.js
+        cipher_js_path = os.path.join(current_dir, '..', 'utils', 'Cipher-Text.js')
+        # 规范化路径(处理 .. 和多余的分隔符)
+        cipher_js_path = os.path.normpath(cipher_js_path)
+
+        # 验证文件是否存在
+        if not os.path.exists(cipher_js_path):
+            log.error(f"Cipher-Text.js 文件不存在: {cipher_js_path}")
+            raise FileNotFoundError(f"找不到 Cipher-Text.js 文件: {cipher_js_path}")
+
+        return cipher_js_path
+
     def _connect_db(self):
         """连接到MySQL数据库"""
         max_retries = 3
@@ -1240,9 +1266,10 @@ class CookieManager:
             
                 # 获取cipher-text
                 try:
-                    with open('/Users/auroral/ProjectDevelopment/BaiduIndexHunter/baidu-index-hunter-backend/utils/Cipher-Text.js', 'r') as f:
+                    cipher_js_path = self._get_cipher_js_path()
+                    with open(cipher_js_path, 'r', encoding='utf-8') as f:
                         js = f.read()
-                        ctx = execjs.compile(js)
+                    ctx = execjs.compile(js)
                     cipyer_text = ctx.call('ascToken', url_cipyter, ua.random)
                 except Exception as e:
                     log.error(f"生成cipher-text失败: {e}")
@@ -1528,15 +1555,16 @@ class CookieManager:
             # 组装cookie字符串
             cookie_str = "; ".join([f"{k}={v}" for k, v in cookies.items()])
             url_cipyter = f'https://index.baidu.com/v2/main/index.html#/trend/{word}?words={word}'
-        
+
             # 获取cipher-text
             try:
-                with open('/Users/auroral/ProjectDevelopment/BaiduIndexHunter/baidu-index-hunter-backend/utils/Cipher-Text.js', 'r') as f:
+                cipher_js_path = self._get_cipher_js_path()
+                with open(cipher_js_path, 'r', encoding='utf-8') as f:
                     js = f.read()
-                    ctx = execjs.compile(js)
+                ctx = execjs.compile(js)
                 cipyer_text = ctx.call('ascToken', url_cipyter, ua.random)
             except Exception as e:
-                log.error(f"生成cipher-text失败: {str(e)}")
+                log.error(f"生成cipher-text失败: {e}")
                 cipyer_text = ""
         
             headers = {
