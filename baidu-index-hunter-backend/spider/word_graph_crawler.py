@@ -15,6 +15,7 @@ import sys
 import os
 import json
 import traceback
+from datetime import datetime, timedelta
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils.logger import log
@@ -358,20 +359,41 @@ class WordGraphCrawler:
                 cookie_rotator.report_cookie_status(account_id, False)
             return None
     
-    def crawl(self, task_id, keywords, datelists, output_format='csv', resume=True, checkpoint_task_id=None):
+    def crawl(self, task_id, keywords, datelists=None, start_date=None, end_date=None, output_format='csv', resume=True, checkpoint_task_id=None):
         """
         爬取多个关键词和日期的需求图谱数据
         :param task_id: 任务ID，如果为None则自动生成
         :param keywords: 关键词列表
-        :param datelists: 日期列表，格式为YYYYMMDD
-        :param output_format: 输出格式，可选值：csv, excel
-        :param resume: 是否从上次中断的地方继续爬取
-        :param checkpoint_task_id: 检查点任务ID，如果为None则自动生成
-        :return: 是否全部爬取成功
+        :param datelists: 日期列表（兼容旧方式）
+        :param start_date: 开始日期 YYYYMMDD
+        :param end_date: 结束日期 YYYYMMDD
+        :param output_format: 输出格式
+        :param resume: 是否恢复
+        :param checkpoint_task_id: 检查点ID
+        :return: Success
         """
         # 确保输入是列表
         if isinstance(keywords, str):
             keywords = [keywords]
+        
+        # 构造日期列表 (Logic from test.py)
+        if start_date and end_date:
+            try:
+                s_date = datetime.strptime(start_date, "%Y%m%d")
+                e_date = datetime.strptime(end_date, "%Y%m%d")
+                
+                datelists = []
+                current_date = s_date
+                while current_date <= e_date:
+                    datelists.append(current_date.strftime("%Y%m%d"))
+                    # Weekly step
+                    current_date += timedelta(days=7)
+            except Exception as e:
+                log.error(f"日期解析失败: {e}")
+                datelists = []
+        elif not datelists:
+             datelists = []
+
         if isinstance(datelists, str):
             datelists = [datelists]
         

@@ -93,42 +93,20 @@
           </el-radio-group>
         </el-form-item>
 
-        <el-form-item label="日期选择">
+        <el-form-item label="日期范围">
           <div class="date-selection">
             <el-date-picker
-              v-model="selectedDate"
-              type="date"
-              placeholder="选择日期"
+              v-model="dateRange"
+              type="daterange"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
               format="YYYY-MM-DD"
               value-format="YYYYMMDD"
               :disabled-date="disabledDate"
-              @change="handleDateChange"
+              unlink-panels
             />
-            <el-button type="primary" plain @click="addSelectedDate" :disabled="!selectedDate">
-              <el-icon><Plus /></el-icon>添加日期
-            </el-button>
-          </div>
-        </el-form-item>
-        
-        <el-form-item label="已选日期" v-if="formData.datelists.length > 0">
-          <div class="date-tags-container">
-            <div class="date-tags">
-              <el-tag
-                v-for="(date, index) in formData.datelists"
-                :key="index"
-                closable
-                @close="removeDate(index)"
-                class="date-tag"
-              >
-                {{ formatDisplayDate(date) }}
-              </el-tag>
-            </div>
-            <div class="date-actions">
-              <el-button type="danger" plain size="small" @click="clearDates">
-                <el-icon><Delete /></el-icon>清空日期
-              </el-button>
-              <div class="date-count">共 {{ formData.datelists.length }} 个日期</div>
-            </div>
+            <div class="date-tip">注意：仅支持查询最近一年的数据（从 {{ oneYearAgoStr }} 到 {{ todayStr }}）</div>
           </div>
         </el-form-item>
         
@@ -335,23 +313,8 @@
             </div>
           </el-descriptions-item>
           
-          <el-descriptions-item label="日期">
-            <div class="overview-dates">
-              <span class="overview-count">共 {{ formData.datelists.length }} 个日期</span>
-              <div class="overview-tags">
-                <el-tag 
-                  v-for="(date, index) in formData.datelists.slice(0, 10)" 
-                  :key="index"
-                  size="small"
-                  class="overview-tag"
-                >
-                  {{ formatDisplayDate(date) }}
-                </el-tag>
-                <el-tag v-if="formData.datelists.length > 10" type="info" size="small">
-                  ...等 {{ formData.datelists.length - 10 }} 个
-                </el-tag>
-              </div>
-            </div>
+          <el-descriptions-item label="日期范围">
+             {{ dateRange && dateRange.length === 2 ? `${formatDisplayDate(dateRange[0])} 至 ${formatDisplayDate(dateRange[1])}` : '未选择' }}
           </el-descriptions-item>
           
           <el-descriptions-item label="输出格式">
@@ -405,12 +368,34 @@ const batchKeywords = ref('')
 const skipFirstLine = ref(true)
 
 // 日期选择
-const selectedDate = ref('')
+const dateRange = ref([])
 
 // 状态
 const submitting = ref(false)
 const taskId = ref('')
 const successDialogVisible = ref(false)
+
+// ... (keep intermediate code) ...
+
+// 日期范围限制
+const TODAY = new Date()
+TODAY.setHours(0, 0, 0, 0)
+const ONE_YEAR_AGO = new Date(TODAY)
+ONE_YEAR_AGO.setFullYear(TODAY.getFullYear() - 1)
+ONE_YEAR_AGO.setDate(ONE_YEAR_AGO.getDate() - 7)
+
+const todayStr = computed(() => {
+  return `${TODAY.getFullYear()}-${String(TODAY.getMonth() + 1).padStart(2, '0')}-${String(TODAY.getDate()).padStart(2, '0')}`
+})
+
+const oneYearAgoStr = computed(() => {
+  return `${ONE_YEAR_AGO.getFullYear()}-${String(ONE_YEAR_AGO.getMonth() + 1).padStart(2, '0')}-${String(ONE_YEAR_AGO.getDate()).padStart(2, '0')}`
+})
+
+// 禁用日期函数
+const disabledDate = (date: Date) => {
+  return date.getTime() < ONE_YEAR_AGO.getTime() || date.getTime() > TODAY.getTime()
+}
 
 // 导入结果
 const importResultDialogVisible = ref(false)
@@ -440,24 +425,13 @@ const priorityMarks = {
   10: '高'
 }
 
-// 日期范围限制
-const MIN_DATE = new Date(2011, 0, 1)
-const TODAY = new Date()
-TODAY.setHours(0, 0, 0, 0)
-
-// 禁用日期函数
-const disabledDate = (date: Date) => {
-  const minDate = formData.kind === 'pc' ? new Date(2006, 0, 1) : new Date(2011, 0, 1)
-  return date.getTime() < minDate.getTime() || date.getTime() > TODAY.getTime()
-}
-
 // 计算是否可以提交
 const canSubmit = computed(() => {
   // 必须有关键词
   if (formData.keywords.length === 0) return false
   
-  // 必须有日期
-  if (formData.datelists.length === 0) return false
+  // 必须有日期范围
+  if (!dateRange.value || dateRange.value.length !== 2) return false
   
   // 恢复任务时需要任务ID
   if (formData.resume && !formData.task_id.trim()) return false
@@ -471,40 +445,11 @@ const formatDisplayDate = (dateStr: string) => {
   return `${dateStr.substring(0, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}`;
 }
 
-// 处理日期变化
-const handleDateChange = (date: string) => {
-  selectedDate.value = date;
-}
-
-// 添加选中的日期
-const addSelectedDate = () => {
-  if (!selectedDate.value) return;
-  
-  if (!formData.datelists.includes(selectedDate.value)) {
-    formData.datelists.push(selectedDate.value);
-    ElMessage.success(`成功添加日期: ${formatDisplayDate(selectedDate.value)}`);
-  } else {
-    ElMessage.warning(`日期已存在: ${formatDisplayDate(selectedDate.value)}`);
-  }
-  
-  selectedDate.value = '';
-}
-
-// 移除日期
-const removeDate = (index: number) => {
-  formData.datelists.splice(index, 1);
-}
-
-// 清空日期
-const clearDates = () => {
-  ElMessageBox.confirm('确定要清空所有日期吗?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    formData.datelists = [];
-  }).catch(() => {});
-}
+// 移除旧的日期处理函数
+// const handleDateChange...
+// const addSelectedDate...
+// const removeDate...
+// const clearDates...
 
 // 检查关键词
 const checkKeywords = async () => {
@@ -707,7 +652,8 @@ const submitTask = async () => {
       taskType: 'word_graph',
       parameters: {
         keywords: formData.keywords.map(k => k.value),
-        datelists: formData.datelists,
+        start_date: dateRange.value[0],
+        end_date: dateRange.value[1],
         output_format: formData.output_format,
         resume: formData.resume,
         kind: formData.kind
@@ -739,7 +685,7 @@ const submitTask = async () => {
 // 重置表单
 const resetForm = () => {
   formData.keywords = []
-  formData.datelists = []
+  dateRange.value = []
   batchKeywords.value = ''
   selectedDate.value = ''
   formData.output_format = 'csv'

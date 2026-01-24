@@ -197,7 +197,18 @@ class BaiduIndexDataProcessor:
             
             # 获取数据
             api_data = data['data']
-            period = api_data.get('period', '')
+            period_raw = api_data.get('period', '')
+            
+            # Format period: 20250126|20251214 -> 2025-01-26-2025-12-14 (Logic from test.py)
+            if '|' in period_raw:
+                try:
+                    p_start = period_raw.split('|')[0]
+                    p_end = period_raw.split('|')[1]
+                    period = f"{p_start[:4]}-{p_start[4:6]}-{p_start[6:]}-{p_end[:4]}-{p_end[4:6]}-{p_end[6:]}"
+                except:
+                    period = period_raw
+            else:
+                period = period_raw
             
             # 初始化结果列表
             results = []
