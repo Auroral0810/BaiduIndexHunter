@@ -24,11 +24,13 @@ class WebSocketService {
     this.socket.on('connect', () => {
       console.log('WebSocket connected');
       this.connected.value = true;
+      this.notifyListeners('connect', true);
     });
 
     this.socket.on('disconnect', () => {
       console.log('WebSocket disconnected');
       this.connected.value = false;
+      this.notifyListeners('disconnect', false);
     });
 
     this.socket.on('task_update', (data) => {

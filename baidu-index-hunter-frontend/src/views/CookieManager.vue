@@ -2078,11 +2078,14 @@ const batchUnban = async () => {
                     <div v-for="account in tempBannedAccounts" :key="account.account_id" class="banned-account-item">
                       <el-checkbox :value="account.account_id" class="banned-checkbox" />
                       <div class="banned-account-info">
-                        <div class="account-id">{{ account.account_id }}</div>
-                        <div class="ban-time">{{$t('views.cookiemanager.c6burr')}}{{ formatBanTimeRemaining(account.remaining_seconds) }}
+                        <div class="account-header">
+                          <span class="account-id">{{ account.account_id }}</span>
+                          <el-tag size="small" type="warning" effect="light" class="status-tag">
+                            {{$t('views.cookiemanager.c6burr')}}{{ formatBanTimeRemaining(account.remaining_seconds) }}
+                          </el-tag>
                         </div>
-                        <div class="ban-time-tooltip">
-                          {{ account.temp_ban_until }}
+                        <div class="ban-time-meta" v-if="account.temp_ban_until">
+                           <el-icon><Clock /></el-icon> {{ account.temp_ban_until }}
                         </div>
                       </div>
                       <div class="banned-account-actions">
@@ -2104,8 +2107,12 @@ const batchUnban = async () => {
                     <div v-for="account in permBannedAccounts" :key="account" class="banned-account-item">
                       <el-checkbox :value="account" class="banned-checkbox" />
                       <div class="banned-account-info">
-                        <div class="account-id">{{ account }}</div>
-                        <div class="ban-status">{{$t('views.cookiemanager.e6y884')}}</div>
+                        <div class="account-header">
+                          <span class="account-id">{{ account }}</span>
+                          <el-tag size="small" type="danger" effect="light" class="status-tag">
+                            {{$t('views.cookiemanager.e6y884')}}
+                          </el-tag>
+                        </div>
                       </div>
                       <div class="banned-account-actions">
                         <el-button size="small" type="danger" @click.stop="forceUnbanAccount(account)" plain>{{$t('views.cookiemanager.8etq8j')}}</el-button>
@@ -2652,24 +2659,27 @@ const batchUnban = async () => {
 .cookie-manager-container {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 40px 24px;
+  padding: 32px 24px;
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
+  margin-bottom: 32px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  padding: 24px 32px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md);
 }
 
 .page-header h1 {
-  font-size: 2.75rem;
+  font-size: 2rem;
   font-weight: 800;
-  background: var(--color-primary-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -1.5px;
+  color: var(--color-text-main);
+  letter-spacing: -1px;
   margin: 0;
 }
 
@@ -2681,43 +2691,45 @@ const batchUnban = async () => {
 /* Stats Overview */
 .status-overview {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .status-item {
-  background: var(--color-bg-surface);
+  background: var(--color-bg-subtle);
   border-radius: var(--radius-lg);
-  padding: 24px;
+  padding: 16px;
   border: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-sm);
+  gap: 4px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-align: left;
+  position: relative;
+  overflow: hidden;
 }
 
 .status-item:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
   border-color: var(--color-primary-light);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .status-value {
-  font-size: 2.25rem;
+  font-size: 1.75rem;
   font-weight: 800;
   color: var(--color-text-main);
-  line-height: 1;
+  line-height: 1.2;
 }
 
 .status-label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--color-text-tertiary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
 .status-item.success .status-value { color: var(--color-success); }
@@ -2728,19 +2740,20 @@ const batchUnban = async () => {
 .status-card,
 .banned-accounts-card,
 .cookie-list-card {
-  background: var(--color-bg-surface);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--glass-border);
   box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
-  margin-bottom: 32px !important;
+  margin-bottom: 24px !important;
 }
 
 .status-card:hover,
 .banned-accounts-card:hover,
 .cookie-list-card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .card-header {
@@ -2754,6 +2767,7 @@ const batchUnban = async () => {
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--color-text-main);
+  transition: color 0.3s ease;
 }
 
 .header-actions {
@@ -2827,6 +2841,33 @@ const batchUnban = async () => {
 }
 
 /* Banned Accounts Section */
+.banned-accounts :deep(.el-tabs__nav-wrap::after) {
+  display: none;
+}
+
+.banned-accounts :deep(.el-tabs__active-bar) {
+  height: 3px;
+  border-radius: 3px;
+  background: var(--color-primary-gradient);
+}
+
+.banned-accounts :deep(.el-tabs__item) {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  transition: all 0.3s;
+}
+
+.banned-accounts :deep(.el-tabs__item.is-active) {
+  color: var(--color-primary);
+}
+
+.banned-accounts :deep(.el-tabs__item:focus:not(:focus-visible)),
+.banned-accounts :deep(.el-tabs__item:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
 .banned-toolbar {
   display: flex;
   align-items: center;
@@ -2847,9 +2888,9 @@ const batchUnban = async () => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--color-border);
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .banned-account-item:hover {
@@ -2861,41 +2902,47 @@ const batchUnban = async () => {
 }
 
 .banned-checkbox {
-  margin-top: 0;
-  margin-right: 0;
+  margin-right: 4px;
 }
 
 .banned-account-info {
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 4px;
+  gap: 6px;
+  min-width: 0;
+}
+
+.account-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .account-id {
   font-weight: 700;
-  font-family: monospace;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
   font-size: 1rem;
+  color: var(--color-text-main);
+  word-break: break-all;
 }
 
-.ban-time {
-  font-size: 0.85rem;
-  color: var(--color-warning);
+.status-tag {
+  flex-shrink: 0;
 }
 
-.ban-time-tooltip {
+.ban-time-meta {
   font-size: 0.75rem;
-  color: var(--color-text-tertiary);
-}
-
-.ban-status {
-  font-size: 0.85rem;
-  color: var(--color-danger);
-  font-weight: 600;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .banned-account-actions {
-  margin-top: 0;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 /* Filters and Tables */
