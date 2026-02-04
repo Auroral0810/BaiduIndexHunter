@@ -13,7 +13,7 @@ import { useClipboard } from '@vueuse/core'
 import { useTaskStore } from '@/stores/task'
 import 'element-plus/es/components/message/style/css'
 import 'element-plus/es/components/message-box/style/css'
-import { Warning, View, Edit } from '@element-plus/icons-vue'
+import { Warning, View, Edit, Clock } from '@element-plus/icons-vue'
 
 const { copy, isSupported } = useClipboard()
 

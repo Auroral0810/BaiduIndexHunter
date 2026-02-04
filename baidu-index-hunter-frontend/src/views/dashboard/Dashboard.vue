@@ -16,8 +16,8 @@
         <div class="title-group">
           <h1 class="main-title">{{ $t('dashboard.dashboard.2dwsg6') }}</h1>
           <div class="live-status">
-            <span class="pulse-dot"></span>
-            <span class="status-text">{{ $t('dashboard.dashboard.status_ok') }}</span>
+            <span class="pulse-dot" :class="{ 'is-active': wsConnected }"></span>
+            <span class="status-text">{{ wsConnected ? $t('dashboard.dashboard.status_ok') : $t('dashboard.dashboard.status_disconnected') }}</span>
           </div>
         </div>
       </div>
@@ -65,9 +65,6 @@
               <span class="kpi-label">{{ stat.label }}</span>
               <div class="kpi-value-row">
                 <span class="kpi-value">{{ stat.formattedValue }}</span>
-                <span class="kpi-trend" :class="stat.trend >= 0 ? 'up' : 'down'">
-                  {{ stat.trend >= 0 ? '+' : '' }}{{ stat.trend }}%
-                </span>
               </div>
             </div>
             <div class="kpi-chart" :ref="el => setSparklineRef(el, index)"></div>
@@ -77,11 +74,11 @@
         <!-- Central Trend Chart -->
         <div class="trend-section glass-panel">
           <div class="panel-header">
-            <h3 class="panel-title">{{ $t('dashboard.dashboard.execution_analytics') }}</h3>
+            <h3 class="panel-title">{{ $t('dashboard.dashboard.execution_trends') }}</h3>
             <div class="panel-actions">
               <el-radio-group v-model="trendMode" size="small" class="premium-radio">
-                <el-radio-button label="task">{{ $t('dashboard.dashboard.volume') }}</el-radio-button>
-                <el-radio-button label="success">{{ $t('dashboard.dashboard.n53625') }}</el-radio-button>
+                <el-radio-button label="task">{{ $t('dashboard.dashboard.total_tasks') }}</el-radio-button>
+                <el-radio-button label="success">{{ $t('dashboard.dashboard.crawled_items') }}</el-radio-button>
               </el-radio-group>
             </div>
           </div>
@@ -91,12 +88,16 @@
         <!-- Bottom Insights -->
         <div class="insights-grid">
           <div class="insight-card glass-panel">
-            <h4 class="insight-title">{{ $t('dashboard.dashboard.f261uw') }}</h4>
+            <h4 class="insight-title">{{ $t('dashboard.dashboard.success_comparison') }}</h4>
             <div ref="distributionChartRef" class="insight-echart"></div>
           </div>
           <div class="insight-card glass-panel">
-            <h4 class="insight-title">{{ $t('dashboard.dashboard.fxx3gx') }}</h4>
+            <h4 class="insight-title">{{ $t('dashboard.dashboard.duration_comparison') }}</h4>
             <div ref="durationChartRef" class="insight-echart"></div>
+          </div>
+          <div class="insight-card glass-panel">
+            <h4 class="insight-title">{{ $t('dashboard.dashboard.volume_comparison') }}</h4>
+            <div ref="volumeChartRef" class="insight-echart"></div>
           </div>
         </div>
       </div>
@@ -145,9 +146,12 @@ import {
   Refresh, 
   List, 
   CircleCheck, 
+  CircleClose,
   Warning, 
   Timer, 
-  Connection 
+  Connection,
+  Promotion,
+  DataAnalysis
 } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 import { useI18n } from 'vue-i18n'
@@ -183,12 +187,14 @@ const terminalBody = ref(null)
 let mainChartInstance = null
 let distributionChartInstance = null
 let durationChartInstance = null
+let volumeChartInstance = null
 const sparklineInstances = []
 
 // DOM Refs
 const mainChartRef = ref(null)
 const distributionChartRef = ref(null)
 const durationChartRef = ref(null)
+const volumeChartRef = ref(null)
 const sparklineRefs = reactive([])
 
 // --- Computed ---
@@ -208,17 +214,20 @@ const currentStats = computed(() => {
 
 const metricStats = computed(() => {
   const stats = [
-    { label: $t('dashboard.dashboard.7iv3g2'), value: currentStats.value.total_tasks || 0, icon: List, color: '#6366f1', trend: 12.5 },
-    { label: $t('dashboard.dashboard.mx5z5v'), value: currentStats.value.total_crawled_items || currentStats.value.total_items || 0, icon: Connection, color: '#8b5cf6', trend: 8.2 },
-    { label: $t('dashboard.dashboard.n53625'), value: currentStats.value.success_rate || 0, icon: CircleCheck, color: '#10b981', trend: 3.1, isPercent: true },
-    { label: $t('dashboard.dashboard.jpm4gu'), value: currentStats.value.avg_duration || 0, icon: Timer, color: '#f59e0b', trend: -5.4, isSecond: true, isPrecise: true }
+    { label: $t('dashboard.dashboard.total_tasks'), value: currentStats.value.total_tasks || 0, icon: List, color: '#6366f1' },
+    { label: $t('dashboard.dashboard.completed_tasks'), value: currentStats.value.completed_tasks || 0, icon: CircleCheck, color: '#10b981' },
+    { label: $t('dashboard.dashboard.failed_tasks'), value: currentStats.value.failed_tasks || 0, icon: CircleClose, color: '#ef4444' },
+    { label: $t('dashboard.dashboard.data_volume'), value: currentStats.value.total_items || 0, icon: Connection, color: '#8b5cf6' },
+    { label: $t('dashboard.dashboard.crawled_items'), value: currentStats.value.total_crawled_items || 0, icon: DataAnalysis, color: '#3b82f6' },
+    { label: $t('dashboard.dashboard.success_rate'), value: currentStats.value.success_rate || 0, icon: Promotion, color: '#f59e0b', isPercent: true },
+    { label: $t('dashboard.dashboard.avg_duration'), value: currentStats.value.avg_duration || 0, icon: Timer, color: '#06b6d4', isSecond: true, isPrecise: true }
   ]
   
   return stats.map(s => {
     const numValue = Number(s.value) || 0
     return {
       ...s,
-      formattedValue: s.isPercent ? numValue.toFixed(1) + '%' : s.isSecond ? numValue.toFixed(s.isPrecise ? 2 : 1) + 's' : Math.floor(numValue).toLocaleString()
+      formattedValue: s.isPercent ? numValue.toFixed(2) + '%' : s.isSecond ? numValue.toFixed(s.isPrecise ? 2 : 1) + 's' : Math.floor(numValue).toLocaleString()
     }
   })
 })
@@ -328,6 +337,7 @@ const initCharts = () => {
     initMainChart()
     initDistributionChart()
     initDurationChart()
+    initVolumeChart()
     initSparklines()
   })
 }
@@ -346,10 +356,10 @@ const initMainChart = () => {
   if (trendMode.value === 'task') {
     series = [
       {
-        name: 'Total Tasks', type: 'line', smooth: true, showSymbol: false,
+        name: $t('dashboard.dashboard.total_tasks'), type: 'line', smooth: true, showSymbol: false,
         data: trendData.map(it => Number(it.total_tasks) || 0),
         lineStyle: { width: 3, color: '#6366f1' },
-          areaStyle: {
+        areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: 'rgba(99, 102, 241, 0.2)' },
             { offset: 1, color: 'rgba(99, 102, 241, 0)' }
@@ -357,16 +367,27 @@ const initMainChart = () => {
         }
       },
       {
-        name: 'Completed', type: 'line', smooth: true, showSymbol: false,
+        name: $t('dashboard.dashboard.completed_tasks'), type: 'line', smooth: true, showSymbol: false,
         data: trendData.map(it => Number(it.completed_tasks) || 0),
         lineStyle: { width: 3, color: '#10b981' },
+      },
+      {
+        name: $t('dashboard.dashboard.failed_tasks'), type: 'line', smooth: true, showSymbol: false,
+        data: trendData.map(it => Number(it.failed_tasks) || 0),
+        lineStyle: { width: 3, color: '#ef4444' },
       }
     ]
   } else {
     series = [{
-      name: 'Success Rate', type: 'line', smooth: true, 
-      data: trendData.map(it => Number(it.success_rate) || 0),
-      lineStyle: { width: 4, color: '#f59e0b' },
+      name: $t('dashboard.dashboard.crawled_items'), type: 'line', smooth: true,
+      data: trendData.map(it => Number(it.total_crawled_items) || 0),
+      lineStyle: { width: 4, color: '#3b82f6' },
+      areaStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: 'rgba(59, 130, 246, 0.2)' },
+          { offset: 1, color: 'rgba(59, 130, 246, 0)' }
+        ])
+      }
     }]
   }
 
@@ -399,12 +420,16 @@ const initDistributionChart = () => {
   if (!distributionChartInstance) distributionChartInstance = echarts.init(distributionChartRef.value)
   
   const data = dashboardData.success_rate_comparison.map(it => ({
-    name: formatTaskType(it.task_type), value: Number(it.success_rate) || 0
+    name: formatTaskType(it.task_type), 
+    value: parseFloat(Number(it.success_rate).toFixed(2)) || 0
   }))
   
   distributionChartInstance.setOption({
     ...commonOptions.value,
-    tooltip: { trigger: 'item' },
+    tooltip: { 
+      trigger: 'item',
+      formatter: '{b}: <b>{c}%</b>'
+    },
     series: [{
       type: 'pie', radius: ['40%', '70%'], avoidLabelOverlap: false,
       itemStyle: { 
@@ -430,12 +455,15 @@ const initDurationChart = () => {
     ...commonOptions.value,
     tooltip: { 
       trigger: 'axis',
+      backgroundColor: isDark.value ? 'rgba(15, 23, 42, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+      borderColor: isDark.value ? '#334155' : '#e2e8f0',
+      textStyle: { color: isDark.value ? '#f8fafc' : '#0f172a' },
       formatter: (params) => {
         const item = params[0]
         return `${item.name}: <b>${Number(item.value).toFixed(2)}s</b>`
       }
     },
-    grid: { left: '5%', right: '8%', top: '5%', bottom: '5%', containLabel: true },
+    grid: { left: '5%', right: '12%', top: '5%', bottom: '5%', containLabel: true },
     xAxis: { 
       type: 'value', 
       splitLine: { show: true, lineStyle: { color: isDark.value ? '#1e293b' : '#f1f5f9' } },
@@ -448,25 +476,75 @@ const initDurationChart = () => {
         fontSize: 11,
         width: 100,
         overflow: 'truncate',
-        interval: 0,
-        color: isDark.value ? '#cbd5e1' : '#475569'
-      } 
+        color: isDark.value ? '#94a3b8' : '#64748b'
+      }
     },
     series: [{
-      type: 'bar', data, barWidth: 15,
-      itemStyle: { 
-        borderRadius: [0, 5, 5, 0], 
-        color: new echarts.graphic.LinearGradient(1, 0, 0, 0, [
-          { offset: 0, color: '#8b5cf6' },
-          { offset: 1, color: '#6366f1' }
-        ])
+      type: 'bar',
+      data: data,
+      itemStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+          { offset: 0, color: '#6366f1' },
+          { offset: 1, color: '#a855f7' }
+        ]),
+        borderRadius: [0, 4, 4, 0]
       },
       label: {
         show: true,
         position: 'right',
-        formatter: '{c}s',
-        fontSize: 10,
-        color: isDark.value ? '#94a3b8' : '#64748b'
+        formatter: (params) => Number(params.value).toFixed(2) + 's',
+        color: isDark.value ? '#94a3b8' : '#64748b',
+        fontSize: 10
+      }
+    }]
+  }, true)
+}
+const initVolumeChart = () => {
+  if (!volumeChartRef.value) return
+  if (!volumeChartInstance) volumeChartInstance = echarts.init(volumeChartRef.value)
+  
+  const data = dashboardData.data_volume_comparison.map(it => Number(it.total_crawled_items) || 0)
+  const names = dashboardData.data_volume_comparison.map(it => formatTaskType(it.task_type))
+  
+  volumeChartInstance.setOption({
+    ...commonOptions.value,
+    tooltip: { 
+      trigger: 'axis',
+      backgroundColor: isDark.value ? 'rgba(15, 23, 42, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+      borderColor: isDark.value ? '#334155' : '#e2e8f0',
+      textStyle: { color: isDark.value ? '#f8fafc' : '#0f172a' },
+      formatter: (params) => {
+        const item = params[0]
+        return `${item.name}: <b>${Number(item.value).toLocaleString()}</b>`
+      }
+    },
+    grid: { left: '5%', right: '12%', top: '5%', bottom: '5%', containLabel: true },
+    xAxis: { 
+      type: 'value', 
+      splitLine: { show: true, lineStyle: { color: isDark.value ? '#1e293b' : '#f1f5f9' } },
+      axisLabel: { formatter: (value) => value >= 10000 ? (value / 10000).toFixed(1) + 'w' : value }
+    },
+    yAxis: { 
+      type: 'category', 
+      data: names, 
+      axisLabel: { color: isDark.value ? '#94a3b8' : '#64748b', fontSize: 11 }
+    },
+    series: [{
+      type: 'bar',
+      data: data,
+      itemStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+          { offset: 0, color: '#8b5cf6' },
+          { offset: 1, color: '#d946ef' }
+        ]),
+        borderRadius: [0, 4, 4, 0]
+      },
+      label: {
+        show: true,
+        position: 'right',
+        formatter: (params) => Math.floor(params.value).toLocaleString(),
+        color: isDark.value ? '#94a3b8' : '#64748b',
+        fontSize: 10
       }
     }]
   }, true)
@@ -510,6 +588,7 @@ onUnmounted(() => {
   mainChartInstance?.dispose()
   distributionChartInstance?.dispose()
   durationChartInstance?.dispose()
+  volumeChartInstance?.dispose()
   sparklineInstances.forEach(i => i?.dispose())
 })
 
@@ -517,6 +596,7 @@ const handleResize = () => {
   mainChartInstance?.resize()
   distributionChartInstance?.resize()
   durationChartInstance?.resize()
+  volumeChartInstance?.resize()
   sparklineInstances.forEach(i => i?.resize())
 }
 
@@ -626,8 +706,15 @@ watch(isDark, initCharts)
 .pulse-dot {
   width: 6px;
   height: 6px;
-  background: #10b981;
+  background: #94a3b8;
   border-radius: 50%;
+  opacity: 0.5;
+  transition: all 0.3s;
+}
+
+.pulse-dot.is-active {
+  background: #10b981;
+  opacity: 1;
   box-shadow: 0 0 8px #10b981;
   animation: pulse 2s infinite;
 }
@@ -664,7 +751,7 @@ watch(isDark, initCharts)
 /* KPI Cards */
 .kpi-container {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
   margin-bottom: 24px;
 }
@@ -762,7 +849,7 @@ watch(isDark, initCharts)
 /* Insights Section */
 .insights-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
 }
 
