@@ -1586,7 +1586,9 @@ const getLogLevelTag = (level: string) => {
 
 .info-card {
   margin-bottom: 15px;
-  border-radius: 4px;
+  border-radius: 8px;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
 }
 
 .info-header {
@@ -1657,6 +1659,9 @@ const getLogLevelTag = (level: string) => {
   height: 100%;
   display: flex;
   flex-direction: column;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
 }
 
 .card-header {
@@ -1721,10 +1726,10 @@ const getLogLevelTag = (level: string) => {
 
 .checkpoint-data {
   margin-top: 10px;
-  background-color: #fff;
+  background-color: var(--color-bg-surface);
   border-radius: 4px;
   padding: 10px;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--color-border);
 }
 
 .checkpoint-data h4 {
@@ -1741,7 +1746,7 @@ const getLogLevelTag = (level: string) => {
   font-size: 12px;
   max-height: 100px;
   overflow-y: auto;
-  background-color: #f8f9fa;
+  background-color: var(--color-bg-subtle);
   padding: 10px;
   border-radius: 4px;
 }
@@ -1797,5 +1802,81 @@ const getLogLevelTag = (level: string) => {
   .detail-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Deep Theme Overrides for Descriptions */
+:deep(.el-descriptions) {
+  --el-descriptions-table-border: 1px solid var(--color-border);
+  --el-descriptions-item-bordered-label-background: var(--color-bg-subtle);
+}
+
+:deep(.el-descriptions__body) {
+  background-color: transparent !important;
+  color: var(--color-text-primary);
+}
+
+:deep(.el-descriptions__label.el-descriptions__cell.is-bordered-label) {
+  background-color: var(--color-bg-subtle) !important;
+  color: var(--color-text-secondary);
+  border-color: var(--color-border) !important;
+  font-weight: 600;
+}
+
+:deep(.el-descriptions__content.el-descriptions__cell.is-bordered-content) {
+  background-color: transparent !important;
+  color: var(--color-text-primary);
+  border-color: var(--color-border) !important;
+}
+
+:deep(.el-descriptions__table) {
+  border-color: var(--color-border) !important;
+}
+
+:deep(.el-descriptions__table tr) {
+  background-color: transparent !important;
+}
+
+:deep(.el-descriptions__table td), 
+:deep(.el-descriptions__table th) {
+  border-color: var(--color-border) !important;
+}
+
+/* Deep Theme Overrides for Tables in TaskList */
+:deep(.el-table) {
+  --el-table-bg-color: transparent !important;
+  --el-table-tr-bg-color: transparent !important;
+  --el-table-header-bg-color: var(--color-bg-subtle) !important;
+  --el-table-row-hover-bg-color: var(--color-bg-subtle) !important;
+  --el-table-border-color: var(--color-border) !important;
+  background-color: transparent !important;
+  color: var(--color-text-primary);
+}
+
+:deep(.el-table th.el-table__cell) {
+  background-color: var(--color-bg-subtle) !important;
+  color: var(--color-text-primary);
+  font-weight: 600;
+  border-bottom-color: var(--color-border) !important;
+  border-right-color: var(--color-border) !important;
+}
+
+:deep(.el-table tr) {
+  background-color: transparent !important;
+}
+
+:deep(.el-table td.el-table__cell) {
+  background-color: transparent !important;
+  border-bottom-color: var(--color-border) !important;
+  border-right-color: var(--color-border) !important;
+}
+
+:deep(.el-table--border::after),
+:deep(.el-table--group::after),
+:deep(.el-table::before) {
+  background-color: var(--color-border) !important;
+}
+
+:deep(.el-table__inner-wrapper::before) {
+  background-color: var(--color-border) !important;
 }
 </style>
