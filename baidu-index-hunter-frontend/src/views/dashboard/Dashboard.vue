@@ -138,26 +138,26 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch, nextTick } from 'vue'
+import { ref, reactive, onMounted, watch, nextTick, computed } from 'vue'
 import { getDashboardData } from '@/api/statistics'
 import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
 import { useI18n } from 'vue-i18n'
-const { t: $t } = useI18n()
+const { t: $t, locale } = useI18n()
 
-// 任务类型映射
-const taskTypeMap = {
+// 任务类型映射 (使用 computed 实现语言切换响应)
+const taskTypeMap = computed(() => ({
   'search_index': $t('views.datacollection.2ncis3'),
   'feed_index': $t('views.datacollection.653q6s'),
   'word_graph': $t('views.datacollection.k08266'),
   'region_distribution': $t('views.datacollection.sciq8u'),
   'demographic_attributes': $t('views.datacollection.i19rq5'),
   'interest_profile': $t('dashboard.dashboard.py2bk3')
-}
+}))
 
 // 格式化任务类型
 const formatTaskType = (type) => {
-  return taskTypeMap[type] || type
+  return taskTypeMap.value[type] || type
 }
 
 // 格式化数字
@@ -481,13 +481,19 @@ const initAvgDurationChart = () => {
   const taskTypes = dashboardData.avg_duration_comparison.map(item => formatTaskType(item.task_type))
   const durations = dashboardData.avg_duration_comparison.map(item => item.avg_duration)
   
+  // 获取翻译后的"秒"单位
+  const secondUnit = $t('dashboard.dashboard.y69h15').replace('{value}', '').trim()
+  
   const option = {
     tooltip: {
       trigger: 'axis',
       axisPointer: {
         type: 'shadow'
       },
-      formatter: $t('dashboard.dashboard.48i4x2')
+      formatter: (params) => {
+        const data = params[0]
+        return `${data.name}: ${Number(data.value).toFixed(1)}${secondUnit}`
+      }
     },
     grid: {
       left: '3%',
@@ -498,7 +504,7 @@ const initAvgDurationChart = () => {
     xAxis: {
       type: 'value',
       axisLabel: {
-        formatter: $t('dashboard.dashboard.y69h15')
+        formatter: (value) => `${Number(value).toFixed(1)}${secondUnit}`
       }
     },
     yAxis: {
@@ -567,6 +573,13 @@ window.addEventListener('resize', () => {
 // 监听任务类型变化，更新当前显示数据和图表
 watch(selectedTaskType, () => {
   updateCurrentStats()
+  nextTick(() => {
+    initCharts()
+  })
+})
+
+// 监听语言变化，重新初始化图表
+watch(locale, () => {
   nextTick(() => {
     initCharts()
   })

@@ -170,12 +170,12 @@ onMounted(async () => {
       <aside class="settings-sidebar">
         <nav class="settings-nav">
           <div 
-            v-for="group in configGroups" 
-            :key="group.id" 
+              v-for="group in configGroups" 
+              :key="group.id" 
             class="nav-item"
             :class="{ active: activeGroup === group.id }"
             @click="activeGroup = group.id"
-          >
+            >
             <div class="nav-icon">
               <el-icon><component :is="group.icon" /></el-icon>
             </div>
@@ -187,98 +187,98 @@ onMounted(async () => {
         </nav>
         
         <div class="sidebar-actions">
-          <el-button 
+            <el-button 
             class="reset-btn"
-            @click="resetConfigs" 
-            plain 
+              @click="resetConfigs" 
+              plain 
             :icon="Refresh" 
-            :loading="loading"
+              :loading="loading"
           >{{$t('views.settings.8u2y54')}}</el-button>
-        </div>
+          </div>
       </aside>
       
       <!-- 配置内容 -->
       <main class="settings-content" v-loading="loading">
         <div class="content-card">
-          <div class="card-header">
+            <div class="card-header">
             <h2 class="group-title">
               {{ configGroups.find(g => g.id === activeGroup)?.name }}
             </h2>
-            <el-button 
-              type="primary" 
+              <el-button 
+                type="primary" 
               class="save-btn"
-              @click="saveConfigs(activeGroup)" 
-              :loading="loading"
+                @click="saveConfigs(activeGroup)" 
+                :loading="loading"
               :icon="Check"
             >{{$t('views.settings.0q2j84')}}</el-button>
-          </div>
+            </div>
           
           <div class="config-form-wrapper">
             <template v-if="Object.keys(getGroupConfigs(activeGroup)).length > 0">
               <el-form label-position="top" class="config-form">
                 <el-row :gutter="24">
                   <el-col 
-                    v-for="(value, key) in getGroupConfigs(activeGroup)" 
-                    :key="key"
+                  v-for="(value, key) in getGroupConfigs(activeGroup)" 
+                  :key="key"
                     :span="12"
                     :xs="24"
-                  >
+                >
                     <el-form-item :label="getDisplayLabel(String(key))" class="custom-form-item">
-                      <!-- 布尔类型 -->
+                  <!-- 布尔类型 -->
                       <div v-if="getConfigType(String(key), value) === 'boolean'" class="switch-wrapper">
-                        <el-switch 
-                          v-model="configStore.configs[key]"
+                  <el-switch 
+                    v-model="configStore.configs[key]"
                           :active-value="typeof value === 'string' ? 'true' : true"
                           :inactive-value="typeof value === 'string' ? 'false' : false"
-                        />
+                  />
                         <span class="switch-label">{{ configStore.configs[key] ? $t('views.settings.7p05v8') : $t('views.settings.5n3p7s') }}</span>
                       </div>
-                      
-                      <!-- 数字类型 -->
-                      <el-input-number 
+                  
+                  <!-- 数字类型 -->
+                  <el-input-number 
                         v-else-if="getConfigType(String(key), value) === 'number'"
-                        v-model="configStore.configs[key]"
-                        :min="0"
+                    v-model="configStore.configs[key]"
+                    :min="0"
                         :step="String(key).includes('interval') ? 0.1 : 1"
                         controls-position="right"
                         class="full-width-input"
-                      />
-                      
-                      <!-- 端口类型 -->
-                      <el-input-number 
+                  />
+                  
+                  <!-- 端口类型 -->
+                  <el-input-number 
                         v-else-if="getConfigType(String(key), value) === 'port'"
-                        v-model="configStore.configs[key]"
-                        :min="1"
-                        :max="65535"
+                    v-model="configStore.configs[key]"
+                    :min="1"
+                    :max="65535"
                         controls-position="right"
                         class="full-width-input"
-                      />
-                      
-                      <!-- 密码类型 -->
-                      <el-input 
+                  />
+                  
+                  <!-- 密码类型 -->
+                  <el-input 
                         v-else-if="getConfigType(String(key), value) === 'password'"
-                        v-model="configStore.configs[key]"
-                        show-password
+                    v-model="configStore.configs[key]"
+                    show-password
                         class="custom-input"
-                      />
-                      
-                      <!-- URL类型 -->
-                      <el-input 
+                  />
+                  
+                  <!-- URL类型 -->
+                  <el-input 
                         v-else-if="getConfigType(String(key), value) === 'url'"
-                        v-model="configStore.configs[key]"
+                    v-model="configStore.configs[key]"
                         :placeholder="$t('views.settings.7f3hu6')"
                         class="custom-input"
-                      />
-                      
-                      <!-- 默认字符串类型 -->
-                      <el-input 
-                        v-else
-                        v-model="configStore.configs[key]"
+                  />
+                  
+                  <!-- 默认字符串类型 -->
+                  <el-input 
+                    v-else
+                    v-model="configStore.configs[key]"
                         class="custom-input"
-                      />
-                      
+                  />
+                  
                       <div class="form-key-tip">{{ key }}</div>
-                    </el-form-item>
+                </el-form-item>
                   </el-col>
                 </el-row>
               </el-form>
@@ -581,4 +581,4 @@ onMounted(async () => {
     width: 100%;
   }
 }
-</style>
+</style> 

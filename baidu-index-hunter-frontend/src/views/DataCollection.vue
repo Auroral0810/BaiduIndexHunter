@@ -182,8 +182,8 @@ onMounted(() => {
         <div class="status-info">
           <span class="status-label">{{$t('views.datacollection.j887qn')}}</span>
           <span class="status-value">{{ apiStatus ? $t('views.datacollection.qww0ij') : $t('views.datacollection.v35896') }}</span>
-        </div>
       </div>
+    </div>
     </header>
 
     <!-- 主布局 -->
@@ -255,10 +255,10 @@ onMounted(() => {
         <h3>{{ apiStatus ? $t('views.datacollection.ldw8s0') : $t('views.datacollection.w4f54h') }}</h3>
         <p>{{ apiStatus ? $t('views.datacollection.rsbfb0') : $t('views.datacollection.5iycwm') }}</p>
         
-        <div v-if="apiStatus" class="api-endpoint">
+            <div v-if="apiStatus" class="api-endpoint">
           <span>Endpoint: </span>
           <code>{{ API_BASE_URL }}</code>
-        </div>
+            </div>
       </div>
       <template #footer>
         <div class="dialog-footer">
@@ -296,14 +296,14 @@ onMounted(() => {
           </div>
           
           <div class="progress-bar-wrapper">
-            <el-progress 
-              :percentage="currentRunningTask.progress || 0" 
-              :status="getProgressStatus(currentRunningTask.status)"
+          <el-progress 
+            :percentage="currentRunningTask.progress || 0" 
+            :status="getProgressStatus(currentRunningTask.status)"
               :stroke-width="8"
-              striped
-              striped-flow
+            striped
+            striped-flow
               :duration="10"
-            />
+          />
           </div>
           
           <div v-if="currentRunningTask.error_message" class="error-msg">

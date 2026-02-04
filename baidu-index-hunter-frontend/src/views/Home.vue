@@ -200,8 +200,8 @@ const workflowSteps = [
       <div class="section-header">
         <h2 class="section-title">{{$t('views.home.kv3meg')}}</h2>
         <p class="section-desc">{{$t('views.home.253trm')}}</p>
-      </div>
-      
+        </div>
+        
       <div class="workflow-grid">
         <div v-for="(step, index) in workflowSteps" :key="index" class="step-card">
           <div class="step-badge">{{ index + 1 }}</div>
@@ -760,7 +760,7 @@ const workflowSteps = [
     text-align: center;
     padding: 60px 24px;
   }
-  
+
   .hero-content {
     max-width: 100%;
   }
@@ -772,7 +772,7 @@ const workflowSteps = [
   .hero-stats {
     justify-content: center;
   }
-  
+
   .hero-visual {
     width: 100%;
     margin-top: 40px;
@@ -813,4 +813,4 @@ const workflowSteps = [
     font-size: 2rem;
   }
 }
-</style>
+</style> 
