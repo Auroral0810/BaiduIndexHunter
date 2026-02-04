@@ -7,14 +7,12 @@ import {
   DocumentCopy,
   TrendCharts,
   Monitor,
-  Service,
-  Tools,
-  DataLine,
-  Refresh
+  Warning,
+  InfoFilled
 } from '@element-plus/icons-vue'
 
-const version = ref('1.0.0')
-const releaseDate = ref('2025-6-26')
+const version = ref('2.0.0')
+const releaseDate = ref('2026-02-04')
 
 const features = ref([
   {
@@ -24,7 +22,7 @@ const features = ref([
   },
   {
     title: '多维数据',
-    description: '支持搜索指数、媒体指数、需求图谱等多种数据类型',
+    description: '支持搜索指数、资讯指数、需求图谱等多种数据类型',
     icon: DataAnalysis
   },
   {
@@ -53,7 +51,7 @@ const features = ref([
 const faqs = ref([
   {
     question: 'BaiduIndexHunter是什么？',
-    answer: 'BaiduIndexHunter是一个高效、稳定的百度指数数据采集和分析工具，帮助您获取关键词搜索趋势、地域分布等重要数据。'
+    answer: 'BaiduIndexHunter是一个用于学习研究的百度指数数据采集工具，帮助您了解关键词搜索趋势、地域分布等数据采集技术。'
   },
   {
     question: '如何开始使用？',
@@ -72,35 +70,8 @@ const faqs = ref([
     answer: '系统内置Cookie池管理机制，支持多账号轮换使用；采用智能限流策略，避免触发反爬机制；提供任务断点续传功能，异常中断后可自动恢复。'
   },
   {
-    question: '产品技术支持与售后',
-    answer: '我们提供完善的技术支持服务，包括安装部署指导、使用培训、问题排查等。购买后可获得专属技术支持渠道，响应时间不超过24小时。'
-  }
-])
-
-const services = ref([
-  {
-    title: '企业定制服务',
-    description: '根据您的业务需求，提供定制化功能开发和系统集成服务。',
-    icon: Service,
-    color: '#409EFF'
-  },
-  {
-    title: '技术支持',
-    description: '提供安装部署指导、使用培训、问题排查等全方位技术支持。',
-    icon: Tools,
-    color: '#E6A23C'
-  },
-  {
-    title: '数据分析咨询',
-    description: '协助您解读数据，提供专业的市场分析建议和决策支持。',
-    icon: DataLine,
-    color: '#67C23A'
-  },
-  {
-    title: '持续更新维护',
-    description: '定期更新系统功能，及时适配百度指数平台变化，确保长期稳定使用。',
-    icon: Refresh,
-    color: '#F56C6C'
+    question: '本项目的使用范围是什么？',
+    answer: '本项目仅供个人学习和技术研究使用，不得用于任何商业用途。使用本工具时请遵守相关法律法规和百度的服务条款。'
   }
 ])
 </script>
@@ -108,54 +79,72 @@ const services = ref([
 <template>
   <div class="about-container">
     <section class="hero-section">
-      <h1 class="page-title gradient-text">关于BaiduIndexHunter</h1>
-      <p class="subtitle">高效、稳定的百度指数数据采集和分析工具</p>
+      <h1 class="page-title gradient-text">关于 BaiduIndexHunter</h1>
+      <p class="subtitle">个人学习与技术研究项目</p>
       <div class="version-info">
         <el-tag effect="dark" class="version-tag">v{{ version }}</el-tag>
-        <span class="release-date">发布于: {{ releaseDate }}</span>
+        <span class="release-date">更新于: {{ releaseDate }}</span>
       </div>
+    </section>
+
+    <!-- 重要声明 -->
+    <section class="disclaimer-section">
+      <el-alert
+        title="免责声明"
+        type="warning"
+        :closable="false"
+        show-icon
+      >
+        <template #default>
+          <div class="disclaimer-content">
+            <p><strong>本项目仅供个人学习和技术研究使用，严禁用于任何商业用途。</strong></p>
+            <p>使用本工具进行数据采集时，请遵守相关法律法规及百度的服务条款。如因使用本工具产生的任何法律责任或后果，由使用者自行承担，本项目作者概不负责。</p>
+            <p>本项目为非开源、非商用的个人项目，请勿将其用于任何盈利目的。</p>
+          </div>
+        </template>
+      </el-alert>
     </section>
     
     <div class="content-wrapper">
       <div class="left-column">
         <section class="intro-section">
-          <h2>产品介绍</h2>
+          <h2>项目介绍</h2>
           <div class="intro-text">
-            <p>BaiduIndexHunter是一个专为营销人员、数据分析师和研究人员设计的专业工具，旨在帮助用户高效获取和分析百度指数数据。</p>
-            <p>通过本产品，您可以轻松监控关键词趋势、了解用户需求变化、分析地域分布特征，为您的市场决策和研究工作提供强有力的数据支撑。我们致力于提供最稳定、最高效的数据采集体验。</p>
-            <p>本产品采用先进的分布式架构设计，支持多账号协同工作，内置智能限流机制，确保数据采集的稳定性和可靠性。无论您是需要简单的数据导出，还是复杂的数据分析，BaiduIndexHunter都能满足您的需求。</p>
+            <p>BaiduIndexHunter 是一个用于学习爬虫技术和数据分析的个人项目，旨在帮助开发者了解百度指数数据的采集方法和相关技术实现。</p>
+            <p>通过本项目，您可以学习关键词趋势分析、数据可视化、任务调度等技术，为您的技术学习和研究工作提供参考。</p>
+            <p>本项目采用 Scrapy 框架进行数据采集，支持多账号协同工作，内置智能限流机制，是学习分布式爬虫架构的良好实践案例。</p>
           </div>
         </section>
         
         <section class="advantages-section">
-          <h2>产品优势</h2>
+          <h2>技术特点</h2>
           <div class="advantages-list">
             <div class="advantage-item">
               <div class="advantage-number">01</div>
               <div class="advantage-content">
-                <h3>企业级稳定性</h3>
-                <p>采用多Cookie池轮换机制，智能故障转移，确保7x24小时稳定运行，数据采集成功率高达99%以上。</p>
+                <h3>Scrapy 框架</h3>
+                <p>采用 Scrapy 爬虫框架，支持断点续传、优雅退出、中间件扩展等特性，是学习工业级爬虫的优秀案例。</p>
               </div>
             </div>
             <div class="advantage-item">
               <div class="advantage-number">02</div>
               <div class="advantage-content">
                 <h3>高性能并发处理</h3>
-                <p>支持多任务并发执行，智能负载均衡，相比传统方案效率提升300%，大幅缩短数据获取时间。</p>
+                <p>支持多任务并发执行，智能负载均衡，学习如何提升爬虫效率的技术实现。</p>
               </div>
             </div>
             <div class="advantage-item">
               <div class="advantage-number">03</div>
               <div class="advantage-content">
                 <h3>全面的数据覆盖</h3>
-                <p>支持搜索指数、资讯指数、需求图谱、人群画像、地域分布、兴趣分布等全方位数据采集，满足各类分析需求。</p>
+                <p>支持搜索指数、资讯指数、需求图谱、人群画像、地域分布、兴趣分布等多维度数据采集学习。</p>
               </div>
             </div>
             <div class="advantage-item">
               <div class="advantage-number">04</div>
               <div class="advantage-content">
                 <h3>断点续传机制</h3>
-                <p>采集过程中如遇异常中断，系统自动保存进度，重启后可从断点继续，避免重复劳动和时间浪费。</p>
+                <p>采集过程中如遇异常中断，系统自动保存进度，重启后可从断点继续，学习状态持久化技术。</p>
               </div>
             </div>
           </div>
@@ -205,10 +194,10 @@ const services = ref([
             <div class="tech-category">
               <h3>后端技术</h3>
               <ul>
-                <li>Python + Flask框架</li>
+                <li>Python + Flask 框架</li>
+                <li>Scrapy 爬虫框架</li>
                 <li>Redis 缓存与队列</li>
                 <li>MySQL 数据存储</li>
-                <li>多线程任务调度</li>
                 <li>智能Cookie池管理</li>
               </ul>
             </div>
@@ -225,25 +214,6 @@ const services = ref([
         </section>
       </div>
     </div>
-
-    <!-- 服务支持 - 移至底部全宽显示 -->
-    <section class="service-section">
-      <div class="service-header">
-        <h2>服务支持</h2>
-        <p class="service-subtitle">全方位的专业服务，为您保驾护航</p>
-      </div>
-      <div class="service-content">
-        <div v-for="(service, index) in services" :key="index" class="service-item">
-          <div class="service-icon-wrapper" :style="{ backgroundColor: service.color + '15' }">
-             <el-icon :size="32" :color="service.color">
-               <component :is="service.icon" />
-             </el-icon>
-          </div>
-          <h3>{{ service.title }}</h3>
-          <p>{{ service.description }}</p>
-        </div>
-      </div>
-    </section>
   </div>
 </template>
 
@@ -257,8 +227,8 @@ const services = ref([
 
 .hero-section {
   text-align: center;
-  margin-bottom: 40px;
-  padding-bottom: 40px;
+  margin-bottom: 30px;
+  padding-bottom: 30px;
   border-bottom: 1px solid var(--border-lighter);
 }
 
@@ -289,6 +259,18 @@ const services = ref([
 .release-date {
   color: #909399;
   font-size: 0.9rem;
+}
+
+.disclaimer-section {
+  margin-bottom: 30px;
+}
+
+.disclaimer-content {
+  line-height: 1.8;
+}
+
+.disclaimer-content p {
+  margin: 8px 0;
 }
 
 .content-wrapper {
@@ -489,105 +471,10 @@ h2:after {
   opacity: 0.7;
 }
 
-/* Service Section - New Bottom Layout */
-.service-section {
-  background: white;
-  border-radius: var(--border-radius-large);
-  padding: 40px;
-  box-shadow: var(--shadow-light);
-  border: 1px solid var(--border-lighter);
-}
-
-.service-header {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.service-header h2 {
-  font-size: 1.8rem;
-  margin-bottom: 10px;
-}
-
-.service-header h2:after {
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-}
-
-.service-subtitle {
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-}
-
-.service-content {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 30px;
-}
-
-.service-item {
-  padding: 30px 20px;
-  background-color: #fff;
-  border-radius: var(--border-radius-medium);
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  border: 1px solid #eee;
-}
-
-.service-item:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-medium);
-  border-color: transparent;
-}
-
-.service-icon-wrapper {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
-  transition: all 0.3s ease;
-}
-
-.service-item:hover .service-icon-wrapper {
-  transform: scale(1.1);
-}
-
-.service-item h3 {
-  font-size: 1.2rem;
-  margin-bottom: 15px;
-  color: var(--text-primary);
-  border: none;
-  padding: 0;
-}
-
-.service-item h3:after {
-  display: none;
-}
-
-.service-item p {
-  color: var(--text-regular);
-  line-height: 1.6;
-  font-size: 0.95rem;
-}
-
 /* 响应式设计 */
 @media (max-width: 1024px) {
   .content-wrapper {
     grid-template-columns: 1fr;
-  }
-  
-  .right-column {
-    /* 保持原来的顺序，或者根据需要调整 */
-  }
-  
-  .service-content {
-    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -604,10 +491,6 @@ h2:after {
     flex-direction: column;
     align-items: center;
     text-align: center;
-  }
-  
-  .service-content {
-    grid-template-columns: 1fr;
   }
 }
 </style>

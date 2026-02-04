@@ -6,26 +6,59 @@ import { useConfigStore } from '../store/config'
 // 使用配置存储
 const configStore = useConfigStore()
 
-// 配置分组
+// 配置分组（移除了不必要的配置组）
 const configGroups = [
-  { id: 'api', name: 'API配置', icon: 'Connection' },
   { id: 'task', name: '任务配置', icon: 'List' },
   { id: 'spider', name: '爬虫配置', icon: 'Loading' },
   { id: 'output', name: '输出配置', icon: 'Document' },
   { id: 'cookie', name: 'Cookie配置', icon: 'Files' },
-  { id: 'system', name: '系统配置', icon: 'Setting' },
-  { id: 'ui', name: '界面配置', icon: 'Monitor' }
 ]
 
 // 当前选中的配置组
-const activeGroup = ref('api')
+const activeGroup = ref('task')
 
 // 加载状态
 const loading = computed(() => configStore.isLoading)
 
-// 获取指定分组的配置项
+// 需要隐藏的配置项（敏感信息、不需要的配置）
+const hiddenConfigs = [
+  // 系统配置
+  'system.admin_email',
+  'system.name',
+  'system.version',
+  'system.maintenance_mode',
+  // API 敏感配置
+  'api.host',
+  'api.port',
+  'api.debug',
+  'api.cors_origins',
+  'api.secret_key',
+  'api.token_expire',
+  // OSS 敏感配置
+  'oss.access_key_id',
+  'oss.access_key_secret',
+  'oss.endpoint',
+  'oss.bucket_name',
+  'oss.region',
+  'oss.url',
+  // UI 配置（通过顶部按钮控制）
+  'ui.theme',
+  'ui.language',
+  'ui.auto_refresh',
+  'ui.items_per_page',
+  'ui.refresh_interval',
+]
+
+// 获取指定分组的配置项（过滤掉隐藏的配置）
 const getGroupConfigs = (group: string) => {
-  return configStore.getConfigsByPrefix(group)
+  const configs = configStore.getConfigsByPrefix(group)
+  const filtered = {}
+  for (const key in configs) {
+    if (!hiddenConfigs.includes(key)) {
+      filtered[key] = configs[key]
+    }
+  }
+  return filtered
 }
 
 // 保存配置
@@ -46,7 +79,7 @@ const resetConfigs = async () => {
 
 // 获取配置项类型
 const getConfigType = (key: string, value: any) => {
-  if (typeof value === 'boolean' || value === 'True' || value === 'False') return 'boolean'
+  if (typeof value === 'boolean' || value === 'True' || value === 'False' || value === 'true' || value === 'false') return 'boolean'
   if (typeof value === 'number') {
     if (key.includes('interval') || key.includes('timeout')) return 'number'
     if (key.includes('port')) return 'port'
@@ -54,7 +87,6 @@ const getConfigType = (key: string, value: any) => {
   }
   if (typeof value === 'string') {
     if (key.includes('url') || key.includes('host')) return 'url'
-    if (key.includes('password') || key.includes('secret') || key.includes('key_id')) return 'string' // Key ID usually visible
     if (key.includes('secret') || key.includes('password')) return 'password'
     return 'string'
   }
@@ -82,19 +114,14 @@ const getConfigLabel = (key: string) => {
 // 获取配置项描述
 const getConfigDescription = (key: string) => {
   const descriptions: Record<string, string> = {
-    'api.host': '服务器监听的主机地址',
-    'api.port': '服务器监听的端口',
-    'api.debug': '是否启用调试模式',
-    'api.cors_origins': '允许的跨域来源',
-    'api.secret_key': 'API安全密钥',
-    'api.token_expire': 'Token过期时间（秒）',
-    
+    // 任务配置
     'task.max_concurrent_tasks': '最大并发任务数',
     'task.queue_check_interval': '任务队列检查间隔（秒）',
     'task.default_priority': '默认任务优先级（1-10）',
     'task.max_retry_count': '任务最大重试次数',
     'task.retry_delay': '任务重试延迟（秒）',
     
+    // 爬虫配置
     'spider.min_interval': '请求间隔最小秒数',
     'spider.max_interval': '请求间隔最大秒数',
     'spider.retry_times': '请求失败重试次数',
@@ -105,34 +132,18 @@ const getConfigDescription = (key: string) => {
     'spider.proxy_url': '代理URL',
     'spider.failure_multiplier': '失败后间隔倍数',
     
+    // 输出配置
     'output.default_format': '默认输出格式：csv, excel',
     'output.csv_encoding': 'CSV文件编码',
     'output.excel_sheet_name': 'Excel工作表名称',
     'output.file_name_template': '文件名模板',
     'output.use_oss': '是否上传到阿里云OSS',
     
-    'oss.access_key_id': '阿里云AccessKey ID',
-    'oss.access_key_secret': '阿里云AccessKey Secret',
-    'oss.bucket_name': 'OSS Bucket名称',
-    'oss.endpoint': 'OSS Endpoint（例如 oss-cn-beijing.aliyuncs.com）',
-    'oss.region': 'OSS Region（例如 cn-beijing）',
-    'oss.url': '自定义访问域名（可选）',
-    
+    // Cookie配置
     'cookie.block_cooldown': 'Cookie封禁冷却时间（秒）',
     'cookie.max_usage_per_day': '每日最大使用次数',
     'cookie.min_available_count': '最小可用Cookie数量',
     'cookie.rotation_strategy': 'Cookie轮换策略',
-    
-    'system.admin_email': '管理员邮箱',
-    'system.maintenance_mode': '是否启用维护模式',
-    'system.name': '系统名称',
-    'system.version': '系统版本',
-    
-    'ui.auto_refresh': '是否自动刷新',
-    'ui.items_per_page': '每页显示条数',
-    'ui.language': '界面语言',
-    'ui.refresh_interval': '刷新间隔（秒）',
-    'ui.theme': '界面主题'
   }
   
   return descriptions[key] || '配置项描述'
@@ -147,6 +158,7 @@ onMounted(async () => {
 <template>
   <div class="settings-container">
     <h1 class="page-title">系统配置</h1>
+    <p class="page-subtitle">配置爬虫参数和任务设置，敏感配置请在 .env 文件中修改</p>
     
     <el-row :gutter="20">
       <el-col :span="5">
@@ -202,27 +214,27 @@ onMounted(async () => {
                 <el-form-item 
                   v-for="(value, key) in getGroupConfigs(activeGroup)" 
                   :key="key"
-                  :label="getDisplayLabel(key)"
+                  :label="getDisplayLabel(String(key))"
                 >
                   <!-- 布尔类型 -->
                   <el-switch 
-                    v-if="getConfigType(key, value) === 'boolean'"
+                    v-if="getConfigType(String(key), value) === 'boolean'"
                     v-model="configStore.configs[key]"
-                    :active-value="typeof value === 'string' ? 'True' : true"
-                    :inactive-value="typeof value === 'string' ? 'False' : false"
+                    :active-value="typeof value === 'string' ? 'true' : true"
+                    :inactive-value="typeof value === 'string' ? 'false' : false"
                   />
                   
                   <!-- 数字类型 -->
                   <el-input-number 
-                    v-else-if="getConfigType(key, value) === 'number'"
+                    v-else-if="getConfigType(String(key), value) === 'number'"
                     v-model="configStore.configs[key]"
                     :min="0"
-                    :step="key.includes('interval') ? 0.1 : 1"
+                    :step="String(key).includes('interval') ? 0.1 : 1"
                   />
                   
                   <!-- 端口类型 -->
                   <el-input-number 
-                    v-else-if="getConfigType(key, value) === 'port'"
+                    v-else-if="getConfigType(String(key), value) === 'port'"
                     v-model="configStore.configs[key]"
                     :min="1"
                     :max="65535"
@@ -230,14 +242,14 @@ onMounted(async () => {
                   
                   <!-- 密码类型 -->
                   <el-input 
-                    v-else-if="getConfigType(key, value) === 'password'"
+                    v-else-if="getConfigType(String(key), value) === 'password'"
                     v-model="configStore.configs[key]"
                     show-password
                   />
                   
                   <!-- URL类型 -->
                   <el-input 
-                    v-else-if="getConfigType(key, value) === 'url'"
+                    v-else-if="getConfigType(String(key), value) === 'url'"
                     v-model="configStore.configs[key]"
                     placeholder="例如: http://localhost:5000"
                   />
@@ -275,8 +287,14 @@ onMounted(async () => {
 
 .page-title {
   font-size: 2rem;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.page-subtitle {
+  color: var(--text-secondary);
   margin-bottom: 24px;
-  color: #303133;
+  font-size: 14px;
 }
 
 .settings-menu-card {
@@ -290,7 +308,7 @@ onMounted(async () => {
 .menu-actions {
   margin-top: 20px;
   padding-top: 20px;
-  border-top: 1px solid #ebeef5;
+  border-top: 1px solid var(--border-color);
   text-align: center;
 }
 
@@ -308,6 +326,7 @@ onMounted(async () => {
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .config-group {
@@ -316,7 +335,7 @@ onMounted(async () => {
 
 .form-item-tip {
   font-size: 0.85rem;
-  color: #909399;
+  color: var(--text-secondary);
   margin-top: 5px;
 }
-</style> 
+</style>

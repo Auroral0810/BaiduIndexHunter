@@ -1,9 +1,12 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useAppStore, SUPPORTED_LANGUAGES } from './store/app'
+import { Sunny, Moon } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const route = useRoute()
+const appStore = useAppStore()
 const activeIndex = ref('1')
 
 // 监听当前路由以更新菜单高亮项
@@ -15,7 +18,6 @@ const routeMap = {
   '/settings': '5',
   '/about': '6',
   '/privacy': '7',
-  
 }
 
 // 根据当前路径更新激活的菜单项
@@ -57,15 +59,33 @@ const handleSelect = (key) => {
       break
   }
 }
+
+// 主题切换
+const isDark = computed(() => appStore.theme === 'dark')
+const toggleTheme = () => {
+  appStore.setTheme(isDark.value ? 'light' : 'dark')
+}
+
+// 语言切换
+const currentLanguage = computed(() => appStore.getCurrentLanguage())
+const handleLanguageChange = (langCode) => {
+  appStore.setLanguage(langCode)
+}
+
+// 初始化主题
+onMounted(() => {
+  appStore.initTheme()
+})
 </script>
 
 <template>
-  <div class="app-wrapper">
+  <div class="app-wrapper" :class="{ 'dark-mode': isDark }">
     <header class="app-header">
       <div class="header-content">
         <div class="logo" @click="router.push('/')">
           <img src="./assets/logo.svg" alt="BaiduIndexHunter" class="logo-img">
           <span class="logo-text">BaiduIndexHunter</span>
+          <el-tag size="small" type="info" class="version-tag">v{{ appStore.version }}</el-tag>
         </div>
         
         <nav class="app-nav">
@@ -97,14 +117,47 @@ const handleSelect = (key) => {
             </el-menu-item>
             <el-menu-item index="6" class="nav-item">
               <el-icon><i-ep-info-filled /></el-icon>
-              <span>关于我们</span>
-            </el-menu-item>
-            <el-menu-item index="7" class="nav-item">
-              <el-icon><i-ep-lock /></el-icon>
-              <span>隐私政策</span>
+              <span>关于</span>
             </el-menu-item>
           </el-menu>
         </nav>
+
+        <!-- 右侧工具栏 -->
+        <div class="header-tools">
+          <!-- 主题切换按钮 -->
+          <el-tooltip :content="isDark ? '切换到浅色模式' : '切换到深色模式'" placement="bottom">
+            <button class="theme-toggle-btn" @click="toggleTheme" :class="{ 'is-dark': isDark }">
+              <div class="theme-toggle-track">
+                <div class="theme-toggle-thumb">
+                  <el-icon v-if="isDark" class="theme-icon"><Moon /></el-icon>
+                  <el-icon v-else class="theme-icon"><Sunny /></el-icon>
+                </div>
+              </div>
+            </button>
+          </el-tooltip>
+
+          <!-- 语言切换下拉框 -->
+          <el-dropdown trigger="click" @command="handleLanguageChange" class="language-dropdown">
+            <button class="language-btn">
+              <span class="language-flag">{{ currentLanguage.flag }}</span>
+              <span class="language-name">{{ currentLanguage.name }}</span>
+              <el-icon class="el-icon--right"><i-ep-arrow-down /></el-icon>
+            </button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item 
+                  v-for="lang in SUPPORTED_LANGUAGES" 
+                  :key="lang.code" 
+                  :command="lang.code"
+                  :class="{ 'is-active': appStore.language === lang.code }"
+                >
+                  <span class="dropdown-flag">{{ lang.flag }}</span>
+                  <span class="dropdown-name">{{ lang.name }}</span>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
       </div>
     </header>
     
@@ -119,11 +172,11 @@ const handleSelect = (key) => {
     <footer class="app-footer">
       <div class="footer-content">
         <div class="copyright">
-          © {{ new Date().getFullYear() }} BaiduIndexHunter - 高效的百度指数数据采集与分析工具
+          © {{ new Date().getFullYear() }} BaiduIndexHunter v{{ appStore.version }} - 仅供学习研究使用，请勿用于商业用途
         </div>
         <div class="footer-links">
-          <a href="#" @click.prevent="router.push('/about')">关于我们</a>
-          <a href="#" @click.prevent="router.push('/privacy')">隐私政策</a>
+          <a href="#" @click.prevent="router.push('/about')">关于</a>
+          <a href="#" @click.prevent="router.push('/privacy')">使用条款</a>
         </div>
       </div>
     </footer>
@@ -133,28 +186,29 @@ const handleSelect = (key) => {
 <style>
 :root {
   /* 品牌色 - 更加稳重的深邃科技蓝 */
-  --primary-color: #2563eb; /* Royal Blue 600 */
-  --primary-hover: #1d4ed8; /* Royal Blue 700 */
-  --primary-light: #eff6ff; /* Blue 50 */
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-light: #eff6ff;
   
-  /* 渐变改为同色系微渐变，不再跨色相，提升专业感 */
+  /* 渐变改为同色系微渐变 */
   --primary-gradient: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
   
   /* 深色强调色 */
-  --accent-color: #0f172a; /* Slate 900 */
+  --accent-color: #0f172a;
   
-  /* 文字颜色 - 使用 Slate 色系，冷淡高级 */
-  --text-primary: #0f172a; /* Slate 900 */
-  --text-regular: #334155; /* Slate 700 */
-  --text-secondary: #64748b; /* Slate 500 */
-  --text-placeholder: #cbd5e1; /* Slate 300 */
+  /* 文字颜色 */
+  --text-primary: #0f172a;
+  --text-regular: #334155;
+  --text-secondary: #64748b;
+  --text-placeholder: #cbd5e1;
   
   /* 背景颜色 */
-  --background-color: #f8fafc; /* Slate 50 - 极淡的灰蓝背景 */
+  --background-color: #f8fafc;
   --surface-color: #ffffff;
-  --border-color: #e2e8f0; /* Slate 200 */
+  --border-color: #e2e8f0;
+  --border-lighter: #f1f5f9;
   
-  /* 阴影系统 - 更弥散、更柔和 */
+  /* 阴影系统 */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
@@ -169,6 +223,27 @@ const handleSelect = (key) => {
   --content-width: 1200px;
 }
 
+/* 深色主题变量 */
+.dark-mode {
+  --primary-color: #3b82f6;
+  --primary-hover: #60a5fa;
+  --primary-light: #1e3a5f;
+  
+  --text-primary: #f1f5f9;
+  --text-regular: #cbd5e1;
+  --text-secondary: #94a3b8;
+  --text-placeholder: #64748b;
+  
+  --background-color: #0f172a;
+  --surface-color: #1e293b;
+  --border-color: #334155;
+  --border-lighter: #1e293b;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -177,6 +252,7 @@ body {
   background-color: var(--background-color);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* 滚动条美化 */
@@ -194,6 +270,10 @@ body {
   border-radius: 3px;
 }
 
+.dark-mode ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
@@ -205,11 +285,11 @@ body {
   flex-direction: column;
   min-height: 100vh;
   background-color: var(--background-color);
-  background-image: none; /* 移除复杂的背景渐变 */
+  transition: background-color 0.3s ease;
 }
 
 .app-header {
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: var(--surface-color);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   position: sticky;
@@ -240,7 +320,7 @@ body {
 }
 
 .logo:hover {
-  background-color: rgba(59, 130, 246, 0.05);
+  background-color: var(--primary-light);
 }
 
 .logo-img {
@@ -259,10 +339,18 @@ body {
   letter-spacing: -0.5px;
 }
 
+.version-tag {
+  font-size: 11px;
+  padding: 2px 6px;
+  height: auto;
+}
+
 .app-nav {
   height: 100%;
   display: flex;
   align-items: center;
+  flex: 1;
+  justify-content: center;
 }
 
 .nav-menu {
@@ -293,7 +381,6 @@ body {
   background-color: transparent !important;
 }
 
-/* 导航项下划线动画 */
 .nav-item::after {
   content: '';
   position: absolute;
@@ -319,6 +406,112 @@ body {
   font-weight: 600;
 }
 
+/* 右侧工具栏 */
+.header-tools {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* 主题切换按钮 */
+.theme-toggle-btn {
+  position: relative;
+  width: 56px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+}
+
+.theme-toggle-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  border-radius: 14px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.theme-toggle-btn.is-dark .theme-toggle-track {
+  background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+}
+
+.theme-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle-btn.is-dark .theme-toggle-thumb {
+  left: 30px;
+  background: #334155;
+}
+
+.theme-icon {
+  font-size: 14px;
+  color: #f59e0b;
+  transition: all 0.3s ease;
+}
+
+.theme-toggle-btn.is-dark .theme-icon {
+  color: #fbbf24;
+}
+
+/* 语言切换按钮 */
+.language-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 4px;
+  min-width: 120px;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--text-regular);
+  font-size: 14px;
+}
+
+.language-btn:hover {
+  border-color: var(--primary-color);
+  background: var(--primary-light);
+}
+
+.language-flag {
+  font-size: 18px;
+}
+
+.language-name {
+  font-weight: 500;
+}
+
+.dropdown-flag {
+  margin-right: 2px;
+  font-size: 16px;
+}
+
+.dropdown-name {
+  font-size: 14px;
+}
+
+:deep(.el-dropdown-menu__item.is-active) {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+}
+
 .app-main {
   flex: 1;
   padding: 32px 24px;
@@ -333,6 +526,7 @@ body {
   padding: 40px 24px;
   border-top: 1px solid var(--border-color);
   margin-top: auto;
+  transition: all 0.3s ease;
 }
 
 .footer-content {
@@ -367,7 +561,7 @@ body {
   color: var(--primary-color);
 }
 
-/* 页面过渡动画优化 */
+/* 页面过渡动画 */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -381,6 +575,16 @@ body {
 .fade-leave-to {
   opacity: 0;
   transform: translateY(-10px);
+}
+
+@media screen and (max-width: 1200px) {
+  .language-name {
+    display: none;
+  }
+  
+  .language-btn {
+    padding: 8px;
+  }
 }
 
 @media screen and (max-width: 768px) {
@@ -413,6 +617,12 @@ body {
   
   .nav-item::after {
     display: none;
+  }
+  
+  .header-tools {
+    position: absolute;
+    right: 12px;
+    top: 12px;
   }
   
   .app-main {

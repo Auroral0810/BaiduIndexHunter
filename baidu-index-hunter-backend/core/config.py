@@ -115,17 +115,12 @@ class UnifiedConfig:
         'log.file_size': 10485760,
         'log.backup_count': 5,
         
-        # UI 配置
+        # UI 配置（主题和语言由前端管理）
         'ui.theme': 'light',
-        'ui.language': 'zh_CN',
-        'ui.items_per_page': 20,
-        'ui.auto_refresh': True,
-        'ui.refresh_interval': 30,
+        'ui.language': 'zh-CN',
         
-        # 系统配置
+        # 系统配置（简化版，移除不必要的配置）
         'system.version': '2.0.0',
-        'system.name': '百度指数爬虫',
-        'system.maintenance_mode': False,
     }
     
     # 环境变量映射：config_key -> ENV_VAR_NAME

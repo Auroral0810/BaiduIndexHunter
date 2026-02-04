@@ -1,94 +1,86 @@
 <script setup>
 import { ref } from 'vue'
 
-const lastUpdated = ref('2025-7-1')  // 更新为今天的日期
+const lastUpdated = ref('2026-02-04')
 </script>
 
 <template>
   <div class="privacy-container">
-    <h1 class="page-title">隐私政策</h1>
+    <h1 class="page-title">使用条款与免责声明</h1>
     <p class="last-updated">最后更新: {{ lastUpdated }}</p>
     
     <div class="privacy-content">
-      <section class="privacy-section">
-        <h2>引言</h2>
-        <p>BaiduIndexHunter（"我们"、"我们的"或"本应用"）致力于保护用户隐私，您的个人信息将仅在合法的范围内使用。为了提供更加优质的服务，我们可能会收集并使用您的个人信息。请您在使用本应用前仔细阅读本隐私政策。</p>
+      <section class="privacy-section warning-section">
+        <h2>重要声明</h2>
+        <el-alert
+          title="请仔细阅读以下内容"
+          type="warning"
+          :closable="false"
+          show-icon
+        >
+          <template #default>
+            <p>使用本工具即表示您已阅读、理解并同意以下所有条款。如不同意，请立即停止使用。</p>
+          </template>
+        </el-alert>
       </section>
-      
+
       <section class="privacy-section">
-        <h2>信息收集</h2>
-        <p>我们收集的信息包括但不限于以下几类：</p>
+        <h2>项目性质</h2>
+        <p>BaiduIndexHunter（以下简称"本项目"）是一个<strong>仅供个人学习和技术研究</strong>的项目。</p>
         <ul>
-          <li><strong>账户信息</strong>：当您注册账户时，我们会收集您的用户名、电子邮件地址、密码等信息。</li>
-          <li><strong>使用数据</strong>：为了优化服务，我们会收集您使用爬虫功能的记录，包括查询关键词、任务进度等数据。</li>
-          <li><strong>设备信息</strong>：我们可能会收集您的设备信息，如IP地址、浏览器类型和操作系统版本。</li>
-          <li><strong>Cookie信息</strong>：我们使用Cookie来提高用户体验，您可选择通过浏览器设置拒绝Cookie。</li>
+          <li><strong>非商业用途</strong>：本项目不得用于任何商业目的，包括但不限于出售、出租、提供付费服务等。</li>
+          <li><strong>非开源项目</strong>：本项目为个人私有项目，未经授权不得复制、分发或修改。</li>
+          <li><strong>学习研究</strong>：本项目仅用于学习爬虫技术、数据分析和软件架构等技术知识。</li>
         </ul>
       </section>
       
       <section class="privacy-section">
-        <h2>信息使用</h2>
-        <p>我们使用您的个人信息以提供、维护和优化我们的服务，具体用途包括：</p>
+        <h2>免责声明</h2>
+        <p>使用本项目前，请务必了解以下免责条款：</p>
         <ul>
-          <li>改进我们的爬虫系统和服务功能</li>
-          <li>分析用户行为，以优化爬虫任务管理和提高任务执行效率</li>
-          <li>根据您的需求推荐相关功能，并优化用户体验</li>
-          <li>向您发送必要的技术通知、更新和安全警报</li>
+          <li><strong>法律责任</strong>：使用本工具进行数据采集所产生的任何法律责任由使用者自行承担，项目作者概不负责。</li>
+          <li><strong>服务条款</strong>：使用者应自行遵守百度及相关平台的服务条款和使用协议。</li>
+          <li><strong>数据准确性</strong>：本项目不保证采集数据的准确性、完整性或时效性。</li>
+          <li><strong>服务中断</strong>：本项目可能因各种原因无法正常工作，作者不承担任何服务中断的责任。</li>
+          <li><strong>商业损失</strong>：如因使用本项目进行商业活动而产生的任何损失，作者不承担任何责任。</li>
+        </ul>
+      </section>
+
+      <section class="privacy-section">
+        <h2>使用限制</h2>
+        <p>使用本项目时，您同意遵守以下限制：</p>
+        <ul>
+          <li>不得将本项目用于任何商业用途</li>
+          <li>不得将采集的数据用于违法活动</li>
+          <li>不得滥用本工具对目标网站造成过大负载</li>
+          <li>不得将本项目的代码或功能转售给他人</li>
+          <li>应合理控制采集频率，避免影响目标网站正常运行</li>
         </ul>
       </section>
       
       <section class="privacy-section">
-        <h2>信息共享</h2>
-        <p>我们不会出售、出租或泄露您的个人信息，但在以下情况下可能会披露您的信息：</p>
+        <h2>数据说明</h2>
+        <p>关于本项目处理的数据：</p>
         <ul>
-          <li><strong>经您同意</strong>：我们会在获得您明确同意后共享您的信息。</li>
-          <li><strong>法律要求</strong>：遵守法律法规、法院命令或其他合法程序。</li>
-          <li><strong>保护权利</strong>：当我们需要保护本应用、我们的用户或公众的安全时。</li>
+          <li><strong>本地存储</strong>：所有数据均存储在您的本地设备上，不会上传至任何外部服务器。</li>
+          <li><strong>Cookie信息</strong>：您提供的Cookie仅用于数据采集，存储在本地数据库中。</li>
+          <li><strong>采集数据</strong>：采集的百度指数数据仅保存在您的本地环境中。</li>
         </ul>
       </section>
       
       <section class="privacy-section">
-        <h2>数据安全</h2>
-        <p>我们采取物理、技术和管理措施保障您的个人信息的安全。具体措施包括：</p>
+        <h2>知识产权</h2>
+        <p>本项目的相关知识产权说明：</p>
         <ul>
-          <li>数据加密：传输和存储时采用加密技术。</li>
-          <li>访问控制：确保只有授权人员可以访问个人信息。</li>
-          <li>安全审计：定期进行安全审查与评估。</li>
+          <li>本项目的代码、设计和文档归项目作者所有。</li>
+          <li>百度指数相关商标和数据归百度公司所有。</li>
+          <li>本项目使用的开源组件遵循各自的开源协议。</li>
         </ul>
-        <p>尽管采取了这些措施，但无法完全保证信息在互联网上的安全，因此我们无法确保100%的安全性。</p>
       </section>
-      
+
       <section class="privacy-section">
-        <h2>Cookie政策</h2>
-        <p>我们使用Cookie和类似技术来提供更个性化的服务，帮助我们优化网站性能并分析使用情况。您可以选择禁用Cookie，但这可能影响一些功能的使用。</p>
-        <p><strong>如何管理Cookie？</strong> 您可以通过浏览器设置管理Cookie的使用。如果禁用Cookie，某些功能可能无法使用。</p>
-      </section>
-      
-      <section class="privacy-section">
-        <h2>第三方服务</h2>
-        <p>本应用可能包含指向第三方服务的链接，这些服务有其独立的隐私政策。我们建议您在访问这些网站前阅读其隐私政策。</p>
-      </section>
-      
-      <section class="privacy-section">
-        <h2>儿童隐私</h2>
-        <p>本应用不适用于13岁以下儿童，我们不会故意收集13岁以下儿童的个人信息。如发现未获得父母同意的情况下收集了13岁以下儿童的个人信息，我们将采取措施删除该信息。</p>
-      </section>
-      
-      <section class="privacy-section">
-        <h2>您的权利</h2>
-        <p>根据适用法律，您有以下权利：</p>
-        <ul>
-          <li><strong>访问权</strong>：请求查看我们存储的个人信息。</li>
-          <li><strong>更正权</strong>：请求修改或补充不准确的个人信息。</li>
-          <li><strong>删除权</strong>：在特定情况下，要求删除您的个人信息。</li>
-          <li><strong>数据携带权</strong>：要求以结构化格式接收并传输您的个人信息。</li>
-        </ul>
-        <p>如需行使这些权利，请通过以下联系方式联系我们。</p>
-      </section>
-      
-      <section class="privacy-section">
-        <h2>隐私政策更新</h2>
-        <p>本隐私政策可能会不时更新。我们会在页面上发布更新版本，并注明更新日期。重大变更将通过通知用户的方式进行提示。</p>
+        <h2>条款变更</h2>
+        <p>本使用条款可能会不时更新。继续使用本项目即表示您接受更新后的条款。</p>
       </section>
     </div>
   </div>
@@ -125,6 +117,10 @@ const lastUpdated = ref('2025-7-1')  // 更新为今天的日期
 
 .privacy-section {
   margin-bottom: 30px;
+}
+
+.warning-section {
+  margin-bottom: 40px;
 }
 
 .privacy-section h2 {
@@ -169,4 +165,4 @@ strong {
     font-size: 1.3rem;
   }
 }
-</style> 
+</style>
