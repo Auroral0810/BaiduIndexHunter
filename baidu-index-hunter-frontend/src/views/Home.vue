@@ -673,23 +673,24 @@ const workflowSteps = [
   line-height: 1.4;
 }
 
-/* CTA Section - Dark Theme */
+/* CTA Section - Theme Aware */
 .cta-section-new {
   position: relative;
-  background-color: #0f172a; /* Slate 900 */
+  background-color: var(--color-bg-subtle);
   padding: 100px 24px;
   overflow: hidden;
 }
 
-/* 网格背景装饰 */
+/* 网格背景装饰 - 适配主题 */
 .cta-section-new::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(var(--color-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
   background-size: 40px 40px;
+  opacity: 0.3;
   mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
   -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
   z-index: 1;
@@ -706,21 +707,21 @@ const workflowSteps = [
 .cta-title-new {
   font-size: 3rem;
   font-weight: 800;
-  color: white;
+  color: var(--color-text-main);
   margin-bottom: 24px;
   letter-spacing: -1px;
 }
 
 .cta-desc-new {
   font-size: 1.25rem;
-  color: #94a3b8; /* Slate 400 */
+  color: var(--color-text-secondary);
   margin-bottom: 48px;
   line-height: 1.6;
 }
 
 .cta-btn-new {
-  background-color: white;
-  color: #0f172a;
+  background-color: var(--color-primary);
+  color: white;
   border: none;
   padding: 16px 32px;
   font-size: 1.1rem;
@@ -731,18 +732,19 @@ const workflowSteps = [
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
 }
 
 .cta-btn-new:hover {
-  background-color: #f1f5f9;
+  background-color: var(--color-primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.3);
 }
 
 .cta-footer-text {
   margin-top: 32px;
   font-size: 0.9rem;
-  color: #64748b;
+  color: var(--color-text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -750,7 +752,7 @@ const workflowSteps = [
 }
 
 .dot {
-  color: #334155;
+  color: var(--color-text-tertiary);
 }
 
 /* 响应式 */
