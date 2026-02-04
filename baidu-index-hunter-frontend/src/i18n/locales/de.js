@@ -618,4 +618,1339 @@ export default {
     "Große Bildschirmdaten konnten nicht geladen werden",
   "dashboard.dashboard.48i4x2": "{b}: {c} Sekunden",
   "dashboard.dashboard.y69h15": "{Wert} Sekunden",
+  "tasks-TaskList-19c298d949224c78d-1": "Aufgabenliste",
+  "tasks-TaskList-19c298d949224c78d-2": "Suchbegriffe suchen",
+  "tasks-TaskList-19c298d949224c78d-3": "Aufgabentyp",
+  "tasks-TaskList-19c298d949224c78d-4": "Suchindex",
+  "tasks-TaskList-19c298d949224c78d-5": "Informationsindex",
+  "tasks-TaskList-19c298d949224c78d-6": "Anforderungskarte",
+  "tasks-TaskList-19c298d949224c78d-7": "Crowd-Attribute",
+  "tasks-TaskList-19c298d949224c78d-8": "Interessenanalyse",
+  "tasks-TaskList-19c298d949224c78d-9": "Geografische Verteilung",
+  "tasks-TaskList-19c298d949224c78d-10": "Aufgabenstatus",
+  "tasks-TaskList-19c298d949224c78d-11": "Warten",
+  "tasks-TaskList-19c298d949224c78d-12": "Ausführen",
+  "tasks-TaskList-19c298d949224c78d-13": "Abgeschlossen",
+  "tasks-TaskList-19c298d949224c78d-14": "gescheitert",
+  "tasks-TaskList-19c298d949224c78d-15": "Abgesagt",
+  "tasks-TaskList-19c298d949224c78d-16": "Suchen",
+  "tasks-TaskList-19c298d949224c78d-17": "zurückgesetzt",
+  "tasks-TaskList-19c298d949224c78d-18": "Daten werden geladen...",
+  "tasks-TaskList-19c298d949224c78d-19": "Aufgaben-ID",
+  "tasks-TaskList-19c298d949224c78d-20": "Aufgabentyp",
+  "tasks-TaskList-19c298d949224c78d-21": "Status",
+  "tasks-TaskList-19c298d949224c78d-22": "Parameter",
+  "tasks-TaskList-19c298d949224c78d-23": "Schlüsselwörter:",
+  "tasks-TaskList-19c298d949224c78d-24": "Region:",
+  "tasks-TaskList-19c298d949224c78d-25": "Region:",
+  "tasks-TaskList-19c298d949224c78d-26": "Zeitbereich:",
+  "tasks-TaskList-19c298d949224c78d-27": "Zeitbereich:",
+  "tasks-TaskList-19c298d949224c78d-28": "Kürzlich",
+  "tasks-TaskList-19c298d949224c78d-29": "Tag",
+  "tasks-TaskList-19c298d949224c78d-30": "Jahresbereich:",
+  "tasks-TaskList-19c298d949224c78d-31": "zu",
+  "tasks-TaskList-19c298d949224c78d-32": "Zeitbereich:",
+  "tasks-TaskList-19c298d949224c78d-33": "zu",
+  "tasks-TaskList-19c298d949224c78d-34": "Terminliste:",
+  "tasks-TaskList-19c298d949224c78d-35": "Losgröße:",
+  "tasks-TaskList-19c298d949224c78d-36": "Datenquelle:",
+  "tasks-TaskList-19c298d949224c78d-37": "PC+Mobil",
+  "tasks-TaskList-19c298d949224c78d-38": "bewegen",
+  "tasks-TaskList-19c298d949224c78d-39": "Ausgabeformat:",
+  "tasks-TaskList-19c298d949224c78d-40": "Schöpfungszeit",
+  "tasks-TaskList-19c298d949224c78d-41": "Fortschritt",
+  "tasks-TaskList-19c298d949224c78d-42": "Betrieb",
+  "tasks-TaskList-19c298d949224c78d-43": "Betrieb",
+  "tasks-TaskList-19c298d949224c78d-44": "Details",
+  "tasks-TaskList-19c298d949224c78d-45": "Versuchen Sie es erneut",
+  "tasks-TaskList-19c298d949224c78d-46": "Abbrechen",
+  "tasks-TaskList-19c298d949224c78d-47": "Herunterladen",
+  "tasks-TaskList-19c298d949224c78d-48": "Missionsdetails",
+  "tasks-TaskList-19c298d949224c78d-49": "Aufgaben-ID:",
+  "tasks-TaskList-19c298d949224c78d-50": "Aufgabentyp",
+  "tasks-TaskList-19c298d949224c78d-51": "Schöpfungszeit",
+  "tasks-TaskList-19c298d949224c78d-52": "Aktualisierungszeit",
+  "tasks-TaskList-19c298d949224c78d-53": "Aufgabenname",
+  "tasks-TaskList-19c298d949224c78d-54": "Priorität",
+  "tasks-TaskList-19c298d949224c78d-55": "Aufgabennummer",
+  "tasks-TaskList-19c298d949224c78d-56": "Startzeit",
+  "tasks-TaskList-19c298d949224c78d-57": "Fertigstellungszeit",
+  "tasks-TaskList-19c298d949224c78d-58": "Schöpfer",
+  "tasks-TaskList-19c298d949224c78d-59": "Gesamtzahl der Aufgaben",
+  "tasks-TaskList-19c298d949224c78d-60": "Abgeschlossen",
+  "tasks-TaskList-19c298d949224c78d-61": "Anzahl der Ausfälle",
+  "tasks-TaskList-19c298d949224c78d-62": "Fehlermeldung",
+  "tasks-TaskList-19c298d949224c78d-63": "Aufgabenfortschritt",
+  "tasks-TaskList-19c298d949224c78d-64": "(fehlgeschlagen:",
+  "tasks-TaskList-19c298d949224c78d-65": "Aufgabenparameter",
+  "tasks-TaskList-19c298d949224c78d-66": "Schlüsselwörter",
+  "tasks-TaskList-19c298d949224c78d-67": "Bereich",
+  "tasks-TaskList-19c298d949224c78d-68": "Bereich",
+  "tasks-TaskList-19c298d949224c78d-69": "Zeitbereich",
+  "tasks-TaskList-19c298d949224c78d-70": "Zeitbereich",
+  "tasks-TaskList-19c298d949224c78d-71": "Kürzlich",
+  "tasks-TaskList-19c298d949224c78d-72": "Tag",
+  "tasks-TaskList-19c298d949224c78d-73": "Jahresbereich",
+  "tasks-TaskList-19c298d949224c78d-74": "zu",
+  "tasks-TaskList-19c298d949224c78d-75": "Zeitbereich",
+  "tasks-TaskList-19c298d949224c78d-76": "zu",
+  "tasks-TaskList-19c298d949224c78d-77": "Datumsliste",
+  "tasks-TaskList-19c298d949224c78d-78": "Chargengröße",
+  "tasks-TaskList-19c298d949224c78d-79": "Datenquelle",
+  "tasks-TaskList-19c298d949224c78d-80": "PC+Mobil",
+  "tasks-TaskList-19c298d949224c78d-81": "bewegen",
+  "tasks-TaskList-19c298d949224c78d-82": "Ausgabeformat",
+  "tasks-TaskList-19c298d949224c78d-83": "Ausgabedatei",
+  "tasks-TaskList-19c298d949224c78d-84": "Dateipfad",
+  "tasks-TaskList-19c298d949224c78d-85": "Betrieb",
+  "tasks-TaskList-19c298d949224c78d-86": "Herunterladen",
+  "tasks-TaskList-19c298d949224c78d-87": "Alles herunterladen",
+  "tasks-TaskList-19c298d949224c78d-88": "Noch keine Ausgabedatei",
+  "tasks-TaskList-19c298d949224c78d-89": "Kontrollpunkt",
+  "tasks-TaskList-19c298d949224c78d-90": "Checkpoint-Pfad:",
+  "tasks-TaskList-19c298d949224c78d-91": "Prüfpunktdaten geladen",
+  "tasks-TaskList-19c298d949224c78d-92": "Checkpoint herunterladen",
+  "tasks-TaskList-19c298d949224c78d-93": "Checkpoint-Daten:",
+  "tasks-TaskList-19c298d949224c78d-94": "Noch keine Checkpoint-Daten",
+  "tasks-TaskList-19c298d949224c78d-95": "Missionsprotokoll",
+  "tasks-TaskList-19c298d949224c78d-96": "Zeit",
+  "tasks-TaskList-19c298d949224c78d-97": "Ebene",
+  "tasks-TaskList-19c298d949224c78d-98": "Nachrichten",
+  "tasks-TaskList-19c298d949224c78d-99": "Noch kein Aufgabenprotokoll",
+  "tasks-TaskList-19c298d949224c78d-100": "Schließen",
+  "tasks-TaskList-19c298d949224c78d-101": "Aufgabe erneut versuchen",
+  "tasks-TaskList-19c298d949224c78d-102": "Aufgabe abbrechen",
+  "tasks-TaskList-19c298d949224c78d-103": "Xiaomi-Handy",
+  "tasks-TaskList-19c298d949224c78d-104": "Huawei-Handy",
+  "tasks-TaskList-19c298d949224c78d-105": "Bundesweit",
+  "tasks-TaskList-19c298d949224c78d-106": "Laptop",
+  "tasks-TaskList-19c298d949224c78d-107": "Tablette",
+  "tasks-TaskList-19c298d949224c78d-108": "Peking",
+  "tasks-TaskList-19c298d949224c78d-109": "Shanghai",
+  "tasks-TaskList-19c298d949224c78d-110": "Guangzhou",
+  "tasks-TaskList-19c298d949224c78d-111": "Turnschuhe",
+  "tasks-TaskList-19c298d949224c78d-112": "Freizeitschuhe",
+  "tasks-TaskList-19c298d949224c78d-113": "Aufgabe",
+  "tasks-TaskList-19c298d949224c78d-114":
+    "Parameter konnten nicht analysiert werden:",
+  "tasks-TaskList-19c298d949224c78d-115":
+    "Aufgabenliste konnte nicht abgerufen werden:",
+  "tasks-TaskList-19c298d949224c78d-116":
+    "Die Aufgabenliste konnte nicht abgerufen werden. Bitte überprüfen Sie die Netzwerkverbindung",
+  "tasks-TaskList-19c298d949224c78d-117":
+    "Aufgabendetails konnten nicht abgerufen werden:",
+  "tasks-TaskList-19c298d949224c78d-118":
+    "Fehler beim Laden der Aufgabendetails:",
+  "tasks-TaskList-19c298d949224c78d-119":
+    "Die Aufgabe wurde erneut übermittelt",
+  "tasks-TaskList-19c298d949224c78d-120":
+    "Die Aufgabe wurde erneut übermittelt",
+  "tasks-TaskList-19c298d949224c78d-121":
+    "Wiederholungsaufgabe fehlgeschlagen:",
+  "tasks-TaskList-19c298d949224c78d-122":
+    "Die Aufgabe erneut versuchen ist fehlgeschlagen. Bitte überprüfen Sie die Netzwerkverbindung",
+  "tasks-TaskList-19c298d949224c78d-123":
+    "Fehler bei der Wiederholungsaufgabe:",
+  "tasks-TaskList-19c298d949224c78d-124": "Aufgabe abgebrochen",
+  "tasks-TaskList-19c298d949224c78d-125": "Aufgabe abgebrochen",
+  "tasks-TaskList-19c298d949224c78d-126":
+    "Aufgabe konnte nicht abgebrochen werden:",
+  "tasks-TaskList-19c298d949224c78d-127":
+    "Die Aufgabe konnte nicht abgebrochen werden. Bitte überprüfen Sie die Netzwerkverbindung",
+  "tasks-TaskList-19c298d949224c78d-128": "Fehler beim Abbrechen der Aufgabe:",
+  "tasks-TaskList-19c298d949224c78d-129":
+    "Für diese Aufgabe gibt es keine herunterladbare Ergebnisdatei",
+  "tasks-TaskList-19c298d949224c78d-130": "Download erfolgreich",
+  "tasks-TaskList-19c298d949224c78d-131":
+    "Der Download ist fehlgeschlagen. Bitte überprüfen Sie die Netzwerkverbindung",
+  "tasks-TaskList-19c298d949224c78d-132":
+    "Fehler beim Herunterladen der Aufgabenergebnisse:",
+  "tasks-TaskList-19c298d949224c78d-133":
+    "Der Download ist fehlgeschlagen. Bitte überprüfen Sie die Netzwerkverbindung",
+  "tasks-TaskList-19c298d949224c78d-134":
+    "Fehler beim Herunterladen der Datei:",
+  "tasks-TaskList-19c298d949224c78d-135":
+    "Das Herunterladen der Prüfpunktdatei ist fehlgeschlagen",
+  "tasks-TaskList-19c298d949224c78d-136":
+    "Fehler beim Herunterladen der Prüfpunktdatei:",
+  "tasks-TaskList-19c298d949224c78d-137": "Suchindex",
+  "tasks-TaskList-19c298d949224c78d-138": "Informationsindex",
+  "tasks-TaskList-19c298d949224c78d-139": "Anforderungskarte",
+  "tasks-TaskList-19c298d949224c78d-140": "Crowd-Attribute",
+  "tasks-TaskList-19c298d949224c78d-141": "Interessenanalyse",
+  "tasks-TaskList-19c298d949224c78d-142": "Geografische Verteilung",
+  "tasks-TaskList-19c298d949224c78d-143": "Warten",
+  "tasks-TaskList-19c298d949224c78d-144": "Ausführen",
+  "tasks-TaskList-19c298d949224c78d-145": "Abgeschlossen",
+  "tasks-TaskList-19c298d949224c78d-146": "gescheitert",
+  "tasks-TaskList-19c298d949224c78d-147": "Abgesagt",
+  "tasks-TaskList-19c298d949224c78d-148": "hoch",
+  "tasks-TaskList-19c298d949224c78d-149": "in",
+  "tasks-TaskList-19c298d949224c78d-150": "niedrig",
+  "tasks-TaskList-19c298d949224c78d-151": "Fehler beim Formatieren der Stadt:",
+  "tasks-TaskList-19c298d949224c78d-152": "zu",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-1": "tägliche Statistiken",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-2": "Kontoranking",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-3": "Trenddiagramm",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-4": "Verbreitungskarte",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-5": "Wärmekarte",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-6": "Balkendiagramm",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-7": "Liniendiagramm",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-8": "Zeigen Sie das erste N",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-9": "zu",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-10": "Startdatum",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-11": "Enddatum",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-12":
+    "Nutzungsdaten synchronisieren",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-13": "Datentabelle ausblenden",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-14": "Datenblatt ansehen",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-15": "Daten exportieren",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-16":
+    "Datentabelle zur Cookie-Nutzung",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-17": "Konto-ID",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-18": "Datum der Nutzung",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-19": "Anzahl der Verwendungen",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-20":
+    "Details zur Cookie-Nutzung",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-21": "Konto-ID",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-22": "Anzahl der Verwendungen",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-23": "Nutzungsverhältnis",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-24": "Schließen",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-25": "Daten exportieren",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-26":
+    "Tägliche Statistiken zur Cookie-Nutzung",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-27": "Anzahl der Verwendungen",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-28": "Nutzung",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-29":
+    "Ranking der Cookie-Kontonutzung",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-30": "Anzahl der Verwendungen",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-31": "Nutzung",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-32":
+    "Trends bei der Cookie-Nutzung",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-33": "Anzahl der Verwendungen",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-34":
+    "Verteilung der Cookie-Nutzung",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-35": "Nutzung",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-36":
+    "Heatmap zur Cookie-Nutzung",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-37": "Zeiten",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-38": "Verwendung von Cookies",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-39":
+    "Daten zur Cookie-Nutzung konnten nicht abgerufen werden:",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-40":
+    "Daten zur Cookie-Nutzung konnten nicht abgerufen werden:",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-41":
+    "Es konnten keine Cookie-Nutzungsdaten abgerufen werden. Bitte überprüfen Sie die Netzwerkverbindung",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-42": "Andere",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-43":
+    "Synchronisierung der Cookie-Nutzungsdaten erfolgreich",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-44":
+    "Cookie-Nutzungsdaten konnten nicht synchronisiert werden:",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-45":
+    "Cookie-Nutzungsdaten konnten nicht synchronisiert werden:",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-46":
+    "Die Synchronisierung der Cookie-Nutzungsdaten ist fehlgeschlagen. Bitte überprüfen Sie die Netzwerkverbindung",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-47":
+    "data:text/csv;charset=utf-8, Konto-ID, Nutzungsdatum, Anzahl der Nutzungen",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-48": "Datenexport erfolgreich",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-49":
+    "Daten konnten nicht exportiert werden:",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-50":
+    "Daten konnten nicht exportiert werden",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-1": "Bundesweit",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-2":
+    "Wählen Sie alle Provinzen aus",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-3": "Alle abwählen",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-4":
+    "Wählen Sie alle Städte auf Präfekturebene aus",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-5": "Alle abwählen",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-6": "Alles auswählen",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-7": "Alle abwählen",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-8":
+    "Bitte wählen Sie links die Provinz aus",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-9": "Ausgewählter Bereich:",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-10": "Klare Auswahl",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-11": "Bundesweit",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-12": "Mehr...",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-13": "schließen",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-14":
+    "Fehler beim Abrufen der Daten:",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-15":
+    "Netzwerkfehler, bitte versuchen Sie es später noch einmal",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-1":
+    "Sammlung von Crowd-Attributen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-2":
+    "Erhalten Sie Crowd-Attributdaten des Baidu-Index, einschließlich Geschlecht, Alter, Bildung und andere demografische Merkmale",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-3": "Parameter einstellen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-4":
+    "Schlüsselworteinstellungen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-5": "Schlüsselworteingabe",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-6":
+    "Geben Sie ein Schlüsselwort pro Zeile ein und fügen Sie es stapelweise hinzu",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-7":
+    "Fügen Sie Schlüsselwörter hinzu",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-8":
+    "Ein Schlüsselwort pro Zeile",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-9": "Dateiimport",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-10": "Datei auswählen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-11":
+    "Unterstützt die Formate .xlsx, .csv und .txt",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-12":
+    "Erste Zeile überspringen (Titelzeile)",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-13":
+    "Schlüsselwörter hinzugefügt",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-14":
+    "Dieses Schlüsselwort ist im Baidu-Index nicht vorhanden",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-15":
+    "Klare Schlüsselwörter",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-16":
+    "Überprüfen Sie Schlüsselwörter",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-17":
+    "Löschen Sie nicht vorhandene Schlüsselwörter",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-18": "insgesamt",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-19": "Schlüsselwörter",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-20":
+    "Ausgabeeinstellungen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-21": "Datenquelle",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-22": "PC+Mobil",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-23": "bewegen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-24": "Ausgabeformat",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-25": "CSV-Format",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-26": "Excel-Format",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-27": "Chargengröße",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-28":
+    "Die Anzahl der in jedem Stapel verarbeiteten Schlüsselwörter. Der Standardwert beträgt 10",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-29":
+    "Aufgabeneinstellungen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-30":
+    "Wiederherstellungsaufgabe",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-31": "Ja",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-32": "Nein",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-33": "Aufgaben-ID",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-34":
+    "Bitte geben Sie die wiederherzustellende Aufgaben-ID ein",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-35": "Priorität",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-36": "Aufgabe abschicken",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-37": "zurückgesetzt",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-38":
+    "Aufgabe erfolgreich übermittelt",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-39":
+    "Aufgabe erfolgreich übermittelt",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-40": "Aufgaben-ID:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-41":
+    "Aufgabenliste anzeigen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-42": "Weiter einreichen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-43":
+    "Ergebnisse der Keyword-Prüfung",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-44":
+    "Schlüsselwörter existieren",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-45":
+    "Schlüsselwörter existieren nicht",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-46":
+    "Schlüsselwörter, die nicht existieren:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-47": "Schließen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-48":
+    "Löschen Sie nicht vorhandene Schlüsselwörter",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-49":
+    "Erfolgreich importiert",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-50": "Schlüsselwörter",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-51":
+    "Schlüsselwörter sind ungültig oder doppelt vorhanden",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-52":
+    "Ungültige oder doppelte Schlüsselwörter:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-53": "...usw.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-54": "a",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-55": "Schließen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-56": "Missionsübersicht",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-57":
+    "Bestätigung der Aufgabenparameter",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-58": "Aufgabentyp",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-59":
+    "Sammlung von Crowd-Attributen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-60": "Schlüsselwörter",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-61": "insgesamt",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-62": "Schlüsselwörter",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-63": "...usw.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-64": "a",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-65":
+    "Ausgabeeinstellungen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-66": "Ausgabeformat:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-67": "CSV-Format",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-68": "Excel-Format",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-69": "Losgröße:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-70": "Andere Optionen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-71": "Datenquelle:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-72": "PC+Mobil",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-73": "bewegen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-74": "Priorität:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-75":
+    "ID der Wiederherstellungsaufgabe:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-76": "Abbrechen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-77":
+    "Bestätigen Sie die Übermittlung",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-78": "niedrig",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-79": "in",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-80": "hoch",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-81":
+    "Bitte fügen Sie zuerst Schlüsselwörter hinzu",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-82":
+    "Prüfung fehlgeschlagen:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-83":
+    "Auf Keyword-Fehler prüfen:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-84":
+    "Die Überprüfung der Schlüsselwörter ist fehlgeschlagen. Bitte überprüfen Sie die Netzwerkverbindung",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-85":
+    "erfolgreich hinzugefügt",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-86": "Schlüsselwörter",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-87":
+    "Schlüsselwörter werden dupliziert und ignoriert",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-88":
+    "Sind Sie sicher, dass Sie alle Schlüsselwörter löschen möchten?",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-89": "Tipps",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-90": "Okay",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-91": "Abbrechen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-92":
+    "Sind Sie sicher, dass Sie alle nicht vorhandenen Schlüsselwörter löschen möchten?",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-93": "Tipps",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-94": "Okay",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-95": "Abbrechen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-96": "gelöscht",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-97":
+    "Schlüsselwörter, die nicht existieren",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-98": "gelöscht",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-99":
+    "Schlüsselwörter, die nicht existieren",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-100":
+    "In der Datei wurden keine gültigen Schlüsselwörter gefunden",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-101":
+    "Ergebnisse des Keyword-Imports",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-102":
+    "Fehler beim Lesen der Datei:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-103":
+    "Das Lesen der Datei ist fehlgeschlagen. Bitte überprüfen Sie das Dateiformat",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-104":
+    "Das Lesen der Datei ist fehlgeschlagen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-105":
+    "Die Übermittlung der Aufgabe ist fehlgeschlagen:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-106":
+    "Das Senden der Aufgabe ist fehlgeschlagen. Bitte überprüfen Sie die Netzwerkverbindung",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-107":
+    "Fehler beim Senden der Aufgabe:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-1": "Informationsindexsammlung",
+  "tasks-FeedIndexTask-19c298e1d0a206148-2":
+    "Erhalten Sie Trenddaten des Baidu Information Index, die mehrere Schlüsselwörter, mehrere Städte und benutzerdefinierte Zeitbereiche unterstützen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-3": "Parameter einstellen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-4": "Schlüsselworteinstellungen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-5": "Schlüsselworteingabe",
+  "tasks-FeedIndexTask-19c298e1d0a206148-6":
+    "Geben Sie ein Schlüsselwort pro Zeile ein und fügen Sie es stapelweise hinzu",
+  "tasks-FeedIndexTask-19c298e1d0a206148-7": "Fügen Sie Schlüsselwörter hinzu",
+  "tasks-FeedIndexTask-19c298e1d0a206148-8": "Ein Schlüsselwort pro Zeile",
+  "tasks-FeedIndexTask-19c298e1d0a206148-9": "Dateiimport",
+  "tasks-FeedIndexTask-19c298e1d0a206148-10": "Datei auswählen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-11":
+    "Unterstützt die Formate .xlsx, .csv und .txt",
+  "tasks-FeedIndexTask-19c298e1d0a206148-12":
+    "Erste Zeile überspringen (Titelzeile)",
+  "tasks-FeedIndexTask-19c298e1d0a206148-13": "Schlüsselwörter hinzugefügt",
+  "tasks-FeedIndexTask-19c298e1d0a206148-14":
+    "Dieses Schlüsselwort ist im Baidu-Index nicht vorhanden",
+  "tasks-FeedIndexTask-19c298e1d0a206148-15": "Klare Schlüsselwörter",
+  "tasks-FeedIndexTask-19c298e1d0a206148-16": "Überprüfen Sie Schlüsselwörter",
+  "tasks-FeedIndexTask-19c298e1d0a206148-17":
+    "Löschen Sie nicht vorhandene Schlüsselwörter",
+  "tasks-FeedIndexTask-19c298e1d0a206148-18": "insgesamt",
+  "tasks-FeedIndexTask-19c298e1d0a206148-19": "Schlüsselwörter",
+  "tasks-FeedIndexTask-19c298e1d0a206148-20": "Stadtkulisse",
+  "tasks-FeedIndexTask-19c298e1d0a206148-21": "Stadt auswählen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-22": "Stadtimport",
+  "tasks-FeedIndexTask-19c298e1d0a206148-23": "Datei auswählen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-24":
+    "Unterstützt die Formate .xlsx, .csv, .txt, einen Stadtcode pro Zeile",
+  "tasks-FeedIndexTask-19c298e1d0a206148-25":
+    "Erste Zeile überspringen (Titelzeile)",
+  "tasks-FeedIndexTask-19c298e1d0a206148-26": "Zeiteinstellung",
+  "tasks-FeedIndexTask-19c298e1d0a206148-27": "Datenquelle",
+  "tasks-FeedIndexTask-19c298e1d0a206148-28": "PC+Mobil",
+  "tasks-FeedIndexTask-19c298e1d0a206148-29": "bewegen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-30": "Zeittyp",
+  "tasks-FeedIndexTask-19c298e1d0a206148-31": "Alle Daten",
+  "tasks-FeedIndexTask-19c298e1d0a206148-32": "Benutzerdefiniertes Datum",
+  "tasks-FeedIndexTask-19c298e1d0a206148-33": "Standardanzahl an Tagen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-34": "Jahresdaten",
+  "tasks-FeedIndexTask-19c298e1d0a206148-35": "Datumsbereich",
+  "tasks-FeedIndexTask-19c298e1d0a206148-36": "zu",
+  "tasks-FeedIndexTask-19c298e1d0a206148-37": "Startdatum",
+  "tasks-FeedIndexTask-19c298e1d0a206148-38": "Enddatum",
+  "tasks-FeedIndexTask-19c298e1d0a206148-39": "Standardanzahl an Tagen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-40":
+    "Bitte wählen Sie die Anzahl der Tage aus",
+  "tasks-FeedIndexTask-19c298e1d0a206148-41": "Letzte 7 Tage",
+  "tasks-FeedIndexTask-19c298e1d0a206148-42": "Letzte 30 Tage",
+  "tasks-FeedIndexTask-19c298e1d0a206148-43": "Letzte 90 Tage",
+  "tasks-FeedIndexTask-19c298e1d0a206148-44": "Letzte 180 Tage",
+  "tasks-FeedIndexTask-19c298e1d0a206148-45": "Jahresbereich",
+  "tasks-FeedIndexTask-19c298e1d0a206148-46": "Startjahr",
+  "tasks-FeedIndexTask-19c298e1d0a206148-47": "zu",
+  "tasks-FeedIndexTask-19c298e1d0a206148-48": "Ende des Jahres",
+  "tasks-FeedIndexTask-19c298e1d0a206148-49": "Datenbeschreibung",
+  "tasks-FeedIndexTask-19c298e1d0a206148-50": "wird erhalten von",
+  "tasks-FeedIndexTask-19c298e1d0a206148-51":
+    "Alle bisherigen historischen Daten",
+  "tasks-FeedIndexTask-19c298e1d0a206148-52": "1. Juni 2006",
+  "tasks-FeedIndexTask-19c298e1d0a206148-53": "1. Januar 2011",
+  "tasks-FeedIndexTask-19c298e1d0a206148-54": "Aufgabeneinstellungen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-55": "Wiederherstellungsaufgabe",
+  "tasks-FeedIndexTask-19c298e1d0a206148-56": "Ja",
+  "tasks-FeedIndexTask-19c298e1d0a206148-57": "Nein",
+  "tasks-FeedIndexTask-19c298e1d0a206148-58": "Aufgaben-ID",
+  "tasks-FeedIndexTask-19c298e1d0a206148-59":
+    "Bitte geben Sie die wiederherzustellende Aufgaben-ID ein",
+  "tasks-FeedIndexTask-19c298e1d0a206148-60": "Priorität",
+  "tasks-FeedIndexTask-19c298e1d0a206148-61": "Aufgabe abschicken",
+  "tasks-FeedIndexTask-19c298e1d0a206148-62": "zurückgesetzt",
+  "tasks-FeedIndexTask-19c298e1d0a206148-63": "Aufgabe erfolgreich übermittelt",
+  "tasks-FeedIndexTask-19c298e1d0a206148-64": "Aufgabe erfolgreich übermittelt",
+  "tasks-FeedIndexTask-19c298e1d0a206148-65": "Aufgaben-ID:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-66": "Aufgabenliste anzeigen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-67": "Weiter einreichen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-68": "Ergebnisse der Keyword-Prüfung",
+  "tasks-FeedIndexTask-19c298e1d0a206148-69": "Schlüsselwörter existieren",
+  "tasks-FeedIndexTask-19c298e1d0a206148-70":
+    "Schlüsselwörter existieren nicht",
+  "tasks-FeedIndexTask-19c298e1d0a206148-71":
+    "Schlüsselwörter, die nicht existieren:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-72": "Schließen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-73":
+    "Löschen Sie nicht vorhandene Schlüsselwörter",
+  "tasks-FeedIndexTask-19c298e1d0a206148-74": "Erfolgreich importiert",
+  "tasks-FeedIndexTask-19c298e1d0a206148-75": "Ergebnisse des Keyword-Imports",
+  "tasks-FeedIndexTask-19c298e1d0a206148-76": "Schlüsselwörter",
+  "tasks-FeedIndexTask-19c298e1d0a206148-77": "Städte",
+  "tasks-FeedIndexTask-19c298e1d0a206148-78": "Ungültig oder doppelt vorhanden",
+  "tasks-FeedIndexTask-19c298e1d0a206148-79": "Ergebnisse des Keyword-Imports",
+  "tasks-FeedIndexTask-19c298e1d0a206148-80": "Schlüsselwörter",
+  "tasks-FeedIndexTask-19c298e1d0a206148-81": "Städte",
+  "tasks-FeedIndexTask-19c298e1d0a206148-82": "Ungültig oder doppelt vorhanden",
+  "tasks-FeedIndexTask-19c298e1d0a206148-83": "Ergebnisse des Keyword-Imports",
+  "tasks-FeedIndexTask-19c298e1d0a206148-84": "Schlüsselwörter",
+  "tasks-FeedIndexTask-19c298e1d0a206148-85": "Stadt",
+  "tasks-FeedIndexTask-19c298e1d0a206148-86": "...usw.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-87": "a",
+  "tasks-FeedIndexTask-19c298e1d0a206148-88": "Schließen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-89": "Missionsübersicht",
+  "tasks-FeedIndexTask-19c298e1d0a206148-90":
+    "Bestätigung der Aufgabenparameter",
+  "tasks-FeedIndexTask-19c298e1d0a206148-91": "Aufgabentyp",
+  "tasks-FeedIndexTask-19c298e1d0a206148-92": "Informationsindexsammlung",
+  "tasks-FeedIndexTask-19c298e1d0a206148-93": "Schlüsselwörter",
+  "tasks-FeedIndexTask-19c298e1d0a206148-94": "insgesamt",
+  "tasks-FeedIndexTask-19c298e1d0a206148-95": "Schlüsselwörter",
+  "tasks-FeedIndexTask-19c298e1d0a206148-96": "...usw.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-97": "a",
+  "tasks-FeedIndexTask-19c298e1d0a206148-98": "Bereich",
+  "tasks-FeedIndexTask-19c298e1d0a206148-99": "insgesamt",
+  "tasks-FeedIndexTask-19c298e1d0a206148-100": "Regionen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-101": "Bundesweit",
+  "tasks-FeedIndexTask-19c298e1d0a206148-102": "...usw.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-103": "a",
+  "tasks-FeedIndexTask-19c298e1d0a206148-104": "Zeitbereich",
+  "tasks-FeedIndexTask-19c298e1d0a206148-105": "Alle historischen Daten (",
+  "tasks-FeedIndexTask-19c298e1d0a206148-106": "1. Juni 2006",
+  "tasks-FeedIndexTask-19c298e1d0a206148-107": "1. Januar 2011",
+  "tasks-FeedIndexTask-19c298e1d0a206148-108": "(bis heute)",
+  "tasks-FeedIndexTask-19c298e1d0a206148-109": "Kürzlich",
+  "tasks-FeedIndexTask-19c298e1d0a206148-110": "Tag",
+  "tasks-FeedIndexTask-19c298e1d0a206148-111": "zu",
+  "tasks-FeedIndexTask-19c298e1d0a206148-112": "Jahr bis",
+  "tasks-FeedIndexTask-19c298e1d0a206148-113": "Jahr",
+  "tasks-FeedIndexTask-19c298e1d0a206148-114": "Andere Optionen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-115": "Datenquelle:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-116": "PC+Mobil",
+  "tasks-FeedIndexTask-19c298e1d0a206148-117": "bewegen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-118": "Priorität:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-119":
+    "ID der Wiederherstellungsaufgabe:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-120": "Abbrechen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-121":
+    "Bestätigen Sie die Übermittlung",
+  "tasks-FeedIndexTask-19c298e1d0a206148-122": "niedrig",
+  "tasks-FeedIndexTask-19c298e1d0a206148-123": "in",
+  "tasks-FeedIndexTask-19c298e1d0a206148-124": "hoch",
+  "tasks-FeedIndexTask-19c298e1d0a206148-125":
+    "Stadtplan konnte nicht abgerufen werden:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-126":
+    "Bitte fügen Sie zuerst Schlüsselwörter hinzu",
+  "tasks-FeedIndexTask-19c298e1d0a206148-127": "Prüfung fehlgeschlagen:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-128": "Auf Keyword-Fehler prüfen:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-129":
+    "Die Überprüfung der Schlüsselwörter ist fehlgeschlagen. Bitte überprüfen Sie die Netzwerkverbindung",
+  "tasks-FeedIndexTask-19c298e1d0a206148-130": "erfolgreich hinzugefügt",
+  "tasks-FeedIndexTask-19c298e1d0a206148-131": "Schlüsselwörter",
+  "tasks-FeedIndexTask-19c298e1d0a206148-132":
+    "Schlüsselwörter werden dupliziert und ignoriert",
+  "tasks-FeedIndexTask-19c298e1d0a206148-133":
+    "Sind Sie sicher, dass Sie alle Schlüsselwörter löschen möchten?",
+  "tasks-FeedIndexTask-19c298e1d0a206148-134": "Tipps",
+  "tasks-FeedIndexTask-19c298e1d0a206148-135": "Okay",
+  "tasks-FeedIndexTask-19c298e1d0a206148-136": "Abbrechen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-137":
+    "Sind Sie sicher, dass Sie alle nicht vorhandenen Schlüsselwörter löschen möchten?",
+  "tasks-FeedIndexTask-19c298e1d0a206148-138": "Tipps",
+  "tasks-FeedIndexTask-19c298e1d0a206148-139": "Okay",
+  "tasks-FeedIndexTask-19c298e1d0a206148-140": "Abbrechen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-141": "gelöscht",
+  "tasks-FeedIndexTask-19c298e1d0a206148-142":
+    "Schlüsselwörter, die nicht existieren",
+  "tasks-FeedIndexTask-19c298e1d0a206148-143": "gelöscht",
+  "tasks-FeedIndexTask-19c298e1d0a206148-144":
+    "Schlüsselwörter, die nicht existieren",
+  "tasks-FeedIndexTask-19c298e1d0a206148-145":
+    "In der Datei wurden keine gültigen Schlüsselwörter gefunden",
+  "tasks-FeedIndexTask-19c298e1d0a206148-146": "Ergebnisse des Keyword-Imports",
+  "tasks-FeedIndexTask-19c298e1d0a206148-147": "Fehler beim Lesen der Datei:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-148":
+    "Das Lesen der Datei ist fehlgeschlagen. Bitte überprüfen Sie das Dateiformat",
+  "tasks-FeedIndexTask-19c298e1d0a206148-149":
+    "In der Datei wurde kein gültiger Stadtcode gefunden",
+  "tasks-FeedIndexTask-19c298e1d0a206148-150": "Ergebnisse des Stadtimports",
+  "tasks-FeedIndexTask-19c298e1d0a206148-151": "Fehler beim Lesen der Datei:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-152":
+    "Das Lesen der Datei ist fehlgeschlagen. Bitte überprüfen Sie das Dateiformat",
+  "tasks-FeedIndexTask-19c298e1d0a206148-153":
+    "Das Lesen der Datei ist fehlgeschlagen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-154":
+    "Die Übermittlung der Aufgabe ist fehlgeschlagen:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-155":
+    "Das Senden der Aufgabe ist fehlgeschlagen. Bitte überprüfen Sie die Netzwerkverbindung",
+  "tasks-FeedIndexTask-19c298e1d0a206148-156":
+    "Fehler beim Senden der Aufgabe:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-1":
+    "Sammlung von Interessenanalysen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-2":
+    "Erhalten Sie Porträtdaten zum Publikumsinteresse des Baidu-Index, einschließlich Interessenkategorien und deren Anteile",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-3": "Parameter einstellen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-4": "Schlüsselworteinstellungen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-5": "Schlüsselworteingabe",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-6":
+    "Geben Sie ein Schlüsselwort pro Zeile ein und fügen Sie es stapelweise hinzu",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-7":
+    "Fügen Sie Schlüsselwörter hinzu",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-8":
+    "Ein Schlüsselwort pro Zeile",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-9": "Dateiimport",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-10": "Datei auswählen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-11":
+    "Unterstützt die Formate .xlsx, .csv und .txt",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-12":
+    "Erste Zeile überspringen (Titelzeile)",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-13":
+    "Schlüsselwörter hinzugefügt",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-14":
+    "Dieses Schlüsselwort ist im Baidu-Index nicht vorhanden",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-15": "Klare Schlüsselwörter",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-16":
+    "Überprüfen Sie Schlüsselwörter",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-17":
+    "Löschen Sie nicht vorhandene Schlüsselwörter",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-18": "insgesamt",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-19": "Schlüsselwörter",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-20": "Ausgabeeinstellungen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-21": "Datenquelle",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-22": "PC+Mobil",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-23": "bewegen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-24": "Ausgabeformat",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-25": "CSV-Format",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-26": "Excel-Format",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-27": "Chargengröße",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-28":
+    "Die Anzahl der in jedem Stapel verarbeiteten Schlüsselwörter. Der Standardwert beträgt 10",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-29": "Aufgabeneinstellungen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-30": "Wiederherstellungsaufgabe",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-31": "Ja",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-32": "Nein",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-33": "Aufgaben-ID",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-34":
+    "Bitte geben Sie die wiederherzustellende Aufgaben-ID ein",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-35": "Priorität",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-36": "Aufgabe abschicken",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-37": "zurückgesetzt",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-38":
+    "Aufgabe erfolgreich übermittelt",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-39":
+    "Aufgabe erfolgreich übermittelt",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-40": "Aufgaben-ID:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-41": "Aufgabenliste anzeigen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-42": "Weiter einreichen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-43":
+    "Ergebnisse der Keyword-Prüfung",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-44":
+    "Schlüsselwörter existieren",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-45":
+    "Schlüsselwörter existieren nicht",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-46":
+    "Schlüsselwörter, die nicht existieren:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-47": "Schließen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-48":
+    "Löschen Sie nicht vorhandene Schlüsselwörter",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-49": "Erfolgreich importiert",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-50": "Schlüsselwörter",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-51":
+    "Schlüsselwörter sind ungültig oder doppelt vorhanden",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-52":
+    "Ungültige oder doppelte Schlüsselwörter:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-53": "...usw.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-54": "a",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-55": "Schließen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-56": "Missionsübersicht",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-57":
+    "Bestätigung der Aufgabenparameter",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-58": "Aufgabentyp",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-59":
+    "Sammlung von Interessenanalysen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-60": "Schlüsselwörter",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-61": "insgesamt",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-62": "Schlüsselwörter",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-63": "...usw.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-64": "a",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-65": "Ausgabeeinstellungen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-66": "Ausgabeformat:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-67": "CSV-Format",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-68": "Excel-Format",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-69": "Losgröße:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-70": "Andere Optionen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-71": "Datenquelle:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-72": "PC+Mobil",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-73": "bewegen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-74": "Priorität:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-75":
+    "ID der Wiederherstellungsaufgabe:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-76": "Abbrechen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-77":
+    "Bestätigen Sie die Übermittlung",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-78": "niedrig",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-79": "in",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-80": "hoch",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-81":
+    "Bitte fügen Sie zuerst Schlüsselwörter hinzu",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-82": "Prüfung fehlgeschlagen:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-83":
+    "Auf Keyword-Fehler prüfen:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-84":
+    "Die Überprüfung der Schlüsselwörter ist fehlgeschlagen. Bitte überprüfen Sie die Netzwerkverbindung",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-85": "erfolgreich hinzugefügt",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-86": "Schlüsselwörter",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-87":
+    "Schlüsselwörter werden dupliziert und ignoriert",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-88":
+    "Sind Sie sicher, dass Sie alle Schlüsselwörter löschen möchten?",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-89": "Tipps",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-90": "Okay",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-91": "Abbrechen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-92":
+    "Sind Sie sicher, dass Sie alle nicht vorhandenen Schlüsselwörter löschen möchten?",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-93": "Tipps",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-94": "Okay",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-95": "Abbrechen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-96": "gelöscht",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-97":
+    "Schlüsselwörter, die nicht existieren",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-98": "gelöscht",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-99":
+    "Schlüsselwörter, die nicht existieren",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-100":
+    "In der Datei wurden keine gültigen Schlüsselwörter gefunden",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-101":
+    "Ergebnisse des Keyword-Imports",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-102":
+    "Fehler beim Lesen der Datei:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-103":
+    "Das Lesen der Datei ist fehlgeschlagen. Bitte überprüfen Sie das Dateiformat",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-104":
+    "Das Lesen der Datei ist fehlgeschlagen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-105":
+    "Die Übermittlung der Aufgabe ist fehlgeschlagen:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-106":
+    "Das Senden der Aufgabe ist fehlgeschlagen. Bitte überprüfen Sie die Netzwerkverbindung",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-107":
+    "Fehler beim Senden der Aufgabe:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-1":
+    "Geografisch verteilte Sammlung",
+  "tasks-RegionDistributionTask-19c298e201890d5db-2":
+    "Erhalten Sie die geografischen Verteilungsdaten der Massenporträts des Baidu-Index, einschließlich des Anteils des Suchindex in jeder Provinz, Stadt und Region",
+  "tasks-RegionDistributionTask-19c298e201890d5db-3": "Parameter einstellen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-4":
+    "Schlüsselworteinstellungen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-5": "Schlüsselworteingabe",
+  "tasks-RegionDistributionTask-19c298e201890d5db-6":
+    "Geben Sie ein Schlüsselwort pro Zeile ein und fügen Sie es stapelweise hinzu",
+  "tasks-RegionDistributionTask-19c298e201890d5db-7":
+    "Fügen Sie Schlüsselwörter hinzu",
+  "tasks-RegionDistributionTask-19c298e201890d5db-8":
+    "Ein Schlüsselwort pro Zeile",
+  "tasks-RegionDistributionTask-19c298e201890d5db-9": "Dateiimport",
+  "tasks-RegionDistributionTask-19c298e201890d5db-10": "Datei auswählen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-11":
+    "Unterstützt die Formate .xlsx, .csv und .txt",
+  "tasks-RegionDistributionTask-19c298e201890d5db-12":
+    "Erste Zeile überspringen (Titelzeile)",
+  "tasks-RegionDistributionTask-19c298e201890d5db-13":
+    "Schlüsselwörter hinzugefügt",
+  "tasks-RegionDistributionTask-19c298e201890d5db-14":
+    "Dieses Schlüsselwort ist im Baidu-Index nicht vorhanden",
+  "tasks-RegionDistributionTask-19c298e201890d5db-15": "Klare Schlüsselwörter",
+  "tasks-RegionDistributionTask-19c298e201890d5db-16":
+    "Überprüfen Sie Schlüsselwörter",
+  "tasks-RegionDistributionTask-19c298e201890d5db-17":
+    "Löschen Sie nicht vorhandene Schlüsselwörter",
+  "tasks-RegionDistributionTask-19c298e201890d5db-18": "insgesamt",
+  "tasks-RegionDistributionTask-19c298e201890d5db-19": "Schlüsselwörter",
+  "tasks-RegionDistributionTask-19c298e201890d5db-20":
+    "Gebietsschemaeinstellungen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-21": "Region auswählen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-22": "Regionsimport",
+  "tasks-RegionDistributionTask-19c298e201890d5db-23": "Datei auswählen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-24":
+    "Unterstützt die Formate .xlsx, .csv, .txt, einen Regionalcode pro Zeile",
+  "tasks-RegionDistributionTask-19c298e201890d5db-25":
+    "Erste Zeile überspringen (Titelzeile)",
+  "tasks-RegionDistributionTask-19c298e201890d5db-26": "Zeiteinstellung",
+  "tasks-RegionDistributionTask-19c298e201890d5db-27": "Datenquelle",
+  "tasks-RegionDistributionTask-19c298e201890d5db-28": "PC+Mobil",
+  "tasks-RegionDistributionTask-19c298e201890d5db-29": "bewegen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-30": "Zeittyp",
+  "tasks-RegionDistributionTask-19c298e201890d5db-31": "Alle Daten",
+  "tasks-RegionDistributionTask-19c298e201890d5db-32":
+    "Benutzerdefiniertes Datum",
+  "tasks-RegionDistributionTask-19c298e201890d5db-33":
+    "Standardanzahl an Tagen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-34": "Jahresdaten",
+  "tasks-RegionDistributionTask-19c298e201890d5db-35": "Datumsbereich",
+  "tasks-RegionDistributionTask-19c298e201890d5db-36": "zu",
+  "tasks-RegionDistributionTask-19c298e201890d5db-37": "Startdatum",
+  "tasks-RegionDistributionTask-19c298e201890d5db-38": "Enddatum",
+  "tasks-RegionDistributionTask-19c298e201890d5db-39":
+    "Standardanzahl an Tagen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-40":
+    "Bitte wählen Sie die Anzahl der Tage aus",
+  "tasks-RegionDistributionTask-19c298e201890d5db-41": "Letzte 7 Tage",
+  "tasks-RegionDistributionTask-19c298e201890d5db-42": "Letzte 30 Tage",
+  "tasks-RegionDistributionTask-19c298e201890d5db-43": "Letzte 90 Tage",
+  "tasks-RegionDistributionTask-19c298e201890d5db-44": "Letzte 180 Tage",
+  "tasks-RegionDistributionTask-19c298e201890d5db-45": "Letzte 365 Tage",
+  "tasks-RegionDistributionTask-19c298e201890d5db-46": "Jahresbereich",
+  "tasks-RegionDistributionTask-19c298e201890d5db-47": "Startjahr",
+  "tasks-RegionDistributionTask-19c298e201890d5db-48": "zu",
+  "tasks-RegionDistributionTask-19c298e201890d5db-49": "Ende des Jahres",
+  "tasks-RegionDistributionTask-19c298e201890d5db-50": "Datenbeschreibung",
+  "tasks-RegionDistributionTask-19c298e201890d5db-51": "wird erhalten von",
+  "tasks-RegionDistributionTask-19c298e201890d5db-52":
+    "Alle bisherigen historischen Daten",
+  "tasks-RegionDistributionTask-19c298e201890d5db-53": "1. Juni 2006",
+  "tasks-RegionDistributionTask-19c298e201890d5db-54": "1. Januar 2011",
+  "tasks-RegionDistributionTask-19c298e201890d5db-55": "Ausgabeeinstellungen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-56": "Ausgabeformat",
+  "tasks-RegionDistributionTask-19c298e201890d5db-57": "CSV-Format",
+  "tasks-RegionDistributionTask-19c298e201890d5db-58": "Excel-Format",
+  "tasks-RegionDistributionTask-19c298e201890d5db-59": "Aufgabeneinstellungen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-60":
+    "Wiederherstellungsaufgabe",
+  "tasks-RegionDistributionTask-19c298e201890d5db-61": "Ja",
+  "tasks-RegionDistributionTask-19c298e201890d5db-62": "Nein",
+  "tasks-RegionDistributionTask-19c298e201890d5db-63": "Aufgaben-ID",
+  "tasks-RegionDistributionTask-19c298e201890d5db-64":
+    "Bitte geben Sie die wiederherzustellende Aufgaben-ID ein",
+  "tasks-RegionDistributionTask-19c298e201890d5db-65": "Priorität",
+  "tasks-RegionDistributionTask-19c298e201890d5db-66": "Aufgabe abschicken",
+  "tasks-RegionDistributionTask-19c298e201890d5db-67": "zurückgesetzt",
+  "tasks-RegionDistributionTask-19c298e201890d5db-68":
+    "Aufgabe erfolgreich übermittelt",
+  "tasks-RegionDistributionTask-19c298e201890d5db-69":
+    "Aufgabe erfolgreich übermittelt",
+  "tasks-RegionDistributionTask-19c298e201890d5db-70": "Aufgaben-ID:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-71": "Aufgabenliste anzeigen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-72": "Weiter einreichen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-73":
+    "Ergebnisse der Keyword-Prüfung",
+  "tasks-RegionDistributionTask-19c298e201890d5db-74":
+    "Schlüsselwörter existieren",
+  "tasks-RegionDistributionTask-19c298e201890d5db-75":
+    "Schlüsselwörter existieren nicht",
+  "tasks-RegionDistributionTask-19c298e201890d5db-76":
+    "Schlüsselwörter, die nicht existieren:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-77": "Schließen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-78":
+    "Löschen Sie nicht vorhandene Schlüsselwörter",
+  "tasks-RegionDistributionTask-19c298e201890d5db-79": "Erfolgreich importiert",
+  "tasks-RegionDistributionTask-19c298e201890d5db-80":
+    "Ergebnisse des Keyword-Imports",
+  "tasks-RegionDistributionTask-19c298e201890d5db-81": "Schlüsselwörter",
+  "tasks-RegionDistributionTask-19c298e201890d5db-82": "Regionen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-83":
+    "Ungültig oder doppelt vorhanden",
+  "tasks-RegionDistributionTask-19c298e201890d5db-84":
+    "Ergebnisse des Keyword-Imports",
+  "tasks-RegionDistributionTask-19c298e201890d5db-85": "Schlüsselwörter",
+  "tasks-RegionDistributionTask-19c298e201890d5db-86": "Regionen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-87":
+    "Ungültig oder doppelt vorhanden",
+  "tasks-RegionDistributionTask-19c298e201890d5db-88":
+    "Ergebnisse des Keyword-Imports",
+  "tasks-RegionDistributionTask-19c298e201890d5db-89": "Schlüsselwörter",
+  "tasks-RegionDistributionTask-19c298e201890d5db-90": "Bereich",
+  "tasks-RegionDistributionTask-19c298e201890d5db-91": "...usw.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-92": "a",
+  "tasks-RegionDistributionTask-19c298e201890d5db-93": "Schließen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-94": "Missionsübersicht",
+  "tasks-RegionDistributionTask-19c298e201890d5db-95":
+    "Bestätigung der Aufgabenparameter",
+  "tasks-RegionDistributionTask-19c298e201890d5db-96": "Aufgabentyp",
+  "tasks-RegionDistributionTask-19c298e201890d5db-97":
+    "Geografisch verteilte Sammlung",
+  "tasks-RegionDistributionTask-19c298e201890d5db-98": "Schlüsselwörter",
+  "tasks-RegionDistributionTask-19c298e201890d5db-99": "insgesamt",
+  "tasks-RegionDistributionTask-19c298e201890d5db-100": "Schlüsselwörter",
+  "tasks-RegionDistributionTask-19c298e201890d5db-101": "...usw.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-102": "a",
+  "tasks-RegionDistributionTask-19c298e201890d5db-103": "Bereich",
+  "tasks-RegionDistributionTask-19c298e201890d5db-104": "insgesamt",
+  "tasks-RegionDistributionTask-19c298e201890d5db-105": "Regionen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-106": "Bundesweit",
+  "tasks-RegionDistributionTask-19c298e201890d5db-107": "...usw.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-108": "a",
+  "tasks-RegionDistributionTask-19c298e201890d5db-109": "Zeitbereich",
+  "tasks-RegionDistributionTask-19c298e201890d5db-110":
+    "Alle historischen Daten (",
+  "tasks-RegionDistributionTask-19c298e201890d5db-111": "1. Juni 2006",
+  "tasks-RegionDistributionTask-19c298e201890d5db-112": "1. Januar 2011",
+  "tasks-RegionDistributionTask-19c298e201890d5db-113": "(bis heute)",
+  "tasks-RegionDistributionTask-19c298e201890d5db-114": "Kürzlich",
+  "tasks-RegionDistributionTask-19c298e201890d5db-115": "Tag",
+  "tasks-RegionDistributionTask-19c298e201890d5db-116": "zu",
+  "tasks-RegionDistributionTask-19c298e201890d5db-117": "Jahr bis",
+  "tasks-RegionDistributionTask-19c298e201890d5db-118": "Jahr",
+  "tasks-RegionDistributionTask-19c298e201890d5db-119": "Ausgabeformat",
+  "tasks-RegionDistributionTask-19c298e201890d5db-120": "CSV-Format",
+  "tasks-RegionDistributionTask-19c298e201890d5db-121": "Excel-Format",
+  "tasks-RegionDistributionTask-19c298e201890d5db-122": "Andere Optionen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-123": "Datenquelle:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-124": "PC+Mobil",
+  "tasks-RegionDistributionTask-19c298e201890d5db-125": "bewegen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-126": "Priorität:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-127":
+    "ID der Wiederherstellungsaufgabe:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-128": "Abbrechen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-129":
+    "Bestätigen Sie die Übermittlung",
+  "tasks-RegionDistributionTask-19c298e201890d5db-130": "niedrig",
+  "tasks-RegionDistributionTask-19c298e201890d5db-131": "in",
+  "tasks-RegionDistributionTask-19c298e201890d5db-132": "hoch",
+  "tasks-RegionDistributionTask-19c298e201890d5db-133":
+    "Bitte fügen Sie zuerst Schlüsselwörter hinzu",
+  "tasks-RegionDistributionTask-19c298e201890d5db-134":
+    "Prüfung fehlgeschlagen:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-135":
+    "Auf Keyword-Fehler prüfen:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-136":
+    "Die Überprüfung der Schlüsselwörter ist fehlgeschlagen. Bitte überprüfen Sie die Netzwerkverbindung",
+  "tasks-RegionDistributionTask-19c298e201890d5db-137":
+    "erfolgreich hinzugefügt",
+  "tasks-RegionDistributionTask-19c298e201890d5db-138": "Schlüsselwörter",
+  "tasks-RegionDistributionTask-19c298e201890d5db-139":
+    "Schlüsselwörter werden dupliziert und ignoriert",
+  "tasks-RegionDistributionTask-19c298e201890d5db-140":
+    "Sind Sie sicher, dass Sie alle Schlüsselwörter löschen möchten?",
+  "tasks-RegionDistributionTask-19c298e201890d5db-141": "Tipps",
+  "tasks-RegionDistributionTask-19c298e201890d5db-142": "Okay",
+  "tasks-RegionDistributionTask-19c298e201890d5db-143": "Abbrechen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-144":
+    "In der Datei wurden keine gültigen Schlüsselwörter gefunden",
+  "tasks-RegionDistributionTask-19c298e201890d5db-145":
+    "Ergebnisse des Keyword-Imports",
+  "tasks-RegionDistributionTask-19c298e201890d5db-146":
+    "Fehler beim Lesen der Datei:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-147":
+    "Das Lesen der Datei ist fehlgeschlagen. Bitte überprüfen Sie das Dateiformat",
+  "tasks-RegionDistributionTask-19c298e201890d5db-148":
+    "Das Lesen der Datei ist fehlgeschlagen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-149":
+    "In der Datei wurde kein gültiger Regionalcode gefunden",
+  "tasks-RegionDistributionTask-19c298e201890d5db-150":
+    "Ergebnisse des Regionsimports",
+  "tasks-RegionDistributionTask-19c298e201890d5db-151":
+    "Fehler beim Lesen der Datei:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-152":
+    "Das Lesen der Datei ist fehlgeschlagen. Bitte überprüfen Sie das Dateiformat",
+  "tasks-RegionDistributionTask-19c298e201890d5db-153":
+    "Sind Sie sicher, dass Sie alle nicht vorhandenen Schlüsselwörter löschen möchten?",
+  "tasks-RegionDistributionTask-19c298e201890d5db-154": "Tipps",
+  "tasks-RegionDistributionTask-19c298e201890d5db-155": "Okay",
+  "tasks-RegionDistributionTask-19c298e201890d5db-156": "Abbrechen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-157": "gelöscht",
+  "tasks-RegionDistributionTask-19c298e201890d5db-158":
+    "Schlüsselwörter, die nicht existieren",
+  "tasks-RegionDistributionTask-19c298e201890d5db-159": "gelöscht",
+  "tasks-RegionDistributionTask-19c298e201890d5db-160":
+    "Schlüsselwörter, die nicht existieren",
+  "tasks-RegionDistributionTask-19c298e201890d5db-161":
+    "Die Übermittlung der Aufgabe ist fehlgeschlagen:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-162":
+    "Das Senden der Aufgabe ist fehlgeschlagen. Bitte überprüfen Sie die Netzwerkverbindung",
+  "tasks-RegionDistributionTask-19c298e201890d5db-163":
+    "Fehler beim Senden der Aufgabe:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-1": "Suchindexsammlung",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-2":
+    "Erhalten Sie Trenddaten zum Baidu-Suchindex, die mehrere Schlüsselwörter, mehrere Städte und benutzerdefinierte Zeitbereiche unterstützen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-3": "Parameter einstellen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-4": "Schlüsselworteinstellungen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-5": "Schlüsselworteingabe",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-6":
+    "Geben Sie ein Schlüsselwort pro Zeile ein und fügen Sie es stapelweise hinzu",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-7":
+    "Fügen Sie Schlüsselwörter hinzu",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-8": "Ein Schlüsselwort pro Zeile",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-9": "Dateiimport",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-10": "Datei auswählen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-11":
+    "Unterstützt die Formate .xlsx, .csv und .txt",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-12":
+    "Erste Zeile überspringen (Titelzeile)",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-13": "Schlüsselwörter hinzugefügt",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-14":
+    "Dieses Schlüsselwort ist im Baidu-Index nicht vorhanden",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-15": "Klare Schlüsselwörter",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-16":
+    "Überprüfen Sie Schlüsselwörter",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-17":
+    "Löschen Sie nicht vorhandene Schlüsselwörter",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-18": "insgesamt",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-19": "Schlüsselwörter",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-20": "Stadtkulisse",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-21": "Stadt auswählen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-22": "Stadtimport",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-23": "Datei auswählen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-24":
+    "Unterstützt die Formate .xlsx, .csv, .txt, einen Stadtcode pro Zeile",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-25":
+    "Erste Zeile überspringen (Titelzeile)",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-26": "Zeiteinstellung",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-27": "Datenquelle",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-28": "PC+Mobil",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-29": "bewegen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-30": "Zeittyp",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-31": "Alle Daten",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-32": "Benutzerdefiniertes Datum",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-33": "Standardanzahl an Tagen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-34": "Jahresdaten",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-35": "Datumsbereich",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-36": "zu",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-37": "Startdatum",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-38": "Enddatum",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-39": "Standardanzahl an Tagen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-40":
+    "Bitte wählen Sie die Anzahl der Tage aus",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-41": "Letzte 7 Tage",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-42": "Letzte 30 Tage",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-43": "Letzte 90 Tage",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-44": "Letzte 180 Tage",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-45": "Jahresbereich",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-46": "Startjahr",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-47": "zu",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-48": "Ende des Jahres",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-49": "Datenbeschreibung",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-50": "wird erhalten von",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-51":
+    "Alle bisherigen historischen Daten",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-52": "1. Juni 2006",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-53": "1. Januar 2011",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-54": "Aufgabeneinstellungen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-55": "Wiederherstellungsaufgabe",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-56": "Ja",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-57": "Nein",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-58": "Aufgaben-ID",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-59":
+    "Bitte geben Sie die wiederherzustellende Aufgaben-ID ein",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-60": "Priorität",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-61": "Aufgabe abschicken",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-62": "zurückgesetzt",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-63":
+    "Aufgabe erfolgreich übermittelt",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-64":
+    "Aufgabe erfolgreich übermittelt",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-65": "Aufgaben-ID:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-66": "Aufgabenliste anzeigen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-67": "Weiter einreichen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-68":
+    "Ergebnisse der Keyword-Prüfung",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-69": "Schlüsselwörter existieren",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-70":
+    "Schlüsselwörter existieren nicht",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-71":
+    "Schlüsselwörter, die nicht existieren:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-72": "Schließen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-73":
+    "Löschen Sie nicht vorhandene Schlüsselwörter",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-74": "Erfolgreich importiert",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-75":
+    "Ergebnisse des Keyword-Imports",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-76": "Schlüsselwörter",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-77": "Städte",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-78":
+    "Ungültig oder doppelt vorhanden",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-79":
+    "Ergebnisse des Keyword-Imports",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-80": "Schlüsselwörter",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-81": "Städte",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-82":
+    "Ungültig oder doppelt vorhanden",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-83":
+    "Ergebnisse des Keyword-Imports",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-84": "Schlüsselwörter",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-85": "Stadt",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-86": "...usw.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-87": "a",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-88": "Schließen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-89": "Missionsübersicht",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-90":
+    "Bestätigung der Aufgabenparameter",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-91": "Aufgabentyp",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-92": "Suchindexsammlung",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-93": "Schlüsselwörter",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-94": "insgesamt",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-95": "Schlüsselwörter",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-96": "...usw.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-97": "a",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-98": "Bereich",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-99": "insgesamt",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-100": "Regionen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-101": "Bundesweit",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-102": "...usw.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-103": "a",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-104": "Zeitbereich",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-105": "Alle historischen Daten (",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-106": "1. Juni 2006",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-107": "1. Januar 2011",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-108": "(bis heute)",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-109": "Kürzlich",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-110": "Tag",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-111": "zu",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-112": "Jahr bis",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-113": "Jahr",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-114": "Andere Optionen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-115": "Datenquelle:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-116": "PC+Mobil",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-117": "bewegen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-118": "Priorität:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-119":
+    "ID der Wiederherstellungsaufgabe:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-120": "Abbrechen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-121":
+    "Bestätigen Sie die Übermittlung",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-122": "niedrig",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-123": "in",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-124": "hoch",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-125":
+    "Stadtplan konnte nicht abgerufen werden:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-126":
+    "Bitte fügen Sie zuerst Schlüsselwörter hinzu",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-127": "Prüfung fehlgeschlagen:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-128": "Auf Keyword-Fehler prüfen:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-129":
+    "Die Überprüfung der Schlüsselwörter ist fehlgeschlagen. Bitte überprüfen Sie die Netzwerkverbindung",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-130": "erfolgreich hinzugefügt",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-131": "Schlüsselwörter",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-132":
+    "Schlüsselwörter werden dupliziert und ignoriert",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-133":
+    "Sind Sie sicher, dass Sie alle Schlüsselwörter löschen möchten?",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-134": "Tipps",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-135": "Okay",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-136": "Abbrechen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-137":
+    "Sind Sie sicher, dass Sie alle nicht vorhandenen Schlüsselwörter löschen möchten?",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-138": "Tipps",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-139": "Okay",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-140": "Abbrechen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-141": "gelöscht",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-142":
+    "Schlüsselwörter, die nicht existieren",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-143": "gelöscht",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-144":
+    "Schlüsselwörter, die nicht existieren",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-145":
+    "In der Datei wurden keine gültigen Schlüsselwörter gefunden",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-146":
+    "Ergebnisse des Keyword-Imports",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-147": "Fehler beim Lesen der Datei:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-148":
+    "Das Lesen der Datei ist fehlgeschlagen. Bitte überprüfen Sie das Dateiformat",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-149":
+    "In der Datei wurde kein gültiger Stadtcode gefunden",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-150": "Ergebnisse des Stadtimports",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-151": "Fehler beim Lesen der Datei:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-152":
+    "Das Lesen der Datei ist fehlgeschlagen. Bitte überprüfen Sie das Dateiformat",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-153":
+    "Das Lesen der Datei ist fehlgeschlagen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-154":
+    "Die Übermittlung der Aufgabe ist fehlgeschlagen:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-155":
+    "Das Senden der Aufgabe ist fehlgeschlagen. Bitte überprüfen Sie die Netzwerkverbindung",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-156":
+    "Fehler beim Senden der Aufgabe:",
+  "tasks-WordGraphTask-19c298e227e044aa6-1": "Anforderungskartensammlung",
+  "tasks-WordGraphTask-19c298e227e044aa6-2":
+    "Erhalten Sie Baidu-Nachfragekartendaten, die mehrere Schlüsselwörter und mehrere Datumsauswahlen unterstützen",
+  "tasks-WordGraphTask-19c298e227e044aa6-3": "Parameter einstellen",
+  "tasks-WordGraphTask-19c298e227e044aa6-4": "Schlüsselworteinstellungen",
+  "tasks-WordGraphTask-19c298e227e044aa6-5": "Schlüsselworteingabe",
+  "tasks-WordGraphTask-19c298e227e044aa6-6":
+    "Geben Sie ein Schlüsselwort pro Zeile ein und fügen Sie es stapelweise hinzu",
+  "tasks-WordGraphTask-19c298e227e044aa6-7": "Fügen Sie Schlüsselwörter hinzu",
+  "tasks-WordGraphTask-19c298e227e044aa6-8": "Ein Schlüsselwort pro Zeile",
+  "tasks-WordGraphTask-19c298e227e044aa6-9": "Dateiimport",
+  "tasks-WordGraphTask-19c298e227e044aa6-10": "Datei auswählen",
+  "tasks-WordGraphTask-19c298e227e044aa6-11":
+    "Unterstützt die Formate .xlsx, .csv und .txt",
+  "tasks-WordGraphTask-19c298e227e044aa6-12":
+    "Erste Zeile überspringen (Titelzeile)",
+  "tasks-WordGraphTask-19c298e227e044aa6-13": "Schlüsselwörter hinzugefügt",
+  "tasks-WordGraphTask-19c298e227e044aa6-14":
+    "Dieses Schlüsselwort ist im Baidu-Index nicht vorhanden",
+  "tasks-WordGraphTask-19c298e227e044aa6-15": "Klare Schlüsselwörter",
+  "tasks-WordGraphTask-19c298e227e044aa6-16": "Überprüfen Sie Schlüsselwörter",
+  "tasks-WordGraphTask-19c298e227e044aa6-17":
+    "Löschen Sie nicht vorhandene Schlüsselwörter",
+  "tasks-WordGraphTask-19c298e227e044aa6-18": "insgesamt",
+  "tasks-WordGraphTask-19c298e227e044aa6-19": "Schlüsselwörter",
+  "tasks-WordGraphTask-19c298e227e044aa6-20": "Datumseinstellung",
+  "tasks-WordGraphTask-19c298e227e044aa6-21": "Datenquelle",
+  "tasks-WordGraphTask-19c298e227e044aa6-22": "PC+Mobil",
+  "tasks-WordGraphTask-19c298e227e044aa6-23": "bewegen",
+  "tasks-WordGraphTask-19c298e227e044aa6-24": "Datumsbereich",
+  "tasks-WordGraphTask-19c298e227e044aa6-25": "zu",
+  "tasks-WordGraphTask-19c298e227e044aa6-26": "Startdatum",
+  "tasks-WordGraphTask-19c298e227e044aa6-27": "Enddatum",
+  "tasks-WordGraphTask-19c298e227e044aa6-28":
+    "Hinweis: Nur das aktuellste Jahr der Daten (von",
+  "tasks-WordGraphTask-19c298e227e044aa6-29": "Ankommen",
+  "tasks-WordGraphTask-19c298e227e044aa6-30": "Ausgabeeinstellungen",
+  "tasks-WordGraphTask-19c298e227e044aa6-31": "Ausgabeformat",
+  "tasks-WordGraphTask-19c298e227e044aa6-32": "CSV-Format",
+  "tasks-WordGraphTask-19c298e227e044aa6-33": "Excel-Format",
+  "tasks-WordGraphTask-19c298e227e044aa6-34": "Aufgabeneinstellungen",
+  "tasks-WordGraphTask-19c298e227e044aa6-35": "Wiederherstellungsaufgabe",
+  "tasks-WordGraphTask-19c298e227e044aa6-36": "Ja",
+  "tasks-WordGraphTask-19c298e227e044aa6-37": "Nein",
+  "tasks-WordGraphTask-19c298e227e044aa6-38": "Aufgaben-ID",
+  "tasks-WordGraphTask-19c298e227e044aa6-39":
+    "Bitte geben Sie die wiederherzustellende Aufgaben-ID ein",
+  "tasks-WordGraphTask-19c298e227e044aa6-40": "Priorität",
+  "tasks-WordGraphTask-19c298e227e044aa6-41": "Aufgabe abschicken",
+  "tasks-WordGraphTask-19c298e227e044aa6-42": "zurückgesetzt",
+  "tasks-WordGraphTask-19c298e227e044aa6-43": "Aufgabe erfolgreich übermittelt",
+  "tasks-WordGraphTask-19c298e227e044aa6-44": "Aufgabe erfolgreich übermittelt",
+  "tasks-WordGraphTask-19c298e227e044aa6-45": "Aufgaben-ID:",
+  "tasks-WordGraphTask-19c298e227e044aa6-46": "Aufgabenliste anzeigen",
+  "tasks-WordGraphTask-19c298e227e044aa6-47": "Weiter einreichen",
+  "tasks-WordGraphTask-19c298e227e044aa6-48": "Ergebnisse der Keyword-Prüfung",
+  "tasks-WordGraphTask-19c298e227e044aa6-49": "Schlüsselwörter existieren",
+  "tasks-WordGraphTask-19c298e227e044aa6-50":
+    "Schlüsselwörter existieren nicht",
+  "tasks-WordGraphTask-19c298e227e044aa6-51":
+    "Schlüsselwörter, die nicht existieren:",
+  "tasks-WordGraphTask-19c298e227e044aa6-52": "Schließen",
+  "tasks-WordGraphTask-19c298e227e044aa6-53":
+    "Löschen Sie nicht vorhandene Schlüsselwörter",
+  "tasks-WordGraphTask-19c298e227e044aa6-54": "Ergebnisse des Keyword-Imports",
+  "tasks-WordGraphTask-19c298e227e044aa6-55": "Erfolgreich importiert",
+  "tasks-WordGraphTask-19c298e227e044aa6-56": "Schlüsselwörter",
+  "tasks-WordGraphTask-19c298e227e044aa6-57":
+    "Schlüsselwörter sind ungültig oder doppelt vorhanden",
+  "tasks-WordGraphTask-19c298e227e044aa6-58":
+    "Ungültige oder doppelte Schlüsselwörter:",
+  "tasks-WordGraphTask-19c298e227e044aa6-59": "...usw.",
+  "tasks-WordGraphTask-19c298e227e044aa6-60": "a",
+  "tasks-WordGraphTask-19c298e227e044aa6-61": "Schließen",
+  "tasks-WordGraphTask-19c298e227e044aa6-62": "Missionsübersicht",
+  "tasks-WordGraphTask-19c298e227e044aa6-63":
+    "Bestätigung der Aufgabenparameter",
+  "tasks-WordGraphTask-19c298e227e044aa6-64": "Aufgabentyp",
+  "tasks-WordGraphTask-19c298e227e044aa6-65": "Anforderungskartensammlung",
+  "tasks-WordGraphTask-19c298e227e044aa6-66": "Schlüsselwörter",
+  "tasks-WordGraphTask-19c298e227e044aa6-67": "insgesamt",
+  "tasks-WordGraphTask-19c298e227e044aa6-68": "Schlüsselwörter",
+  "tasks-WordGraphTask-19c298e227e044aa6-69": "...usw.",
+  "tasks-WordGraphTask-19c298e227e044aa6-70": "a",
+  "tasks-WordGraphTask-19c298e227e044aa6-71": "Datumsbereich",
+  "tasks-WordGraphTask-19c298e227e044aa6-72": "zu",
+  "tasks-WordGraphTask-19c298e227e044aa6-73": "Nicht ausgewählt",
+  "tasks-WordGraphTask-19c298e227e044aa6-74": "Ausgabeformat",
+  "tasks-WordGraphTask-19c298e227e044aa6-75": "CSV-Format",
+  "tasks-WordGraphTask-19c298e227e044aa6-76": "Excel-Format",
+  "tasks-WordGraphTask-19c298e227e044aa6-77": "Andere Optionen",
+  "tasks-WordGraphTask-19c298e227e044aa6-78": "Datenquelle:",
+  "tasks-WordGraphTask-19c298e227e044aa6-79": "PC+Mobil",
+  "tasks-WordGraphTask-19c298e227e044aa6-80": "bewegen",
+  "tasks-WordGraphTask-19c298e227e044aa6-81": "Priorität:",
+  "tasks-WordGraphTask-19c298e227e044aa6-82":
+    "ID der Wiederherstellungsaufgabe:",
+  "tasks-WordGraphTask-19c298e227e044aa6-83": "Abbrechen",
+  "tasks-WordGraphTask-19c298e227e044aa6-84": "Bestätigen Sie die Übermittlung",
+  "tasks-WordGraphTask-19c298e227e044aa6-85": "niedrig",
+  "tasks-WordGraphTask-19c298e227e044aa6-86": "in",
+  "tasks-WordGraphTask-19c298e227e044aa6-87": "hoch",
+  "tasks-WordGraphTask-19c298e227e044aa6-88":
+    "Bitte fügen Sie zuerst Schlüsselwörter hinzu",
+  "tasks-WordGraphTask-19c298e227e044aa6-89": "Prüfung fehlgeschlagen:",
+  "tasks-WordGraphTask-19c298e227e044aa6-90": "Auf Keyword-Fehler prüfen:",
+  "tasks-WordGraphTask-19c298e227e044aa6-91":
+    "Die Überprüfung der Schlüsselwörter ist fehlgeschlagen. Bitte überprüfen Sie die Netzwerkverbindung",
+  "tasks-WordGraphTask-19c298e227e044aa6-92": "erfolgreich hinzugefügt",
+  "tasks-WordGraphTask-19c298e227e044aa6-93": "Schlüsselwörter",
+  "tasks-WordGraphTask-19c298e227e044aa6-94":
+    "Schlüsselwörter werden dupliziert und ignoriert",
+  "tasks-WordGraphTask-19c298e227e044aa6-95":
+    "Sind Sie sicher, dass Sie alle Schlüsselwörter löschen möchten?",
+  "tasks-WordGraphTask-19c298e227e044aa6-96": "Tipps",
+  "tasks-WordGraphTask-19c298e227e044aa6-97": "Okay",
+  "tasks-WordGraphTask-19c298e227e044aa6-98": "Abbrechen",
+  "tasks-WordGraphTask-19c298e227e044aa6-99":
+    "In der Datei wurden keine gültigen Schlüsselwörter gefunden",
+  "tasks-WordGraphTask-19c298e227e044aa6-100": "Fehler beim Lesen der Datei:",
+  "tasks-WordGraphTask-19c298e227e044aa6-101":
+    "Das Lesen der Datei ist fehlgeschlagen. Bitte überprüfen Sie das Dateiformat",
+  "tasks-WordGraphTask-19c298e227e044aa6-102":
+    "Das Lesen der Datei ist fehlgeschlagen",
+  "tasks-WordGraphTask-19c298e227e044aa6-103":
+    "Die Übermittlung der Aufgabe ist fehlgeschlagen:",
+  "tasks-WordGraphTask-19c298e227e044aa6-104":
+    "Das Senden der Aufgabe ist fehlgeschlagen. Bitte überprüfen Sie die Netzwerkverbindung",
+  "tasks-WordGraphTask-19c298e227e044aa6-105":
+    "Fehler beim Senden der Aufgabe:",
+  "tasks-WordGraphTask-19c298e227e044aa6-106": "gelöscht",
+  "tasks-WordGraphTask-19c298e227e044aa6-107":
+    "Schlüsselwörter, die nicht existieren",
+  "tasks-WordGraphTask-19c298e227e044aa6-108":
+    "Sind Sie sicher, dass Sie alle nicht vorhandenen Schlüsselwörter löschen möchten?",
+  "tasks-WordGraphTask-19c298e227e044aa6-109": "Tipps",
+  "tasks-WordGraphTask-19c298e227e044aa6-110": "Okay",
+  "tasks-WordGraphTask-19c298e227e044aa6-111": "Abbrechen",
+  "tasks-WordGraphTask-19c298e227e044aa6-112": "gelöscht",
+  "tasks-WordGraphTask-19c298e227e044aa6-113":
+    "Schlüsselwörter, die nicht existieren",
+  "src-App-19c2993710803cda7-1": "Startseite",
+  "src-App-19c2993710803cda7-2": "Datenerfassung",
+  "src-App-19c2993710803cda7-3": "Cookie-Verwaltung",
+  "src-App-19c2993710803cda7-4": "Big-Data-Bildschirm",
+  "src-App-19c2993710803cda7-5": "Konfiguration",
+  "src-App-19c2993710803cda7-6": "Über",
+  "src-App-19c2993710803cda7-7": "Nutzungsbedingungen",
+  "src-App-19c2993710803cda7-8": "Wechseln Sie in den Lichtmodus",
+  "src-App-19c2993710803cda7-9": "Wechseln Sie in den Dunkelmodus",
+  "src-App-19c2993710803cda7-10":
+    "Nichtkommerzielles Projekt nur für persönliche Studien- und Forschungszwecke",
+  "src-App-19c2993710803cda7-11": "Über das Projekt",
+  "src-App-19c2993710803cda7-12": "Nutzungsbedingungen",
+  "src-App-19c2993710803cda7-13": "Beginnen Sie mit dem Sammeln",
 };

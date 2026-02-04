@@ -1,87 +1,90 @@
 <script setup>
-import { ref, watch, onMounted, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useAppStore, SUPPORTED_LANGUAGES } from './store/app'
-import { Sunny, Moon } from '@element-plus/icons-vue'
-import { useI18n } from 'vue-i18n'
+import { ref, watch, onMounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { useAppStore, SUPPORTED_LANGUAGES } from "./store/app";
+import { Sunny, Moon } from "@element-plus/icons-vue";
+import { useI18n } from "vue-i18n";
 
-const { t: $t, locale } = useI18n()
-const router = useRouter()
-const route = useRoute()
-const appStore = useAppStore()
-const activeIndex = ref('1')
+const { t: $t, locale } = useI18n();
+const router = useRouter();
+const route = useRoute();
+const appStore = useAppStore();
+const activeIndex = ref("1");
 
 // 监听当前路由以更新菜单高亮项
 const routeMap = {
-  '/': '1',
-  '/data-collection': '2',
-  '/cookie-manager': '3',
-  '/dashboard': '4',
-  '/settings': '5',
-  '/about': '6',
-  '/privacy': '7',
-}
+  "/": "1",
+  "/data-collection": "2",
+  "/cookie-manager": "3",
+  "/dashboard": "4",
+  "/settings": "5",
+  "/about": "6",
+  "/privacy": "7",
+};
 
 // 根据当前路径更新激活的菜单项
 const updateActiveMenu = () => {
-  const path = route.path
-  activeIndex.value = routeMap[path] || '1'
-}
+  const path = route.path;
+  activeIndex.value = routeMap[path] || "1";
+};
 
 // 监听路由变化
-watch(() => route.path, () => {
-  updateActiveMenu()
-})
+watch(
+  () => route.path,
+  () => {
+    updateActiveMenu();
+  },
+);
 
 // 初始更新菜单项
-updateActiveMenu()
+updateActiveMenu();
 
 const handleSelect = (key) => {
-  switch(key) {
-    case '1':
-      router.push('/')
-      break
-    case '2':
-      router.push('/data-collection')
-      break
-    case '3':
-      router.push('/cookie-manager')
-      break
-    case '4':
-      router.push('/dashboard')
-      break
-    case '5':
-      router.push('/settings')
-      break
-    case '6':
-      router.push('/about')
-      break
-    case '7':
-      router.push('/privacy')
-      break
+  switch (key) {
+    case "1":
+      router.push("/");
+      break;
+    case "2":
+      router.push("/data-collection");
+      break;
+    case "3":
+      router.push("/cookie-manager");
+      break;
+    case "4":
+      router.push("/dashboard");
+      break;
+    case "5":
+      router.push("/settings");
+      break;
+    case "6":
+      router.push("/about");
+      break;
+    case "7":
+      router.push("/privacy");
+      break;
   }
-}
+};
 
 // 主题切换
-const isDark = computed(() => appStore.theme === 'dark')
+const isDark = computed(() => appStore.theme === "dark");
 const toggleTheme = () => {
-  appStore.setTheme(isDark.value ? 'light' : 'dark')
-}
+  appStore.setTheme(isDark.value ? "light" : "dark");
+};
 
 // 语言切换
-const currentLanguage = computed(() => appStore.getCurrentLanguage())
+const currentLanguage = computed(() => appStore.getCurrentLanguage());
 const handleLanguageChange = (langCode) => {
-  appStore.setLanguage(langCode)
-  locale.value = langCode // 实际更新 vue-i18n 的 locale
-}
+  appStore.setLanguage(langCode);
+  locale.value = langCode; // 实际更新 vue-i18n 的 locale
+};
 
 // 初始化主题和语言
 onMounted(() => {
-  appStore.initTheme()
+  appStore.initTheme();
   // 从 localStorage 恢复语言设置
-  const savedLanguage = localStorage.getItem('language') || 'zh-CN'
-  locale.value = savedLanguage
-})
+  const savedLanguage = localStorage.getItem("language") || "zh-CN";
+  locale.value = savedLanguage;
+});
 </script>
 
 <template>
@@ -91,84 +94,116 @@ onMounted(() => {
         <div class="logo-area" @click="router.push('/')">
           <!-- 纯 CSS 高级 Logo -->
           <div class="logo-icon">
-            <span class="logo-char">B</span>
-            <span class="logo-char-i">I</span>
+            <span class="logo-char">B</span> <span class="logo-char-i">I</span>
           </div>
           <div class="logo-text">
-            <span>BaiduIndex</span>
-            <span class="logo-suffix">Hunter</span>
+            <span>BaiduIndex</span> <span class="logo-suffix">Hunter</span>
           </div>
-          <el-tag size="small" type="primary" effect="light" class="version-tag">v{{ appStore.version }}</el-tag>
+          <el-tag size="small" type="primary" effect="light" class="version-tag"
+            >v {{ appStore.version }}</el-tag
+          >
         </div>
-        
         <nav class="app-nav">
           <el-menu
             :default-active="activeIndex"
             mode="horizontal"
             @select="handleSelect"
             class="nav-menu"
-            :ellipsis="false">
-            <el-menu-item index="1" class="nav-item">首页</el-menu-item>
-            <el-menu-item index="2" class="nav-item">数据采集</el-menu-item>
-            <el-menu-item index="3" class="nav-item">Cookie管理</el-menu-item>
-            <el-menu-item index="4" class="nav-item">数据大屏</el-menu-item>
-            <el-menu-item index="5" class="nav-item">配置</el-menu-item>
-            <el-menu-item index="6" class="nav-item">关于</el-menu-item>
-            <el-menu-item index="7" class="nav-item">使用条款</el-menu-item>
-          </el-menu>
+            :ellipsis="false"
+            ><el-menu-item index="1" class="nav-item">{{
+              $t("src-App-19c2993710803cda7-1")
+            }}</el-menu-item>
+            <el-menu-item index="2" class="nav-item">{{
+              $t("src-App-19c2993710803cda7-2")
+            }}</el-menu-item>
+            <el-menu-item index="3" class="nav-item">{{
+              $t("src-App-19c2993710803cda7-3")
+            }}</el-menu-item>
+            <el-menu-item index="4" class="nav-item">{{
+              $t("src-App-19c2993710803cda7-4")
+            }}</el-menu-item>
+            <el-menu-item index="5" class="nav-item">{{
+              $t("src-App-19c2993710803cda7-5")
+            }}</el-menu-item>
+            <el-menu-item index="6" class="nav-item">{{
+              $t("src-App-19c2993710803cda7-6")
+            }}</el-menu-item>
+            <el-menu-item index="7" class="nav-item">{{
+              $t("src-App-19c2993710803cda7-7")
+            }}</el-menu-item></el-menu
+          >
         </nav>
-
         <!-- 右侧工具栏 -->
         <div class="header-tools">
           <!-- 主题切换按钮 -->
-          <button class="theme-toggle-btn" @click="toggleTheme" :title="isDark ? '切换到浅色模式' : '切换到深色模式'">
+          <button
+            class="theme-toggle-btn"
+            @click="toggleTheme"
+            :title="
+              isDark
+                ? $t('src-App-19c2993710803cda7-8')
+                : $t('src-App-19c2993710803cda7-9')
+            "
+          >
             <el-icon v-if="isDark" class="theme-icon"><Moon /></el-icon>
             <el-icon v-else class="theme-icon"><Sunny /></el-icon>
           </button>
-
           <!-- 语言切换 -->
-          <el-dropdown trigger="click" @command="handleLanguageChange" popper-class="language-popper">
-            <button class="language-btn">
+          <el-dropdown
+            trigger="click"
+            @command="handleLanguageChange"
+            popper-class="language-popper"
+            ><button class="language-btn">
               <span class="language-flag">{{ currentLanguage.flag }}</span>
-              <span class="language-code">{{ currentLanguage.code.split('-')[0].toUpperCase() }}</span>
+              <span class="language-code">{{
+                currentLanguage.code.split("-")[0].toUpperCase()
+              }}</span>
             </button>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item 
-                  v-for="lang in SUPPORTED_LANGUAGES" 
-                  :key="lang.code" 
+            <template #dropdown
+              ><el-dropdown-menu
+                ><el-dropdown-item
+                  v-for="lang in SUPPORTED_LANGUAGES"
+                  :key="lang.code"
                   :command="lang.code"
                   :class="{ 'is-active': appStore.language === lang.code }"
-                >
-                  <span class="dropdown-flag">{{ lang.flag }}</span>
-                  <span class="dropdown-name">{{ lang.name }}</span>
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
+                  ><span class="dropdown-flag">{{ lang.flag }}</span>
+                  <span class="dropdown-name">{{
+                    lang.name
+                  }}</span></el-dropdown-item
+                ></el-dropdown-menu
+              ></template
+            ></el-dropdown
+          >
         </div>
       </div>
     </header>
-    
     <main class="app-main">
-      <router-view v-slot="{ Component }">
-        <transition name="fade-slide" mode="out-in">
-          <component :is="Component" />
-        </transition>
-      </router-view>
+      <router-view v-slot="{ Component }"
+        ><transition name="fade-slide" mode="out-in"
+          ><component :is="Component" /></transition
+      ></router-view>
     </main>
-    
     <footer class="app-footer">
       <div class="footer-container">
         <div class="footer-left">
           <div class="footer-logo">BaiduIndexHunter</div>
-          <div class="footer-desc">仅供个人学习研究使用的非商业项目</div>
-          <div class="copyright">© {{ new Date().getFullYear() }} v{{ appStore.version }}</div>
+          <div class="footer-desc">
+            {{ $t("src-App-19c2993710803cda7-10") }}
+          </div>
+          <div class="copyright">
+            © {{ new Date().getFullYear() }} v {{ appStore.version }}
+          </div>
         </div>
         <div class="footer-right">
-          <a href="#" @click.prevent="router.push('/about')">关于项目</a>
-          <a href="#" @click.prevent="router.push('/privacy')">使用条款</a>
-          <a href="#" @click.prevent="router.push('/data-collection')">开始采集</a>
+          <a href="#" @click.prevent="router.push('/about')">{{
+            $t("src-App-19c2993710803cda7-11")
+          }}</a>
+          <a href="#" @click.prevent="router.push('/privacy')">{{
+            $t("src-App-19c2993710803cda7-12")
+          }}</a>
+          <a href="#" @click.prevent="router.push('/data-collection')">{{
+            $t("src-App-19c2993710803cda7-13")
+          }}</a>
         </div>
       </div>
     </footer>
@@ -176,15 +211,15 @@ onMounted(() => {
 </template>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
 
 :root {
   /* 现代 SaaS 色彩体系 (Light Mode) */
-  --color-primary: #4f46e5; 
+  --color-primary: #4f46e5;
   --color-primary-hover: #4338ca;
   --color-primary-light: rgba(79, 70, 229, 0.1);
   --color-primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  
+
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
@@ -193,25 +228,29 @@ onMounted(() => {
   --color-bg-body: #f8fafc;
   --color-bg-surface: #ffffff;
   --color-bg-subtle: #f1f5f9;
-  
+
   --color-text-main: #0f172a;
   --color-text-secondary: #475569;
   --color-text-tertiary: #94a3b8;
-  
+
   --color-border: #e2e8f0;
   --color-border-hover: #cbd5e1;
-  
+
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-md:
+    0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg:
+    0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+  --shadow-xl:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   --shadow-primary: 0 4px 14px 0 rgba(79, 70, 229, 0.25);
-  
+
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.4);
   --glass-blur: blur(12px);
 
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --header-height: 72px;
   --max-width: 1400px;
   --radius-base: 10px;
@@ -225,18 +264,18 @@ onMounted(() => {
   --color-primary-hover: #818cf8;
   --color-primary-light: rgba(99, 102, 241, 0.15);
   --color-primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-  
+
   --color-bg-body: #020617;
   --color-bg-surface: #0f172a;
   --color-bg-subtle: #1e293b;
-  
+
   --color-text-main: #f8fafc;
   --color-text-secondary: #cbd5e1;
   --color-text-tertiary: #64748b;
-  
+
   --color-border: #1e293b;
   --color-border-hover: #334155;
-  
+
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
@@ -257,7 +296,9 @@ body {
   font-family: var(--font-family);
   background-color: var(--color-bg-body);
   color: var(--color-text-main);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -344,7 +385,7 @@ body {
 }
 
 .logo-icon::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 1px;
   left: 1px;
@@ -358,13 +399,17 @@ body {
 
 /* 微光边框效果 */
 .logo-icon::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -2px;
   left: -2px;
   right: -2px;
   bottom: -2px;
-  background: linear-gradient(135deg, rgba(79, 70, 229, 0.5), rgba(168, 85, 247, 0.5));
+  background: linear-gradient(
+    135deg,
+    rgba(79, 70, 229, 0.5),
+    rgba(168, 85, 247, 0.5)
+  );
   border-radius: 12px;
   z-index: -1;
   opacity: 0.5;
@@ -543,7 +588,9 @@ body {
 /* 页面过渡动画 */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 
 .fade-slide-enter-from {
@@ -617,11 +664,11 @@ body {
   .app-nav {
     display: none; /* 移动端暂时隐藏菜单，后续可加汉堡菜单 */
   }
-  
+
   .header-container {
     justify-content: space-between;
   }
-  
+
   .footer-container {
     flex-direction: column;
     gap: 32px;

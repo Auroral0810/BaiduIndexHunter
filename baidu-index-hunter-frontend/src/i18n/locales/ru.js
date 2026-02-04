@@ -609,4 +609,1310 @@ export default {
   "dashboard.dashboard.1co67w": "Не удалось загрузить данные большого экрана.",
   "dashboard.dashboard.48i4x2": "{b}: {c} секунд",
   "dashboard.dashboard.y69h15": "{value} секунд",
+  "tasks-TaskList-19c298d949224c78d-1": "список задач",
+  "tasks-TaskList-19c298d949224c78d-2": "Ключевые слова для поиска",
+  "tasks-TaskList-19c298d949224c78d-3": "Тип задачи",
+  "tasks-TaskList-19c298d949224c78d-4": "индекс поиска",
+  "tasks-TaskList-19c298d949224c78d-5": "информационный указатель",
+  "tasks-TaskList-19c298d949224c78d-6": "Карта требований",
+  "tasks-TaskList-19c298d949224c78d-7": "Атрибуты толпы",
+  "tasks-TaskList-19c298d949224c78d-8": "Анализ интересов",
+  "tasks-TaskList-19c298d949224c78d-9": "Географическое распространение",
+  "tasks-TaskList-19c298d949224c78d-10": "Статус задачи",
+  "tasks-TaskList-19c298d949224c78d-11": "Ожидание",
+  "tasks-TaskList-19c298d949224c78d-12": "Выполнение",
+  "tasks-TaskList-19c298d949224c78d-13": "Завершено",
+  "tasks-TaskList-19c298d949224c78d-14": "не удалось",
+  "tasks-TaskList-19c298d949224c78d-15": "Отменено",
+  "tasks-TaskList-19c298d949224c78d-16": "Поиск",
+  "tasks-TaskList-19c298d949224c78d-17": "сброс",
+  "tasks-TaskList-19c298d949224c78d-18": "Загрузка данных...",
+  "tasks-TaskList-19c298d949224c78d-19": "Идентификатор задачи",
+  "tasks-TaskList-19c298d949224c78d-20": "Тип задачи",
+  "tasks-TaskList-19c298d949224c78d-21": "Статус",
+  "tasks-TaskList-19c298d949224c78d-22": "параметры",
+  "tasks-TaskList-19c298d949224c78d-23": "Ключевые слова:",
+  "tasks-TaskList-19c298d949224c78d-24": "Регион:",
+  "tasks-TaskList-19c298d949224c78d-25": "Регион:",
+  "tasks-TaskList-19c298d949224c78d-26": "Временной диапазон:",
+  "tasks-TaskList-19c298d949224c78d-27": "Временной диапазон:",
+  "tasks-TaskList-19c298d949224c78d-28": "Недавно",
+  "tasks-TaskList-19c298d949224c78d-29": "день",
+  "tasks-TaskList-19c298d949224c78d-30": "Годовой диапазон:",
+  "tasks-TaskList-19c298d949224c78d-31": "чтобы",
+  "tasks-TaskList-19c298d949224c78d-32": "Временной диапазон:",
+  "tasks-TaskList-19c298d949224c78d-33": "чтобы",
+  "tasks-TaskList-19c298d949224c78d-34": "Список дат:",
+  "tasks-TaskList-19c298d949224c78d-35": "Размер партии:",
+  "tasks-TaskList-19c298d949224c78d-36": "Источник данных:",
+  "tasks-TaskList-19c298d949224c78d-37": "ПК+мобильный",
+  "tasks-TaskList-19c298d949224c78d-38": "двигаться",
+  "tasks-TaskList-19c298d949224c78d-39": "Выходной формат:",
+  "tasks-TaskList-19c298d949224c78d-40": "время создания",
+  "tasks-TaskList-19c298d949224c78d-41": "Прогресс",
+  "tasks-TaskList-19c298d949224c78d-42": "Операция",
+  "tasks-TaskList-19c298d949224c78d-43": "Операция",
+  "tasks-TaskList-19c298d949224c78d-44": "Подробности",
+  "tasks-TaskList-19c298d949224c78d-45": "Попробуйте еще раз",
+  "tasks-TaskList-19c298d949224c78d-46": "Отмена",
+  "tasks-TaskList-19c298d949224c78d-47": "Скачать",
+  "tasks-TaskList-19c298d949224c78d-48": "Детали миссии",
+  "tasks-TaskList-19c298d949224c78d-49": "Идентификатор задачи:",
+  "tasks-TaskList-19c298d949224c78d-50": "Тип задачи",
+  "tasks-TaskList-19c298d949224c78d-51": "время создания",
+  "tasks-TaskList-19c298d949224c78d-52": "Время обновления",
+  "tasks-TaskList-19c298d949224c78d-53": "Название задачи",
+  "tasks-TaskList-19c298d949224c78d-54": "приоритет",
+  "tasks-TaskList-19c298d949224c78d-55": "Номер задачи",
+  "tasks-TaskList-19c298d949224c78d-56": "время начала",
+  "tasks-TaskList-19c298d949224c78d-57": "время завершения",
+  "tasks-TaskList-19c298d949224c78d-58": "Создатель",
+  "tasks-TaskList-19c298d949224c78d-59": "Общее количество задач",
+  "tasks-TaskList-19c298d949224c78d-60": "Завершено",
+  "tasks-TaskList-19c298d949224c78d-61": "Количество отказов",
+  "tasks-TaskList-19c298d949224c78d-62": "сообщение об ошибке",
+  "tasks-TaskList-19c298d949224c78d-63": "Ход выполнения задачи",
+  "tasks-TaskList-19c298d949224c78d-64": "(не удалось:",
+  "tasks-TaskList-19c298d949224c78d-65": "Параметры задачи",
+  "tasks-TaskList-19c298d949224c78d-66": "ключевые слова",
+  "tasks-TaskList-19c298d949224c78d-67": "площадь",
+  "tasks-TaskList-19c298d949224c78d-68": "площадь",
+  "tasks-TaskList-19c298d949224c78d-69": "временной диапазон",
+  "tasks-TaskList-19c298d949224c78d-70": "временной диапазон",
+  "tasks-TaskList-19c298d949224c78d-71": "Недавно",
+  "tasks-TaskList-19c298d949224c78d-72": "день",
+  "tasks-TaskList-19c298d949224c78d-73": "Годовой диапазон",
+  "tasks-TaskList-19c298d949224c78d-74": "чтобы",
+  "tasks-TaskList-19c298d949224c78d-75": "временной диапазон",
+  "tasks-TaskList-19c298d949224c78d-76": "чтобы",
+  "tasks-TaskList-19c298d949224c78d-77": "список дат",
+  "tasks-TaskList-19c298d949224c78d-78": "размер партии",
+  "tasks-TaskList-19c298d949224c78d-79": "Источник данных",
+  "tasks-TaskList-19c298d949224c78d-80": "ПК+мобильный",
+  "tasks-TaskList-19c298d949224c78d-81": "двигаться",
+  "tasks-TaskList-19c298d949224c78d-82": "Выходной формат",
+  "tasks-TaskList-19c298d949224c78d-83": "выходной файл",
+  "tasks-TaskList-19c298d949224c78d-84": "путь к файлу",
+  "tasks-TaskList-19c298d949224c78d-85": "Операция",
+  "tasks-TaskList-19c298d949224c78d-86": "Скачать",
+  "tasks-TaskList-19c298d949224c78d-87": "Скачать все",
+  "tasks-TaskList-19c298d949224c78d-88": "Выходного файла еще нет",
+  "tasks-TaskList-19c298d949224c78d-89": "контрольно-пропускной пункт",
+  "tasks-TaskList-19c298d949224c78d-90": "Путь к контрольной точке:",
+  "tasks-TaskList-19c298d949224c78d-91": "Данные контрольной точки загружены",
+  "tasks-TaskList-19c298d949224c78d-92": "Скачать КПП",
+  "tasks-TaskList-19c298d949224c78d-93": "Данные КПП:",
+  "tasks-TaskList-19c298d949224c78d-94": "Данных о КПП пока нет",
+  "tasks-TaskList-19c298d949224c78d-95": "Журнал миссии",
+  "tasks-TaskList-19c298d949224c78d-96": "время",
+  "tasks-TaskList-19c298d949224c78d-97": "Уровень",
+  "tasks-TaskList-19c298d949224c78d-98": "новости",
+  "tasks-TaskList-19c298d949224c78d-99": "Журнала задач пока нет",
+  "tasks-TaskList-19c298d949224c78d-100": "Закрыть",
+  "tasks-TaskList-19c298d949224c78d-101": "Повторить задачу",
+  "tasks-TaskList-19c298d949224c78d-102": "Отменить задачу",
+  "tasks-TaskList-19c298d949224c78d-103": "мобильный телефон Сяоми",
+  "tasks-TaskList-19c298d949224c78d-104": "мобильный телефон Хуавей",
+  "tasks-TaskList-19c298d949224c78d-105": "По всей стране",
+  "tasks-TaskList-19c298d949224c78d-106": "ноутбук",
+  "tasks-TaskList-19c298d949224c78d-107": "Таблетка",
+  "tasks-TaskList-19c298d949224c78d-108": "Пекин",
+  "tasks-TaskList-19c298d949224c78d-109": "Шанхай",
+  "tasks-TaskList-19c298d949224c78d-110": "Гуанчжоу",
+  "tasks-TaskList-19c298d949224c78d-111": "кроссовки",
+  "tasks-TaskList-19c298d949224c78d-112": "повседневная обувь",
+  "tasks-TaskList-19c298d949224c78d-113": "Задача",
+  "tasks-TaskList-19c298d949224c78d-114":
+    "Не удалось проанализировать параметры:",
+  "tasks-TaskList-19c298d949224c78d-115": "Не удалось получить список задач:",
+  "tasks-TaskList-19c298d949224c78d-116":
+    "Не удалось получить список задач. Проверьте сетевое соединение.",
+  "tasks-TaskList-19c298d949224c78d-117":
+    "Не удалось получить сведения о задаче:",
+  "tasks-TaskList-19c298d949224c78d-118":
+    "Ошибка при загрузке сведений о задаче:",
+  "tasks-TaskList-19c298d949224c78d-119": "Задача отправлена повторно",
+  "tasks-TaskList-19c298d949224c78d-120": "Задача отправлена повторно",
+  "tasks-TaskList-19c298d949224c78d-121": "Повторить задачу не удалось:",
+  "tasks-TaskList-19c298d949224c78d-122":
+    "Повторить задачу не удалось. Проверьте сетевое соединение.",
+  "tasks-TaskList-19c298d949224c78d-123": "Ошибка повторной попытки:",
+  "tasks-TaskList-19c298d949224c78d-124": "Задача отменена",
+  "tasks-TaskList-19c298d949224c78d-125": "Задача отменена",
+  "tasks-TaskList-19c298d949224c78d-126": "Не удалось отменить задачу:",
+  "tasks-TaskList-19c298d949224c78d-127":
+    "Не удалось отменить задачу. Проверьте сетевое соединение.",
+  "tasks-TaskList-19c298d949224c78d-128": "Ошибка отмены задачи:",
+  "tasks-TaskList-19c298d949224c78d-129":
+    "Для этой задачи нет загружаемого файла результатов.",
+  "tasks-TaskList-19c298d949224c78d-130": "Загрузка прошла успешно",
+  "tasks-TaskList-19c298d949224c78d-131":
+    "Загрузка не удалась, проверьте сетевое соединение",
+  "tasks-TaskList-19c298d949224c78d-132": "Ошибка результата задачи загрузки:",
+  "tasks-TaskList-19c298d949224c78d-133":
+    "Загрузка не удалась, проверьте сетевое соединение",
+  "tasks-TaskList-19c298d949224c78d-134": "Ошибка загрузки файла:",
+  "tasks-TaskList-19c298d949224c78d-135":
+    "Не удалось загрузить файл контрольной точки.",
+  "tasks-TaskList-19c298d949224c78d-136":
+    "Ошибка загрузки файла контрольной точки:",
+  "tasks-TaskList-19c298d949224c78d-137": "индекс поиска",
+  "tasks-TaskList-19c298d949224c78d-138": "информационный указатель",
+  "tasks-TaskList-19c298d949224c78d-139": "Карта требований",
+  "tasks-TaskList-19c298d949224c78d-140": "Атрибуты толпы",
+  "tasks-TaskList-19c298d949224c78d-141": "Анализ интересов",
+  "tasks-TaskList-19c298d949224c78d-142": "Географическое распространение",
+  "tasks-TaskList-19c298d949224c78d-143": "Ожидание",
+  "tasks-TaskList-19c298d949224c78d-144": "Выполнение",
+  "tasks-TaskList-19c298d949224c78d-145": "Завершено",
+  "tasks-TaskList-19c298d949224c78d-146": "не удалось",
+  "tasks-TaskList-19c298d949224c78d-147": "Отменено",
+  "tasks-TaskList-19c298d949224c78d-148": "высокий",
+  "tasks-TaskList-19c298d949224c78d-149": "в",
+  "tasks-TaskList-19c298d949224c78d-150": "низкий",
+  "tasks-TaskList-19c298d949224c78d-151": "Ошибка формата города:",
+  "tasks-TaskList-19c298d949224c78d-152": "чтобы",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-1": "ежедневная статистика",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-2": "Рейтинг аккаунта",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-3": "График трендов",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-4": "Карта распространения",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-5": "тепловая карта",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-6": "гистограмма",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-7": "Линейный график",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-8": "Покажи первую N",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-9": "чтобы",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-10": "дата начала",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-11": "дата окончания",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-12":
+    "Синхронизировать данные об использовании",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-13": "Скрыть таблицу данных",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-14":
+    "Посмотреть техническое описание",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-15": "Экспортировать данные",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-16":
+    "Таблица данных об использовании файлов cookie",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-17": "Идентификатор аккаунта",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-18": "Дата использования",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-19":
+    "Количество использований",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-20":
+    "Подробности использования файлов cookie",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-21": "Идентификатор аккаунта",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-22":
+    "Количество использований",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-23":
+    "Коэффициент использования",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-24": "Закрыть",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-25": "Экспортировать данные",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-26":
+    "Ежедневная статистика использования файлов cookie",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-27":
+    "Количество использований",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-28": "Использование",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-29":
+    "Рейтинг использования учетной записи cookie",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-30":
+    "Количество использований",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-31": "Использование",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-32":
+    "Тенденции использования файлов cookie",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-33":
+    "Количество использований",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-34":
+    "Распределение использования файлов cookie",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-35": "Использование",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-36":
+    "Тепловая карта использования файлов cookie",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-37": "раз",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-38":
+    "Использование файлов cookie",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-39":
+    "Не удалось получить данные об использовании файлов cookie:",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-40":
+    "Не удалось получить данные об использовании файлов cookie:",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-41":
+    "Не удалось получить данные об использовании файлов cookie. Проверьте сетевое соединение.",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-42": "Другие",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-43":
+    "Синхронизация данных об использовании файлов cookie прошла успешно",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-44":
+    "Не удалось синхронизировать данные об использовании файлов cookie:",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-45":
+    "Не удалось синхронизировать данные об использовании файлов cookie:",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-46":
+    "Не удалось синхронизировать данные об использовании файлов cookie. Проверьте сетевое соединение.",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-47":
+    "data:text/csv;charset=utf-8, идентификатор учетной записи, дата использования, количество использований",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-48": "Экспорт данных успешен",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-49":
+    "Не удалось экспортировать данные:",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-50":
+    "Не удалось экспортировать данные",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-1": "По всей стране",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-2": "Выбрать все провинции",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-3": "Отменить выбор всех",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-4":
+    "Выбрать все города уровня префектуры",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-5": "Отменить выбор всех",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-6": "Выбрать все",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-7": "Отменить выбор всех",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-8":
+    "Пожалуйста, выберите провинцию слева",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-9": "Выбранная территория:",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-10": "Очистить выбор",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-11": "По всей стране",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-12": "Подробнее...",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-13": "закрыть",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-14":
+    "Ошибка получения данных:",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-15":
+    "Ошибка сети. Повторите попытку позже.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-1":
+    "Коллекция атрибутов толпы",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-2":
+    "Получите данные об атрибутах толпы Baidu Index, включая пол, возраст, образование и другие демографические характеристики.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-3": "Установить параметры",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-4":
+    "Настройки ключевых слов",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-5": "Ввод ключевого слова",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-6":
+    "Введите по одному ключевому слову в каждой строке и добавляйте пакетно.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-7":
+    "Добавить ключевые слова",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-8":
+    "Одно ключевое слово в строке",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-9": "Импорт файла",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-10": "Выберите файл",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-11":
+    "Поддерживает форматы .xlsx, .csv, .txt.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-12":
+    "Пропустить первую строку (строку заголовка)",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-13":
+    "Ключевые слова добавлены",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-14":
+    "Этого ключевого слова не существует в индексе Baidu.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-15":
+    "Очистить ключевые слова",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-16":
+    "Проверьте ключевые слова",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-17":
+    "Удалить несуществующие ключевые слова",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-18": "всего",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-19": "ключевые слова",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-20": "Настройки вывода",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-21": "Источник данных",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-22": "ПК+мобильный",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-23": "двигаться",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-24": "Выходной формат",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-25": "CSV-формат",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-26": "Формат Excel",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-27": "размер партии",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-28":
+    "Количество ключевых слов, обрабатываемых в каждом пакете, по умолчанию — 10.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-29": "Настройки задачи",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-30":
+    "задача восстановления",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-31": "Да",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-32": "Нет",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-33":
+    "Идентификатор задачи",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-34":
+    "Пожалуйста, введите идентификатор задачи для восстановления",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-35": "приоритет",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-36": "Отправить задачу",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-37": "сброс",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-38":
+    "Задача успешно отправлена",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-39":
+    "Задача успешно отправлена",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-40":
+    "Идентификатор задачи:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-41":
+    "Посмотреть список задач",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-42": "Продолжить отправку",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-43":
+    "Результаты проверки ключевых слов",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-44":
+    "ключевые слова существуют",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-45":
+    "ключевые слова не существуют",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-46":
+    "Ключевые слова, которых не существует:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-47": "Закрыть",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-48":
+    "Удалить несуществующие ключевые слова",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-49":
+    "Импортирован успешно.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-50": "ключевые слова",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-51":
+    "ключевые слова недействительны или повторяются",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-52":
+    "Недопустимые или повторяющиеся ключевые слова:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-53": "...и т.д.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-54": "а",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-55": "Закрыть",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-56": "Обзор миссии",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-57":
+    "Подтверждение параметра задачи",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-58": "Тип задачи",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-59":
+    "Коллекция атрибутов толпы",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-60": "ключевые слова",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-61": "всего",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-62": "ключевые слова",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-63": "...и т.д.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-64": "а",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-65": "Настройки вывода",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-66": "Выходной формат:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-67": "CSV-формат",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-68": "Формат Excel",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-69": "Размер партии:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-70": "Другие варианты",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-71": "Источник данных:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-72": "ПК+мобильный",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-73": "двигаться",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-74": "Приоритет:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-75":
+    "Идентификатор задачи восстановления:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-76": "Отмена",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-77":
+    "Подтвердить отправку",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-78": "низкий",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-79": "в",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-80": "высокий",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-81":
+    "Сначала добавьте ключевые слова",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-82":
+    "Проверка не удалась:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-83":
+    "Проверьте наличие ошибок в ключевых словах:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-84":
+    "Не удалось проверить ключевые слова. Проверьте сетевое соединение.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-85": "успешно добавлено",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-86": "ключевые слова",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-87":
+    "ключевые слова дублируются и игнорируются",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-88":
+    "Вы уверены, что хотите удалить все ключевые слова?",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-89": "Советы",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-90": "ОК",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-91": "Отмена",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-92":
+    "Вы уверены, что хотите удалить все несуществующие ключевые слова?",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-93": "Советы",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-94": "ОК",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-95": "Отмена",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-96": "очищен",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-97":
+    "ключевые слова, которых не существует",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-98": "очищен",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-99":
+    "ключевые слова, которых не существует",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-100":
+    "В файле не найдено допустимых ключевых слов.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-101":
+    "Результаты импорта ключевых слов",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-102":
+    "Ошибка чтения файла:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-103":
+    "Не удалось прочитать файл. Проверьте формат файла.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-104":
+    "Не удалось прочитать файл",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-105":
+    "Не удалось отправить задачу:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-106":
+    "Не удалось отправить задачу. Проверьте сетевое соединение.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-107":
+    "Ошибка отправки задачи:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-1": "Сбор информационного индекса",
+  "tasks-FeedIndexTask-19c298e1d0a206148-2":
+    "Получайте данные о тенденциях информационного индекса Baidu, поддерживая несколько ключевых слов, несколько городов и настраиваемые временные диапазоны.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-3": "Установить параметры",
+  "tasks-FeedIndexTask-19c298e1d0a206148-4": "Настройки ключевых слов",
+  "tasks-FeedIndexTask-19c298e1d0a206148-5": "Ввод ключевого слова",
+  "tasks-FeedIndexTask-19c298e1d0a206148-6":
+    "Введите по одному ключевому слову в каждой строке и добавляйте пакетно.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-7": "Добавить ключевые слова",
+  "tasks-FeedIndexTask-19c298e1d0a206148-8": "Одно ключевое слово в строке",
+  "tasks-FeedIndexTask-19c298e1d0a206148-9": "Импорт файла",
+  "tasks-FeedIndexTask-19c298e1d0a206148-10": "Выберите файл",
+  "tasks-FeedIndexTask-19c298e1d0a206148-11":
+    "Поддерживает форматы .xlsx, .csv, .txt.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-12":
+    "Пропустить первую строку (строку заголовка)",
+  "tasks-FeedIndexTask-19c298e1d0a206148-13": "Ключевые слова добавлены",
+  "tasks-FeedIndexTask-19c298e1d0a206148-14":
+    "Этого ключевого слова не существует в индексе Baidu.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-15": "Очистить ключевые слова",
+  "tasks-FeedIndexTask-19c298e1d0a206148-16": "Проверьте ключевые слова",
+  "tasks-FeedIndexTask-19c298e1d0a206148-17":
+    "Удалить несуществующие ключевые слова",
+  "tasks-FeedIndexTask-19c298e1d0a206148-18": "всего",
+  "tasks-FeedIndexTask-19c298e1d0a206148-19": "ключевые слова",
+  "tasks-FeedIndexTask-19c298e1d0a206148-20": "городская обстановка",
+  "tasks-FeedIndexTask-19c298e1d0a206148-21": "Выберите город",
+  "tasks-FeedIndexTask-19c298e1d0a206148-22": "Импорт города",
+  "tasks-FeedIndexTask-19c298e1d0a206148-23": "Выберите файл",
+  "tasks-FeedIndexTask-19c298e1d0a206148-24":
+    "Поддерживает форматы .xlsx, .csv, .txt, по одному коду города в строке.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-25":
+    "Пропустить первую строку (строку заголовка)",
+  "tasks-FeedIndexTask-19c298e1d0a206148-26": "Установка времени",
+  "tasks-FeedIndexTask-19c298e1d0a206148-27": "Источник данных",
+  "tasks-FeedIndexTask-19c298e1d0a206148-28": "ПК+мобильный",
+  "tasks-FeedIndexTask-19c298e1d0a206148-29": "двигаться",
+  "tasks-FeedIndexTask-19c298e1d0a206148-30": "тип времени",
+  "tasks-FeedIndexTask-19c298e1d0a206148-31": "Все данные",
+  "tasks-FeedIndexTask-19c298e1d0a206148-32": "Пользовательская дата",
+  "tasks-FeedIndexTask-19c298e1d0a206148-33": "Количество дней по умолчанию",
+  "tasks-FeedIndexTask-19c298e1d0a206148-34": "годовые данные",
+  "tasks-FeedIndexTask-19c298e1d0a206148-35": "диапазон дат",
+  "tasks-FeedIndexTask-19c298e1d0a206148-36": "чтобы",
+  "tasks-FeedIndexTask-19c298e1d0a206148-37": "дата начала",
+  "tasks-FeedIndexTask-19c298e1d0a206148-38": "дата окончания",
+  "tasks-FeedIndexTask-19c298e1d0a206148-39": "Количество дней по умолчанию",
+  "tasks-FeedIndexTask-19c298e1d0a206148-40":
+    "Пожалуйста, выберите количество дней",
+  "tasks-FeedIndexTask-19c298e1d0a206148-41": "Последние 7 дней",
+  "tasks-FeedIndexTask-19c298e1d0a206148-42": "Последние 30 дней",
+  "tasks-FeedIndexTask-19c298e1d0a206148-43": "Последние 90 дней",
+  "tasks-FeedIndexTask-19c298e1d0a206148-44": "Последние 180 дней",
+  "tasks-FeedIndexTask-19c298e1d0a206148-45": "Годовой диапазон",
+  "tasks-FeedIndexTask-19c298e1d0a206148-46": "год начала",
+  "tasks-FeedIndexTask-19c298e1d0a206148-47": "чтобы",
+  "tasks-FeedIndexTask-19c298e1d0a206148-48": "конец года",
+  "tasks-FeedIndexTask-19c298e1d0a206148-49": "Описание данных",
+  "tasks-FeedIndexTask-19c298e1d0a206148-50": "будет получен из",
+  "tasks-FeedIndexTask-19c298e1d0a206148-51":
+    "Все исторические данные на сегодняшний день",
+  "tasks-FeedIndexTask-19c298e1d0a206148-52": "1 июня 2006 г.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-53": "1 января 2011 г.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-54": "Настройки задачи",
+  "tasks-FeedIndexTask-19c298e1d0a206148-55": "задача восстановления",
+  "tasks-FeedIndexTask-19c298e1d0a206148-56": "Да",
+  "tasks-FeedIndexTask-19c298e1d0a206148-57": "Нет",
+  "tasks-FeedIndexTask-19c298e1d0a206148-58": "Идентификатор задачи",
+  "tasks-FeedIndexTask-19c298e1d0a206148-59":
+    "Пожалуйста, введите идентификатор задачи для восстановления",
+  "tasks-FeedIndexTask-19c298e1d0a206148-60": "приоритет",
+  "tasks-FeedIndexTask-19c298e1d0a206148-61": "Отправить задачу",
+  "tasks-FeedIndexTask-19c298e1d0a206148-62": "сброс",
+  "tasks-FeedIndexTask-19c298e1d0a206148-63": "Задача успешно отправлена",
+  "tasks-FeedIndexTask-19c298e1d0a206148-64": "Задача успешно отправлена",
+  "tasks-FeedIndexTask-19c298e1d0a206148-65": "Идентификатор задачи:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-66": "Посмотреть список задач",
+  "tasks-FeedIndexTask-19c298e1d0a206148-67": "Продолжить отправку",
+  "tasks-FeedIndexTask-19c298e1d0a206148-68":
+    "Результаты проверки ключевых слов",
+  "tasks-FeedIndexTask-19c298e1d0a206148-69": "ключевые слова существуют",
+  "tasks-FeedIndexTask-19c298e1d0a206148-70": "ключевые слова не существуют",
+  "tasks-FeedIndexTask-19c298e1d0a206148-71":
+    "Ключевые слова, которых не существует:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-72": "Закрыть",
+  "tasks-FeedIndexTask-19c298e1d0a206148-73":
+    "Удалить несуществующие ключевые слова",
+  "tasks-FeedIndexTask-19c298e1d0a206148-74": "Импортирован успешно.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-75":
+    "Результаты импорта ключевых слов",
+  "tasks-FeedIndexTask-19c298e1d0a206148-76": "ключевые слова",
+  "tasks-FeedIndexTask-19c298e1d0a206148-77": "города",
+  "tasks-FeedIndexTask-19c298e1d0a206148-78":
+    "Недействительный или повторяющийся",
+  "tasks-FeedIndexTask-19c298e1d0a206148-79":
+    "Результаты импорта ключевых слов",
+  "tasks-FeedIndexTask-19c298e1d0a206148-80": "ключевые слова",
+  "tasks-FeedIndexTask-19c298e1d0a206148-81": "города",
+  "tasks-FeedIndexTask-19c298e1d0a206148-82":
+    "Недействительный или повторяющийся",
+  "tasks-FeedIndexTask-19c298e1d0a206148-83":
+    "Результаты импорта ключевых слов",
+  "tasks-FeedIndexTask-19c298e1d0a206148-84": "ключевые слова",
+  "tasks-FeedIndexTask-19c298e1d0a206148-85": "город",
+  "tasks-FeedIndexTask-19c298e1d0a206148-86": "...и т.д.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-87": "а",
+  "tasks-FeedIndexTask-19c298e1d0a206148-88": "Закрыть",
+  "tasks-FeedIndexTask-19c298e1d0a206148-89": "Обзор миссии",
+  "tasks-FeedIndexTask-19c298e1d0a206148-90": "Подтверждение параметра задачи",
+  "tasks-FeedIndexTask-19c298e1d0a206148-91": "Тип задачи",
+  "tasks-FeedIndexTask-19c298e1d0a206148-92": "Сбор информационного индекса",
+  "tasks-FeedIndexTask-19c298e1d0a206148-93": "ключевые слова",
+  "tasks-FeedIndexTask-19c298e1d0a206148-94": "всего",
+  "tasks-FeedIndexTask-19c298e1d0a206148-95": "ключевые слова",
+  "tasks-FeedIndexTask-19c298e1d0a206148-96": "...и т.д.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-97": "а",
+  "tasks-FeedIndexTask-19c298e1d0a206148-98": "площадь",
+  "tasks-FeedIndexTask-19c298e1d0a206148-99": "всего",
+  "tasks-FeedIndexTask-19c298e1d0a206148-100": "регионы",
+  "tasks-FeedIndexTask-19c298e1d0a206148-101": "По всей стране",
+  "tasks-FeedIndexTask-19c298e1d0a206148-102": "...и т.д.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-103": "а",
+  "tasks-FeedIndexTask-19c298e1d0a206148-104": "временной диапазон",
+  "tasks-FeedIndexTask-19c298e1d0a206148-105": "Все исторические данные (",
+  "tasks-FeedIndexTask-19c298e1d0a206148-106": "1 июня 2006 г.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-107": "1 января 2011 г.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-108": "(на сегодняшний день)",
+  "tasks-FeedIndexTask-19c298e1d0a206148-109": "Недавно",
+  "tasks-FeedIndexTask-19c298e1d0a206148-110": "день",
+  "tasks-FeedIndexTask-19c298e1d0a206148-111": "чтобы",
+  "tasks-FeedIndexTask-19c298e1d0a206148-112": "год до",
+  "tasks-FeedIndexTask-19c298e1d0a206148-113": "год",
+  "tasks-FeedIndexTask-19c298e1d0a206148-114": "Другие варианты",
+  "tasks-FeedIndexTask-19c298e1d0a206148-115": "Источник данных:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-116": "ПК+мобильный",
+  "tasks-FeedIndexTask-19c298e1d0a206148-117": "двигаться",
+  "tasks-FeedIndexTask-19c298e1d0a206148-118": "Приоритет:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-119":
+    "Идентификатор задачи восстановления:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-120": "Отмена",
+  "tasks-FeedIndexTask-19c298e1d0a206148-121": "Подтвердить отправку",
+  "tasks-FeedIndexTask-19c298e1d0a206148-122": "низкий",
+  "tasks-FeedIndexTask-19c298e1d0a206148-123": "в",
+  "tasks-FeedIndexTask-19c298e1d0a206148-124": "высокий",
+  "tasks-FeedIndexTask-19c298e1d0a206148-125":
+    "Не удалось получить карту города:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-126":
+    "Сначала добавьте ключевые слова",
+  "tasks-FeedIndexTask-19c298e1d0a206148-127": "Проверка не удалась:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-128":
+    "Проверьте наличие ошибок в ключевых словах:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-129":
+    "Не удалось проверить ключевые слова. Проверьте сетевое соединение.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-130": "успешно добавлено",
+  "tasks-FeedIndexTask-19c298e1d0a206148-131": "ключевые слова",
+  "tasks-FeedIndexTask-19c298e1d0a206148-132":
+    "ключевые слова дублируются и игнорируются",
+  "tasks-FeedIndexTask-19c298e1d0a206148-133":
+    "Вы уверены, что хотите удалить все ключевые слова?",
+  "tasks-FeedIndexTask-19c298e1d0a206148-134": "Советы",
+  "tasks-FeedIndexTask-19c298e1d0a206148-135": "ОК",
+  "tasks-FeedIndexTask-19c298e1d0a206148-136": "Отмена",
+  "tasks-FeedIndexTask-19c298e1d0a206148-137":
+    "Вы уверены, что хотите удалить все несуществующие ключевые слова?",
+  "tasks-FeedIndexTask-19c298e1d0a206148-138": "Советы",
+  "tasks-FeedIndexTask-19c298e1d0a206148-139": "ОК",
+  "tasks-FeedIndexTask-19c298e1d0a206148-140": "Отмена",
+  "tasks-FeedIndexTask-19c298e1d0a206148-141": "очищен",
+  "tasks-FeedIndexTask-19c298e1d0a206148-142":
+    "ключевые слова, которых не существует",
+  "tasks-FeedIndexTask-19c298e1d0a206148-143": "очищен",
+  "tasks-FeedIndexTask-19c298e1d0a206148-144":
+    "ключевые слова, которых не существует",
+  "tasks-FeedIndexTask-19c298e1d0a206148-145":
+    "В файле не найдено допустимых ключевых слов.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-146":
+    "Результаты импорта ключевых слов",
+  "tasks-FeedIndexTask-19c298e1d0a206148-147": "Ошибка чтения файла:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-148":
+    "Не удалось прочитать файл. Проверьте формат файла.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-149":
+    "В файле не найден действительный код города",
+  "tasks-FeedIndexTask-19c298e1d0a206148-150": "Результаты импорта городов",
+  "tasks-FeedIndexTask-19c298e1d0a206148-151": "Ошибка чтения файла:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-152":
+    "Не удалось прочитать файл. Проверьте формат файла.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-153": "Не удалось прочитать файл",
+  "tasks-FeedIndexTask-19c298e1d0a206148-154": "Не удалось отправить задачу:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-155":
+    "Не удалось отправить задачу. Проверьте сетевое соединение.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-156": "Ошибка отправки задачи:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-1":
+    "Коллекция анализа интересов",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-2":
+    "Получите данные портрета интересов толпы Baidu Index, включая категории интересов и их пропорции.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-3": "Установить параметры",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-4": "Настройки ключевых слов",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-5": "Ввод ключевого слова",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-6":
+    "Введите по одному ключевому слову в каждой строке и добавляйте пакетно.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-7": "Добавить ключевые слова",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-8":
+    "Одно ключевое слово в строке",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-9": "Импорт файла",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-10": "Выберите файл",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-11":
+    "Поддерживает форматы .xlsx, .csv, .txt.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-12":
+    "Пропустить первую строку (строку заголовка)",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-13": "Ключевые слова добавлены",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-14":
+    "Этого ключевого слова не существует в индексе Baidu.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-15": "Очистить ключевые слова",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-16": "Проверьте ключевые слова",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-17":
+    "Удалить несуществующие ключевые слова",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-18": "всего",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-19": "ключевые слова",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-20": "Настройки вывода",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-21": "Источник данных",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-22": "ПК+мобильный",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-23": "двигаться",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-24": "Выходной формат",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-25": "CSV-формат",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-26": "Формат Excel",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-27": "размер партии",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-28":
+    "Количество ключевых слов, обрабатываемых в каждом пакете, по умолчанию — 10.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-29": "Настройки задачи",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-30": "задача восстановления",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-31": "Да",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-32": "Нет",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-33": "Идентификатор задачи",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-34":
+    "Пожалуйста, введите идентификатор задачи для восстановления",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-35": "приоритет",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-36": "Отправить задачу",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-37": "сброс",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-38": "Задача успешно отправлена",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-39": "Задача успешно отправлена",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-40": "Идентификатор задачи:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-41": "Посмотреть список задач",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-42": "Продолжить отправку",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-43":
+    "Результаты проверки ключевых слов",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-44": "ключевые слова существуют",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-45":
+    "ключевые слова не существуют",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-46":
+    "Ключевые слова, которых не существует:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-47": "Закрыть",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-48":
+    "Удалить несуществующие ключевые слова",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-49": "Импортирован успешно.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-50": "ключевые слова",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-51":
+    "ключевые слова недействительны или повторяются",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-52":
+    "Недопустимые или повторяющиеся ключевые слова:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-53": "...и т.д.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-54": "а",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-55": "Закрыть",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-56": "Обзор миссии",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-57":
+    "Подтверждение параметра задачи",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-58": "Тип задачи",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-59":
+    "Коллекция анализа интересов",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-60": "ключевые слова",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-61": "всего",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-62": "ключевые слова",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-63": "...и т.д.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-64": "а",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-65": "Настройки вывода",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-66": "Выходной формат:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-67": "CSV-формат",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-68": "Формат Excel",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-69": "Размер партии:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-70": "Другие варианты",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-71": "Источник данных:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-72": "ПК+мобильный",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-73": "двигаться",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-74": "Приоритет:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-75":
+    "Идентификатор задачи восстановления:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-76": "Отмена",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-77": "Подтвердить отправку",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-78": "низкий",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-79": "в",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-80": "высокий",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-81":
+    "Сначала добавьте ключевые слова",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-82": "Проверка не удалась:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-83":
+    "Проверьте наличие ошибок в ключевых словах:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-84":
+    "Не удалось проверить ключевые слова. Проверьте сетевое соединение.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-85": "успешно добавлено",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-86": "ключевые слова",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-87":
+    "ключевые слова дублируются и игнорируются",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-88":
+    "Вы уверены, что хотите удалить все ключевые слова?",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-89": "Советы",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-90": "ОК",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-91": "Отмена",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-92":
+    "Вы уверены, что хотите удалить все несуществующие ключевые слова?",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-93": "Советы",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-94": "ОК",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-95": "Отмена",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-96": "очищен",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-97":
+    "ключевые слова, которых не существует",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-98": "очищен",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-99":
+    "ключевые слова, которых не существует",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-100":
+    "В файле не найдено допустимых ключевых слов.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-101":
+    "Результаты импорта ключевых слов",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-102": "Ошибка чтения файла:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-103":
+    "Не удалось прочитать файл. Проверьте формат файла.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-104":
+    "Не удалось прочитать файл",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-105":
+    "Не удалось отправить задачу:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-106":
+    "Не удалось отправить задачу. Проверьте сетевое соединение.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-107": "Ошибка отправки задачи:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-1":
+    "Географически распределенная коллекция",
+  "tasks-RegionDistributionTask-19c298e201890d5db-2":
+    "Получите данные о географическом распределении портретов толпы в индексе Baidu, включая долю поискового индекса в каждой провинции, городе и регионе.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-3": "Установить параметры",
+  "tasks-RegionDistributionTask-19c298e201890d5db-4": "Настройки ключевых слов",
+  "tasks-RegionDistributionTask-19c298e201890d5db-5": "Ввод ключевого слова",
+  "tasks-RegionDistributionTask-19c298e201890d5db-6":
+    "Введите по одному ключевому слову в каждой строке и добавляйте пакетно.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-7": "Добавить ключевые слова",
+  "tasks-RegionDistributionTask-19c298e201890d5db-8":
+    "Одно ключевое слово в строке",
+  "tasks-RegionDistributionTask-19c298e201890d5db-9": "Импорт файла",
+  "tasks-RegionDistributionTask-19c298e201890d5db-10": "Выберите файл",
+  "tasks-RegionDistributionTask-19c298e201890d5db-11":
+    "Поддерживает форматы .xlsx, .csv, .txt.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-12":
+    "Пропустить первую строку (строку заголовка)",
+  "tasks-RegionDistributionTask-19c298e201890d5db-13":
+    "Ключевые слова добавлены",
+  "tasks-RegionDistributionTask-19c298e201890d5db-14":
+    "Этого ключевого слова не существует в индексе Baidu.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-15":
+    "Очистить ключевые слова",
+  "tasks-RegionDistributionTask-19c298e201890d5db-16":
+    "Проверьте ключевые слова",
+  "tasks-RegionDistributionTask-19c298e201890d5db-17":
+    "Удалить несуществующие ключевые слова",
+  "tasks-RegionDistributionTask-19c298e201890d5db-18": "всего",
+  "tasks-RegionDistributionTask-19c298e201890d5db-19": "ключевые слова",
+  "tasks-RegionDistributionTask-19c298e201890d5db-20": "настройки локали",
+  "tasks-RegionDistributionTask-19c298e201890d5db-21": "Выберите регион",
+  "tasks-RegionDistributionTask-19c298e201890d5db-22": "Импорт региона",
+  "tasks-RegionDistributionTask-19c298e201890d5db-23": "Выберите файл",
+  "tasks-RegionDistributionTask-19c298e201890d5db-24":
+    "Поддерживает форматы .xlsx, .csv, .txt, по одному коду региона в строке.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-25":
+    "Пропустить первую строку (строку заголовка)",
+  "tasks-RegionDistributionTask-19c298e201890d5db-26": "Установка времени",
+  "tasks-RegionDistributionTask-19c298e201890d5db-27": "Источник данных",
+  "tasks-RegionDistributionTask-19c298e201890d5db-28": "ПК+мобильный",
+  "tasks-RegionDistributionTask-19c298e201890d5db-29": "двигаться",
+  "tasks-RegionDistributionTask-19c298e201890d5db-30": "тип времени",
+  "tasks-RegionDistributionTask-19c298e201890d5db-31": "Все данные",
+  "tasks-RegionDistributionTask-19c298e201890d5db-32": "Пользовательская дата",
+  "tasks-RegionDistributionTask-19c298e201890d5db-33":
+    "Количество дней по умолчанию",
+  "tasks-RegionDistributionTask-19c298e201890d5db-34": "годовые данные",
+  "tasks-RegionDistributionTask-19c298e201890d5db-35": "диапазон дат",
+  "tasks-RegionDistributionTask-19c298e201890d5db-36": "чтобы",
+  "tasks-RegionDistributionTask-19c298e201890d5db-37": "дата начала",
+  "tasks-RegionDistributionTask-19c298e201890d5db-38": "дата окончания",
+  "tasks-RegionDistributionTask-19c298e201890d5db-39":
+    "Количество дней по умолчанию",
+  "tasks-RegionDistributionTask-19c298e201890d5db-40":
+    "Пожалуйста, выберите количество дней",
+  "tasks-RegionDistributionTask-19c298e201890d5db-41": "Последние 7 дней",
+  "tasks-RegionDistributionTask-19c298e201890d5db-42": "Последние 30 дней",
+  "tasks-RegionDistributionTask-19c298e201890d5db-43": "Последние 90 дней",
+  "tasks-RegionDistributionTask-19c298e201890d5db-44": "Последние 180 дней",
+  "tasks-RegionDistributionTask-19c298e201890d5db-45": "Последние 365 дней",
+  "tasks-RegionDistributionTask-19c298e201890d5db-46": "Годовой диапазон",
+  "tasks-RegionDistributionTask-19c298e201890d5db-47": "год начала",
+  "tasks-RegionDistributionTask-19c298e201890d5db-48": "чтобы",
+  "tasks-RegionDistributionTask-19c298e201890d5db-49": "конец года",
+  "tasks-RegionDistributionTask-19c298e201890d5db-50": "Описание данных",
+  "tasks-RegionDistributionTask-19c298e201890d5db-51": "будет получен из",
+  "tasks-RegionDistributionTask-19c298e201890d5db-52":
+    "Все исторические данные на сегодняшний день",
+  "tasks-RegionDistributionTask-19c298e201890d5db-53": "1 июня 2006 г.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-54": "1 января 2011 г.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-55": "Настройки вывода",
+  "tasks-RegionDistributionTask-19c298e201890d5db-56": "Выходной формат",
+  "tasks-RegionDistributionTask-19c298e201890d5db-57": "CSV-формат",
+  "tasks-RegionDistributionTask-19c298e201890d5db-58": "Формат Excel",
+  "tasks-RegionDistributionTask-19c298e201890d5db-59": "Настройки задачи",
+  "tasks-RegionDistributionTask-19c298e201890d5db-60": "задача восстановления",
+  "tasks-RegionDistributionTask-19c298e201890d5db-61": "Да",
+  "tasks-RegionDistributionTask-19c298e201890d5db-62": "Нет",
+  "tasks-RegionDistributionTask-19c298e201890d5db-63": "Идентификатор задачи",
+  "tasks-RegionDistributionTask-19c298e201890d5db-64":
+    "Пожалуйста, введите идентификатор задачи для восстановления",
+  "tasks-RegionDistributionTask-19c298e201890d5db-65": "приоритет",
+  "tasks-RegionDistributionTask-19c298e201890d5db-66": "Отправить задачу",
+  "tasks-RegionDistributionTask-19c298e201890d5db-67": "сброс",
+  "tasks-RegionDistributionTask-19c298e201890d5db-68":
+    "Задача успешно отправлена",
+  "tasks-RegionDistributionTask-19c298e201890d5db-69":
+    "Задача успешно отправлена",
+  "tasks-RegionDistributionTask-19c298e201890d5db-70": "Идентификатор задачи:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-71":
+    "Посмотреть список задач",
+  "tasks-RegionDistributionTask-19c298e201890d5db-72": "Продолжить отправку",
+  "tasks-RegionDistributionTask-19c298e201890d5db-73":
+    "Результаты проверки ключевых слов",
+  "tasks-RegionDistributionTask-19c298e201890d5db-74":
+    "ключевые слова существуют",
+  "tasks-RegionDistributionTask-19c298e201890d5db-75":
+    "ключевые слова не существуют",
+  "tasks-RegionDistributionTask-19c298e201890d5db-76":
+    "Ключевые слова, которых не существует:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-77": "Закрыть",
+  "tasks-RegionDistributionTask-19c298e201890d5db-78":
+    "Удалить несуществующие ключевые слова",
+  "tasks-RegionDistributionTask-19c298e201890d5db-79": "Импортирован успешно.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-80":
+    "Результаты импорта ключевых слов",
+  "tasks-RegionDistributionTask-19c298e201890d5db-81": "ключевые слова",
+  "tasks-RegionDistributionTask-19c298e201890d5db-82": "регионы",
+  "tasks-RegionDistributionTask-19c298e201890d5db-83":
+    "Недействительный или повторяющийся",
+  "tasks-RegionDistributionTask-19c298e201890d5db-84":
+    "Результаты импорта ключевых слов",
+  "tasks-RegionDistributionTask-19c298e201890d5db-85": "ключевые слова",
+  "tasks-RegionDistributionTask-19c298e201890d5db-86": "регионы",
+  "tasks-RegionDistributionTask-19c298e201890d5db-87":
+    "Недействительный или повторяющийся",
+  "tasks-RegionDistributionTask-19c298e201890d5db-88":
+    "Результаты импорта ключевых слов",
+  "tasks-RegionDistributionTask-19c298e201890d5db-89": "ключевые слова",
+  "tasks-RegionDistributionTask-19c298e201890d5db-90": "площадь",
+  "tasks-RegionDistributionTask-19c298e201890d5db-91": "...и т.д.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-92": "а",
+  "tasks-RegionDistributionTask-19c298e201890d5db-93": "Закрыть",
+  "tasks-RegionDistributionTask-19c298e201890d5db-94": "Обзор миссии",
+  "tasks-RegionDistributionTask-19c298e201890d5db-95":
+    "Подтверждение параметра задачи",
+  "tasks-RegionDistributionTask-19c298e201890d5db-96": "Тип задачи",
+  "tasks-RegionDistributionTask-19c298e201890d5db-97":
+    "Географически распределенная коллекция",
+  "tasks-RegionDistributionTask-19c298e201890d5db-98": "ключевые слова",
+  "tasks-RegionDistributionTask-19c298e201890d5db-99": "всего",
+  "tasks-RegionDistributionTask-19c298e201890d5db-100": "ключевые слова",
+  "tasks-RegionDistributionTask-19c298e201890d5db-101": "...и т.д.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-102": "а",
+  "tasks-RegionDistributionTask-19c298e201890d5db-103": "площадь",
+  "tasks-RegionDistributionTask-19c298e201890d5db-104": "всего",
+  "tasks-RegionDistributionTask-19c298e201890d5db-105": "регионы",
+  "tasks-RegionDistributionTask-19c298e201890d5db-106": "По всей стране",
+  "tasks-RegionDistributionTask-19c298e201890d5db-107": "...и т.д.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-108": "а",
+  "tasks-RegionDistributionTask-19c298e201890d5db-109": "временной диапазон",
+  "tasks-RegionDistributionTask-19c298e201890d5db-110":
+    "Все исторические данные (",
+  "tasks-RegionDistributionTask-19c298e201890d5db-111": "1 июня 2006 г.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-112": "1 января 2011 г.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-113": "(на сегодняшний день)",
+  "tasks-RegionDistributionTask-19c298e201890d5db-114": "Недавно",
+  "tasks-RegionDistributionTask-19c298e201890d5db-115": "день",
+  "tasks-RegionDistributionTask-19c298e201890d5db-116": "чтобы",
+  "tasks-RegionDistributionTask-19c298e201890d5db-117": "год до",
+  "tasks-RegionDistributionTask-19c298e201890d5db-118": "год",
+  "tasks-RegionDistributionTask-19c298e201890d5db-119": "Выходной формат",
+  "tasks-RegionDistributionTask-19c298e201890d5db-120": "CSV-формат",
+  "tasks-RegionDistributionTask-19c298e201890d5db-121": "Формат Excel",
+  "tasks-RegionDistributionTask-19c298e201890d5db-122": "Другие варианты",
+  "tasks-RegionDistributionTask-19c298e201890d5db-123": "Источник данных:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-124": "ПК+мобильный",
+  "tasks-RegionDistributionTask-19c298e201890d5db-125": "двигаться",
+  "tasks-RegionDistributionTask-19c298e201890d5db-126": "Приоритет:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-127":
+    "Идентификатор задачи восстановления:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-128": "Отмена",
+  "tasks-RegionDistributionTask-19c298e201890d5db-129": "Подтвердить отправку",
+  "tasks-RegionDistributionTask-19c298e201890d5db-130": "низкий",
+  "tasks-RegionDistributionTask-19c298e201890d5db-131": "в",
+  "tasks-RegionDistributionTask-19c298e201890d5db-132": "высокий",
+  "tasks-RegionDistributionTask-19c298e201890d5db-133":
+    "Сначала добавьте ключевые слова",
+  "tasks-RegionDistributionTask-19c298e201890d5db-134": "Проверка не удалась:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-135":
+    "Проверьте наличие ошибок в ключевых словах:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-136":
+    "Не удалось проверить ключевые слова. Проверьте сетевое соединение.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-137": "успешно добавлено",
+  "tasks-RegionDistributionTask-19c298e201890d5db-138": "ключевые слова",
+  "tasks-RegionDistributionTask-19c298e201890d5db-139":
+    "ключевые слова дублируются и игнорируются",
+  "tasks-RegionDistributionTask-19c298e201890d5db-140":
+    "Вы уверены, что хотите удалить все ключевые слова?",
+  "tasks-RegionDistributionTask-19c298e201890d5db-141": "Советы",
+  "tasks-RegionDistributionTask-19c298e201890d5db-142": "ОК",
+  "tasks-RegionDistributionTask-19c298e201890d5db-143": "Отмена",
+  "tasks-RegionDistributionTask-19c298e201890d5db-144":
+    "В файле не найдено допустимых ключевых слов.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-145":
+    "Результаты импорта ключевых слов",
+  "tasks-RegionDistributionTask-19c298e201890d5db-146": "Ошибка чтения файла:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-147":
+    "Не удалось прочитать файл. Проверьте формат файла.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-148":
+    "Не удалось прочитать файл",
+  "tasks-RegionDistributionTask-19c298e201890d5db-149":
+    "В файле не найден действительный код региона",
+  "tasks-RegionDistributionTask-19c298e201890d5db-150":
+    "Результаты импорта региона",
+  "tasks-RegionDistributionTask-19c298e201890d5db-151": "Ошибка чтения файла:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-152":
+    "Не удалось прочитать файл. Проверьте формат файла.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-153":
+    "Вы уверены, что хотите удалить все несуществующие ключевые слова?",
+  "tasks-RegionDistributionTask-19c298e201890d5db-154": "Советы",
+  "tasks-RegionDistributionTask-19c298e201890d5db-155": "ОК",
+  "tasks-RegionDistributionTask-19c298e201890d5db-156": "Отмена",
+  "tasks-RegionDistributionTask-19c298e201890d5db-157": "очищен",
+  "tasks-RegionDistributionTask-19c298e201890d5db-158":
+    "ключевые слова, которых не существует",
+  "tasks-RegionDistributionTask-19c298e201890d5db-159": "очищен",
+  "tasks-RegionDistributionTask-19c298e201890d5db-160":
+    "ключевые слова, которых не существует",
+  "tasks-RegionDistributionTask-19c298e201890d5db-161":
+    "Не удалось отправить задачу:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-162":
+    "Не удалось отправить задачу. Проверьте сетевое соединение.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-163":
+    "Ошибка отправки задачи:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-1": "Коллекция индексов поиска",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-2":
+    "Получайте данные о тенденциях поискового индекса Baidu с поддержкой нескольких ключевых слов, нескольких городов и настраиваемых временных диапазонов.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-3": "Установить параметры",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-4": "Настройки ключевых слов",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-5": "Ввод ключевого слова",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-6":
+    "Введите по одному ключевому слову в каждой строке и добавляйте пакетно.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-7": "Добавить ключевые слова",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-8": "Одно ключевое слово в строке",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-9": "Импорт файла",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-10": "Выберите файл",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-11":
+    "Поддерживает форматы .xlsx, .csv, .txt.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-12":
+    "Пропустить первую строку (строку заголовка)",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-13": "Ключевые слова добавлены",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-14":
+    "Этого ключевого слова не существует в индексе Baidu.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-15": "Очистить ключевые слова",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-16": "Проверьте ключевые слова",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-17":
+    "Удалить несуществующие ключевые слова",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-18": "всего",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-19": "ключевые слова",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-20": "городская обстановка",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-21": "Выберите город",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-22": "Импорт города",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-23": "Выберите файл",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-24":
+    "Поддерживает форматы .xlsx, .csv, .txt, по одному коду города в строке.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-25":
+    "Пропустить первую строку (строку заголовка)",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-26": "Установка времени",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-27": "Источник данных",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-28": "ПК+мобильный",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-29": "двигаться",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-30": "тип времени",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-31": "Все данные",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-32": "Пользовательская дата",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-33": "Количество дней по умолчанию",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-34": "годовые данные",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-35": "диапазон дат",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-36": "чтобы",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-37": "дата начала",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-38": "дата окончания",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-39": "Количество дней по умолчанию",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-40":
+    "Пожалуйста, выберите количество дней",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-41": "Последние 7 дней",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-42": "Последние 30 дней",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-43": "Последние 90 дней",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-44": "Последние 180 дней",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-45": "Годовой диапазон",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-46": "год начала",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-47": "чтобы",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-48": "конец года",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-49": "Описание данных",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-50": "будет получен из",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-51":
+    "Все исторические данные на сегодняшний день",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-52": "1 июня 2006 г.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-53": "1 января 2011 г.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-54": "Настройки задачи",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-55": "задача восстановления",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-56": "Да",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-57": "Нет",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-58": "Идентификатор задачи",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-59":
+    "Пожалуйста, введите идентификатор задачи для восстановления",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-60": "приоритет",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-61": "Отправить задачу",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-62": "сброс",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-63": "Задача успешно отправлена",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-64": "Задача успешно отправлена",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-65": "Идентификатор задачи:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-66": "Посмотреть список задач",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-67": "Продолжить отправку",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-68":
+    "Результаты проверки ключевых слов",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-69": "ключевые слова существуют",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-70": "ключевые слова не существуют",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-71":
+    "Ключевые слова, которых не существует:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-72": "Закрыть",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-73":
+    "Удалить несуществующие ключевые слова",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-74": "Импортирован успешно.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-75":
+    "Результаты импорта ключевых слов",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-76": "ключевые слова",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-77": "города",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-78":
+    "Недействительный или повторяющийся",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-79":
+    "Результаты импорта ключевых слов",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-80": "ключевые слова",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-81": "города",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-82":
+    "Недействительный или повторяющийся",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-83":
+    "Результаты импорта ключевых слов",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-84": "ключевые слова",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-85": "город",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-86": "...и т.д.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-87": "а",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-88": "Закрыть",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-89": "Обзор миссии",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-90":
+    "Подтверждение параметра задачи",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-91": "Тип задачи",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-92": "Коллекция индексов поиска",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-93": "ключевые слова",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-94": "всего",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-95": "ключевые слова",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-96": "...и т.д.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-97": "а",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-98": "площадь",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-99": "всего",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-100": "регионы",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-101": "По всей стране",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-102": "...и т.д.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-103": "а",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-104": "временной диапазон",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-105": "Все исторические данные (",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-106": "1 июня 2006 г.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-107": "1 января 2011 г.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-108": "(на сегодняшний день)",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-109": "Недавно",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-110": "день",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-111": "чтобы",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-112": "год до",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-113": "год",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-114": "Другие варианты",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-115": "Источник данных:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-116": "ПК+мобильный",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-117": "двигаться",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-118": "Приоритет:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-119":
+    "Идентификатор задачи восстановления:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-120": "Отмена",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-121": "Подтвердить отправку",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-122": "низкий",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-123": "в",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-124": "высокий",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-125":
+    "Не удалось получить карту города:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-126":
+    "Сначала добавьте ключевые слова",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-127": "Проверка не удалась:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-128":
+    "Проверьте наличие ошибок в ключевых словах:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-129":
+    "Не удалось проверить ключевые слова. Проверьте сетевое соединение.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-130": "успешно добавлено",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-131": "ключевые слова",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-132":
+    "ключевые слова дублируются и игнорируются",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-133":
+    "Вы уверены, что хотите удалить все ключевые слова?",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-134": "Советы",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-135": "ОК",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-136": "Отмена",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-137":
+    "Вы уверены, что хотите удалить все несуществующие ключевые слова?",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-138": "Советы",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-139": "ОК",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-140": "Отмена",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-141": "очищен",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-142":
+    "ключевые слова, которых не существует",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-143": "очищен",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-144":
+    "ключевые слова, которых не существует",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-145":
+    "В файле не найдено допустимых ключевых слов.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-146":
+    "Результаты импорта ключевых слов",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-147": "Ошибка чтения файла:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-148":
+    "Не удалось прочитать файл. Проверьте формат файла.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-149":
+    "В файле не найден действительный код города",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-150": "Результаты импорта городов",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-151": "Ошибка чтения файла:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-152":
+    "Не удалось прочитать файл. Проверьте формат файла.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-153": "Не удалось прочитать файл",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-154": "Не удалось отправить задачу:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-155":
+    "Не удалось отправить задачу. Проверьте сетевое соединение.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-156": "Ошибка отправки задачи:",
+  "tasks-WordGraphTask-19c298e227e044aa6-1": "Коллекция карт требований",
+  "tasks-WordGraphTask-19c298e227e044aa6-2":
+    "Получите данные карты спроса Baidu, поддерживая несколько ключевых слов и несколько вариантов выбора дат.",
+  "tasks-WordGraphTask-19c298e227e044aa6-3": "Установить параметры",
+  "tasks-WordGraphTask-19c298e227e044aa6-4": "Настройки ключевых слов",
+  "tasks-WordGraphTask-19c298e227e044aa6-5": "Ввод ключевого слова",
+  "tasks-WordGraphTask-19c298e227e044aa6-6":
+    "Введите по одному ключевому слову в каждой строке и добавляйте пакетно.",
+  "tasks-WordGraphTask-19c298e227e044aa6-7": "Добавить ключевые слова",
+  "tasks-WordGraphTask-19c298e227e044aa6-8": "Одно ключевое слово в строке",
+  "tasks-WordGraphTask-19c298e227e044aa6-9": "Импорт файла",
+  "tasks-WordGraphTask-19c298e227e044aa6-10": "Выберите файл",
+  "tasks-WordGraphTask-19c298e227e044aa6-11":
+    "Поддерживает форматы .xlsx, .csv, .txt.",
+  "tasks-WordGraphTask-19c298e227e044aa6-12":
+    "Пропустить первую строку (строку заголовка)",
+  "tasks-WordGraphTask-19c298e227e044aa6-13": "Ключевые слова добавлены",
+  "tasks-WordGraphTask-19c298e227e044aa6-14":
+    "Этого ключевого слова не существует в индексе Baidu.",
+  "tasks-WordGraphTask-19c298e227e044aa6-15": "Очистить ключевые слова",
+  "tasks-WordGraphTask-19c298e227e044aa6-16": "Проверьте ключевые слова",
+  "tasks-WordGraphTask-19c298e227e044aa6-17":
+    "Удалить несуществующие ключевые слова",
+  "tasks-WordGraphTask-19c298e227e044aa6-18": "всего",
+  "tasks-WordGraphTask-19c298e227e044aa6-19": "ключевые слова",
+  "tasks-WordGraphTask-19c298e227e044aa6-20": "Установка даты",
+  "tasks-WordGraphTask-19c298e227e044aa6-21": "Источник данных",
+  "tasks-WordGraphTask-19c298e227e044aa6-22": "ПК+мобильный",
+  "tasks-WordGraphTask-19c298e227e044aa6-23": "двигаться",
+  "tasks-WordGraphTask-19c298e227e044aa6-24": "диапазон дат",
+  "tasks-WordGraphTask-19c298e227e044aa6-25": "чтобы",
+  "tasks-WordGraphTask-19c298e227e044aa6-26": "дата начала",
+  "tasks-WordGraphTask-19c298e227e044aa6-27": "дата окончания",
+  "tasks-WordGraphTask-19c298e227e044aa6-28":
+    "Примечание. Данные только за последний год (из",
+  "tasks-WordGraphTask-19c298e227e044aa6-29": "Прибытие",
+  "tasks-WordGraphTask-19c298e227e044aa6-30": "Настройки вывода",
+  "tasks-WordGraphTask-19c298e227e044aa6-31": "Выходной формат",
+  "tasks-WordGraphTask-19c298e227e044aa6-32": "CSV-формат",
+  "tasks-WordGraphTask-19c298e227e044aa6-33": "Формат Excel",
+  "tasks-WordGraphTask-19c298e227e044aa6-34": "Настройки задачи",
+  "tasks-WordGraphTask-19c298e227e044aa6-35": "задача восстановления",
+  "tasks-WordGraphTask-19c298e227e044aa6-36": "Да",
+  "tasks-WordGraphTask-19c298e227e044aa6-37": "Нет",
+  "tasks-WordGraphTask-19c298e227e044aa6-38": "Идентификатор задачи",
+  "tasks-WordGraphTask-19c298e227e044aa6-39":
+    "Пожалуйста, введите идентификатор задачи для восстановления",
+  "tasks-WordGraphTask-19c298e227e044aa6-40": "приоритет",
+  "tasks-WordGraphTask-19c298e227e044aa6-41": "Отправить задачу",
+  "tasks-WordGraphTask-19c298e227e044aa6-42": "сброс",
+  "tasks-WordGraphTask-19c298e227e044aa6-43": "Задача успешно отправлена",
+  "tasks-WordGraphTask-19c298e227e044aa6-44": "Задача успешно отправлена",
+  "tasks-WordGraphTask-19c298e227e044aa6-45": "Идентификатор задачи:",
+  "tasks-WordGraphTask-19c298e227e044aa6-46": "Посмотреть список задач",
+  "tasks-WordGraphTask-19c298e227e044aa6-47": "Продолжить отправку",
+  "tasks-WordGraphTask-19c298e227e044aa6-48":
+    "Результаты проверки ключевых слов",
+  "tasks-WordGraphTask-19c298e227e044aa6-49": "ключевые слова существуют",
+  "tasks-WordGraphTask-19c298e227e044aa6-50": "ключевые слова не существуют",
+  "tasks-WordGraphTask-19c298e227e044aa6-51":
+    "Ключевые слова, которых не существует:",
+  "tasks-WordGraphTask-19c298e227e044aa6-52": "Закрыть",
+  "tasks-WordGraphTask-19c298e227e044aa6-53":
+    "Удалить несуществующие ключевые слова",
+  "tasks-WordGraphTask-19c298e227e044aa6-54":
+    "Результаты импорта ключевых слов",
+  "tasks-WordGraphTask-19c298e227e044aa6-55": "Импортирован успешно.",
+  "tasks-WordGraphTask-19c298e227e044aa6-56": "ключевые слова",
+  "tasks-WordGraphTask-19c298e227e044aa6-57":
+    "ключевые слова недействительны или повторяются",
+  "tasks-WordGraphTask-19c298e227e044aa6-58":
+    "Недопустимые или повторяющиеся ключевые слова:",
+  "tasks-WordGraphTask-19c298e227e044aa6-59": "...и т.д.",
+  "tasks-WordGraphTask-19c298e227e044aa6-60": "а",
+  "tasks-WordGraphTask-19c298e227e044aa6-61": "Закрыть",
+  "tasks-WordGraphTask-19c298e227e044aa6-62": "Обзор миссии",
+  "tasks-WordGraphTask-19c298e227e044aa6-63": "Подтверждение параметра задачи",
+  "tasks-WordGraphTask-19c298e227e044aa6-64": "Тип задачи",
+  "tasks-WordGraphTask-19c298e227e044aa6-65": "Коллекция карт требований",
+  "tasks-WordGraphTask-19c298e227e044aa6-66": "ключевые слова",
+  "tasks-WordGraphTask-19c298e227e044aa6-67": "всего",
+  "tasks-WordGraphTask-19c298e227e044aa6-68": "ключевые слова",
+  "tasks-WordGraphTask-19c298e227e044aa6-69": "...и т.д.",
+  "tasks-WordGraphTask-19c298e227e044aa6-70": "а",
+  "tasks-WordGraphTask-19c298e227e044aa6-71": "диапазон дат",
+  "tasks-WordGraphTask-19c298e227e044aa6-72": "чтобы",
+  "tasks-WordGraphTask-19c298e227e044aa6-73": "Не выбрано",
+  "tasks-WordGraphTask-19c298e227e044aa6-74": "Выходной формат",
+  "tasks-WordGraphTask-19c298e227e044aa6-75": "CSV-формат",
+  "tasks-WordGraphTask-19c298e227e044aa6-76": "Формат Excel",
+  "tasks-WordGraphTask-19c298e227e044aa6-77": "Другие варианты",
+  "tasks-WordGraphTask-19c298e227e044aa6-78": "Источник данных:",
+  "tasks-WordGraphTask-19c298e227e044aa6-79": "ПК+мобильный",
+  "tasks-WordGraphTask-19c298e227e044aa6-80": "двигаться",
+  "tasks-WordGraphTask-19c298e227e044aa6-81": "Приоритет:",
+  "tasks-WordGraphTask-19c298e227e044aa6-82":
+    "Идентификатор задачи восстановления:",
+  "tasks-WordGraphTask-19c298e227e044aa6-83": "Отмена",
+  "tasks-WordGraphTask-19c298e227e044aa6-84": "Подтвердить отправку",
+  "tasks-WordGraphTask-19c298e227e044aa6-85": "низкий",
+  "tasks-WordGraphTask-19c298e227e044aa6-86": "в",
+  "tasks-WordGraphTask-19c298e227e044aa6-87": "высокий",
+  "tasks-WordGraphTask-19c298e227e044aa6-88": "Сначала добавьте ключевые слова",
+  "tasks-WordGraphTask-19c298e227e044aa6-89": "Проверка не удалась:",
+  "tasks-WordGraphTask-19c298e227e044aa6-90":
+    "Проверьте наличие ошибок в ключевых словах:",
+  "tasks-WordGraphTask-19c298e227e044aa6-91":
+    "Не удалось проверить ключевые слова. Проверьте сетевое соединение.",
+  "tasks-WordGraphTask-19c298e227e044aa6-92": "успешно добавлено",
+  "tasks-WordGraphTask-19c298e227e044aa6-93": "ключевые слова",
+  "tasks-WordGraphTask-19c298e227e044aa6-94":
+    "ключевые слова дублируются и игнорируются",
+  "tasks-WordGraphTask-19c298e227e044aa6-95":
+    "Вы уверены, что хотите удалить все ключевые слова?",
+  "tasks-WordGraphTask-19c298e227e044aa6-96": "Советы",
+  "tasks-WordGraphTask-19c298e227e044aa6-97": "ОК",
+  "tasks-WordGraphTask-19c298e227e044aa6-98": "Отмена",
+  "tasks-WordGraphTask-19c298e227e044aa6-99":
+    "В файле не найдено допустимых ключевых слов.",
+  "tasks-WordGraphTask-19c298e227e044aa6-100": "Ошибка чтения файла:",
+  "tasks-WordGraphTask-19c298e227e044aa6-101":
+    "Не удалось прочитать файл. Проверьте формат файла.",
+  "tasks-WordGraphTask-19c298e227e044aa6-102": "Не удалось прочитать файл",
+  "tasks-WordGraphTask-19c298e227e044aa6-103": "Не удалось отправить задачу:",
+  "tasks-WordGraphTask-19c298e227e044aa6-104":
+    "Не удалось отправить задачу. Проверьте сетевое соединение.",
+  "tasks-WordGraphTask-19c298e227e044aa6-105": "Ошибка отправки задачи:",
+  "tasks-WordGraphTask-19c298e227e044aa6-106": "очищен",
+  "tasks-WordGraphTask-19c298e227e044aa6-107":
+    "ключевые слова, которых не существует",
+  "tasks-WordGraphTask-19c298e227e044aa6-108":
+    "Вы уверены, что хотите удалить все несуществующие ключевые слова?",
+  "tasks-WordGraphTask-19c298e227e044aa6-109": "Советы",
+  "tasks-WordGraphTask-19c298e227e044aa6-110": "ОК",
+  "tasks-WordGraphTask-19c298e227e044aa6-111": "Отмена",
+  "tasks-WordGraphTask-19c298e227e044aa6-112": "очищен",
+  "tasks-WordGraphTask-19c298e227e044aa6-113":
+    "ключевые слова, которых не существует",
+  "src-App-19c2993710803cda7-1": "Домашняя страница",
+  "src-App-19c2993710803cda7-2": "Сбор данных",
+  "src-App-19c2993710803cda7-3": "Управление файлами cookie",
+  "src-App-19c2993710803cda7-4": "Большой экран данных",
+  "src-App-19c2993710803cda7-5": "Конфигурация",
+  "src-App-19c2993710803cda7-6": "О",
+  "src-App-19c2993710803cda7-7": "Условия использования",
+  "src-App-19c2993710803cda7-8": "Переключиться в светлый режим",
+  "src-App-19c2993710803cda7-9": "Переключиться в темный режим",
+  "src-App-19c2993710803cda7-10":
+    "Некоммерческий проект только для личного изучения и исследовательского использования.",
+  "src-App-19c2993710803cda7-11": "О проекте",
+  "src-App-19c2993710803cda7-12": "Условия использования",
+  "src-App-19c2993710803cda7-13": "Начни собирать",
 };

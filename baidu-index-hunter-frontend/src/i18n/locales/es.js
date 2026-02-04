@@ -617,4 +617,1317 @@ export default {
     "No se pudieron cargar los datos de la pantalla grande",
   "dashboard.dashboard.48i4x2": "{b}: {c} segundos",
   "dashboard.dashboard.y69h15": "{valor} segundos",
+  "tasks-TaskList-19c298d949224c78d-1": "lista de tareas",
+  "tasks-TaskList-19c298d949224c78d-2": "Buscar palabras clave",
+  "tasks-TaskList-19c298d949224c78d-3": "Tipo de tarea",
+  "tasks-TaskList-19c298d949224c78d-4": "índice de búsqueda",
+  "tasks-TaskList-19c298d949224c78d-5": "índice de información",
+  "tasks-TaskList-19c298d949224c78d-6": "Mapa de requisitos",
+  "tasks-TaskList-19c298d949224c78d-7": "Atributos de multitud",
+  "tasks-TaskList-19c298d949224c78d-8": "Análisis de intereses",
+  "tasks-TaskList-19c298d949224c78d-9": "Distribución geográfica",
+  "tasks-TaskList-19c298d949224c78d-10": "Estado de la tarea",
+  "tasks-TaskList-19c298d949224c78d-11": "esperando",
+  "tasks-TaskList-19c298d949224c78d-12": "ejecutando",
+  "tasks-TaskList-19c298d949224c78d-13": "Completado",
+  "tasks-TaskList-19c298d949224c78d-14": "falló",
+  "tasks-TaskList-19c298d949224c78d-15": "Cancelado",
+  "tasks-TaskList-19c298d949224c78d-16": "Buscar",
+  "tasks-TaskList-19c298d949224c78d-17": "restablecer",
+  "tasks-TaskList-19c298d949224c78d-18": "Cargando datos...",
+  "tasks-TaskList-19c298d949224c78d-19": "ID de tarea",
+  "tasks-TaskList-19c298d949224c78d-20": "Tipo de tarea",
+  "tasks-TaskList-19c298d949224c78d-21": "Estado",
+  "tasks-TaskList-19c298d949224c78d-22": "parámetros",
+  "tasks-TaskList-19c298d949224c78d-23": "Palabras clave:",
+  "tasks-TaskList-19c298d949224c78d-24": "Región:",
+  "tasks-TaskList-19c298d949224c78d-25": "Región:",
+  "tasks-TaskList-19c298d949224c78d-26": "Rango de tiempo:",
+  "tasks-TaskList-19c298d949224c78d-27": "Rango de tiempo:",
+  "tasks-TaskList-19c298d949224c78d-28": "Recientemente",
+  "tasks-TaskList-19c298d949224c78d-29": "dia",
+  "tasks-TaskList-19c298d949224c78d-30": "Rango de años:",
+  "tasks-TaskList-19c298d949224c78d-31": "a",
+  "tasks-TaskList-19c298d949224c78d-32": "Rango de tiempo:",
+  "tasks-TaskList-19c298d949224c78d-33": "a",
+  "tasks-TaskList-19c298d949224c78d-34": "Lista de fechas:",
+  "tasks-TaskList-19c298d949224c78d-35": "Tamaño del lote:",
+  "tasks-TaskList-19c298d949224c78d-36": "Fuente de datos:",
+  "tasks-TaskList-19c298d949224c78d-37": "PC+Móvil",
+  "tasks-TaskList-19c298d949224c78d-38": "moverse",
+  "tasks-TaskList-19c298d949224c78d-39": "Formato de salida:",
+  "tasks-TaskList-19c298d949224c78d-40": "tiempo de creación",
+  "tasks-TaskList-19c298d949224c78d-41": "Progreso",
+  "tasks-TaskList-19c298d949224c78d-42": "Operación",
+  "tasks-TaskList-19c298d949224c78d-43": "Operación",
+  "tasks-TaskList-19c298d949224c78d-44": "Detalles",
+  "tasks-TaskList-19c298d949224c78d-45": "Inténtalo de nuevo",
+  "tasks-TaskList-19c298d949224c78d-46": "Cancelar",
+  "tasks-TaskList-19c298d949224c78d-47": "Descargar",
+  "tasks-TaskList-19c298d949224c78d-48": "Detalles de la misión",
+  "tasks-TaskList-19c298d949224c78d-49": "ID de tarea:",
+  "tasks-TaskList-19c298d949224c78d-50": "Tipo de tarea",
+  "tasks-TaskList-19c298d949224c78d-51": "tiempo de creación",
+  "tasks-TaskList-19c298d949224c78d-52": "Hora de actualización",
+  "tasks-TaskList-19c298d949224c78d-53": "Nombre de la tarea",
+  "tasks-TaskList-19c298d949224c78d-54": "prioridad",
+  "tasks-TaskList-19c298d949224c78d-55": "Número de tarea",
+  "tasks-TaskList-19c298d949224c78d-56": "hora de inicio",
+  "tasks-TaskList-19c298d949224c78d-57": "tiempo de finalización",
+  "tasks-TaskList-19c298d949224c78d-58": "Creador",
+  "tasks-TaskList-19c298d949224c78d-59": "Número total de tareas",
+  "tasks-TaskList-19c298d949224c78d-60": "Completado",
+  "tasks-TaskList-19c298d949224c78d-61": "Número de fallas",
+  "tasks-TaskList-19c298d949224c78d-62": "mensaje de error",
+  "tasks-TaskList-19c298d949224c78d-63": "Progreso de la tarea",
+  "tasks-TaskList-19c298d949224c78d-64": "(fallido:",
+  "tasks-TaskList-19c298d949224c78d-65": "Parámetros de la tarea",
+  "tasks-TaskList-19c298d949224c78d-66": "palabras clave",
+  "tasks-TaskList-19c298d949224c78d-67": "área",
+  "tasks-TaskList-19c298d949224c78d-68": "área",
+  "tasks-TaskList-19c298d949224c78d-69": "rango de tiempo",
+  "tasks-TaskList-19c298d949224c78d-70": "rango de tiempo",
+  "tasks-TaskList-19c298d949224c78d-71": "Recientemente",
+  "tasks-TaskList-19c298d949224c78d-72": "dia",
+  "tasks-TaskList-19c298d949224c78d-73": "rango de años",
+  "tasks-TaskList-19c298d949224c78d-74": "a",
+  "tasks-TaskList-19c298d949224c78d-75": "rango de tiempo",
+  "tasks-TaskList-19c298d949224c78d-76": "a",
+  "tasks-TaskList-19c298d949224c78d-77": "lista de fechas",
+  "tasks-TaskList-19c298d949224c78d-78": "tamaño del lote",
+  "tasks-TaskList-19c298d949224c78d-79": "fuente de datos",
+  "tasks-TaskList-19c298d949224c78d-80": "PC+Móvil",
+  "tasks-TaskList-19c298d949224c78d-81": "moverse",
+  "tasks-TaskList-19c298d949224c78d-82": "Formato de salida",
+  "tasks-TaskList-19c298d949224c78d-83": "archivo de salida",
+  "tasks-TaskList-19c298d949224c78d-84": "ruta del archivo",
+  "tasks-TaskList-19c298d949224c78d-85": "Operación",
+  "tasks-TaskList-19c298d949224c78d-86": "Descargar",
+  "tasks-TaskList-19c298d949224c78d-87": "Descargar todo",
+  "tasks-TaskList-19c298d949224c78d-88": "Aún no hay archivo de salida",
+  "tasks-TaskList-19c298d949224c78d-89": "punto de control",
+  "tasks-TaskList-19c298d949224c78d-90": "Ruta del punto de control:",
+  "tasks-TaskList-19c298d949224c78d-91": "Datos del punto de control cargados",
+  "tasks-TaskList-19c298d949224c78d-92": "Descargar punto de control",
+  "tasks-TaskList-19c298d949224c78d-93": "Datos del punto de control:",
+  "tasks-TaskList-19c298d949224c78d-94":
+    "Aún no hay datos de puntos de control",
+  "tasks-TaskList-19c298d949224c78d-95": "Registro de misión",
+  "tasks-TaskList-19c298d949224c78d-96": "tiempo",
+  "tasks-TaskList-19c298d949224c78d-97": "Nivel",
+  "tasks-TaskList-19c298d949224c78d-98": "noticias",
+  "tasks-TaskList-19c298d949224c78d-99": "Aún no hay registro de tareas",
+  "tasks-TaskList-19c298d949224c78d-100": "Cerrar",
+  "tasks-TaskList-19c298d949224c78d-101": "Reintentar tarea",
+  "tasks-TaskList-19c298d949224c78d-102": "Cancelar tarea",
+  "tasks-TaskList-19c298d949224c78d-103": "teléfono móvil xiaomi",
+  "tasks-TaskList-19c298d949224c78d-104": "teléfono móvil huawei",
+  "tasks-TaskList-19c298d949224c78d-105": "A nivel nacional",
+  "tasks-TaskList-19c298d949224c78d-106": "portátil",
+  "tasks-TaskList-19c298d949224c78d-107": "tableta",
+  "tasks-TaskList-19c298d949224c78d-108": "Pekín",
+  "tasks-TaskList-19c298d949224c78d-109": "Shangai",
+  "tasks-TaskList-19c298d949224c78d-110": "Cantón",
+  "tasks-TaskList-19c298d949224c78d-111": "zapatillas de deporte",
+  "tasks-TaskList-19c298d949224c78d-112": "zapatos casuales",
+  "tasks-TaskList-19c298d949224c78d-113": "Tarea",
+  "tasks-TaskList-19c298d949224c78d-114":
+    "No se pudieron analizar los parámetros:",
+  "tasks-TaskList-19c298d949224c78d-115":
+    "No se pudo obtener la lista de tareas:",
+  "tasks-TaskList-19c298d949224c78d-116":
+    "No se pudo obtener la lista de tareas; verifique la conexión de red",
+  "tasks-TaskList-19c298d949224c78d-117":
+    "No se pudieron obtener los detalles de la tarea:",
+  "tasks-TaskList-19c298d949224c78d-118":
+    "Error al cargar los detalles de la tarea:",
+  "tasks-TaskList-19c298d949224c78d-119": "La tarea ha sido reenviada",
+  "tasks-TaskList-19c298d949224c78d-120": "La tarea ha sido reenviada",
+  "tasks-TaskList-19c298d949224c78d-121": "La tarea de reintento falló:",
+  "tasks-TaskList-19c298d949224c78d-122":
+    "Error al reintentar la tarea; verifique la conexión de red",
+  "tasks-TaskList-19c298d949224c78d-123": "Error de reintento de tarea:",
+  "tasks-TaskList-19c298d949224c78d-124": "Tarea cancelada",
+  "tasks-TaskList-19c298d949224c78d-125": "Tarea cancelada",
+  "tasks-TaskList-19c298d949224c78d-126": "No se pudo cancelar la tarea:",
+  "tasks-TaskList-19c298d949224c78d-127":
+    "No se pudo cancelar la tarea, verifique la conexión de red",
+  "tasks-TaskList-19c298d949224c78d-128": "Cancelar error de tarea:",
+  "tasks-TaskList-19c298d949224c78d-129":
+    "No hay ningún archivo de resultados descargable para esta tarea",
+  "tasks-TaskList-19c298d949224c78d-130": "Descarga exitosa",
+  "tasks-TaskList-19c298d949224c78d-131":
+    "La descarga falló, verifique la conexión de red",
+  "tasks-TaskList-19c298d949224c78d-132":
+    "Error de resultado de la tarea de descarga:",
+  "tasks-TaskList-19c298d949224c78d-133":
+    "La descarga falló, verifique la conexión de red",
+  "tasks-TaskList-19c298d949224c78d-134": "Error al descargar el archivo:",
+  "tasks-TaskList-19c298d949224c78d-135":
+    "No se pudo descargar el archivo de punto de control",
+  "tasks-TaskList-19c298d949224c78d-136":
+    "Error al descargar el archivo de punto de control:",
+  "tasks-TaskList-19c298d949224c78d-137": "índice de búsqueda",
+  "tasks-TaskList-19c298d949224c78d-138": "índice de información",
+  "tasks-TaskList-19c298d949224c78d-139": "Mapa de requisitos",
+  "tasks-TaskList-19c298d949224c78d-140": "Atributos de multitud",
+  "tasks-TaskList-19c298d949224c78d-141": "Análisis de intereses",
+  "tasks-TaskList-19c298d949224c78d-142": "Distribución geográfica",
+  "tasks-TaskList-19c298d949224c78d-143": "esperando",
+  "tasks-TaskList-19c298d949224c78d-144": "ejecutando",
+  "tasks-TaskList-19c298d949224c78d-145": "Completado",
+  "tasks-TaskList-19c298d949224c78d-146": "falló",
+  "tasks-TaskList-19c298d949224c78d-147": "Cancelado",
+  "tasks-TaskList-19c298d949224c78d-148": "alto",
+  "tasks-TaskList-19c298d949224c78d-149": "en",
+  "tasks-TaskList-19c298d949224c78d-150": "bajo",
+  "tasks-TaskList-19c298d949224c78d-151": "Error de formato de ciudad:",
+  "tasks-TaskList-19c298d949224c78d-152": "a",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-1": "estadísticas diarias",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-2": "Clasificación de cuenta",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-3": "Gráfico de tendencias",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-4": "Mapa de distribución",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-5": "mapa de calor",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-6": "gráfico de barras",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-7": "gráfico de líneas",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-8": "Mostrar la primera N",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-9": "a",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-10": "fecha de inicio",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-11": "fecha de finalización",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-12":
+    "Sincronizar datos de uso",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-13": "Ocultar tabla de datos",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-14": "Ver hoja de datos",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-15": "Exportar datos",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-16":
+    "Tabla de datos de uso de cookies",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-17": "ID de cuenta",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-18": "Fecha de uso",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-19": "Número de usos",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-20":
+    "Detalles de uso de cookies",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-21": "ID de cuenta",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-22": "Número de usos",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-23": "Proporción de uso",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-24": "Cerrar",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-25": "Exportar datos",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-26":
+    "Estadísticas diarias de uso de cookies",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-27": "Número de usos",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-28": "Uso",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-29":
+    "Clasificación de uso de cuentas de cookies",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-30": "Número de usos",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-31": "Uso",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-32":
+    "Tendencias de uso de cookies",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-33": "Número de usos",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-34":
+    "Distribución del uso de cookies",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-35": "Uso",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-36":
+    "Mapa de calor del uso de cookies",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-37": "veces",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-38": "Uso de cookies",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-39":
+    "No se pudieron obtener datos de uso de cookies:",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-40":
+    "No se pudieron obtener datos de uso de cookies:",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-41":
+    "No se pudieron obtener los datos de uso de cookies, verifique la conexión de red",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-42": "Otros",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-43":
+    "Sincronización exitosa de datos de uso de cookies",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-44":
+    "No se pudieron sincronizar los datos de uso de cookies:",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-45":
+    "No se pudieron sincronizar los datos de uso de cookies:",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-46":
+    "No se pudieron sincronizar los datos de uso de cookies, verifique la conexión de red",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-47":
+    "data:text/csv;charset=utf-8, ID de cuenta, fecha de uso, número de usos",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-48":
+    "Exportación de datos exitosa",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-49":
+    "No se pudieron exportar datos:",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-50":
+    "No se pudieron exportar datos",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-1": "A nivel nacional",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-2":
+    "Seleccionar todas las provincias",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-3": "Deseleccionar todo",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-4":
+    "Seleccione todas las ciudades a nivel de prefectura",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-5": "Deseleccionar todo",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-6": "Seleccionar todo",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-7": "Deseleccionar todo",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-8":
+    "Por favor seleccione la provincia a la izquierda",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-9": "Área seleccionada:",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-10": "Borrar selección",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-11": "A nivel nacional",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-12": "Más...",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-13": "cerrar",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-14":
+    "Error al obtener datos:",
+  "components-RegionCitySelector-19c298e1bc4e14bf9-15":
+    "Error de red, inténtelo de nuevo más tarde",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-1":
+    "Colección de atributos de multitud",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-2":
+    "Obtenga datos de atributos de masas del Índice Baidu, incluidos género, edad, educación y otras características demográficas.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-3":
+    "Establecer parámetros",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-4":
+    "Configuración de palabras clave",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-5":
+    "Entrada de palabras clave",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-6":
+    "Ingrese una palabra clave por línea y agréguela en lotes",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-7":
+    "Agregar palabras clave",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-8":
+    "Una palabra clave por línea",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-9":
+    "Importación de archivos",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-10": "Seleccionar archivo",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-11":
+    "Admite formatos .xlsx, .csv, .txt",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-12":
+    "Saltar la primera fila (fila de título)",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-13":
+    "Palabras clave agregadas",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-14":
+    "Esta palabra clave no existe en el índice Baidu",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-15":
+    "Borrar palabras clave",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-16":
+    "Verificar palabras clave",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-17":
+    "Borrar palabras clave inexistentes",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-18": "total",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-19": "palabras clave",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-20":
+    "Configuración de salida",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-21": "fuente de datos",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-22": "PC+Móvil",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-23": "moverse",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-24": "Formato de salida",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-25": "formato CSV",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-26": "formato excel",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-27": "tamaño del lote",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-28":
+    "La cantidad de palabras clave procesadas en cada lote, el valor predeterminado es 10",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-29":
+    "Configuración de tareas",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-30":
+    "tarea de recuperación",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-31": "si",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-32": "No",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-33": "ID de tarea",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-34":
+    "Por favor ingrese el ID de la tarea para ser restaurada",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-35": "prioridad",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-36": "Enviar tarea",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-37": "restablecer",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-38":
+    "Tarea enviada exitosamente",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-39":
+    "Tarea enviada exitosamente",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-40": "ID de tarea:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-41": "Ver lista de tareas",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-42": "Continuar enviando",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-43":
+    "Resultados de la verificación de palabras clave",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-44":
+    "existen palabras clave",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-45":
+    "las palabras clave no existen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-46":
+    "Palabras clave que no existen:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-47": "Cerrar",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-48":
+    "Borrar palabras clave inexistentes",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-49":
+    "Importado exitosamente",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-50": "palabras clave",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-51":
+    "Las palabras clave no son válidas o están duplicadas.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-52":
+    "Palabras clave no válidas o duplicadas:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-53": "...etc.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-54": "un",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-55": "Cerrar",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-56":
+    "Resumen de la misión",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-57":
+    "Confirmación de parámetros de tarea",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-58": "Tipo de tarea",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-59":
+    "Colección de atributos de multitud",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-60": "palabras clave",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-61": "total",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-62": "palabras clave",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-63": "...etc.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-64": "un",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-65":
+    "Configuración de salida",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-66": "Formato de salida:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-67": "formato CSV",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-68": "formato excel",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-69": "Tamaño del lote:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-70": "Otras opciones",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-71": "Fuente de datos:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-72": "PC+Móvil",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-73": "moverse",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-74": "Prioridad:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-75":
+    "ID de la tarea de recuperación:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-76": "Cancelar",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-77": "Confirmar envío",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-78": "bajo",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-79": "en",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-80": "alto",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-81":
+    "Por favor agregue primero las palabras clave",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-82":
+    "Verificación fallida:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-83":
+    "Compruebe si hay errores de palabras clave:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-84":
+    "No se pudieron verificar las palabras clave, verifique la conexión de red",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-85":
+    "agregado exitosamente",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-86": "palabras clave",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-87":
+    "Las palabras clave se duplican y se ignoran.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-88":
+    "¿Está seguro de que desea borrar todas las palabras clave?",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-89": "Consejos",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-90": "OK",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-91": "Cancelar",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-92":
+    "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-93": "Consejos",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-94": "OK",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-95": "Cancelar",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-96": "despejado",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-97":
+    "palabras clave que no existen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-98": "despejado",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-99":
+    "palabras clave que no existen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-100":
+    "No se encontraron palabras clave válidas en el archivo.",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-101":
+    "Resultados de importación de palabras clave",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-102":
+    "Error al leer el archivo:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-103":
+    "Error al leer el archivo, verifique el formato del archivo",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-104":
+    "Falló la lectura del archivo",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-105":
+    "Error al enviar la tarea:",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-106":
+    "Error al enviar la tarea, verifique la conexión de red",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-107":
+    "Error al enviar la tarea:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-1":
+    "Colección de índices de información.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-2":
+    "Obtenga datos de tendencias del Índice de información de Baidu, que admitan múltiples palabras clave, múltiples ciudades y rangos de tiempo personalizados",
+  "tasks-FeedIndexTask-19c298e1d0a206148-3": "Establecer parámetros",
+  "tasks-FeedIndexTask-19c298e1d0a206148-4": "Configuración de palabras clave",
+  "tasks-FeedIndexTask-19c298e1d0a206148-5": "Entrada de palabras clave",
+  "tasks-FeedIndexTask-19c298e1d0a206148-6":
+    "Ingrese una palabra clave por línea y agréguela en lotes",
+  "tasks-FeedIndexTask-19c298e1d0a206148-7": "Agregar palabras clave",
+  "tasks-FeedIndexTask-19c298e1d0a206148-8": "Una palabra clave por línea",
+  "tasks-FeedIndexTask-19c298e1d0a206148-9": "Importación de archivos",
+  "tasks-FeedIndexTask-19c298e1d0a206148-10": "Seleccionar archivo",
+  "tasks-FeedIndexTask-19c298e1d0a206148-11":
+    "Admite formatos .xlsx, .csv, .txt",
+  "tasks-FeedIndexTask-19c298e1d0a206148-12":
+    "Saltar la primera fila (fila de título)",
+  "tasks-FeedIndexTask-19c298e1d0a206148-13": "Palabras clave agregadas",
+  "tasks-FeedIndexTask-19c298e1d0a206148-14":
+    "Esta palabra clave no existe en el índice Baidu",
+  "tasks-FeedIndexTask-19c298e1d0a206148-15": "Borrar palabras clave",
+  "tasks-FeedIndexTask-19c298e1d0a206148-16": "Verificar palabras clave",
+  "tasks-FeedIndexTask-19c298e1d0a206148-17":
+    "Borrar palabras clave inexistentes",
+  "tasks-FeedIndexTask-19c298e1d0a206148-18": "total",
+  "tasks-FeedIndexTask-19c298e1d0a206148-19": "palabras clave",
+  "tasks-FeedIndexTask-19c298e1d0a206148-20": "entorno de la ciudad",
+  "tasks-FeedIndexTask-19c298e1d0a206148-21": "Selecciona ciudad",
+  "tasks-FeedIndexTask-19c298e1d0a206148-22": "importación de la ciudad",
+  "tasks-FeedIndexTask-19c298e1d0a206148-23": "Seleccionar archivo",
+  "tasks-FeedIndexTask-19c298e1d0a206148-24":
+    "Admite formatos .xlsx, .csv, .txt, un código de ciudad por línea",
+  "tasks-FeedIndexTask-19c298e1d0a206148-25":
+    "Saltar la primera fila (fila de título)",
+  "tasks-FeedIndexTask-19c298e1d0a206148-26": "Ajuste de tiempo",
+  "tasks-FeedIndexTask-19c298e1d0a206148-27": "fuente de datos",
+  "tasks-FeedIndexTask-19c298e1d0a206148-28": "PC+Móvil",
+  "tasks-FeedIndexTask-19c298e1d0a206148-29": "moverse",
+  "tasks-FeedIndexTask-19c298e1d0a206148-30": "tipo de tiempo",
+  "tasks-FeedIndexTask-19c298e1d0a206148-31": "Todos los datos",
+  "tasks-FeedIndexTask-19c298e1d0a206148-32": "fecha personalizada",
+  "tasks-FeedIndexTask-19c298e1d0a206148-33": "Número de días predeterminado",
+  "tasks-FeedIndexTask-19c298e1d0a206148-34": "datos anuales",
+  "tasks-FeedIndexTask-19c298e1d0a206148-35": "rango de fechas",
+  "tasks-FeedIndexTask-19c298e1d0a206148-36": "a",
+  "tasks-FeedIndexTask-19c298e1d0a206148-37": "fecha de inicio",
+  "tasks-FeedIndexTask-19c298e1d0a206148-38": "fecha de finalización",
+  "tasks-FeedIndexTask-19c298e1d0a206148-39": "Número de días predeterminado",
+  "tasks-FeedIndexTask-19c298e1d0a206148-40":
+    "Por favor seleccione el número de días",
+  "tasks-FeedIndexTask-19c298e1d0a206148-41": "últimos 7 días",
+  "tasks-FeedIndexTask-19c298e1d0a206148-42": "últimos 30 días",
+  "tasks-FeedIndexTask-19c298e1d0a206148-43": "últimos 90 días",
+  "tasks-FeedIndexTask-19c298e1d0a206148-44": "Últimos 180 días",
+  "tasks-FeedIndexTask-19c298e1d0a206148-45": "rango de años",
+  "tasks-FeedIndexTask-19c298e1d0a206148-46": "año de inicio",
+  "tasks-FeedIndexTask-19c298e1d0a206148-47": "a",
+  "tasks-FeedIndexTask-19c298e1d0a206148-48": "fin de año",
+  "tasks-FeedIndexTask-19c298e1d0a206148-49": "Descripción de datos",
+  "tasks-FeedIndexTask-19c298e1d0a206148-50": "se obtendrá de",
+  "tasks-FeedIndexTask-19c298e1d0a206148-51":
+    "Todos los datos históricos hasta la fecha.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-52": "1 de junio de 2006",
+  "tasks-FeedIndexTask-19c298e1d0a206148-53": "1 de enero de 2011",
+  "tasks-FeedIndexTask-19c298e1d0a206148-54": "Configuración de tareas",
+  "tasks-FeedIndexTask-19c298e1d0a206148-55": "tarea de recuperación",
+  "tasks-FeedIndexTask-19c298e1d0a206148-56": "si",
+  "tasks-FeedIndexTask-19c298e1d0a206148-57": "No",
+  "tasks-FeedIndexTask-19c298e1d0a206148-58": "ID de tarea",
+  "tasks-FeedIndexTask-19c298e1d0a206148-59":
+    "Por favor ingrese el ID de la tarea para ser restaurada",
+  "tasks-FeedIndexTask-19c298e1d0a206148-60": "prioridad",
+  "tasks-FeedIndexTask-19c298e1d0a206148-61": "Enviar tarea",
+  "tasks-FeedIndexTask-19c298e1d0a206148-62": "restablecer",
+  "tasks-FeedIndexTask-19c298e1d0a206148-63": "Tarea enviada exitosamente",
+  "tasks-FeedIndexTask-19c298e1d0a206148-64": "Tarea enviada exitosamente",
+  "tasks-FeedIndexTask-19c298e1d0a206148-65": "ID de tarea:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-66": "Ver lista de tareas",
+  "tasks-FeedIndexTask-19c298e1d0a206148-67": "Continuar enviando",
+  "tasks-FeedIndexTask-19c298e1d0a206148-68":
+    "Resultados de la verificación de palabras clave",
+  "tasks-FeedIndexTask-19c298e1d0a206148-69": "existen palabras clave",
+  "tasks-FeedIndexTask-19c298e1d0a206148-70": "las palabras clave no existen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-71": "Palabras clave que no existen:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-72": "Cerrar",
+  "tasks-FeedIndexTask-19c298e1d0a206148-73":
+    "Borrar palabras clave inexistentes",
+  "tasks-FeedIndexTask-19c298e1d0a206148-74": "Importado exitosamente",
+  "tasks-FeedIndexTask-19c298e1d0a206148-75":
+    "Resultados de importación de palabras clave",
+  "tasks-FeedIndexTask-19c298e1d0a206148-76": "palabras clave",
+  "tasks-FeedIndexTask-19c298e1d0a206148-77": "ciudades",
+  "tasks-FeedIndexTask-19c298e1d0a206148-78": "Inválido o duplicado",
+  "tasks-FeedIndexTask-19c298e1d0a206148-79":
+    "Resultados de importación de palabras clave",
+  "tasks-FeedIndexTask-19c298e1d0a206148-80": "palabras clave",
+  "tasks-FeedIndexTask-19c298e1d0a206148-81": "ciudades",
+  "tasks-FeedIndexTask-19c298e1d0a206148-82": "Inválido o duplicado",
+  "tasks-FeedIndexTask-19c298e1d0a206148-83":
+    "Resultados de importación de palabras clave",
+  "tasks-FeedIndexTask-19c298e1d0a206148-84": "palabras clave",
+  "tasks-FeedIndexTask-19c298e1d0a206148-85": "ciudad",
+  "tasks-FeedIndexTask-19c298e1d0a206148-86": "...etc.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-87": "un",
+  "tasks-FeedIndexTask-19c298e1d0a206148-88": "Cerrar",
+  "tasks-FeedIndexTask-19c298e1d0a206148-89": "Resumen de la misión",
+  "tasks-FeedIndexTask-19c298e1d0a206148-90":
+    "Confirmación de parámetros de tarea",
+  "tasks-FeedIndexTask-19c298e1d0a206148-91": "Tipo de tarea",
+  "tasks-FeedIndexTask-19c298e1d0a206148-92":
+    "Colección de índices de información.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-93": "palabras clave",
+  "tasks-FeedIndexTask-19c298e1d0a206148-94": "total",
+  "tasks-FeedIndexTask-19c298e1d0a206148-95": "palabras clave",
+  "tasks-FeedIndexTask-19c298e1d0a206148-96": "...etc.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-97": "un",
+  "tasks-FeedIndexTask-19c298e1d0a206148-98": "área",
+  "tasks-FeedIndexTask-19c298e1d0a206148-99": "total",
+  "tasks-FeedIndexTask-19c298e1d0a206148-100": "regiones",
+  "tasks-FeedIndexTask-19c298e1d0a206148-101": "A nivel nacional",
+  "tasks-FeedIndexTask-19c298e1d0a206148-102": "...etc.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-103": "un",
+  "tasks-FeedIndexTask-19c298e1d0a206148-104": "rango de tiempo",
+  "tasks-FeedIndexTask-19c298e1d0a206148-105": "Todos los datos históricos (",
+  "tasks-FeedIndexTask-19c298e1d0a206148-106": "1 de junio de 2006",
+  "tasks-FeedIndexTask-19c298e1d0a206148-107": "1 de enero de 2011",
+  "tasks-FeedIndexTask-19c298e1d0a206148-108": "(hasta la fecha)",
+  "tasks-FeedIndexTask-19c298e1d0a206148-109": "Recientemente",
+  "tasks-FeedIndexTask-19c298e1d0a206148-110": "dia",
+  "tasks-FeedIndexTask-19c298e1d0a206148-111": "a",
+  "tasks-FeedIndexTask-19c298e1d0a206148-112": "año a",
+  "tasks-FeedIndexTask-19c298e1d0a206148-113": "año",
+  "tasks-FeedIndexTask-19c298e1d0a206148-114": "Otras opciones",
+  "tasks-FeedIndexTask-19c298e1d0a206148-115": "Fuente de datos:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-116": "PC+Móvil",
+  "tasks-FeedIndexTask-19c298e1d0a206148-117": "moverse",
+  "tasks-FeedIndexTask-19c298e1d0a206148-118": "Prioridad:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-119":
+    "ID de la tarea de recuperación:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-120": "Cancelar",
+  "tasks-FeedIndexTask-19c298e1d0a206148-121": "Confirmar envío",
+  "tasks-FeedIndexTask-19c298e1d0a206148-122": "bajo",
+  "tasks-FeedIndexTask-19c298e1d0a206148-123": "en",
+  "tasks-FeedIndexTask-19c298e1d0a206148-124": "alto",
+  "tasks-FeedIndexTask-19c298e1d0a206148-125":
+    "No se pudo obtener el mapa de la ciudad:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-126":
+    "Por favor agregue primero las palabras clave",
+  "tasks-FeedIndexTask-19c298e1d0a206148-127": "Verificación fallida:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-128":
+    "Compruebe si hay errores de palabras clave:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-129":
+    "No se pudieron verificar las palabras clave, verifique la conexión de red",
+  "tasks-FeedIndexTask-19c298e1d0a206148-130": "agregado exitosamente",
+  "tasks-FeedIndexTask-19c298e1d0a206148-131": "palabras clave",
+  "tasks-FeedIndexTask-19c298e1d0a206148-132":
+    "Las palabras clave se duplican y se ignoran.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-133":
+    "¿Está seguro de que desea borrar todas las palabras clave?",
+  "tasks-FeedIndexTask-19c298e1d0a206148-134": "Consejos",
+  "tasks-FeedIndexTask-19c298e1d0a206148-135": "OK",
+  "tasks-FeedIndexTask-19c298e1d0a206148-136": "Cancelar",
+  "tasks-FeedIndexTask-19c298e1d0a206148-137":
+    "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
+  "tasks-FeedIndexTask-19c298e1d0a206148-138": "Consejos",
+  "tasks-FeedIndexTask-19c298e1d0a206148-139": "OK",
+  "tasks-FeedIndexTask-19c298e1d0a206148-140": "Cancelar",
+  "tasks-FeedIndexTask-19c298e1d0a206148-141": "despejado",
+  "tasks-FeedIndexTask-19c298e1d0a206148-142": "palabras clave que no existen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-143": "despejado",
+  "tasks-FeedIndexTask-19c298e1d0a206148-144": "palabras clave que no existen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-145":
+    "No se encontraron palabras clave válidas en el archivo.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-146":
+    "Resultados de importación de palabras clave",
+  "tasks-FeedIndexTask-19c298e1d0a206148-147": "Error al leer el archivo:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-148":
+    "Error al leer el archivo, verifique el formato del archivo",
+  "tasks-FeedIndexTask-19c298e1d0a206148-149":
+    "No se encontró ningún código de ciudad válido en el archivo",
+  "tasks-FeedIndexTask-19c298e1d0a206148-150":
+    "Resultados de importación de ciudades",
+  "tasks-FeedIndexTask-19c298e1d0a206148-151": "Error al leer el archivo:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-152":
+    "Error al leer el archivo, verifique el formato del archivo",
+  "tasks-FeedIndexTask-19c298e1d0a206148-153": "Falló la lectura del archivo",
+  "tasks-FeedIndexTask-19c298e1d0a206148-154": "Error al enviar la tarea:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-155":
+    "Error al enviar la tarea, verifique la conexión de red",
+  "tasks-FeedIndexTask-19c298e1d0a206148-156": "Error al enviar la tarea:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-1":
+    "Colección de análisis de intereses.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-2":
+    "Obtenga datos sobre los retratos de interés de la multitud del Índice Baidu, incluidas las categorías de interés y sus proporciones.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-3": "Establecer parámetros",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-4":
+    "Configuración de palabras clave",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-5": "Entrada de palabras clave",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-6":
+    "Ingrese una palabra clave por línea y agréguela en lotes",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-7": "Agregar palabras clave",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-8":
+    "Una palabra clave por línea",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-9": "Importación de archivos",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-10": "Seleccionar archivo",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-11":
+    "Admite formatos .xlsx, .csv, .txt",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-12":
+    "Saltar la primera fila (fila de título)",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-13": "Palabras clave agregadas",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-14":
+    "Esta palabra clave no existe en el índice Baidu",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-15": "Borrar palabras clave",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-16": "Verificar palabras clave",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-17":
+    "Borrar palabras clave inexistentes",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-18": "total",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-19": "palabras clave",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-20": "Configuración de salida",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-21": "fuente de datos",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-22": "PC+Móvil",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-23": "moverse",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-24": "Formato de salida",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-25": "formato CSV",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-26": "formato excel",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-27": "tamaño del lote",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-28":
+    "La cantidad de palabras clave procesadas en cada lote, el valor predeterminado es 10",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-29": "Configuración de tareas",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-30": "tarea de recuperación",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-31": "si",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-32": "No",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-33": "ID de tarea",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-34":
+    "Por favor ingrese el ID de la tarea para ser restaurada",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-35": "prioridad",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-36": "Enviar tarea",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-37": "restablecer",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-38":
+    "Tarea enviada exitosamente",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-39":
+    "Tarea enviada exitosamente",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-40": "ID de tarea:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-41": "Ver lista de tareas",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-42": "Continuar enviando",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-43":
+    "Resultados de la verificación de palabras clave",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-44": "existen palabras clave",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-45":
+    "las palabras clave no existen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-46":
+    "Palabras clave que no existen:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-47": "Cerrar",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-48":
+    "Borrar palabras clave inexistentes",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-49": "Importado exitosamente",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-50": "palabras clave",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-51":
+    "Las palabras clave no son válidas o están duplicadas.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-52":
+    "Palabras clave no válidas o duplicadas:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-53": "...etc.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-54": "un",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-55": "Cerrar",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-56": "Resumen de la misión",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-57":
+    "Confirmación de parámetros de tarea",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-58": "Tipo de tarea",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-59":
+    "Colección de análisis de intereses.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-60": "palabras clave",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-61": "total",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-62": "palabras clave",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-63": "...etc.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-64": "un",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-65": "Configuración de salida",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-66": "Formato de salida:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-67": "formato CSV",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-68": "formato excel",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-69": "Tamaño del lote:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-70": "Otras opciones",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-71": "Fuente de datos:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-72": "PC+Móvil",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-73": "moverse",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-74": "Prioridad:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-75":
+    "ID de la tarea de recuperación:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-76": "Cancelar",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-77": "Confirmar envío",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-78": "bajo",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-79": "en",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-80": "alto",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-81":
+    "Por favor agregue primero las palabras clave",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-82": "Verificación fallida:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-83":
+    "Compruebe si hay errores de palabras clave:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-84":
+    "No se pudieron verificar las palabras clave, verifique la conexión de red",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-85": "agregado exitosamente",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-86": "palabras clave",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-87":
+    "Las palabras clave se duplican y se ignoran.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-88":
+    "¿Está seguro de que desea borrar todas las palabras clave?",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-89": "Consejos",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-90": "OK",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-91": "Cancelar",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-92":
+    "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-93": "Consejos",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-94": "OK",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-95": "Cancelar",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-96": "despejado",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-97":
+    "palabras clave que no existen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-98": "despejado",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-99":
+    "palabras clave que no existen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-100":
+    "No se encontraron palabras clave válidas en el archivo.",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-101":
+    "Resultados de importación de palabras clave",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-102":
+    "Error al leer el archivo:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-103":
+    "Error al leer el archivo, verifique el formato del archivo",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-104":
+    "Falló la lectura del archivo",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-105":
+    "Error al enviar la tarea:",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-106":
+    "Error al enviar la tarea, verifique la conexión de red",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-107":
+    "Error al enviar la tarea:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-1":
+    "Colección distribuida geográficamente",
+  "tasks-RegionDistributionTask-19c298e201890d5db-2":
+    "Obtenga los datos de distribución geográfica de los retratos de multitudes del índice Baidu, incluida la proporción del índice de búsqueda en cada provincia, ciudad y región.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-3": "Establecer parámetros",
+  "tasks-RegionDistributionTask-19c298e201890d5db-4":
+    "Configuración de palabras clave",
+  "tasks-RegionDistributionTask-19c298e201890d5db-5":
+    "Entrada de palabras clave",
+  "tasks-RegionDistributionTask-19c298e201890d5db-6":
+    "Ingrese una palabra clave por línea y agréguela en lotes",
+  "tasks-RegionDistributionTask-19c298e201890d5db-7": "Agregar palabras clave",
+  "tasks-RegionDistributionTask-19c298e201890d5db-8":
+    "Una palabra clave por línea",
+  "tasks-RegionDistributionTask-19c298e201890d5db-9": "Importación de archivos",
+  "tasks-RegionDistributionTask-19c298e201890d5db-10": "Seleccionar archivo",
+  "tasks-RegionDistributionTask-19c298e201890d5db-11":
+    "Admite formatos .xlsx, .csv, .txt",
+  "tasks-RegionDistributionTask-19c298e201890d5db-12":
+    "Saltar la primera fila (fila de título)",
+  "tasks-RegionDistributionTask-19c298e201890d5db-13":
+    "Palabras clave agregadas",
+  "tasks-RegionDistributionTask-19c298e201890d5db-14":
+    "Esta palabra clave no existe en el índice Baidu",
+  "tasks-RegionDistributionTask-19c298e201890d5db-15": "Borrar palabras clave",
+  "tasks-RegionDistributionTask-19c298e201890d5db-16":
+    "Verificar palabras clave",
+  "tasks-RegionDistributionTask-19c298e201890d5db-17":
+    "Borrar palabras clave inexistentes",
+  "tasks-RegionDistributionTask-19c298e201890d5db-18": "total",
+  "tasks-RegionDistributionTask-19c298e201890d5db-19": "palabras clave",
+  "tasks-RegionDistributionTask-19c298e201890d5db-20": "configuración local",
+  "tasks-RegionDistributionTask-19c298e201890d5db-21": "Seleccionar región",
+  "tasks-RegionDistributionTask-19c298e201890d5db-22": "Importación de región",
+  "tasks-RegionDistributionTask-19c298e201890d5db-23": "Seleccionar archivo",
+  "tasks-RegionDistributionTask-19c298e201890d5db-24":
+    "Admite formatos .xlsx, .csv, .txt, un código de región por línea",
+  "tasks-RegionDistributionTask-19c298e201890d5db-25":
+    "Saltar la primera fila (fila de título)",
+  "tasks-RegionDistributionTask-19c298e201890d5db-26": "Ajuste de tiempo",
+  "tasks-RegionDistributionTask-19c298e201890d5db-27": "fuente de datos",
+  "tasks-RegionDistributionTask-19c298e201890d5db-28": "PC+Móvil",
+  "tasks-RegionDistributionTask-19c298e201890d5db-29": "moverse",
+  "tasks-RegionDistributionTask-19c298e201890d5db-30": "tipo de tiempo",
+  "tasks-RegionDistributionTask-19c298e201890d5db-31": "Todos los datos",
+  "tasks-RegionDistributionTask-19c298e201890d5db-32": "fecha personalizada",
+  "tasks-RegionDistributionTask-19c298e201890d5db-33":
+    "Número de días predeterminado",
+  "tasks-RegionDistributionTask-19c298e201890d5db-34": "datos anuales",
+  "tasks-RegionDistributionTask-19c298e201890d5db-35": "rango de fechas",
+  "tasks-RegionDistributionTask-19c298e201890d5db-36": "a",
+  "tasks-RegionDistributionTask-19c298e201890d5db-37": "fecha de inicio",
+  "tasks-RegionDistributionTask-19c298e201890d5db-38": "fecha de finalización",
+  "tasks-RegionDistributionTask-19c298e201890d5db-39":
+    "Número de días predeterminado",
+  "tasks-RegionDistributionTask-19c298e201890d5db-40":
+    "Por favor seleccione el número de días",
+  "tasks-RegionDistributionTask-19c298e201890d5db-41": "últimos 7 días",
+  "tasks-RegionDistributionTask-19c298e201890d5db-42": "últimos 30 días",
+  "tasks-RegionDistributionTask-19c298e201890d5db-43": "últimos 90 días",
+  "tasks-RegionDistributionTask-19c298e201890d5db-44": "Últimos 180 días",
+  "tasks-RegionDistributionTask-19c298e201890d5db-45": "Últimos 365 días",
+  "tasks-RegionDistributionTask-19c298e201890d5db-46": "rango de años",
+  "tasks-RegionDistributionTask-19c298e201890d5db-47": "año de inicio",
+  "tasks-RegionDistributionTask-19c298e201890d5db-48": "a",
+  "tasks-RegionDistributionTask-19c298e201890d5db-49": "fin de año",
+  "tasks-RegionDistributionTask-19c298e201890d5db-50": "Descripción de datos",
+  "tasks-RegionDistributionTask-19c298e201890d5db-51": "se obtendrá de",
+  "tasks-RegionDistributionTask-19c298e201890d5db-52":
+    "Todos los datos históricos hasta la fecha.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-53": "1 de junio de 2006",
+  "tasks-RegionDistributionTask-19c298e201890d5db-54": "1 de enero de 2011",
+  "tasks-RegionDistributionTask-19c298e201890d5db-55":
+    "Configuración de salida",
+  "tasks-RegionDistributionTask-19c298e201890d5db-56": "Formato de salida",
+  "tasks-RegionDistributionTask-19c298e201890d5db-57": "formato CSV",
+  "tasks-RegionDistributionTask-19c298e201890d5db-58": "formato excel",
+  "tasks-RegionDistributionTask-19c298e201890d5db-59":
+    "Configuración de tareas",
+  "tasks-RegionDistributionTask-19c298e201890d5db-60": "tarea de recuperación",
+  "tasks-RegionDistributionTask-19c298e201890d5db-61": "si",
+  "tasks-RegionDistributionTask-19c298e201890d5db-62": "No",
+  "tasks-RegionDistributionTask-19c298e201890d5db-63": "ID de tarea",
+  "tasks-RegionDistributionTask-19c298e201890d5db-64":
+    "Por favor ingrese el ID de la tarea para ser restaurada",
+  "tasks-RegionDistributionTask-19c298e201890d5db-65": "prioridad",
+  "tasks-RegionDistributionTask-19c298e201890d5db-66": "Enviar tarea",
+  "tasks-RegionDistributionTask-19c298e201890d5db-67": "restablecer",
+  "tasks-RegionDistributionTask-19c298e201890d5db-68":
+    "Tarea enviada exitosamente",
+  "tasks-RegionDistributionTask-19c298e201890d5db-69":
+    "Tarea enviada exitosamente",
+  "tasks-RegionDistributionTask-19c298e201890d5db-70": "ID de tarea:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-71": "Ver lista de tareas",
+  "tasks-RegionDistributionTask-19c298e201890d5db-72": "Continuar enviando",
+  "tasks-RegionDistributionTask-19c298e201890d5db-73":
+    "Resultados de la verificación de palabras clave",
+  "tasks-RegionDistributionTask-19c298e201890d5db-74": "existen palabras clave",
+  "tasks-RegionDistributionTask-19c298e201890d5db-75":
+    "las palabras clave no existen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-76":
+    "Palabras clave que no existen:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-77": "Cerrar",
+  "tasks-RegionDistributionTask-19c298e201890d5db-78":
+    "Borrar palabras clave inexistentes",
+  "tasks-RegionDistributionTask-19c298e201890d5db-79": "Importado exitosamente",
+  "tasks-RegionDistributionTask-19c298e201890d5db-80":
+    "Resultados de importación de palabras clave",
+  "tasks-RegionDistributionTask-19c298e201890d5db-81": "palabras clave",
+  "tasks-RegionDistributionTask-19c298e201890d5db-82": "regiones",
+  "tasks-RegionDistributionTask-19c298e201890d5db-83": "Inválido o duplicado",
+  "tasks-RegionDistributionTask-19c298e201890d5db-84":
+    "Resultados de importación de palabras clave",
+  "tasks-RegionDistributionTask-19c298e201890d5db-85": "palabras clave",
+  "tasks-RegionDistributionTask-19c298e201890d5db-86": "regiones",
+  "tasks-RegionDistributionTask-19c298e201890d5db-87": "Inválido o duplicado",
+  "tasks-RegionDistributionTask-19c298e201890d5db-88":
+    "Resultados de importación de palabras clave",
+  "tasks-RegionDistributionTask-19c298e201890d5db-89": "palabras clave",
+  "tasks-RegionDistributionTask-19c298e201890d5db-90": "área",
+  "tasks-RegionDistributionTask-19c298e201890d5db-91": "...etc.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-92": "un",
+  "tasks-RegionDistributionTask-19c298e201890d5db-93": "Cerrar",
+  "tasks-RegionDistributionTask-19c298e201890d5db-94": "Resumen de la misión",
+  "tasks-RegionDistributionTask-19c298e201890d5db-95":
+    "Confirmación de parámetros de tarea",
+  "tasks-RegionDistributionTask-19c298e201890d5db-96": "Tipo de tarea",
+  "tasks-RegionDistributionTask-19c298e201890d5db-97":
+    "Colección distribuida geográficamente",
+  "tasks-RegionDistributionTask-19c298e201890d5db-98": "palabras clave",
+  "tasks-RegionDistributionTask-19c298e201890d5db-99": "total",
+  "tasks-RegionDistributionTask-19c298e201890d5db-100": "palabras clave",
+  "tasks-RegionDistributionTask-19c298e201890d5db-101": "...etc.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-102": "un",
+  "tasks-RegionDistributionTask-19c298e201890d5db-103": "área",
+  "tasks-RegionDistributionTask-19c298e201890d5db-104": "total",
+  "tasks-RegionDistributionTask-19c298e201890d5db-105": "regiones",
+  "tasks-RegionDistributionTask-19c298e201890d5db-106": "A nivel nacional",
+  "tasks-RegionDistributionTask-19c298e201890d5db-107": "...etc.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-108": "un",
+  "tasks-RegionDistributionTask-19c298e201890d5db-109": "rango de tiempo",
+  "tasks-RegionDistributionTask-19c298e201890d5db-110":
+    "Todos los datos históricos (",
+  "tasks-RegionDistributionTask-19c298e201890d5db-111": "1 de junio de 2006",
+  "tasks-RegionDistributionTask-19c298e201890d5db-112": "1 de enero de 2011",
+  "tasks-RegionDistributionTask-19c298e201890d5db-113": "(hasta la fecha)",
+  "tasks-RegionDistributionTask-19c298e201890d5db-114": "Recientemente",
+  "tasks-RegionDistributionTask-19c298e201890d5db-115": "dia",
+  "tasks-RegionDistributionTask-19c298e201890d5db-116": "a",
+  "tasks-RegionDistributionTask-19c298e201890d5db-117": "año a",
+  "tasks-RegionDistributionTask-19c298e201890d5db-118": "año",
+  "tasks-RegionDistributionTask-19c298e201890d5db-119": "Formato de salida",
+  "tasks-RegionDistributionTask-19c298e201890d5db-120": "formato CSV",
+  "tasks-RegionDistributionTask-19c298e201890d5db-121": "formato excel",
+  "tasks-RegionDistributionTask-19c298e201890d5db-122": "Otras opciones",
+  "tasks-RegionDistributionTask-19c298e201890d5db-123": "Fuente de datos:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-124": "PC+Móvil",
+  "tasks-RegionDistributionTask-19c298e201890d5db-125": "moverse",
+  "tasks-RegionDistributionTask-19c298e201890d5db-126": "Prioridad:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-127":
+    "ID de la tarea de recuperación:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-128": "Cancelar",
+  "tasks-RegionDistributionTask-19c298e201890d5db-129": "Confirmar envío",
+  "tasks-RegionDistributionTask-19c298e201890d5db-130": "bajo",
+  "tasks-RegionDistributionTask-19c298e201890d5db-131": "en",
+  "tasks-RegionDistributionTask-19c298e201890d5db-132": "alto",
+  "tasks-RegionDistributionTask-19c298e201890d5db-133":
+    "Por favor agregue primero las palabras clave",
+  "tasks-RegionDistributionTask-19c298e201890d5db-134": "Verificación fallida:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-135":
+    "Compruebe si hay errores de palabras clave:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-136":
+    "No se pudieron verificar las palabras clave, verifique la conexión de red",
+  "tasks-RegionDistributionTask-19c298e201890d5db-137": "agregado exitosamente",
+  "tasks-RegionDistributionTask-19c298e201890d5db-138": "palabras clave",
+  "tasks-RegionDistributionTask-19c298e201890d5db-139":
+    "Las palabras clave se duplican y se ignoran.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-140":
+    "¿Está seguro de que desea borrar todas las palabras clave?",
+  "tasks-RegionDistributionTask-19c298e201890d5db-141": "Consejos",
+  "tasks-RegionDistributionTask-19c298e201890d5db-142": "OK",
+  "tasks-RegionDistributionTask-19c298e201890d5db-143": "Cancelar",
+  "tasks-RegionDistributionTask-19c298e201890d5db-144":
+    "No se encontraron palabras clave válidas en el archivo.",
+  "tasks-RegionDistributionTask-19c298e201890d5db-145":
+    "Resultados de importación de palabras clave",
+  "tasks-RegionDistributionTask-19c298e201890d5db-146":
+    "Error al leer el archivo:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-147":
+    "Error al leer el archivo, verifique el formato del archivo",
+  "tasks-RegionDistributionTask-19c298e201890d5db-148":
+    "Falló la lectura del archivo",
+  "tasks-RegionDistributionTask-19c298e201890d5db-149":
+    "No se encontró ningún código de región válido en el archivo",
+  "tasks-RegionDistributionTask-19c298e201890d5db-150":
+    "Resultados de importación de regiones",
+  "tasks-RegionDistributionTask-19c298e201890d5db-151":
+    "Error al leer el archivo:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-152":
+    "Error al leer el archivo, verifique el formato del archivo",
+  "tasks-RegionDistributionTask-19c298e201890d5db-153":
+    "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
+  "tasks-RegionDistributionTask-19c298e201890d5db-154": "Consejos",
+  "tasks-RegionDistributionTask-19c298e201890d5db-155": "OK",
+  "tasks-RegionDistributionTask-19c298e201890d5db-156": "Cancelar",
+  "tasks-RegionDistributionTask-19c298e201890d5db-157": "despejado",
+  "tasks-RegionDistributionTask-19c298e201890d5db-158":
+    "palabras clave que no existen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-159": "despejado",
+  "tasks-RegionDistributionTask-19c298e201890d5db-160":
+    "palabras clave que no existen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-161":
+    "Error al enviar la tarea:",
+  "tasks-RegionDistributionTask-19c298e201890d5db-162":
+    "Error al enviar la tarea, verifique la conexión de red",
+  "tasks-RegionDistributionTask-19c298e201890d5db-163":
+    "Error al enviar la tarea:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-1":
+    "Colección de índices de búsqueda",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-2":
+    "Obtenga datos de tendencias del índice de búsqueda de Baidu, que admitan múltiples palabras clave, múltiples ciudades y rangos de tiempo personalizados",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-3": "Establecer parámetros",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-4":
+    "Configuración de palabras clave",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-5": "Entrada de palabras clave",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-6":
+    "Ingrese una palabra clave por línea y agréguela en lotes",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-7": "Agregar palabras clave",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-8": "Una palabra clave por línea",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-9": "Importación de archivos",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-10": "Seleccionar archivo",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-11":
+    "Admite formatos .xlsx, .csv, .txt",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-12":
+    "Saltar la primera fila (fila de título)",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-13": "Palabras clave agregadas",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-14":
+    "Esta palabra clave no existe en el índice Baidu",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-15": "Borrar palabras clave",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-16": "Verificar palabras clave",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-17":
+    "Borrar palabras clave inexistentes",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-18": "total",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-19": "palabras clave",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-20": "entorno de la ciudad",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-21": "Selecciona ciudad",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-22": "importación de la ciudad",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-23": "Seleccionar archivo",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-24":
+    "Admite formatos .xlsx, .csv, .txt, un código de ciudad por línea",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-25":
+    "Saltar la primera fila (fila de título)",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-26": "Ajuste de tiempo",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-27": "fuente de datos",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-28": "PC+Móvil",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-29": "moverse",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-30": "tipo de tiempo",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-31": "Todos los datos",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-32": "fecha personalizada",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-33": "Número de días predeterminado",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-34": "datos anuales",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-35": "rango de fechas",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-36": "a",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-37": "fecha de inicio",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-38": "fecha de finalización",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-39": "Número de días predeterminado",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-40":
+    "Por favor seleccione el número de días",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-41": "últimos 7 días",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-42": "últimos 30 días",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-43": "últimos 90 días",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-44": "Últimos 180 días",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-45": "rango de años",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-46": "año de inicio",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-47": "a",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-48": "fin de año",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-49": "Descripción de datos",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-50": "se obtendrá de",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-51":
+    "Todos los datos históricos hasta la fecha.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-52": "1 de junio de 2006",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-53": "1 de enero de 2011",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-54": "Configuración de tareas",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-55": "tarea de recuperación",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-56": "si",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-57": "No",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-58": "ID de tarea",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-59":
+    "Por favor ingrese el ID de la tarea para ser restaurada",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-60": "prioridad",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-61": "Enviar tarea",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-62": "restablecer",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-63": "Tarea enviada exitosamente",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-64": "Tarea enviada exitosamente",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-65": "ID de tarea:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-66": "Ver lista de tareas",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-67": "Continuar enviando",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-68":
+    "Resultados de la verificación de palabras clave",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-69": "existen palabras clave",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-70": "las palabras clave no existen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-71":
+    "Palabras clave que no existen:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-72": "Cerrar",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-73":
+    "Borrar palabras clave inexistentes",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-74": "Importado exitosamente",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-75":
+    "Resultados de importación de palabras clave",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-76": "palabras clave",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-77": "ciudades",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-78": "Inválido o duplicado",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-79":
+    "Resultados de importación de palabras clave",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-80": "palabras clave",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-81": "ciudades",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-82": "Inválido o duplicado",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-83":
+    "Resultados de importación de palabras clave",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-84": "palabras clave",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-85": "ciudad",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-86": "...etc.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-87": "un",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-88": "Cerrar",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-89": "Resumen de la misión",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-90":
+    "Confirmación de parámetros de tarea",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-91": "Tipo de tarea",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-92":
+    "Colección de índices de búsqueda",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-93": "palabras clave",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-94": "total",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-95": "palabras clave",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-96": "...etc.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-97": "un",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-98": "área",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-99": "total",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-100": "regiones",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-101": "A nivel nacional",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-102": "...etc.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-103": "un",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-104": "rango de tiempo",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-105": "Todos los datos históricos (",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-106": "1 de junio de 2006",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-107": "1 de enero de 2011",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-108": "(hasta la fecha)",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-109": "Recientemente",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-110": "dia",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-111": "a",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-112": "año a",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-113": "año",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-114": "Otras opciones",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-115": "Fuente de datos:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-116": "PC+Móvil",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-117": "moverse",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-118": "Prioridad:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-119":
+    "ID de la tarea de recuperación:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-120": "Cancelar",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-121": "Confirmar envío",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-122": "bajo",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-123": "en",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-124": "alto",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-125":
+    "No se pudo obtener el mapa de la ciudad:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-126":
+    "Por favor agregue primero las palabras clave",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-127": "Verificación fallida:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-128":
+    "Compruebe si hay errores de palabras clave:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-129":
+    "No se pudieron verificar las palabras clave, verifique la conexión de red",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-130": "agregado exitosamente",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-131": "palabras clave",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-132":
+    "Las palabras clave se duplican y se ignoran.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-133":
+    "¿Está seguro de que desea borrar todas las palabras clave?",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-134": "Consejos",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-135": "OK",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-136": "Cancelar",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-137":
+    "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-138": "Consejos",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-139": "OK",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-140": "Cancelar",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-141": "despejado",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-142":
+    "palabras clave que no existen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-143": "despejado",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-144":
+    "palabras clave que no existen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-145":
+    "No se encontraron palabras clave válidas en el archivo.",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-146":
+    "Resultados de importación de palabras clave",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-147": "Error al leer el archivo:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-148":
+    "Error al leer el archivo, verifique el formato del archivo",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-149":
+    "No se encontró ningún código de ciudad válido en el archivo",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-150":
+    "Resultados de importación de ciudades",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-151": "Error al leer el archivo:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-152":
+    "Error al leer el archivo, verifique el formato del archivo",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-153": "Falló la lectura del archivo",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-154": "Error al enviar la tarea:",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-155":
+    "Error al enviar la tarea, verifique la conexión de red",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-156": "Error al enviar la tarea:",
+  "tasks-WordGraphTask-19c298e227e044aa6-1": "Colección de mapas de requisitos",
+  "tasks-WordGraphTask-19c298e227e044aa6-2":
+    "Obtenga datos del mapa de demanda de Baidu, que admitan múltiples palabras clave y múltiples selecciones de fechas",
+  "tasks-WordGraphTask-19c298e227e044aa6-3": "Establecer parámetros",
+  "tasks-WordGraphTask-19c298e227e044aa6-4": "Configuración de palabras clave",
+  "tasks-WordGraphTask-19c298e227e044aa6-5": "Entrada de palabras clave",
+  "tasks-WordGraphTask-19c298e227e044aa6-6":
+    "Ingrese una palabra clave por línea y agréguela en lotes",
+  "tasks-WordGraphTask-19c298e227e044aa6-7": "Agregar palabras clave",
+  "tasks-WordGraphTask-19c298e227e044aa6-8": "Una palabra clave por línea",
+  "tasks-WordGraphTask-19c298e227e044aa6-9": "Importación de archivos",
+  "tasks-WordGraphTask-19c298e227e044aa6-10": "Seleccionar archivo",
+  "tasks-WordGraphTask-19c298e227e044aa6-11":
+    "Admite formatos .xlsx, .csv, .txt",
+  "tasks-WordGraphTask-19c298e227e044aa6-12":
+    "Saltar la primera fila (fila de título)",
+  "tasks-WordGraphTask-19c298e227e044aa6-13": "Palabras clave agregadas",
+  "tasks-WordGraphTask-19c298e227e044aa6-14":
+    "Esta palabra clave no existe en el índice Baidu",
+  "tasks-WordGraphTask-19c298e227e044aa6-15": "Borrar palabras clave",
+  "tasks-WordGraphTask-19c298e227e044aa6-16": "Verificar palabras clave",
+  "tasks-WordGraphTask-19c298e227e044aa6-17":
+    "Borrar palabras clave inexistentes",
+  "tasks-WordGraphTask-19c298e227e044aa6-18": "total",
+  "tasks-WordGraphTask-19c298e227e044aa6-19": "palabras clave",
+  "tasks-WordGraphTask-19c298e227e044aa6-20": "Configuración de fecha",
+  "tasks-WordGraphTask-19c298e227e044aa6-21": "fuente de datos",
+  "tasks-WordGraphTask-19c298e227e044aa6-22": "PC+Móvil",
+  "tasks-WordGraphTask-19c298e227e044aa6-23": "moverse",
+  "tasks-WordGraphTask-19c298e227e044aa6-24": "rango de fechas",
+  "tasks-WordGraphTask-19c298e227e044aa6-25": "a",
+  "tasks-WordGraphTask-19c298e227e044aa6-26": "fecha de inicio",
+  "tasks-WordGraphTask-19c298e227e044aa6-27": "fecha de finalización",
+  "tasks-WordGraphTask-19c298e227e044aa6-28":
+    "Nota: Sólo el año de datos más reciente (de",
+  "tasks-WordGraphTask-19c298e227e044aa6-29": "llegar",
+  "tasks-WordGraphTask-19c298e227e044aa6-30": "Configuración de salida",
+  "tasks-WordGraphTask-19c298e227e044aa6-31": "Formato de salida",
+  "tasks-WordGraphTask-19c298e227e044aa6-32": "formato CSV",
+  "tasks-WordGraphTask-19c298e227e044aa6-33": "formato excel",
+  "tasks-WordGraphTask-19c298e227e044aa6-34": "Configuración de tareas",
+  "tasks-WordGraphTask-19c298e227e044aa6-35": "tarea de recuperación",
+  "tasks-WordGraphTask-19c298e227e044aa6-36": "si",
+  "tasks-WordGraphTask-19c298e227e044aa6-37": "No",
+  "tasks-WordGraphTask-19c298e227e044aa6-38": "ID de tarea",
+  "tasks-WordGraphTask-19c298e227e044aa6-39":
+    "Por favor ingrese el ID de la tarea para ser restaurada",
+  "tasks-WordGraphTask-19c298e227e044aa6-40": "prioridad",
+  "tasks-WordGraphTask-19c298e227e044aa6-41": "Enviar tarea",
+  "tasks-WordGraphTask-19c298e227e044aa6-42": "restablecer",
+  "tasks-WordGraphTask-19c298e227e044aa6-43": "Tarea enviada exitosamente",
+  "tasks-WordGraphTask-19c298e227e044aa6-44": "Tarea enviada exitosamente",
+  "tasks-WordGraphTask-19c298e227e044aa6-45": "ID de tarea:",
+  "tasks-WordGraphTask-19c298e227e044aa6-46": "Ver lista de tareas",
+  "tasks-WordGraphTask-19c298e227e044aa6-47": "Continuar enviando",
+  "tasks-WordGraphTask-19c298e227e044aa6-48":
+    "Resultados de la verificación de palabras clave",
+  "tasks-WordGraphTask-19c298e227e044aa6-49": "existen palabras clave",
+  "tasks-WordGraphTask-19c298e227e044aa6-50": "las palabras clave no existen",
+  "tasks-WordGraphTask-19c298e227e044aa6-51": "Palabras clave que no existen:",
+  "tasks-WordGraphTask-19c298e227e044aa6-52": "Cerrar",
+  "tasks-WordGraphTask-19c298e227e044aa6-53":
+    "Borrar palabras clave inexistentes",
+  "tasks-WordGraphTask-19c298e227e044aa6-54":
+    "Resultados de importación de palabras clave",
+  "tasks-WordGraphTask-19c298e227e044aa6-55": "Importado exitosamente",
+  "tasks-WordGraphTask-19c298e227e044aa6-56": "palabras clave",
+  "tasks-WordGraphTask-19c298e227e044aa6-57":
+    "Las palabras clave no son válidas o están duplicadas.",
+  "tasks-WordGraphTask-19c298e227e044aa6-58":
+    "Palabras clave no válidas o duplicadas:",
+  "tasks-WordGraphTask-19c298e227e044aa6-59": "...etc.",
+  "tasks-WordGraphTask-19c298e227e044aa6-60": "un",
+  "tasks-WordGraphTask-19c298e227e044aa6-61": "Cerrar",
+  "tasks-WordGraphTask-19c298e227e044aa6-62": "Resumen de la misión",
+  "tasks-WordGraphTask-19c298e227e044aa6-63":
+    "Confirmación de parámetros de tarea",
+  "tasks-WordGraphTask-19c298e227e044aa6-64": "Tipo de tarea",
+  "tasks-WordGraphTask-19c298e227e044aa6-65":
+    "Colección de mapas de requisitos",
+  "tasks-WordGraphTask-19c298e227e044aa6-66": "palabras clave",
+  "tasks-WordGraphTask-19c298e227e044aa6-67": "total",
+  "tasks-WordGraphTask-19c298e227e044aa6-68": "palabras clave",
+  "tasks-WordGraphTask-19c298e227e044aa6-69": "...etc.",
+  "tasks-WordGraphTask-19c298e227e044aa6-70": "un",
+  "tasks-WordGraphTask-19c298e227e044aa6-71": "rango de fechas",
+  "tasks-WordGraphTask-19c298e227e044aa6-72": "a",
+  "tasks-WordGraphTask-19c298e227e044aa6-73": "No seleccionado",
+  "tasks-WordGraphTask-19c298e227e044aa6-74": "Formato de salida",
+  "tasks-WordGraphTask-19c298e227e044aa6-75": "formato CSV",
+  "tasks-WordGraphTask-19c298e227e044aa6-76": "formato excel",
+  "tasks-WordGraphTask-19c298e227e044aa6-77": "Otras opciones",
+  "tasks-WordGraphTask-19c298e227e044aa6-78": "Fuente de datos:",
+  "tasks-WordGraphTask-19c298e227e044aa6-79": "PC+Móvil",
+  "tasks-WordGraphTask-19c298e227e044aa6-80": "moverse",
+  "tasks-WordGraphTask-19c298e227e044aa6-81": "Prioridad:",
+  "tasks-WordGraphTask-19c298e227e044aa6-82": "ID de la tarea de recuperación:",
+  "tasks-WordGraphTask-19c298e227e044aa6-83": "Cancelar",
+  "tasks-WordGraphTask-19c298e227e044aa6-84": "Confirmar envío",
+  "tasks-WordGraphTask-19c298e227e044aa6-85": "bajo",
+  "tasks-WordGraphTask-19c298e227e044aa6-86": "en",
+  "tasks-WordGraphTask-19c298e227e044aa6-87": "alto",
+  "tasks-WordGraphTask-19c298e227e044aa6-88":
+    "Por favor agregue primero las palabras clave",
+  "tasks-WordGraphTask-19c298e227e044aa6-89": "Verificación fallida:",
+  "tasks-WordGraphTask-19c298e227e044aa6-90":
+    "Compruebe si hay errores de palabras clave:",
+  "tasks-WordGraphTask-19c298e227e044aa6-91":
+    "No se pudieron verificar las palabras clave, verifique la conexión de red",
+  "tasks-WordGraphTask-19c298e227e044aa6-92": "agregado exitosamente",
+  "tasks-WordGraphTask-19c298e227e044aa6-93": "palabras clave",
+  "tasks-WordGraphTask-19c298e227e044aa6-94":
+    "Las palabras clave se duplican y se ignoran.",
+  "tasks-WordGraphTask-19c298e227e044aa6-95":
+    "¿Está seguro de que desea borrar todas las palabras clave?",
+  "tasks-WordGraphTask-19c298e227e044aa6-96": "Consejos",
+  "tasks-WordGraphTask-19c298e227e044aa6-97": "OK",
+  "tasks-WordGraphTask-19c298e227e044aa6-98": "Cancelar",
+  "tasks-WordGraphTask-19c298e227e044aa6-99":
+    "No se encontraron palabras clave válidas en el archivo.",
+  "tasks-WordGraphTask-19c298e227e044aa6-100": "Error al leer el archivo:",
+  "tasks-WordGraphTask-19c298e227e044aa6-101":
+    "Error al leer el archivo, verifique el formato del archivo",
+  "tasks-WordGraphTask-19c298e227e044aa6-102": "Falló la lectura del archivo",
+  "tasks-WordGraphTask-19c298e227e044aa6-103": "Error al enviar la tarea:",
+  "tasks-WordGraphTask-19c298e227e044aa6-104":
+    "Error al enviar la tarea, verifique la conexión de red",
+  "tasks-WordGraphTask-19c298e227e044aa6-105": "Error al enviar la tarea:",
+  "tasks-WordGraphTask-19c298e227e044aa6-106": "despejado",
+  "tasks-WordGraphTask-19c298e227e044aa6-107": "palabras clave que no existen",
+  "tasks-WordGraphTask-19c298e227e044aa6-108":
+    "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
+  "tasks-WordGraphTask-19c298e227e044aa6-109": "Consejos",
+  "tasks-WordGraphTask-19c298e227e044aa6-110": "OK",
+  "tasks-WordGraphTask-19c298e227e044aa6-111": "Cancelar",
+  "tasks-WordGraphTask-19c298e227e044aa6-112": "despejado",
+  "tasks-WordGraphTask-19c298e227e044aa6-113": "palabras clave que no existen",
+  "src-App-19c2993710803cda7-1": "pagina de inicio",
+  "src-App-19c2993710803cda7-2": "Recopilación de datos",
+  "src-App-19c2993710803cda7-3": "Gestión de cookies",
+  "src-App-19c2993710803cda7-4": "Pantalla de datos grandes",
+  "src-App-19c2993710803cda7-5": "Configuración",
+  "src-App-19c2993710803cda7-6": "Acerca de",
+  "src-App-19c2993710803cda7-7": "Condiciones de uso",
+  "src-App-19c2993710803cda7-8": "Cambiar al modo de luz",
+  "src-App-19c2993710803cda7-9": "Cambiar al modo oscuro",
+  "src-App-19c2993710803cda7-10":
+    "Proyecto no comercial para estudio personal y uso exclusivo de investigación.",
+  "src-App-19c2993710803cda7-11": "Sobre el proyecto",
+  "src-App-19c2993710803cda7-12": "Condiciones de uso",
+  "src-App-19c2993710803cda7-13": "Empezar a coleccionar",
 };

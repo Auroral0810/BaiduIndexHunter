@@ -13,7 +13,7 @@ export default defineConfig({
     // 调整单次写入硬盘的 key 数量
     translateRuntimeChunkSize: 5,
     fromLang: Lang['zh-CN'],
-    fromPath: './src/i18n/locale/zh.json',
+    fromPath: './src/i18n/locales/zh_CN.js',
     translate: [
         {
             label: '将结果翻译到locales文件夹下',
