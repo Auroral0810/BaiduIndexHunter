@@ -586,16 +586,17 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 32px;
-  background: white;
+  background: var(--color-bg-surface);
   padding: 24px 32px;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
 }
 
 .dashboard-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--color-text-main);
   margin: 0;
   display: flex;
   align-items: center;
@@ -607,7 +608,7 @@ onMounted(() => {
   display: block;
   width: 4px;
   height: 24px;
-  background: var(--primary-gradient);
+  background: linear-gradient(135deg, var(--color-primary) 0%, #8b5cf6 100%);
   border-radius: 2px;
 }
 
@@ -630,17 +631,22 @@ onMounted(() => {
 }
 
 :deep(.el-select .el-input__wrapper) {
-  box-shadow: 0 0 0 1px var(--border-color) inset !important;
-  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 1px var(--color-border) inset !important;
+  border-radius: var(--radius-base);
   padding: 4px 12px;
+  background-color: var(--color-bg-surface);
 }
 
 :deep(.el-select .el-input__wrapper.is-focus) {
-  box-shadow: 0 0 0 1px var(--primary-color) inset !important;
+  box-shadow: 0 0 0 1px var(--color-primary) inset !important;
+}
+
+:deep(.el-input__inner) {
+  color: var(--color-text-main);
 }
 
 :deep(.el-button) {
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-base);
   padding: 8px 20px;
   font-weight: 500;
 }
@@ -654,22 +660,23 @@ onMounted(() => {
 }
 
 .stat-item {
-  background-color: white;
+  background-color: var(--color-bg-surface);
   border-radius: var(--radius-lg);
   padding: 24px;
   box-shadow: var(--shadow-sm);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(229, 231, 235, 0.5);
+  border: 1px solid var(--color-border);
 }
 
 .stat-item:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
+  border-color: var(--color-border-hover);
 }
 
-/* 为每个统计项设置不同的强调色 */
+/* 为每个统计项设置不同的强调色 - 适配深色模式 */
 .stat-item:nth-child(1) { --accent-color: #3b82f6; } /* 蓝色 */
 .stat-item:nth-child(2) { --accent-color: #10b981; } /* 绿色 */
 .stat-item:nth-child(3) { --accent-color: #ef4444; } /* 红色 */
@@ -705,7 +712,7 @@ onMounted(() => {
 .stat-value {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--color-text-main);
   margin-bottom: 8px;
   position: relative;
   z-index: 1;
@@ -715,7 +722,7 @@ onMounted(() => {
 
 .stat-label {
   font-size: 0.875rem;
-  color: var(--text-secondary);
+  color: var(--color-text-secondary);
   font-weight: 500;
   position: relative;
   z-index: 1;
@@ -730,10 +737,10 @@ onMounted(() => {
 }
 
 .dashboard-card {
-  background: white;
+  background: var(--color-bg-surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  border: none;
+  border: 1px solid var(--color-border);
   height: 100%;
   transition: box-shadow 0.3s ease;
 }
@@ -744,17 +751,18 @@ onMounted(() => {
 
 :deep(.el-card__header) {
   padding: 20px 24px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--color-border);
 }
 
 :deep(.el-card__body) {
   padding: 24px;
+  background-color: var(--color-bg-surface);
 }
 
 .card-header {
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--color-text-main);
   display: flex;
   align-items: center;
 }
@@ -797,4 +805,4 @@ onMounted(() => {
     grid-template-columns: 1fr;
   }
 }
-</style> 
+</style>

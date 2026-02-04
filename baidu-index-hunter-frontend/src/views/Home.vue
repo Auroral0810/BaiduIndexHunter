@@ -10,7 +10,8 @@ import {
   Connection,
   Edit,
   Location,
-  Download
+  Download,
+  ArrowRight
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -21,551 +22,754 @@ const goToDataCollection = () => {
 
 const features = ref([
   {
-    title: '高效爬取',
-    description: '优化的爬取策略，智能管理Cookie，确保爬取效率和成功率',
+    title: '高效爬取引擎',
+    description: '采用 Scrapy 框架构建，内置智能 Cookie 轮换与请求限流策略，确保数据获取的高效性与稳定性。',
     icon: Lightning
   },
   {
-    title: '多维度数据',
-    description: '支持搜索指数、媒体指数等多维度数据采集，满足不同研究需求',
+    title: '全维度数据洞察',
+    description: '深度整合搜索指数、资讯指数、需求图谱及人群画像，为您提供全方位的市场数据支持。',
     icon: DataAnalysis
   },
   {
-    title: '丰富的时间维度',
-    description: '支持日度、周度数据，可灵活选择时间范围和对比时间',
+    title: '灵活的时间跨度',
+    description: '支持从2006年至今的历史数据回溯，亦可精确至小时级的实时监控，满足多样化的分析场景。',
     icon: Calendar
   },
   {
-    title: '多终端支持',
-    description: '区分PC和移动端数据，全面了解用户行为特征',
+    title: '多终端行为分析',
+    description: '精准区分 PC 端与移动端用户行为，帮助您全面了解不同场景下的用户搜索习惯。',
     icon: Monitor
   },
   {
-    title: '智能导出',
-    description: '支持Excel、CSV等多种格式导出，数据处理更便捷',
+    title: '专业级数据导出',
+    description: '一键导出标准 CSV/Excel 格式，清洗后的结构化数据可直接用于 Tableau、Python 等工具分析。',
     icon: DocumentCopy
   },
   {
-    title: '稳定可靠',
-    description: '智能Cookie池管理，保障长时间稳定采集',
+    title: '企业级稳定性',
+    description: '基于 Redis 的任务队列与断点续传机制，即使在网络波动下也能保证任务的完整执行。',
     icon: Connection
   }
 ])
 
-// 使用流程步骤
 const workflowSteps = [
   {
-    title: '选择关键词',
-    description: '输入关键词或上传文件',
+    title: '定义关键词',
+    description: '批量导入或手动输入目标关键词',
     icon: Edit
   },
   {
-    title: '选择时间范围',
-    description: '自定义采集的时间范围',
+    title: '设定范围',
+    description: '选择时间跨度与目标地域',
     icon: Calendar
   },
   {
-    title: '选择城市',
-    description: '全国或特定城市数据',
-    icon: Location
+    title: '智能采集',
+    description: '系统自动调度任务进行采集',
+    icon: Lightning
   },
   {
-    title: '选择数据类型',
-    description: '搜索指数、媒体指数等',
-    icon: DataAnalysis
-  },
-  {
-    title: '开始采集',
-    description: '一键获取所需数据',
+    title: '数据导出',
+    description: '获取清洗后的结构化报表',
     icon: Download
   }
 ]
 </script>
 
 <template>
-  <div class="home-container">
-    <!-- 主横幅区域 -->
+  <div class="home-wrapper">
+    <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-content">
-        <h1 class="hero-title">BaiduIndexHunter</h1>
-        <p class="hero-subtitle">高效、稳定的百度指数数据采集工具</p>
-        <div class="hero-buttons">
-          <el-button type="primary" size="large" @click="goToDataCollection">
-            开始采集
-          </el-button>
-          <el-button size="large" @click="router.push('/about')">了解更多</el-button>
+        <div class="hero-badge">
+          <span>v2.0.0 正式发布</span>
+          <span class="badge-arrow">→</span>
         </div>
-      </div>
-      <div class="hero-image">
-        <img src="../assets/logo.svg" alt="百度指数数据可视化" />
-      </div>
-    </section>
-
-    <!-- 特性介绍区域 -->
-    <section class="features-section">
-      <h2 class="section-title">核心特性</h2>
-      <div class="features-grid">
-        <div v-for="(feature, index) in features" :key="index" class="feature-card">
-          <div class="feature-icon">
-            <el-icon :size="48" :color="'#4facfe'">
-              <component :is="feature.icon" />
-            </el-icon>
-          </div>
-          <h3 class="feature-title">{{ feature.title }}</h3>
-          <p class="feature-description">{{ feature.description }}</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 使用流程区域 -->
-    <section class="workflow-section">
-      <h2 class="section-title">使用流程</h2>
-      
-      <div class="workflow-container">
-        <div class="workflow-progress">
-          <div class="progress-line"></div>
+        <h1 class="hero-title">
+          数据驱动决策，<br>
+          <span class="text-gradient">洞察市场先机</span>
+        </h1>
+        <p class="hero-subtitle">
+          BaiduIndexHunter 是一款专业级百度指数采集工具，致力于为分析师与营销人员提供
+          <span class="highlight">高效</span>、<span class="highlight">稳定</span>、<span class="highlight">精准</span>
+          的数据获取服务。
+        </p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" @click="goToDataCollection">
+            立即开始采集
+            <el-icon class="btn-icon"><ArrowRight /></el-icon>
+          </button>
+          <button class="btn btn-secondary" @click="router.push('/about')">
+            了解更多
+          </button>
         </div>
         
-        <div class="steps-container">
-          <div v-for="(step, index) in workflowSteps" :key="index" class="workflow-step">
-            <div class="step-number">{{ index + 1 }}</div>
-            <div class="step-icon-container">
-              <el-icon :size="64" color="#4facfe">
-                <component :is="step.icon" />
-              </el-icon>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <div class="stat-value">99.9%</div>
+            <div class="stat-label">采集成功率</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-value">100+</div>
+            <div class="stat-label">城市覆盖</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-value">24h</div>
+            <div class="stat-label">全天候运行</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="hero-visual">
+        <div class="visual-card main-card">
+          <div class="card-header">
+            <div class="window-dots">
+              <span></span><span></span><span></span>
             </div>
-            <h3 class="step-title">{{ step.title }}</h3>
-            <p class="step-description">{{ step.description }}</p>
+            <div class="window-title">实时数据监控</div>
+          </div>
+          <div class="card-body">
+            <div class="chart-placeholder">
+              <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0,150 C50,150 50,100 100,100 C150,100 150,180 200,180 C250,180 250,50 300,50 C350,50 350,120 400,120 L400,200 L0,200 Z" fill="url(#gradient)" opacity="0.2" />
+                <path d="M0,150 C50,150 50,100 100,100 C150,100 150,180 200,180 C250,180 250,50 300,50 C350,50 350,120 400,120" fill="none" stroke="var(--color-primary)" stroke-width="3" />
+                <defs>
+                  <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:var(--color-primary);stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:var(--color-primary);stop-opacity:0" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div class="data-row">
+              <div class="data-block" style="width: 60%"></div>
+              <div class="data-block" style="width: 30%"></div>
+            </div>
+            <div class="data-row">
+              <div class="data-block" style="width: 40%"></div>
+              <div class="data-block" style="width: 50%"></div>
+            </div>
+          </div>
+        </div>
+        <div class="visual-card floating-card card-1">
+          <div class="float-icon"><el-icon><Lightning /></el-icon></div>
+          <div class="float-text">
+            <div class="ft-title">任务完成</div>
+            <div class="ft-desc">1,240 条数据已导出</div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 开始使用区域 -->
+    <!-- Features Section -->
+    <section class="features-section">
+      <div class="section-header">
+        <h2 class="section-title">为什么选择我们</h2>
+        <p class="section-desc">专为数据分析师打造，解决传统采集工具的不稳定、难维护痛点</p>
+      </div>
+      
+      <div class="features-grid">
+        <div v-for="(feature, index) in features" :key="index" class="feature-card">
+          <div class="feature-icon-wrapper">
+            <el-icon><component :is="feature.icon" /></el-icon>
+          </div>
+          <h3 class="feature-title">{{ feature.title }}</h3>
+          <p class="feature-desc">{{ feature.description }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Workflow Section -->
+    <section class="workflow-section">
+      <div class="section-header">
+        <h2 class="section-title">极简操作流程</h2>
+        <p class="section-desc">仅需简单的四个步骤，即可获取您所需的高价值数据</p>
+      </div>
+      
+      <div class="workflow-steps">
+        <div v-for="(step, index) in workflowSteps" :key="index" class="step-item">
+          <div class="step-line" v-if="index < workflowSteps.length - 1"></div>
+          <div class="step-icon">
+            <el-icon><component :is="step.icon" /></el-icon>
+          </div>
+          <div class="step-content">
+            <div class="step-number">0{{ index + 1 }}</div>
+            <h3 class="step-title">{{ step.title }}</h3>
+            <p class="step-desc">{{ step.description }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
     <section class="cta-section">
-      <div class="cta-content">
-        <h2 class="cta-title">深度挖掘数据价值，抢占市场先机</h2>
-        <p class="cta-description">
-          专业级百度指数采集引擎，助您实时掌控行业风向，用数据驱动业务的每一次飞跃。
-        </p>
-        <el-button type="primary" size="large" @click="goToDataCollection" class="cta-button">
-          立即开启体验
-        </el-button>
+      <div class="cta-container">
+        <div class="cta-content">
+          <h2 class="cta-title">准备好开始探索了吗？</h2>
+          <p class="cta-desc">立即开始使用 BaiduIndexHunter，释放数据的无限潜力。</p>
+          <div class="cta-actions">
+            <button class="btn btn-white" @click="goToDataCollection">
+              免费开始使用
+            </button>
+          </div>
+        </div>
       </div>
     </section>
   </div>
 </template>
 
 <style scoped>
-.home-container {
-  max-width: 1200px;
-  margin: 0 auto;
+.home-wrapper {
+  overflow-x: hidden;
 }
 
-/* 主横幅区域样式 - 极简风格 */
+/* 通用按钮样式 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+  gap: 8px;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 10px rgba(79, 70, 229, 0.3);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-text-main);
+  border-color: var(--color-border);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-bg-subtle);
+  border-color: var(--color-text-secondary);
+}
+
+.btn-white {
+  background-color: white;
+  color: var(--color-primary);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-white:hover {
+  background-color: #f8fafc;
+  transform: translateY(-1px);
+}
+
+/* Hero Section */
 .hero-section {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 100px;
-  padding: 100px 0 60px;
-  position: relative;
-}
-
-/* 移除之前的圆球背景，改用极淡的顶部光晕 */
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: -100px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100vw;
-  height: 600px;
-  background: radial-gradient(50% 50% at 50% 50%, rgba(37, 99, 235, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
-  z-index: -1;
-  pointer-events: none;
-}
-
-.hero-section::after {
-  display: none;
+  padding: 80px 0;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  min-height: 600px;
+  gap: 60px;
 }
 
 .hero-content {
   flex: 1;
-  padding-right: 80px;
-  z-index: 1;
+  max-width: 600px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: 100px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-bottom: 24px;
+  cursor: default;
+}
+
+.badge-arrow {
+  color: var(--color-primary);
 }
 
 .hero-title {
-  font-size: 4rem;
-  font-weight: 800;
-  margin-bottom: 24px;
-  color: var(--text-primary);
-  /* 移除文字渐变，改用纯深色，更高级 */
-  background: none;
-  -webkit-text-fill-color: initial;
+  font-size: 3.5rem;
   line-height: 1.1;
-  letter-spacing: -1.5px;
+  font-weight: 800;
+  color: var(--color-text-main);
+  margin-bottom: 24px;
+  letter-spacing: -1px;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .hero-subtitle {
-  font-size: 1.25rem;
-  color: var(--text-regular);
-  margin-bottom: 48px;
+  font-size: 1.15rem;
   line-height: 1.6;
-  max-width: 540px;
+  color: var(--color-text-secondary);
+  margin-bottom: 40px;
 }
 
-.hero-buttons {
+.highlight {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.hero-actions {
   display: flex;
   gap: 16px;
+  margin-bottom: 60px;
 }
 
-.hero-buttons .el-button--primary {
-  background-color: var(--primary-color);
-  border: none;
-  font-weight: 600;
-  padding: 24px 32px;
-  font-size: 1rem;
-  border-radius: var(--radius-md);
-  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
-  transition: all 0.2s ease;
+.hero-stats {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding-top: 32px;
+  border-top: 1px solid var(--color-border);
 }
 
-.hero-buttons .el-button--primary:hover {
-  background-color: var(--primary-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.hero-buttons .el-button--default {
-  background-color: white;
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  font-weight: 500;
-  padding: 24px 32px;
-  font-size: 1rem;
-  border-radius: var(--radius-md);
-  transition: all 0.2s ease;
-  box-shadow: var(--shadow-sm);
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-main);
 }
 
-.hero-buttons .el-button--default:hover {
-  background-color: var(--background-color);
-  border-color: var(--text-secondary);
-  color: var(--text-primary);
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--color-text-tertiary);
 }
 
-.hero-image {
+.stat-divider {
+  width: 1px;
+  height: 40px;
+  background-color: var(--color-border);
+}
+
+/* Hero Visual */
+.hero-visual {
   flex: 1;
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  max-width: 45%;
-  z-index: 1;
-  position: relative;
 }
 
-.hero-image img {
-  width: 100%;
-  max-width: 420px;
-  /* 更自然的投影 */
-  filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.08));
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+.visual-card {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
 }
 
-.hero-image img:hover {
-  transform: scale(1.02);
+.main-card {
+  width: 480px;
+  height: 320px;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  overflow: hidden;
 }
 
-/* 特性区域样式 */
-.section-title {
+.card-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.window-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.window-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-border);
+}
+
+.window-dots span:nth-child(1) { background-color: #ef4444; }
+.window-dots span:nth-child(2) { background-color: #eab308; }
+.window-dots span:nth-child(3) { background-color: #22c55e; }
+
+.window-title {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-tertiary);
+}
+
+.card-body {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.chart-placeholder {
+  flex: 1;
+  background-color: var(--color-bg-subtle);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.data-row {
+  display: flex;
+  gap: 12px;
+}
+
+.data-block {
+  height: 12px;
+  background-color: var(--color-bg-subtle);
+  border-radius: 6px;
+}
+
+.floating-card {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 20;
+  animation: float 6s ease-in-out infinite;
+}
+
+.card-1 {
+  bottom: -30px;
+  left: -40px;
+  width: 240px;
+}
+
+.float-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.ft-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-main);
+}
+
+.ft-desc {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Section Header */
+.section-header {
   text-align: center;
-  font-size: 2.25rem;
-  font-weight: 800;
-  margin-bottom: 80px;
-  color: var(--text-primary);
-  letter-spacing: -0.5px;
+  margin-bottom: 60px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  margin-bottom: 16px;
+}
+
+.section-desc {
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* Features */
 .features-section {
-  margin-bottom: 160px;
-  padding: 0 20px;
+  padding: 100px 24px;
+  background-color: var(--color-bg-body);
 }
 
 .features-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 32px;
+  max-width: var(--max-width);
+  margin: 0 auto;
 }
 
 .feature-card {
-  background-color: white;
-  border-radius: var(--radius-lg);
-  padding: 40px 32px;
-  /* 极简边框，代替投影 */
-  border: 1px solid var(--border-color);
-  box-shadow: none;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 32px;
   transition: all 0.3s ease;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* 左对齐更现代 */
-  text-align: left;
 }
 
 .feature-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--primary-color);
+  transform: translateY(-5px);
+  border-color: var(--color-primary);
   box-shadow: var(--shadow-lg);
 }
 
-.feature-icon {
-  margin-bottom: 24px;
-  width: 56px;
-  height: 56px;
+.feature-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background-color: var(--color-bg-subtle);
+  color: var(--color-text-main);
   display: flex;
   align-items: center;
   justify-content: center;
-  /* 极淡的蓝色背景 */
-  background-color: var(--primary-light);
-  border-radius: 12px;
-  color: var(--primary-color);
-  transition: transform 0.3s ease;
+  font-size: 1.5rem;
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
 }
 
-.feature-card:hover .feature-icon {
-  transform: none; /* 移除旋转动画，保持稳重 */
-  background-color: var(--primary-color);
+.feature-card:hover .feature-icon-wrapper {
+  background-color: var(--color-primary);
   color: white;
 }
 
 .feature-title {
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 600;
+  color: var(--color-text-main);
   margin-bottom: 12px;
-  color: var(--text-primary);
 }
 
-.feature-description {
-  color: var(--text-secondary);
+.feature-desc {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
   line-height: 1.6;
-  font-size: 1rem;
-  text-align: left;
 }
 
-/* 工作流程区域样式 */
+/* Workflow */
 .workflow-section {
-  margin-bottom: 160px;
-  padding: 0; /* 移除背景容器 */
-  background-color: transparent;
-  box-shadow: none;
-  overflow: visible;
+  padding: 100px 24px;
+  background-color: var(--color-bg-subtle);
 }
 
-.workflow-container {
-  position: relative;
-  padding: 0;
-}
-
-.workflow-progress {
-  display: none; /* 移除进度条线条，改用更简洁的布局 */
-}
-
-.steps-container {
+.workflow-steps {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  max-width: var(--max-width);
+  margin: 0 auto;
 }
 
-.workflow-step {
+.step-item {
+  position: relative;
+  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: auto;
-  text-align: center;
-  position: relative;
-  transition: all 0.3s ease;
 }
 
-.workflow-step:hover {
-  transform: translateY(-5px);
+.step-line {
+  position: absolute;
+  top: 32px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-border) 0%, var(--color-border) 50%, transparent 100%);
+  z-index: 0;
 }
 
-.step-number {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-bottom: 16px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  background: none;
-  border: none;
-  box-shadow: none;
-  width: auto;
-  height: auto;
-}
-
-.step-icon-container {
-  width: 80px;
-  height: 80px;
-  background-color: white;
+.step-icon {
+  width: 64px;
+  height: 64px;
   border-radius: 20px;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 20px;
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-color);
-  transition: all 0.3s ease;
-  color: var(--text-regular);
+  font-size: 1.8rem;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
+  box-shadow: var(--shadow-sm);
 }
 
-.workflow-step:hover .step-icon-container {
-  box-shadow: var(--shadow-lg);
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-  transform: none;
+.step-number {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  opacity: 0.8;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
 }
 
 .step-title {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
+  color: var(--color-text-main);
   margin-bottom: 8px;
-  color: var(--text-primary);
 }
 
-.step-description {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  line-height: 1.5;
+.step-desc {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
 }
 
-/* 箭头连接 */
-.workflow-step:not(:last-child)::after {
-  content: '→';
-  position: absolute;
-  top: 65px; /* 对齐图标中心 */
-  right: -20px;
-  font-size: 24px;
-  color: var(--border-color);
-  font-family: sans-serif;
-  font-weight: 300;
-}
-
-/* 开始使用区域样式 - 深色主题 */
+/* CTA */
 .cta-section {
-  background-color: #0f172a; /* Slate 900 - 深邃午夜色 */
-  /* 移除复杂的背景图片 */
-  background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 100%);
-  padding: 100px 40px;
+  padding: 100px 24px;
+  background-color: var(--color-bg-body);
+}
+
+.cta-container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #4338ca 100%);
   border-radius: 24px;
-  margin-bottom: 60px;
+  padding: 80px 40px;
   text-align: center;
   color: white;
-  box-shadow: var(--shadow-2xl);
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.cta-section::before {
-  display: none;
+.cta-content {
+  position: relative;
+  z-index: 10;
 }
 
 .cta-title {
-  font-size: 3rem;
-  margin-bottom: 24px;
+  font-size: 2.5rem;
   font-weight: 800;
-  letter-spacing: -1px;
-  color: white; /* 确保是纯白 */
+  margin-bottom: 24px;
 }
 
-.cta-description {
+.cta-desc {
   font-size: 1.25rem;
-  margin-bottom: 48px;
+  opacity: 0.9;
+  margin-bottom: 40px;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
-  line-height: 1.6;
-  color: #94a3b8; /* Slate 400 */
 }
 
-.cta-button {
-  background-color: white !important;
-  color: #0f172a !important; /* 深色文字 */
-  font-weight: 600 !important;
-  padding: 20px 40px !important;
-  font-size: 1.1rem !important;
-  border: none !important;
-  border-radius: var(--radius-md) !important;
-  box-shadow: 0 0 0 0 transparent !important;
-  transition: all 0.2s ease !important;
+/* Dark Mode 适配 */
+:global(.dark-mode) .visual-card {
+  background-color: #1e293b;
+  border-color: #334155;
 }
 
-.cta-button:hover {
-  background-color: #f1f5f9 !important; /* Slate 100 */
-  transform: translateY(-2px) !important;
+:global(.dark-mode) .floating-card {
+  background: rgba(30, 41, 59, 0.9);
 }
 
-/* 响应式设计 */
-@media (max-width: 1200px) {
+:global(.dark-mode) .chart-placeholder {
+  background-color: #0f172a;
+}
+
+:global(.dark-mode) .data-block {
+  background-color: #0f172a;
+}
+
+@media (max-width: 1024px) {
+  .hero-section {
+    flex-direction: column;
+    text-align: center;
+    padding: 60px 24px;
+  }
+  
+  .hero-content {
+    max-width: 100%;
+  }
+  
+  .hero-actions {
+    justify-content: center;
+  }
+  
+  .hero-stats {
+    justify-content: center;
+  }
+  
+  .hero-visual {
+    width: 100%;
+    margin-top: 40px;
+  }
+  
+  .main-card {
+    width: 100%;
+    max-width: 480px;
+  }
+  
   .features-grid {
     grid-template-columns: repeat(2, 1fr);
   }
   
-  .steps-container {
-    grid-template-columns: repeat(3, 1fr);
+  .workflow-steps {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 48px;
   }
   
-  .workflow-step:not(:last-child)::after {
+  .step-line {
     display: none;
   }
 }
 
-@media (max-width: 768px) {
-  .hero-section {
-    flex-direction: column;
-    padding: 60px 20px;
-    text-align: center;
-  }
-
+@media (max-width: 640px) {
   .hero-title {
-    font-size: 3rem;
-  }
-
-  .hero-content {
-    padding-right: 0;
-    margin-bottom: 60px;
-  }
-  
-  .hero-buttons {
-    justify-content: center;
-  }
-
-  .hero-image {
-    max-width: 80%;
+    font-size: 2.5rem;
   }
   
   .features-grid {
     grid-template-columns: 1fr;
   }
   
-  .steps-container {
+  .workflow-steps {
     grid-template-columns: 1fr;
-    gap: 40px;
   }
   
-  .workflow-step {
-    width: 100%;
-  }
-  
-  .cta-title {
-    font-size: 2.25rem;
-  }
-  
-  .cta-description {
-    font-size: 1.1rem;
+  .card-1 {
+    display: none;
   }
 }
-</style> 
+</style>

@@ -2983,9 +2983,9 @@ const batchUnban = async () => {
 
 .page-header h1 {
   font-size: 28px;
-  color: #303133;
+  color: var(--color-text-main);
   margin: 0;
-  background: linear-gradient(45deg, #409EFF, #67C23A);
+  background: linear-gradient(45deg, var(--color-primary), #8b5cf6);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -3034,7 +3034,7 @@ const batchUnban = async () => {
   text-align: center;
   padding: 10px;
   border-radius: 8px;
-  background-color: #f5f7fa;
+  background-color: var(--color-bg-subtle);
   flex: 1;
   margin: 0 5px;
 }
@@ -3047,7 +3047,7 @@ const batchUnban = async () => {
 
 .status-label {
   font-size: 12px;
-  color: #606266;
+  color: var(--color-text-secondary);
 }
 
 .status-item.success .status-value {
@@ -3083,13 +3083,13 @@ const batchUnban = async () => {
 .section-header h3 {
   margin: 0;
   font-size: 16px;
-  color: #606266;
+  color: var(--color-text-secondary);
 }
 
 .account-list {
   max-height: 300px;
   overflow-y: auto;
-  border: 1px solid #EBEEF5;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
 }
 
@@ -3098,12 +3098,12 @@ const batchUnban = async () => {
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  border-bottom: 1px solid #EBEEF5;
+  border-bottom: 1px solid var(--color-border);
   transition: background-color 0.3s;
 }
 
 .account-item:hover {
-  background-color: #F5F7FA;
+  background-color: var(--color-bg-subtle);
 }
 
 .account-item:last-child {
@@ -3125,8 +3125,8 @@ const batchUnban = async () => {
   justify-content: space-between;
   align-items: center;
   padding: 5px 10px;
-  background-color: #f5f7fa;
-  border-bottom: 1px solid #ebeef5;
+  background-color: var(--color-bg-subtle);
+  border-bottom: 1px solid var(--color-border);
   margin-bottom: 10px;
 }
 
@@ -3143,7 +3143,7 @@ const batchUnban = async () => {
   display: flex;
   align-items: flex-start;
   padding: 16px 15px;
-  border-bottom: 1px solid #EBEEF5;
+  border-bottom: 1px solid var(--color-border);
   gap: 15px;
 }
 
@@ -3152,7 +3152,7 @@ const batchUnban = async () => {
 }
 
 .banned-account-item:hover {
-  background-color: #F5F7FA;
+  background-color: var(--color-bg-subtle);
 }
 
 .banned-checkbox {
@@ -3175,7 +3175,7 @@ const batchUnban = async () => {
 .account-id {
   font-weight: bold;
   font-size: 16px;
-  color: #303133;
+  color: var(--color-text-main);
   line-height: 1.5;
   word-break: break-all;
   margin-bottom: 4px;
@@ -3190,7 +3190,7 @@ const batchUnban = async () => {
 
 .ban-time-tooltip {
   font-size: 12px;
-  color: #909399;
+  color: var(--color-text-secondary);
   line-height: 1.5;
 }
 
@@ -3226,7 +3226,7 @@ const batchUnban = async () => {
 .form-tip {
   margin-left: 10px;
   font-size: 12px;
-  color: #909399;
+  color: var(--color-text-secondary);
 }
 
 .dialog-footer {
@@ -3277,7 +3277,7 @@ const batchUnban = async () => {
 
 .el-upload__tip {
   margin-top: 8px;
-  color: #909399;
+  color: var(--color-text-secondary);
   line-height: 1.4;
 }
 
@@ -3285,8 +3285,8 @@ const batchUnban = async () => {
   margin: 0 0 15px 0;
   padding-bottom: 10px;
   font-size: 16px;
-  border-bottom: 1px solid #EBEEF5;
-  color: #409EFF;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-primary);
 }
 
 .batch-actions {
@@ -3297,7 +3297,7 @@ const batchUnban = async () => {
 
 .selection-info {
   margin-left: 15px;
-  color: #606266;
+  color: var(--color-text-secondary);
   font-size: 14px;
 }
 
@@ -3322,7 +3322,7 @@ const batchUnban = async () => {
   max-height: 100px;
   overflow-y: auto;
   padding: 5px;
-  border: 1px solid #EBEEF5;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
 }
 </style>
