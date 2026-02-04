@@ -589,25 +589,26 @@ onMounted(async () => {
 
 .selector-container {
   display: flex;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
   overflow: hidden;
   height: 400px;
+  background-color: var(--color-bg-surface);
 }
 
 .province-list {
   width: 180px;
-  border-right: 1px solid #ebeef5;
+  border-right: 1px solid var(--color-border);
   overflow-y: auto;
-  background-color: #f5f7fa;
+  background-color: var(--color-bg-subtle);
 }
 
 .province-actions {
   display: flex;
   justify-content: space-around;
   padding: 10px 5px;
-  border-bottom: 1px solid #ebeef5;
-  background-color: #ffffff;
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg-surface);
 }
 
 .special-item {
@@ -626,7 +627,7 @@ onMounted(async () => {
 }
 
 .province-item.active {
-  background-color: rgba(99, 102, 241, 0.1);
+  background-color: var(--color-primary-light);
   color: var(--color-primary);
   font-weight: 600;
   border-left: 3px solid var(--color-primary);
@@ -635,7 +636,9 @@ onMounted(async () => {
 .city-list {
   flex: 1;
   padding: 15px;
+  padding: 15px;
   overflow-y: auto;
+  background-color: var(--color-bg-surface);
 }
 
 .city-header {
@@ -644,7 +647,7 @@ onMounted(async () => {
   align-items: center;
   margin-bottom: 15px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .province-name {
@@ -677,14 +680,18 @@ onMounted(async () => {
   justify-content: center;
   align-items: center;
   height: 100%;
-  color: #909399;
+  align-items: center;
+  height: 100%;
+  color: var(--color-text-tertiary);
 }
 
 .selected-cities {
   margin-top: 15px;
   padding: 10px;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border);
   border-radius: 4px;
+  background-color: var(--color-bg-surface);
 }
 
 .selected-header {
@@ -727,7 +734,7 @@ onMounted(async () => {
     width: 100%;
     height: 200px;
     border-right: none;
-    border-bottom: 1px solid #ebeef5;
+    border-bottom: 1px solid var(--color-border);
   }
 
   .city-item {

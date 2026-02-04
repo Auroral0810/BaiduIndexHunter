@@ -1508,7 +1508,7 @@ const getLogLevelTag = (level: string) => {
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
-  background-color: #f9fafb;
+  background-color: var(--color-bg-subtle);
   padding: 15px;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
@@ -1516,7 +1516,7 @@ const getLogLevelTag = (level: string) => {
 
 .table-wrapper {
   margin-bottom: 20px;
-  background-color: #fff;
+  background-color: var(--color-bg-surface);
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -1571,13 +1571,13 @@ const getLogLevelTag = (level: string) => {
   padding: 12px 20px;
   margin: 0;
   border-bottom: 1px solid var(--el-border-color-lighter);
-  background-color: #f8f9fa;
+  background-color: var(--color-bg-subtle);
 }
 
 :deep(.task-detail-dialog .el-dialog__footer) {
   padding: 8px 20px;
   border-top: 1px solid var(--el-border-color-lighter);
-  background-color: #f8f9fa;
+  background-color: var(--color-bg-subtle);
 }
 
 .task-detail {

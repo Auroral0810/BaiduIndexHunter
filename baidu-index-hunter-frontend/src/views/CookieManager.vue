@@ -2975,6 +2975,10 @@ const batchUnban = async () => {
 
 .el-table {
   --el-table-border-color: var(--color-border);
+  --el-table-bg-color: transparent;
+  --el-table-tr-bg-color: transparent;
+  --el-table-header-bg-color: var(--color-bg-subtle);
+  background-color: transparent;
   border-radius: var(--radius-lg);
   overflow: hidden;
 }

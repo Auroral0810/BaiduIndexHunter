@@ -547,7 +547,7 @@ onMounted(() => {
   bottom: 32px;
   right: 32px;
   width: 380px;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--glass-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 16px;
@@ -569,7 +569,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: var(--color-bg-subtle);
 }
 
 .panel-title-area {
@@ -620,6 +620,11 @@ onMounted(() => {
   padding: 8px;
   border-radius: 6px;
   border: 1px solid #fee2e2;
+}
+
+:root.dark .error-msg {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
 }
 
 /* Responsive */

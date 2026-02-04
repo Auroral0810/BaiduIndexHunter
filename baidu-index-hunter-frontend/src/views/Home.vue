@@ -466,7 +466,7 @@ const workflowSteps = [
 
 .floating-card {
   position: absolute;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--glass-bg);
   backdrop-filter: blur(12px);
   padding: 16px;
   display: flex;

@@ -968,6 +968,8 @@ const confirmSubmitTask = async () => {
 .task-card {
   margin-bottom: 20px;
   border-radius: 8px;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
@@ -1013,7 +1015,8 @@ const confirmSubmitTask = async () => {
   max-height: 120px;
   overflow-y: auto;
   padding: 5px;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-subtle);
   border-radius: 4px;
 }
 
@@ -1061,7 +1064,7 @@ const confirmSubmitTask = async () => {
 .invalid-keywords {
   margin-top: 15px;
   padding: 10px;
-  background-color: #f8f8f8;
+  background-color: var(--color-bg-subtle);
   border-radius: 4px;
   max-height: 200px;
   overflow-y: auto;

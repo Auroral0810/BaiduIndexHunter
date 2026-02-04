@@ -4,6 +4,7 @@ import { ref, reactive, onMounted, onUnmounted, watch, computed } from "vue";
 import * as echarts from "echarts";
 import axios from "axios";
 import { ElMessage, ElTable, ElTableColumn } from "element-plus";
+import { useAppStore } from "@/store/app";
 
 const { t, locale } = useI18n();
 
@@ -13,6 +14,12 @@ const props = defineProps({
     default: "http://127.0.0.1:5001/api",
   },
 });
+
+const appStore = useAppStore();
+const isDark = computed(() => appStore.theme === 'dark');
+
+const getThemeColor = () => isDark.value ? '#e5e7eb' : '#374151'; // text-gray-200 : text-gray-700
+const getSplitLineColor = () => isDark.value ? '#374151' : '#e5e7eb'; // gray-700 : gray-200
 
 const chartDom = ref(null);
 const usageChartInstance = ref(null);
@@ -849,6 +856,54 @@ defineExpose({
   loadCookieUsage,
   syncUsageData,
 });
+
+// 更新图表主题配置
+const updateChartTheme = () => {
+  const textColor = getThemeColor();
+  const splitLineColor = getSplitLineColor();
+  
+  const commonAxis = {
+    axisLabel: { color: textColor },
+    nameTextStyle: { color: textColor },
+    splitLine: { lineStyle: { color: splitLineColor } }
+  };
+
+  const commonTitle = {
+    textStyle: { color: textColor }
+  };
+
+  const commonLegend = {
+    textStyle: { color: textColor }
+  };
+
+  // 更新各个图表的配置
+  [dailyChartOption, accountChartOption, lineChartOption, pieChartOption, heatmapChartOption].forEach(option => {
+    if (option.title) Object.assign(option.title, commonTitle);
+    if (option.legend) Object.assign(option.legend, commonLegend);
+    if (option.xAxis) {
+      if (Array.isArray(option.xAxis)) {
+        option.xAxis.forEach(axis => Object.assign(axis, commonAxis));
+      } else {
+        Object.assign(option.xAxis, commonAxis);
+      }
+    }
+    if (option.yAxis) {
+      if (Array.isArray(option.yAxis)) {
+        option.yAxis.forEach(axis => Object.assign(axis, commonAxis));
+      } else {
+        Object.assign(option.yAxis, commonAxis);
+      }
+    }
+  });
+
+  // 如果图表实例存在，触发重绘
+  updateUsageChart();
+};
+
+// 监听主题变化，更新图表配置
+watch(() => appStore.theme, () => {
+  updateChartTheme();
+}, { immediate: true });
 </script>
 
 <template>
@@ -1046,7 +1101,8 @@ defineExpose({
 
 .data-table-container {
   margin-top: 20px;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-surface);
   border-radius: 4px;
   padding: 15px;
 }
@@ -1055,7 +1111,7 @@ defineExpose({
   margin-top: 0;
   margin-bottom: 15px;
   font-size: 16px;
-  color: #4f46e5;
+  color: var(--color-primary);
 }
 
 .dialog-footer {
