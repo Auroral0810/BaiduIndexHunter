@@ -1964,102 +1964,78 @@ const batchUnban = async () => {
 
 <template>
   <div class="cookie-manager-container">
-    <header class="page-header">
-      <div class="header-content">
-        <h1>{{$t('views.cookiemanager.h318s4')}}</h1>
-      </div>
-      <div class="header-right">
-        <el-tag :type="apiConnected ? 'success' : 'danger'" effect="dark" class="shine-effect premium-tag">
-          <el-icon class="mr-5"><Connection /></el-icon>
+    <div class="page-header">
+      <h1>{{$t('views.cookiemanager.h318s4')}}</h1>
+      <div class="api-status">
+        <el-tag :type="apiConnected ? 'success' : 'danger'" effect="dark">
           {{ apiConnected ? $t('views.cookiemanager.la9d7i') : $t('views.cookiemanager.frt8cm') }}
         </el-tag>
       </div>
-    </header>
+    </div>
     
-    <!-- 统计仪表盘 Dashboard -->
-    <section class="status-dashboard">
-      <div class="dashboard-card total premium-glow" v-loading="statusLoading">
-        <div class="card-icon"><el-icon><CopyDocument /></el-icon></div>
-        <div class="card-content">
-          <div class="card-value">{{ cookieStats.total }}</div>
-          <div class="card-label">{{$t('views.cookiemanager.elw1fx')}}</div>
-        </div>
-      </div>
-      <div class="dashboard-card available" v-loading="statusLoading">
-        <div class="card-icon"><el-icon><Check /></el-icon></div>
-        <div class="card-content">
-          <div class="card-value">{{ cookieStats.available }}</div>
-          <div class="card-label">{{$t('views.cookiemanager.8qgc3r')}}</div>
-        </div>
-      </div>
-      <div class="dashboard-card warning" v-loading="statusLoading">
-        <div class="card-icon"><el-icon><Warning /></el-icon></div>
-        <div class="card-content">
-          <div class="card-value">{{ cookieStats.tempBanned }}</div>
-          <div class="card-label">{{$t('views.cookiemanager.5t0x50')}}</div>
-        </div>
-      </div>
-      <div class="dashboard-card danger" v-loading="statusLoading">
-        <div class="card-icon"><el-icon><Delete /></el-icon></div>
-        <div class="card-content">
-          <div class="card-value">{{ cookieStats.permBanned }}</div>
-          <div class="card-label">{{$t('views.cookiemanager.e6y884')}}</div>
-        </div>
-      </div>
-    </section>
+    <el-row :gutter="20">
+      <!-- 左侧面板 -->
+      <el-col :span="8">
+        <!-- Cookie池状态卡片 -->
+        <el-card class="status-card" shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <span>{{$t('views.cookiemanager.584l78')}}</span>
+              <div>
+                <el-button type="primary" size="small" @click="refreshCookieStatus" :loading="statusLoading">
+                  <el-icon><Refresh /></el-icon>{{$t('views.cookiemanager.p3kgye')}}</el-button>
+                <el-button type="success" size="small" @click="openAddCookieDialog">
+                  <el-icon><Plus /></el-icon>{{$t('views.cookiemanager.t4da2e')}}</el-button>
+              </div>
+            </div>
+          </template>
           
-    <!-- 主体布局 Main Layout -->
-    <div class="main-content-row">
-      <!-- 左侧边栏 Side Panel -->
-      <aside class="side-panel">
-        <!-- 核心操作区 -->
-        <div class="premium-card-v2">
-          <div class="card-header-v2">
-            <h3>{{$t('views.cookiemanager.584l78')}}</h3>
-            <el-button type="primary" size="small" @click="refreshCookieStatus" :loading="statusLoading" circle>
-              <el-icon><Refresh /></el-icon>
-            </el-button>
-          </div>
-          <div class="card-body-v2">
-            <div class="action-buttons">
-              <el-button type="primary" class="w-full shine-effect" @click="testAllCookiesAvailability" :loading="testingAll">
-                <el-icon class="mr-5"><Check /></el-icon>{{$t('views.cookiemanager.o0ffn2')}}
-              </el-button>
-              <el-button type="warning" class="w-full" @click="updateCookieStatus" :loading="updatingStatus">
-                <el-icon class="mr-5"><RefreshRight /></el-icon>{{$t('views.cookiemanager.4lih7b')}}
-              </el-button>
-              <el-button type="danger" class="w-full" @click="cleanupExpiredCookies" :loading="cleaningUp">
-                <el-icon class="mr-5"><Delete /></el-icon>{{$t('views.cookiemanager.x768ru')}}
-              </el-button>
-              <el-button type="success" class="w-full mt-10" @click="openAddCookieDialog">
-                <el-icon class="mr-5"><Plus /></el-icon>{{$t('views.cookiemanager.t4da2e')}}
-              </el-button>
+          <div v-loading="statusLoading" class="status-overview">
+            <div class="status-item">
+              <div class="status-value">{{ cookieStats.total }}</div>
+              <div class="status-label">{{$t('views.cookiemanager.elw1fx')}}</div>
+            </div>
+            <div class="status-item success">
+              <div class="status-value">{{ cookieStats.available }}</div>
+              <div class="status-label">{{$t('views.cookiemanager.8qgc3r')}}</div>
+            </div>
+            <div class="status-item warning">
+              <div class="status-value">{{ cookieStats.tempBanned }}</div>
+              <div class="status-label">{{$t('views.cookiemanager.5t0x50')}}</div>
+            </div>
+            <div class="status-item danger">
+              <div class="status-value">{{ cookieStats.permBanned }}</div>
+              <div class="status-label">{{$t('views.cookiemanager.e6y884')}}</div>
             </div>
           </div>
-        </div>
-
-        <!-- 可用账号微列表 -->
-        <div class="premium-card-v2">
-          <div class="card-header-v2">
-            <h3>{{$t('views.cookiemanager.e19l34')}}</h3>
-            <el-button size="small" type="primary" link @click="loadAvailableAccounts">
-              <el-icon><Refresh /></el-icon>
-            </el-button>
+          
+          <el-divider />
+          
+          <div class="action-buttons">
+            <el-button type="primary" @click="testAllCookiesAvailability" :loading="testingAll">
+              <el-icon><Check /></el-icon>{{$t('views.cookiemanager.o0ffn2')}}</el-button>
+            <el-button type="warning" @click="updateCookieStatus" :loading="updatingStatus">
+              <el-icon><RefreshRight /></el-icon>{{$t('views.cookiemanager.4lih7b')}}</el-button>
+            <el-button type="danger" @click="cleanupExpiredCookies" :loading="cleaningUp">
+              <el-icon><Delete /></el-icon>{{$t('views.cookiemanager.x768ru')}}</el-button>
           </div>
-          <div class="card-body-v2">
-            <div v-loading="accountsLoading" class="account-mini-list">
+          
+          <!-- 账号列表 -->
+          <div class="account-list-section">
+            <div class="section-header">
+              <h3>{{$t('views.cookiemanager.e19l34')}}</h3>
+              <el-button size="small" text @click="loadAvailableAccounts">{{$t('views.cookiemanager.p3kgye')}}</el-button>
+            </div>
+            <div v-loading="accountsLoading" class="account-list">
               <template v-if="availableAccounts.length > 0">
-                <div v-for="account in availableAccounts" :key="account" class="mini-item">
-                  <div class="item-info">
-                    <span class="account-id">{{ account }}</span>
+                <div v-for="account in availableAccounts" :key="account" class="account-item">
+                  <div class="account-info">
+                    <el-tag size="small" effect="plain">{{ account }}</el-tag>
                   </div>
                   <div class="account-actions">
-                    <el-button size="small" type="primary" link @click="testAccountAvailability(account)">
-                      <el-icon><Check /></el-icon>
-                    </el-button>
+                    <el-button size="small" type="primary" @click="testAccountAvailability(account)" plain>{{$t('views.cookiemanager.vne764')}}</el-button>
                     <el-dropdown trigger="click" @command="handleAccountCommand($event, account)">
-                      <el-button size="small" type="info" link>
-                        <el-icon><ArrowDown /></el-icon>
+                      <el-button size="small" plain>{{$t('views.cookiemanager.s2tp53')}}<el-icon class="el-icon--right"><ArrowDown /></el-icon>
                       </el-button>
                       <template #dropdown>
                         <el-dropdown-menu>
@@ -2074,56 +2050,75 @@ const batchUnban = async () => {
                   </div>
                 </div>
               </template>
-              <el-empty v-else :description="$t('views.cookiemanager.xt8ck8')" :image-size="60" />
+              <el-empty v-else :description="$t('views.cookiemanager.xt8ck8')" />
             </div>
           </div>
-        </div>
+        </el-card>
         
-        <!-- 封禁管理微列表 -->
-        <div class="premium-card-v2">
-          <div class="card-header-v2">
-            <h3>{{$t('views.cookiemanager.k0r455')}}</h3>
-            <el-button size="small" type="primary" link @click="loadBannedAccounts">
-              <el-icon><Refresh /></el-icon>
-            </el-button>
-          </div>
-          <div class="card-body-v2">
-            <el-tabs v-model="bannedTabActive" class="custom-tabs">
+        <!-- 封禁的账号卡片 -->
+        <el-card class="banned-accounts-card" shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <span>{{$t('views.cookiemanager.k0r455')}}</span>
+              <el-button size="small" type="primary" @click="loadBannedAccounts" plain>
+                <el-icon><Refresh /></el-icon>{{$t('views.cookiemanager.p3kgye')}}</el-button>
+            </div>
+          </template>
+          
+          <div v-loading="bannedLoading" class="banned-accounts">
+            <el-tabs v-model="bannedTabActive">
               <el-tab-pane :label="$t('views.cookiemanager.5t0x50')" name="temp">
-                <div v-loading="bannedLoading" class="account-mini-list">
-                  <template v-if="tempBannedAccounts.length > 0">
-                    <div v-for="account in tempBannedAccounts" :key="account.account_id" class="mini-item">
-                      <div class="item-info">
-                        <span class="account-id">{{ account.account_id }}</span>
-                        <span class="ban-info">{{ formatBanTimeRemaining(account.remaining_seconds) }}</span>
-                      </div>
-                      <el-button size="small" type="success" link @click="unbanAccount(account.account_id)">
-                        {{$t('views.cookiemanager.mf8dc8')}}
-                      </el-button>
-                    </div>
-                  </template>
-                  <el-empty v-else :description="$t('views.cookiemanager.oi7woo')" :image-size="60" />
+                <div class="banned-toolbar" v-if="tempBannedAccounts.length > 0">
+                  <el-checkbox v-model="checkAllTemp" :indeterminate="isTempIndeterminate" @change="handleCheckAllTempChange">{{$t('views.cookiemanager.8st7lh')}}</el-checkbox>
+                  <el-button type="primary" link size="small" :disabled="tempBannedSelection.length === 0" @click="unbanSelectedTemp">{{$t('views.cookiemanager.ae5zra')}}</el-button>
+                  <el-button type="danger" link size="small" @click="unbanAllTemp">{{$t('views.cookiemanager.05o6ep')}}</el-button>
                 </div>
+                <template v-if="tempBannedAccounts.length > 0">
+                  <el-checkbox-group v-model="tempBannedSelection">
+                    <div v-for="account in tempBannedAccounts" :key="account.account_id" class="banned-account-item">
+                      <el-checkbox :value="account.account_id" class="banned-checkbox" />
+                      <div class="banned-account-info">
+                        <div class="account-id">{{ account.account_id }}</div>
+                        <div class="ban-time">{{$t('views.cookiemanager.c6burr')}}{{ formatBanTimeRemaining(account.remaining_seconds) }}
+                        </div>
+                        <div class="ban-time-tooltip">
+                          {{ account.temp_ban_until }}
+                        </div>
+                      </div>
+                      <div class="banned-account-actions">
+                        <el-button size="small" type="primary" @click.stop="unbanAccount(account.account_id)" plain>{{$t('views.cookiemanager.mf8dc8')}}</el-button>
+                      </div>
+                    </div>
+                  </el-checkbox-group>
+                </template>
+                <el-empty v-else :description="$t('views.cookiemanager.oi7woo')" />
               </el-tab-pane>
               <el-tab-pane :label="$t('views.cookiemanager.e6y884')" name="perm">
-                <div v-loading="bannedLoading" class="account-mini-list">
-                  <template v-if="permBannedAccounts.length > 0">
-                    <div v-for="account in permBannedAccounts" :key="account" class="mini-item">
-                      <div class="item-info">
-                        <span class="account-id">{{ account }}</span>
-                      </div>
-                      <el-button size="small" type="danger" link @click="unbanAccount(account)">
-                        {{$t('views.cookiemanager.8etq8j')}}
-                      </el-button>
-                    </div>
-                  </template>
-                  <el-empty v-else :description="$t('views.cookiemanager.fvo87d')" :image-size="60" />
+                <div class="banned-toolbar" v-if="permBannedAccounts.length > 0">
+                  <el-checkbox v-model="checkAllPerm" :indeterminate="isPermIndeterminate" @change="handleCheckAllPermChange">{{$t('views.cookiemanager.8st7lh')}}</el-checkbox>
+                  <el-button type="primary" link size="small" :disabled="permBannedSelection.length === 0" @click="unbanSelectedPerm">{{$t('views.cookiemanager.dp7l10')}}</el-button>
+                  <el-button type="danger" link size="small" @click="unbanAllPerm">{{$t('views.cookiemanager.k609zq')}}</el-button>
                 </div>
+                <template v-if="permBannedAccounts.length > 0">
+                  <el-checkbox-group v-model="permBannedSelection">
+                    <div v-for="account in permBannedAccounts" :key="account" class="banned-account-item">
+                      <el-checkbox :value="account" class="banned-checkbox" />
+                      <div class="banned-account-info">
+                        <div class="account-id">{{ account }}</div>
+                        <div class="ban-status">{{$t('views.cookiemanager.e6y884')}}</div>
+                      </div>
+                      <div class="banned-account-actions">
+                        <el-button size="small" type="danger" @click.stop="forceUnbanAccount(account)" plain>{{$t('views.cookiemanager.8etq8j')}}</el-button>
+                      </div>
+                    </div>
+                  </el-checkbox-group>
+                </template>
+                <el-empty v-else :description="$t('views.cookiemanager.fvo87d')" />
               </el-tab-pane>
             </el-tabs>
           </div>
-        </div>
-      </aside>
+        </el-card>
+      </el-col>
       
       <!-- 右侧面板 -->
       <el-col :span="16">
@@ -2655,284 +2650,360 @@ const batchUnban = async () => {
 
 <style scoped>
 .cookie-manager-container {
-  padding: 32px;
-  max-width: var(--max-width);
+  padding: 20px;
+  max-width: 1600px;
   margin: 0 auto;
-  animation: fadeIn 0.6s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
-  
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin: 0;
-    letter-spacing: -1.5px;
-    background: var(--color-primary-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 2px 4px rgba(var(--color-primary-rgb), 0.1));
-  }
+  margin-bottom: 20px;
 }
 
-/* Dashboard 2.0 */
-.status-dashboard {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 24px;
-  margin-bottom: 40px;
+.page-header h1 {
+  font-size: 28px;
+  color: var(--color-text-main);
+  margin: 0;
+  background: linear-gradient(45deg, var(--color-primary), #8b5cf6);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.dashboard-card {
-  padding: 24px;
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-md);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: var(--color-border);
-    transition: all 0.3s;
-  }
-
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-xl);
-    border-color: var(--color-primary-light);
-    
-    &::before {
-      background: var(--color-primary);
-      width: 6px;
-    }
-  }
-
-  .card-icon {
-    font-size: 2rem;
-    margin-bottom: 16px;
-    opacity: 0.8;
-  }
-
-  .card-content {
-    .card-value {
-      font-size: 2.25rem;
-      font-weight: 800;
-      line-height: 1;
-      margin-bottom: 8px;
-      font-family: 'Inter', sans-serif;
-    }
-    .card-label {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--color-text-tertiary);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-  }
-
-  &.total .card-value { color: var(--color-primary); }
-  &.available .card-value { color: var(--color-success); }
-  &.warning .card-value { color: var(--color-warning); }
-  &.danger .card-value { color: var(--color-danger); }
-}
-
-/* Main Layout */
-.main-content-row {
-  display: grid;
-  grid-template-columns: 380px 1fr;
-  gap: 32px;
-  align-items: start;
-}
-
-.side-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  position: sticky;
-  top: calc(var(--header-height) + 32px);
-}
-
-.premium-card-v2 {
-  background: var(--color-bg-surface);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-lg);
-  overflow: hidden;
-
-  .card-header-v2 {
-    padding: 24px 24px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    
-    h3 {
-      margin: 0;
-      font-size: 1.125rem;
-      font-weight: 700;
-      color: var(--color-text-main);
-    }
-  }
-
-  .card-body-v2 {
-    padding: 0 24px 24px;
-  }
-}
-
-/* Account Lists */
-.account-mini-list {
-  max-height: 400px;
-  overflow-y: auto;
-  padding-right: 4px;
-
-  .mini-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    border-radius: var(--radius-base);
-    transition: all 0.2s;
-    margin-bottom: 8px;
-    background: var(--color-bg-subtle);
-    border: 1px solid transparent;
-
-    &:hover {
-      background: var(--color-bg-surface);
-      border-color: var(--color-primary-light);
-      transform: translateX(4px);
-    }
-
-    .item-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      
-      .account-id {
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: var(--color-text-main);
-      }
-      .ban-info {
-        font-size: 0.75rem;
-        color: var(--color-text-tertiary);
-      }
-    }
-  }
-}
-
-/* Table Area */
-.table-container-v2 {
-  background: var(--color-bg-surface);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-xl);
-  padding: 32px;
-
-  .table-toolbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-
-  .search-filters {
-    display: flex;
-    gap: 12px;
-    flex: 1;
-    max-width: 600px;
-  }
-}
-
-.batch-actions-v2 {
+.api-status {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background: var(--color-primary-light);
-  border-radius: var(--radius-lg);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.status-card {
   margin-bottom: 20px;
-  
-  .selection-count {
-    font-weight: 700;
-    color: var(--color-primary);
-    margin-right: 8px;
-  }
+  border-radius: 8px;
 }
 
-/* Form Styles */
-.custom-form-v2 {
-  :deep(.el-form-item) {
-    margin-bottom: 24px;
-    
-    .el-form-item__label {
-      font-weight: 600;
-      color: var(--color-text-secondary);
-      margin-bottom: 8px;
-    }
-  }
-  
-  .form-actions {
-    margin-top: 12px;
-    display: flex;
-    gap: 12px;
-  }
+.banned-accounts-card {
+  margin-bottom: 20px;
+  border-radius: 8px;
 }
 
-/* Dialog Micro-animations */
-:deep(.el-dialog) {
-  animation: dialogZoom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+.cookie-list-card {
+  margin-bottom: 20px;
+  border-radius: 8px;
 }
 
-@keyframes dialogZoom {
-  from { transform: scale(0.9) translateY(20px); opacity: 0; }
-  to { transform: scale(1) translateY(0); opacity: 1; }
+.status-overview {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 0;
 }
 
-.usage-chart-section {
-  margin-top: 40px;
-  background: var(--color-bg-surface);
-  border-radius: var(--radius-xl);
-  padding: 32px;
+.status-item {
+  text-align: center;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: var(--color-bg-subtle);
+  flex: 1;
+  margin: 0 5px;
+}
+
+.status-value {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.status-label {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.status-item.success .status-value {
+  color: #67C23A;
+}
+
+.status-item.warning .status-value {
+  color: #E6A23C;
+}
+
+.status-item.danger .status-value {
+  color: #F56C6C;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.account-list-section {
+  margin-top: 15px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--color-text-secondary);
+}
+
+.account-list {
+  max-height: 300px;
+  overflow-y: auto;
   border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-lg);
-}
-
-/* Scrollbar */
-.account-mini-list::-webkit-scrollbar {
-  width: 4px;
-}
-.account-mini-list::-webkit-scrollbar-thumb {
-  background: var(--color-border);
   border-radius: 4px;
 }
-.account-mini-list::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-tertiary);
+
+.account-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color 0.3s;
 }
 
-@media (max-width: 1200px) {
-  .main-content-row {
-    grid-template-columns: 1fr;
-  }
-  .side-panel {
-    position: static;
-  }
+.account-item:hover {
+  background-color: var(--color-bg-subtle);
+}
+
+.account-item:last-child {
+  border-bottom: none;
+}
+
+.account-info {
+  display: flex;
+  align-items: center;
+}
+
+.account-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.banned-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  background-color: var(--color-bg-subtle);
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 10px;
+}
+
+.banned-checkbox {
+  margin-right: 10px;
+}
+
+.banned-accounts {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.banned-account-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 16px 15px;
+  border-bottom: 1px solid var(--color-border);
+  gap: 15px;
+}
+
+.banned-account-item:last-child {
+  border-bottom: none;
+}
+
+.banned-account-item:hover {
+  background-color: var(--color-bg-subtle);
+}
+
+.banned-checkbox {
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+
+.banned-checkbox :deep(.el-checkbox__label) {
+  display: none;
+}
+
+.banned-account-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 6px;
+}
+
+.account-id {
+  font-weight: bold;
+  font-size: 16px;
+  color: var(--color-text-main);
+  line-height: 1.5;
+  word-break: break-all;
+  margin-bottom: 4px;
+}
+
+.ban-time {
+  font-size: 13px;
+  color: #67C23A;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.ban-time-tooltip {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.ban-status {
+  font-size: 13px;
+  color: #F56C6C;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.banned-account-actions {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.filter-section {
+  display: flex;
+  margin-bottom: 15px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-item {
+  width: 200px;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+
+.form-tip {
+  margin-left: 10px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+
+.cookie-detail-list {
+  margin-top: 15px;
+}
+
+.action-row {
+  margin: 10px 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.test-result-accounts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #EBEEF5;
+  border-radius: 4px;
+}
+
+.test-result-tag {
+  margin-bottom: 5px;
+}
+
+.form-actions {
+  display: flex;
+  margin-top: 10px;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.table-toolbar {
+  margin-bottom: 10px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.el-upload__tip {
+  margin-top: 8px;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.dialog-subtitle {
+  margin: 0 0 15px 0;
+  padding-bottom: 10px;
+  font-size: 16px;
+  border-bottom: 1px solid #EBEEF5;
+  color: #409EFF;
+}
+
+.batch-actions {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+}
+
+.selection-info {
+  margin-left: 15px;
+  color: #606266;
+  font-size: 14px;
+}
+
+
+.usage-chart-card {
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
+.ml-10 {
+  margin-left: 10px;
+}
+
+.mr-5 {
+  margin-right: 5px;
+}
+
+.mb-5 {
+  margin-bottom: 5px;
+}
+
+.selected-accounts {
+  max-height: 100px;
+  overflow-y: auto;
+  padding: 5px;
+  border: 1px solid #EBEEF5;
+  border-radius: 4px;
 }
 </style>

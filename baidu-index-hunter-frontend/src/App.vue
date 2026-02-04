@@ -176,23 +176,17 @@ onMounted(() => {
 :root {
   /* 现代 SaaS 色彩体系 (Light Mode) */
   --color-primary: #4f46e5; 
-  --color-primary-rgb: 79, 70, 229;
   --color-primary-hover: #4338ca;
-  --color-primary-light: rgba(var(--color-primary-rgb), 0.1);
+  --color-primary-light: rgba(79, 70, 229, 0.1);
   --color-primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   
   --color-success: #10b981;
-  --color-success-rgb: 16, 185, 129;
   --color-warning: #f59e0b;
-  --color-warning-rgb: 245, 158, 11;
   --color-danger: #ef4444;
-  --color-danger-rgb: 239, 68, 68;
   --color-info: #64748b;
-  --color-info-rgb: 100, 116, 139;
 
   --color-bg-body: #f8fafc;
   --color-bg-surface: #ffffff;
-  --color-bg-surface-rgb: 255, 255, 255;
   --color-bg-subtle: #f1f5f9;
   
   --color-text-main: #0f172a;
@@ -206,15 +200,15 @@ onMounted(() => {
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --shadow-primary: 0 10px 15px -3px rgba(var(--color-primary-rgb), 0.2), 0 4px 6px -2px rgba(var(--color-primary-rgb), 0.1);
+  --shadow-primary: 0 4px 14px 0 rgba(79, 70, 229, 0.25);
   
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.4);
   --glass-blur: blur(12px);
 
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --header-height: 72px;
-  --max-width: 1440px;
+  --max-width: 1400px;
   --radius-base: 10px;
   --radius-lg: 16px;
   --radius-xl: 24px;
@@ -223,14 +217,12 @@ onMounted(() => {
 /* 深色模式变量覆盖 */
 .dark-mode {
   --color-primary: #6366f1;
-  --color-primary-rgb: 99, 102, 241;
   --color-primary-hover: #818cf8;
-  --color-primary-light: rgba(var(--color-primary-rgb), 0.15);
+  --color-primary-light: rgba(99, 102, 241, 0.15);
   --color-primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
   
   --color-bg-body: #020617;
   --color-bg-surface: #0f172a;
-  --color-bg-surface-rgb: 15, 23, 42;
   --color-bg-subtle: #1e293b;
   
   --color-text-main: #f8fafc;
@@ -244,7 +236,7 @@ onMounted(() => {
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-  --shadow-primary: 0 10px 15px -3px rgba(var(--color-primary-rgb), 0.3), 0 4px 6px -2px rgba(var(--color-primary-rgb), 0.2);
+  --shadow-primary: 0 4px 14px 0 rgba(99, 102, 241, 0.3);
 
   --glass-bg: rgba(15, 23, 42, 0.75);
   --glass-border: rgba(255, 255, 255, 0.1);

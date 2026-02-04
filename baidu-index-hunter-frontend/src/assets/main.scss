@@ -98,57 +98,6 @@ a:hover {
   display: inline-block;
 }
 
-.premium-glow {
-  position: relative;
-  &::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 140%;
-    height: 140%;
-    background: radial-gradient(circle, rgba(var(--color-primary-rgb), 0.15) 0%, transparent 70%);
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    z-index: -1;
-  }
-}
-
-.glass-blur-deep {
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid var(--glass-border);
-}
-
-.shine-effect {
-  position: relative;
-  overflow: hidden;
-  &::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-      45deg,
-      transparent 45%,
-      rgba(255, 255, 255, 0.1) 48%,
-      rgba(255, 255, 255, 0.3) 50%,
-      rgba(255, 255, 255, 0.1) 52%,
-      transparent 55%
-    );
-    transform: rotate(-45deg);
-    animation: shine 6s infinite;
-  }
-}
-
-@keyframes shine {
-  0% { transform: translateX(-100%) rotate(-45deg); }
-  20%, 100% { transform: translateX(100%) rotate(-45deg); }
-}
-
 /* 覆盖 Element Plus 部分默认样式 */
 .el-card {
   --el-card-border-color: var(--color-border);
@@ -201,31 +150,13 @@ a:hover {
   overflow: hidden;
 
   th.el-table__cell {
-    font-weight: 700;
+    font-weight: 600;
     color: var(--color-text-main);
     background-color: var(--color-bg-subtle) !important;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    letter-spacing: 0.5px;
   }
 
   td.el-table__cell {
-    padding: 16px 0;
-    color: var(--color-text-secondary);
-  }
-
-  tr:hover td.el-table__cell {
-    background-color: var(--color-primary-light) !important;
-  }
-}
-
-.el-tag {
-  border-radius: 6px;
-  font-weight: 600;
-  border: none;
-  &--info {
-    background-color: var(--color-bg-subtle);
-    color: var(--color-text-secondary);
+    padding: 12px 0;
   }
 }
 
