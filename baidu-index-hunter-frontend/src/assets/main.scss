@@ -15,79 +15,262 @@ a:hover {
 .text-center {
   text-align: center;
 }
-
 .text-right {
   text-align: right;
 }
-
 .flex {
   display: flex;
 }
-
 .flex-center {
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
 .flex-between {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-
 .flex-column {
   display: flex;
   flex-direction: column;
 }
 
-.gap-10 { gap: 10px; }
-.gap-20 { gap: 20px; }
+.gap-10 {
+  gap: 10px;
+}
+.gap-20 {
+  gap: 20px;
+}
 
-.mb-10 { margin-bottom: 10px; }
-.mb-20 { margin-bottom: 20px; }
-.mb-30 { margin-bottom: 30px; }
+.mb-10 {
+  margin-bottom: 10px;
+}
+.mb-20 {
+  margin-bottom: 20px;
+}
+.mb-30 {
+  margin-bottom: 30px;
+}
 
-.mt-10 { margin-top: 10px; }
-.mt-20 { margin-top: 20px; }
-.mt-30 { margin-top: 30px; }
+.mt-10 {
+  margin-top: 10px;
+}
+.mt-20 {
+  margin-top: 20px;
+}
+.mt-30 {
+  margin-top: 30px;
+}
 
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
 }
 
-/* 覆盖 Element Plus 部分默认样式以匹配新主题 */
+/* 高端视觉组件 */
+.glass-effect {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+}
+
+.premium-card {
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+    border-color: var(--color-primary-light);
+  }
+}
+
+.gradient-text {
+  background: var(--color-primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+}
+
+.premium-glow {
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 140%;
+    height: 140%;
+    background: radial-gradient(circle, rgba(var(--color-primary-rgb), 0.15) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: -1;
+  }
+}
+
+.glass-blur-deep {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border);
+}
+
+.shine-effect {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      45deg,
+      transparent 45%,
+      rgba(255, 255, 255, 0.1) 48%,
+      rgba(255, 255, 255, 0.3) 50%,
+      rgba(255, 255, 255, 0.1) 52%,
+      transparent 55%
+    );
+    transform: rotate(-45deg);
+    animation: shine 6s infinite;
+  }
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%) rotate(-45deg); }
+  20%, 100% { transform: translateX(100%) rotate(-45deg); }
+}
+
+/* 覆盖 Element Plus 部分默认样式 */
 .el-card {
   --el-card-border-color: var(--color-border);
   --el-card-border-radius: var(--radius-lg);
   --el-card-bg-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
-}
 
-/* 移除旧的强制阴影，让组件自己控制 */
-.el-card.is-hover-shadow:hover {
-  box-shadow: var(--shadow-lg) !important;
-  transform: translateY(-2px);
+  &.is-hover-shadow:hover {
+    box-shadow: var(--shadow-lg) !important;
+    transform: translateY(-2px);
+  }
+
+  .el-card__header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--color-border);
+    font-weight: 600;
+  }
 }
 
 .el-button {
   border-radius: var(--radius-base);
   font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &--primary:not(.is-link):not(.is-text) {
+    background: var(--color-primary-gradient);
+    border: none;
+    box-shadow: var(--shadow-primary);
+
+    &:hover,
+    &:focus {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
 }
 
-.el-input__inner {
-  border-radius: var(--radius-base);
+.el-table {
+  --el-table-border-color: var(--color-border);
+  --el-table-header-bg-color: var(--color-bg-subtle);
+  --el-table-tr-bg-color: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+
+  th.el-table__cell {
+    font-weight: 700;
+    color: var(--color-text-main);
+    background-color: var(--color-bg-subtle) !important;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+  }
+
+  td.el-table__cell {
+    padding: 16px 0;
+    color: var(--color-text-secondary);
+  }
+
+  tr:hover td.el-table__cell {
+    background-color: var(--color-primary-light) !important;
+  }
 }
 
 .el-tag {
-  border-radius: 4px;
+  border-radius: 6px;
+  font-weight: 600;
+  border: none;
+  &--info {
+    background-color: var(--color-bg-subtle);
+    color: var(--color-text-secondary);
+  }
 }
 
-/* 滚动条美化 (全局) */
+.el-input__wrapper {
+  background-color: var(--color-bg-body) !important;
+  box-shadow: 0 0 0 1px var(--color-border) inset !important;
+  border-radius: var(--radius-base) !important;
+  transition: all 0.2s;
+
+  &.is-focus {
+    box-shadow: 0 0 0 1px var(--color-primary) inset !important;
+    background-color: var(--color-bg-surface) !important;
+  }
+}
+
+.el-dialog {
+  border-radius: var(--radius-lg) !important;
+  overflow: hidden;
+  box-shadow: var(--shadow-xl) !important;
+  background: var(--color-bg-surface) !important;
+
+  .el-dialog__header {
+    margin-right: 0;
+    padding: 24px;
+    border-bottom: 1px solid var(--color-border);
+    .el-dialog__title {
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+  }
+
+  .el-dialog__body {
+    padding: 32px 24px;
+  }
+
+  .el-dialog__footer {
+    padding: 16px 24px 24px;
+    border-top: 1px solid var(--color-border);
+  }
+}
+
+/* 滚动条美化 */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -96,9 +279,9 @@ a:hover {
 
 ::-webkit-scrollbar-thumb {
   background: var(--color-border-hover);
-  border-radius: 4px;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-secondary);
+  background: var(--color-text-tertiary);
 }

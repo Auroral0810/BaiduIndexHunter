@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { 
   Lightning, 
   DataAnalysis, 
@@ -11,10 +12,16 @@ import {
   Edit,
   Location,
   Download,
-  ArrowRight
+  ArrowRight,
+  Grid,
+  Collection,
+  Switch,
+  VideoPlay
 } from '@element-plus/icons-vue'
 
+
 const router = useRouter()
+const { t: $t } = useI18n()
 
 const goToDataCollection = () => {
   router.push('/data-collection')
@@ -22,57 +29,72 @@ const goToDataCollection = () => {
 
 const features = ref([
   {
-    title: '高效爬取引擎',
-    description: '采用 Scrapy 框架构建，内置智能 Cookie 轮换与请求限流策略，确保数据获取的高效性与稳定性。',
+    title: $t('views.home.1uq3y8'),
+    description: $t('views.home.6441b1'),
     icon: Lightning
   },
   {
-    title: '全维度数据洞察',
-    description: '深度整合搜索指数、资讯指数、需求图谱及人群画像，为您提供全方位的市场数据支持。',
+    title: $t('views.home.jp2c1d'),
+    description: $t('views.home.e56nq1'),
     icon: DataAnalysis
   },
   {
-    title: '灵活的时间跨度',
-    description: '支持从2006年至今的历史数据回溯，亦可精确至小时级的实时监控，满足多样化的分析场景。',
+    title: $t('views.home.2w06tf'),
+    description: $t('views.home.1m15x3'),
     icon: Calendar
   },
   {
-    title: '多终端行为分析',
-    description: '精准区分 PC 端与移动端用户行为，帮助您全面了解不同场景下的用户搜索习惯。',
+    title: $t('views.home.i7o6ab'),
+    description: $t('views.home.h1lxb7'),
     icon: Monitor
   },
   {
-    title: '专业级数据导出',
-    description: '一键导出标准 CSV/Excel 格式，清洗后的结构化数据可直接用于 Tableau、Python 等工具分析。',
+    title: $t('views.home.0xwgl8'),
+    description: $t('views.home.dvs5el'),
     icon: DocumentCopy
   },
   {
-    title: '企业级稳定性',
-    description: '基于 Redis 的任务队列与断点续传机制，即使在网络波动下也能保证任务的完整执行。',
+    title: $t('views.home.1k8p9p'),
+    description: $t('views.home.577224'),
     icon: Connection
   }
 ])
 
 const workflowSteps = [
   {
-    title: '定义关键词',
-    description: '批量导入或手动输入目标关键词',
+    title: $t('views.home.165t48'),
+    description: $t('views.home.j5akxa'),
+    icon: Grid
+  },
+  {
+    title: $t('views.home.j4j3l8'),
+    description: $t('views.home.rc6u59'),
     icon: Edit
   },
   {
-    title: '设定范围',
-    description: '选择时间跨度与目标地域',
+    title: $t('views.home.m3rv57'),
+    description: $t('views.home.v168tu'),
+    icon: Location
+  },
+  {
+    title: $t('views.home.4820q1'),
+    description: $t('views.home.pn314p'),
     icon: Calendar
   },
   {
-    title: '智能采集',
-    description: '系统自动调度任务进行采集',
-    icon: Lightning
+    title: $t('views.home.5fnsx4'),
+    description: $t('views.home.x6r7r2'),
+    icon: Collection
   },
   {
-    title: '数据导出',
-    description: '获取清洗后的结构化报表',
-    icon: Download
+    title: $t('views.home.v8q34v'),
+    description: $t('views.home.y36i39'),
+    icon: Switch
+  },
+  {
+    title: $t('views.home.6k0l5s'),
+    description: $t('views.home.o99urw'),
+    icon: VideoPlay
   }
 ]
 </script>
@@ -83,42 +105,33 @@ const workflowSteps = [
     <section class="hero-section">
       <div class="hero-content">
         <div class="hero-badge">
-          <span>v2.0.0 正式发布</span>
+          <span>{{$t('views.home.s3x4h8')}}</span>
           <span class="badge-arrow">→</span>
         </div>
-        <h1 class="hero-title">
-          数据驱动决策，<br>
-          <span class="text-gradient">洞察市场先机</span>
+        <h1 class="hero-title">{{$t('views.home.k581r2')}}<br>
+          <span class="text-gradient">{{$t('views.home.fy2895')}}</span>
         </h1>
-        <p class="hero-subtitle">
-          BaiduIndexHunter 是一款专业级百度指数采集工具，致力于为分析师与营销人员提供
-          <span class="highlight">高效</span>、<span class="highlight">稳定</span>、<span class="highlight">精准</span>
-          的数据获取服务。
-        </p>
+        <p class="hero-subtitle">{{$t('views.home.5h470p')}}<span class="highlight">{{$t('views.home.o14lgn')}}</span>、<span class="highlight">{{$t('views.home.0czn5k')}}</span>、<span class="highlight">{{$t('views.home.xxljf7')}}</span>{{$t('views.home.hhg7e8')}}</p>
         <div class="hero-actions">
-          <button class="btn btn-primary" @click="goToDataCollection">
-            立即开始采集
-            <el-icon class="btn-icon"><ArrowRight /></el-icon>
+          <button class="btn btn-primary" @click="goToDataCollection">{{$t('views.home.43rq8f')}}<el-icon class="btn-icon"><ArrowRight /></el-icon>
           </button>
-          <button class="btn btn-secondary" @click="router.push('/about')">
-            了解更多
-          </button>
+          <button class="btn btn-secondary" @click="router.push('/about')">{{$t('views.home.0219gl')}}</button>
         </div>
         
         <div class="hero-stats">
           <div class="stat-item">
             <div class="stat-value">99.9%</div>
-            <div class="stat-label">采集成功率</div>
+            <div class="stat-label">{{$t('views.home.c75e2d')}}</div>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
             <div class="stat-value">100+</div>
-            <div class="stat-label">城市覆盖</div>
+            <div class="stat-label">{{$t('views.home.2rfl1j')}}</div>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
             <div class="stat-value">24h</div>
-            <div class="stat-label">全天候运行</div>
+            <div class="stat-label">{{$t('views.home.cfidk6')}}</div>
           </div>
         </div>
       </div>
@@ -129,7 +142,7 @@ const workflowSteps = [
             <div class="window-dots">
               <span></span><span></span><span></span>
             </div>
-            <div class="window-title">实时数据监控</div>
+            <div class="window-title">{{$t('views.home.4iknky')}}</div>
           </div>
           <div class="card-body">
             <div class="chart-placeholder">
@@ -157,8 +170,8 @@ const workflowSteps = [
         <div class="visual-card floating-card card-1">
           <div class="float-icon"><el-icon><Lightning /></el-icon></div>
           <div class="float-text">
-            <div class="ft-title">任务完成</div>
-            <div class="ft-desc">1,240 条数据已导出</div>
+            <div class="ft-title">{{$t('views.home.2l9pkd')}}</div>
+            <div class="ft-desc">{{$t('views.home.l65qr6')}}</div>
           </div>
         </div>
       </div>
@@ -167,8 +180,8 @@ const workflowSteps = [
     <!-- Features Section -->
     <section class="features-section">
       <div class="section-header">
-        <h2 class="section-title">为什么选择我们</h2>
-        <p class="section-desc">专为数据分析师打造，解决传统采集工具的不稳定、难维护痛点</p>
+        <h2 class="section-title">{{$t('views.home.j8u6oj')}}</h2>
+        <p class="section-desc">{{$t('views.home.ey34p5')}}</p>
       </div>
       
       <div class="features-grid">
@@ -185,36 +198,41 @@ const workflowSteps = [
     <!-- Workflow Section -->
     <section class="workflow-section">
       <div class="section-header">
-        <h2 class="section-title">极简操作流程</h2>
-        <p class="section-desc">仅需简单的四个步骤，即可获取您所需的高价值数据</p>
+        <h2 class="section-title">{{$t('views.home.kv3meg')}}</h2>
+        <p class="section-desc">{{$t('views.home.253trm')}}</p>
       </div>
       
-      <div class="workflow-steps">
-        <div v-for="(step, index) in workflowSteps" :key="index" class="step-item">
-          <div class="step-line" v-if="index < workflowSteps.length - 1"></div>
+      <div class="workflow-grid">
+        <div v-for="(step, index) in workflowSteps" :key="index" class="step-card">
+          <div class="step-badge">{{ index + 1 }}</div>
           <div class="step-icon">
             <el-icon><component :is="step.icon" /></el-icon>
           </div>
-          <div class="step-content">
-            <div class="step-number">0{{ index + 1 }}</div>
-            <h3 class="step-title">{{ step.title }}</h3>
-            <p class="step-desc">{{ step.description }}</p>
-          </div>
+          <h3 class="step-title">{{ step.title }}</h3>
+          <p class="step-desc">{{ step.description }}</p>
+          <div class="step-connector" v-if="index < workflowSteps.length - 1"></div>
         </div>
       </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="cta-section">
-      <div class="cta-container">
-        <div class="cta-content">
-          <h2 class="cta-title">准备好开始探索了吗？</h2>
-          <p class="cta-desc">立即开始使用 BaiduIndexHunter，释放数据的无限潜力。</p>
-          <div class="cta-actions">
-            <button class="btn btn-white" @click="goToDataCollection">
-              免费开始使用
-            </button>
-          </div>
+    <!-- CTA Section (New Design) -->
+    <section class="cta-section-new">
+      <div class="cta-overlay"></div>
+      <div class="cta-container-new">
+        <h2 class="cta-title-new">{{$t('views.home.n1l0nb')}}</h2>
+        <p class="cta-desc-new">{{$t('views.home.z4lrx6')}}</p>
+        
+        <div class="cta-input-group">
+          <button class="cta-btn-new" @click="goToDataCollection">{{$t('views.home.srrdh4')}}<el-icon><ArrowRight /></el-icon>
+          </button>
+        </div>
+        
+        <div class="cta-footer-text">
+          <span>{{$t('views.home.3s33n3')}}</span>
+          <span class="dot">•</span>
+          <span>{{$t('views.home.65prg3')}}</span>
+          <span class="dot">•</span>
+          <span>{{$t('views.home.i15nso')}}</span>
         </div>
       </div>
     </section>
@@ -262,17 +280,6 @@ const workflowSteps = [
 .btn-secondary:hover {
   background-color: var(--color-bg-subtle);
   border-color: var(--color-text-secondary);
-}
-
-.btn-white {
-  background-color: white;
-  color: var(--color-primary);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.btn-white:hover {
-  background-color: #f8fafc;
-  transform: translateY(-1px);
 }
 
 /* Hero Section */
@@ -586,132 +593,167 @@ const workflowSteps = [
   line-height: 1.6;
 }
 
-/* Workflow */
+/* Workflow - New Grid Design */
 .workflow-section {
   padding: 100px 24px;
   background-color: var(--color-bg-subtle);
 }
 
-.workflow-steps {
+.workflow-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 32px;
+  gap: 24px;
   max-width: var(--max-width);
   margin: 0 auto;
 }
 
-.step-item {
+.step-card {
+  background: var(--color-bg-surface);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid var(--color-border);
   position: relative;
-  text-align: center;
+  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
 }
 
-.step-line {
+.step-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary-light);
+}
+
+.step-badge {
   position: absolute;
-  top: 32px;
-  left: 50%;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, var(--color-border) 0%, var(--color-border) 50%, transparent 100%);
-  z-index: 0;
+  top: 16px;
+  right: 16px;
+  width: 24px;
+  height: 24px;
+  background-color: var(--color-bg-subtle);
+  color: var(--color-text-tertiary);
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-card:hover .step-badge {
+  background-color: var(--color-primary);
+  color: white;
 }
 
 .step-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 20px;
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border);
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background-color: var(--color-bg-subtle);
   color: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.8rem;
-  margin-bottom: 24px;
-  position: relative;
-  z-index: 1;
-  box-shadow: var(--shadow-sm);
-}
-
-.step-number {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--color-primary);
-  opacity: 0.8;
-  margin-bottom: 8px;
-  letter-spacing: 1px;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
 }
 
 .step-title {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--color-text-main);
   margin-bottom: 8px;
 }
 
 .step-desc {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--color-text-secondary);
+  line-height: 1.4;
 }
 
-/* CTA */
-.cta-section {
-  padding: 100px 24px;
-  background-color: var(--color-bg-body);
-}
-
-.cta-container {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  background: linear-gradient(135deg, var(--color-primary) 0%, #4338ca 100%);
-  border-radius: 24px;
-  padding: 80px 40px;
-  text-align: center;
-  color: white;
+/* CTA Section - Dark Theme */
+.cta-section-new {
   position: relative;
+  background-color: #0f172a; /* Slate 900 */
+  padding: 100px 24px;
   overflow: hidden;
 }
 
-.cta-content {
+/* 网格背景装饰 */
+.cta-section-new::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+  z-index: 1;
+}
+
+.cta-container-new {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
   position: relative;
-  z-index: 10;
+  z-index: 2;
 }
 
-.cta-title {
-  font-size: 2.5rem;
+.cta-title-new {
+  font-size: 3rem;
   font-weight: 800;
+  color: white;
   margin-bottom: 24px;
+  letter-spacing: -1px;
 }
 
-.cta-desc {
+.cta-desc-new {
   font-size: 1.25rem;
-  opacity: 0.9;
-  margin-bottom: 40px;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  color: #94a3b8; /* Slate 400 */
+  margin-bottom: 48px;
+  line-height: 1.6;
 }
 
-/* Dark Mode 适配 */
-:global(.dark-mode) .visual-card {
-  background-color: #1e293b;
-  border-color: #334155;
+.cta-btn-new {
+  background-color: white;
+  color: #0f172a;
+  border: none;
+  padding: 16px 32px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
-:global(.dark-mode) .floating-card {
-  background: rgba(30, 41, 59, 0.9);
+.cta-btn-new:hover {
+  background-color: #f1f5f9;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(255, 255, 255, 0.1);
 }
 
-:global(.dark-mode) .chart-placeholder {
-  background-color: #0f172a;
+.cta-footer-text {
+  margin-top: 32px;
+  font-size: 0.9rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
 }
 
-:global(.dark-mode) .data-block {
-  background-color: #0f172a;
+.dot {
+  color: #334155;
 }
 
+/* 响应式 */
 @media (max-width: 1024px) {
   .hero-section {
     flex-direction: column;
@@ -745,13 +787,8 @@ const workflowSteps = [
     grid-template-columns: repeat(2, 1fr);
   }
   
-  .workflow-steps {
+  .workflow-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 48px;
-  }
-  
-  .step-line {
-    display: none;
   }
 }
 
@@ -764,12 +801,16 @@ const workflowSteps = [
     grid-template-columns: 1fr;
   }
   
-  .workflow-steps {
+  .workflow-grid {
     grid-template-columns: 1fr;
   }
   
   .card-1 {
     display: none;
+  }
+  
+  .cta-title-new {
+    font-size: 2rem;
   }
 }
 </style>

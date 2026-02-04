@@ -11,8 +11,20 @@ import InterestProfileTask from '@/components/tasks/InterestProfileTask.vue'
 import RegionDistributionTask from '@/components/tasks/RegionDistributionTask.vue'
 import TaskList from '@/components/tasks/TaskList.vue'
 import { webSocketService } from '@/utils/websocket'
-import { Close } from '@element-plus/icons-vue'
-
+import { 
+  Close, 
+  Search, 
+  Reading, 
+  Connection, 
+  User, 
+  Star, 
+  MapLocation, 
+  List,
+  Check,
+  Loading
+} from '@element-plus/icons-vue'
+import { useI18n } from 'vue-i18n'
+const { t: $t } = useI18n()
 const API_BASE_URL = 'http://127.0.0.1:5001/api'
 
 const route = useRoute()
@@ -26,6 +38,17 @@ const taskListRef = ref(null)
 // 当前运行的任务
 const currentRunningTask = ref(null)
 const showProgressPanel = ref(false)
+
+// 任务配置
+const tasks = [
+  { id: 'search_index', label: $t('views.datacollection.2ncis3'), icon: Search, desc: $t('views.datacollection.8d6dy1') },
+  { id: 'feed_index', label: $t('views.datacollection.653q6s'), icon: Reading, desc: $t('views.datacollection.770h43') },
+  { id: 'word_graph', label: $t('views.datacollection.k08266'), icon: Connection, desc: $t('views.datacollection.it27vl') },
+  { id: 'demographic_attributes', label: $t('views.datacollection.i19rq5'), icon: User, desc: $t('views.datacollection.5zbj95') },
+  { id: 'interest_profile', label: $t('views.datacollection.7l4pg4'), icon: Star, desc: $t('views.datacollection.i43k73') },
+  { id: 'region_distribution', label: $t('views.datacollection.sciq8u'), icon: MapLocation, desc: $t('views.datacollection.41p6g7') },
+  { id: 'task_list', label: $t('views.datacollection.718hqw'), icon: List, desc: $t('views.datacollection.6kxv6b') },
+]
 
 // 处理 WebSocket 更新
 const handleWebSocketUpdate = (data) => {
@@ -79,11 +102,11 @@ watch(() => activeTab.value, (newTab) => {
     // 增加延迟时间，确保组件完全挂载
     setTimeout(() => {
       if (taskListRef.value) {
-        console.log('开始加载任务列表数据')
+        console.log($t('views.datacollection.s62rmw'))
         taskListRef.value.loadTasks()
         taskListRef.value.startAutoRefresh()
       } else {
-        console.warn('任务列表组件引用尚未可用')
+        console.warn($t('views.datacollection.yx367u'))
       }
     }, 300) // 增加到300ms
   }
@@ -106,15 +129,15 @@ const checkApiHealth = async () => {
     
     if (apiStatus.value && !prevStatus) {
       ElNotification({
-        title: '连接成功',
-        message: 'API服务连接成功',
+        title: $t('views.datacollection.twuj24'),
+        message: $t('views.datacollection.220fyz'),
         type: 'success',
         duration: 2000
       })
     } else if (!apiStatus.value) {
       ElNotification({
-        title: '连接失败',
-        message: 'API服务异常，请检查后端服务是否启动',
+        title: $t('views.datacollection.77140v'),
+        message: $t('views.datacollection.327h7u'),
         type: 'error',
         duration: 0
       })
@@ -123,8 +146,8 @@ const checkApiHealth = async () => {
   } catch (error) {
     apiStatus.value = false
     ElNotification({
-      title: '连接失败',
-      message: '无法连接到API服务，请确保后端服务已启动',
+      title: $t('views.datacollection.77140v'),
+      message: $t('views.datacollection.5iycwm'),
       type: 'error',
       duration: 0
     })
@@ -144,104 +167,145 @@ onMounted(() => {
 <template>
   <div class="data-collection-container">
     <!-- 页面头部 -->
-    <div class="page-header">
-      <h1>百度指数数据采集</h1>
-      <div class="api-status-indicator" @click="apiStatusDialog = true">
-        <div class="status-dot" :class="{ active: apiStatus }"></div>
-        <span>{{ apiStatus ? '服务运行中' : '服务未连接' }}</span>
+    <header class="page-header">
+      <div class="header-left">
+        <h1 class="page-title">{{$t('views.datacollection.1r5t7h')}}</h1>
+        <p class="page-subtitle">{{$t('views.datacollection.8h711p')}}</p>
       </div>
-    </div>
+      
+      <div class="api-status-card" @click="apiStatusDialog = true" :class="{ active: apiStatus }">
+        <div class="status-icon">
+          <div class="pulse-ring" v-if="apiStatus"></div>
+          <el-icon v-if="apiStatus"><Check /></el-icon>
+          <el-icon v-else><Close /></el-icon>
+        </div>
+        <div class="status-info">
+          <span class="status-label">{{$t('views.datacollection.j887qn')}}</span>
+          <span class="status-value">{{ apiStatus ? $t('views.datacollection.qww0ij') : $t('views.datacollection.v35896') }}</span>
+        </div>
+      </div>
+    </header>
 
-    <!-- 主卡片 -->
-    <el-card class="main-card">
-      <el-tabs 
-        v-model="activeTab" 
-        class="task-tabs" 
-        tab-position="left"
-        @tab-change="handleTabChange"
-      >
-        <el-tab-pane label="搜索指数" name="search_index">
-          <search-index-task></search-index-task>
-        </el-tab-pane>
-        
-        <el-tab-pane label="资讯指数" name="feed_index">
-          <feed-index-task></feed-index-task>
-        </el-tab-pane>
-        
-        <el-tab-pane label="需求图谱" name="word_graph">
-          <word-graph-task></word-graph-task>
-        </el-tab-pane>
-        
-        <el-tab-pane label="人群属性" name="demographic_attributes">
-          <demographic-attributes-task></demographic-attributes-task>
-        </el-tab-pane>
-        
-        <el-tab-pane label="兴趣分析" name="interest_profile">
-          <interest-profile-task></interest-profile-task>
-        </el-tab-pane>
-        
-        <el-tab-pane label="地域分布" name="region_distribution">
-          <region-distribution-task></region-distribution-task>
-        </el-tab-pane>
-        
-        <el-tab-pane label="任务列表" name="task_list">
-          <task-list ref="taskListRef"></task-list>
-        </el-tab-pane>
-      </el-tabs>
-    </el-card>
+    <!-- 主布局 -->
+    <div class="collection-layout">
+      <!-- 侧边导航 -->
+      <aside class="collection-sidebar">
+        <div class="sidebar-header">
+          <span>{{$t('views.datacollection.h2894t')}}</span>
+        </div>
+        <div class="task-nav">
+          <div 
+            v-for="task in tasks" 
+            :key="task.id"
+            class="task-nav-item"
+            :class="{ active: activeTab === task.id }"
+            @click="activeTab = task.id; handleTabChange(task.id)"
+          >
+            <div class="nav-icon-box">
+              <el-icon><component :is="task.icon" /></el-icon>
+            </div>
+            <div class="nav-text">
+              <span class="nav-label">{{ task.label }}</span>
+              <span class="nav-desc">{{ task.desc }}</span>
+            </div>
+            <div class="active-indicator"></div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 内容区域 -->
+      <main class="collection-content">
+        <div class="content-card">
+          <div class="content-header">
+            <h2>{{ tasks.find(t => t.id === activeTab)?.label }}</h2>
+            <div class="header-actions">
+              <!-- 这里可以放置该任务特定的操作按钮 -->
+            </div>
+          </div>
+          
+          <div class="task-component-wrapper">
+            <keep-alive>
+              <component :is="activeTab === 'search_index' ? SearchIndexTask :
+                             activeTab === 'feed_index' ? FeedIndexTask :
+                             activeTab === 'word_graph' ? WordGraphTask :
+                             activeTab === 'demographic_attributes' ? DemographicAttributesTask :
+                             activeTab === 'interest_profile' ? InterestProfileTask :
+                             activeTab === 'region_distribution' ? RegionDistributionTask :
+                             TaskList" 
+                         :ref="activeTab === 'task_list' ? 'taskListRef' : undefined" />
+            </keep-alive>
+          </div>
+        </div>
+      </main>
+    </div>
 
     <!-- API状态对话框 -->
     <el-dialog 
-      :visible="apiStatusDialog"
-      @update:visible="apiStatusDialog = $event"
-      title="API服务状态" 
+      v-model="apiStatusDialog"
+      :title="$t('views.datacollection.235m2c')" 
       width="400px"
       destroy-on-close
       center
+      class="custom-dialog"
     >
       <div class="api-status-content">
-        <el-result 
-          :icon="apiStatus ? 'success' : 'error'"
-          :title="apiStatus ? 'API服务正常' : 'API服务异常'"
-          :sub-title="apiStatus ? '服务连接正常，可以正常采集数据' : '无法连接到API服务，请确保后端服务已启动'"
-        >
-          <template #extra>
-            <el-button type="primary" @click="checkApiHealth">刷新状态</el-button>
-            <el-button @click="apiStatusDialog = false">关闭</el-button>
-            <div v-if="apiStatus" class="api-endpoint">
-              <span>API地址: </span>
-              <el-tag size="small">{{ API_BASE_URL }}</el-tag>
-            </div>
-          </template>
-        </el-result>
+        <div class="status-visual" :class="{ 'is-active': apiStatus }">
+          <el-icon size="48"><component :is="apiStatus ? Check : Close" /></el-icon>
+        </div>
+        <h3>{{ apiStatus ? $t('views.datacollection.ldw8s0') : $t('views.datacollection.w4f54h') }}</h3>
+        <p>{{ apiStatus ? $t('views.datacollection.rsbfb0') : $t('views.datacollection.5iycwm') }}</p>
+        
+        <div v-if="apiStatus" class="api-endpoint">
+          <span>Endpoint: </span>
+          <code>{{ API_BASE_URL }}</code>
+        </div>
       </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="checkApiHealth" :loading="!apiStatus && apiStatusDialog">{{$t('views.datacollection.14ux91')}}</el-button>
+          <el-button @click="apiStatusDialog = false">{{$t('views.datacollection.u24u75')}}</el-button>
+        </div>
+      </template>
     </el-dialog>
 
     <!-- 全局任务进度悬浮面板 -->
     <transition name="slide-fade">
       <div v-if="showProgressPanel && currentRunningTask" class="global-progress-panel">
         <div class="panel-header">
-          <span class="panel-title">
-            <span class="status-indicator" :class="currentRunningTask.status"></span>
-            当前任务: {{ currentRunningTask.taskId }}
-          </span>
-          <el-icon class="close-btn" @click="showProgressPanel = false"><Close /></el-icon>
-        </div>
-        <div class="panel-content">
-          <div class="progress-info">
-            <span class="progress-text">
-              进度: {{ currentRunningTask.completed_items || 0 }} / {{ currentRunningTask.total_items || '?' }} 
-              ({{ currentRunningTask.progress ? currentRunningTask.progress.toFixed(2) : 0 }}%)
-            </span>
-            <span class="status-text">{{ currentRunningTask.status === 'running' ? '正在执行...' : currentRunningTask.status }}</span>
+          <div class="panel-title-area">
+            <el-icon class="running-icon is-loading" v-if="currentRunningTask.status === 'running'"><Loading /></el-icon>
+            <span class="panel-title">{{$t('views.datacollection.wt72k3')}}{{ currentRunningTask.taskId }}</span>
           </div>
-          <el-progress 
-            :percentage="currentRunningTask.progress || 0" 
-            :status="getProgressStatus(currentRunningTask.status)"
-            :stroke-width="10"
-            striped
-            striped-flow
-          />
+          <el-button link class="close-btn" @click="showProgressPanel = false">
+            <el-icon><Close /></el-icon>
+          </el-button>
+        </div>
+        
+        <div class="panel-content">
+          <div class="progress-stats">
+            <div class="stat-row">
+              <span class="stat-label">{{$t('views.datacollection.6k50e9')}}</span>
+              <span class="stat-value">{{ currentRunningTask.completed_items || 0 }} / {{ currentRunningTask.total_items || '?' }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">{{$t('views.cookiemanager.w5f1e1')}}</span>
+              <el-tag size="small" :type="getProgressStatus(currentRunningTask.status) || 'primary'">
+                {{ currentRunningTask.status === 'running' ? $t('views.datacollection.601og3') : currentRunningTask.status }}
+              </el-tag>
+            </div>
+          </div>
+          
+          <div class="progress-bar-wrapper">
+            <el-progress 
+              :percentage="currentRunningTask.progress || 0" 
+              :status="getProgressStatus(currentRunningTask.status)"
+              :stroke-width="8"
+              striped
+              striped-flow
+              :duration="10"
+            />
+          </div>
+          
           <div v-if="currentRunningTask.error_message" class="error-msg">
             {{ currentRunningTask.error_message }}
           </div>
@@ -253,201 +317,429 @@ onMounted(() => {
 
 <style scoped>
 .data-collection-container {
-  max-width: 1280px;
+  max-width: var(--max-width);
   margin: 0 auto;
-  padding: 30px;
-  background: #f4f7fc;
-  border-radius: 16px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  padding: 40px 24px;
 }
 
+/* Header */
 .page-header {
-  margin-bottom: 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #333;
+  margin-bottom: 48px;
 }
 
-.page-header h1 {
-  font-size: 32px;
-  font-weight: bold;
-  color: #409EFF;
-  background: linear-gradient(45deg, #409EFF, #67C23A);
-  background-clip: text;
+.page-title {
+  font-size: 2.75rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+  background: var(--color-primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -1.5px;
 }
 
-.api-status-indicator {
+.page-subtitle {
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.api-status-card {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 15px;
-  border-radius: 25px;
-  background-color: #f9fafb;
+  gap: 16px;
+  background: var(--color-bg-surface);
+  padding: 14px 24px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.api-status-indicator:hover {
-  background-color: #e3f4ff;
+.api-status-card:hover {
   transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary-light);
 }
 
-.status-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: #F56C6C;
-  transition: all 0.3s;
+.api-status-card.active {
+  background: rgba(16, 185, 129, 0.04);
+  border-color: rgba(16, 185, 129, 0.2);
 }
 
-.status-dot.active {
-  background-color: #67C23A;
-  box-shadow: 0 0 0 3px rgba(103, 194, 58, 0.2);
-}
-
-.main-card {
-  border-radius: 15px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-  background-color: #fff;
-}
-
-.task-tabs {
-  min-height: 600px;
-}
-
-.task-tabs :deep(.el-tabs__header) {
-  padding: 15px 0;
-  background-color: #ffffff;
-  border-bottom: 2px solid #eff2f7;
-}
-
-.task-tabs :deep(.el-tabs__nav) {
-  background-color: #ffffff;
-  border-radius: 8px;
-  padding: 10px 0;
-}
-
-.task-tabs :deep(.el-tabs__item) {
-  height: 50px;
-  line-height: 50px;
-  padding: 0 20px;
-  transition: all 0.3s;
-  border-left: 3px solid transparent;
-}
-
-.task-tabs :deep(.el-tabs__item.is-active) {
-  color: #409EFF;
-  background-color: #ecf5ff;
-  border-left: 3px solid #409EFF;
-}
-
-.task-tabs :deep(.el-tabs__content) {
-  padding: 20px;
-  background-color: #fafafa;
+.status-icon {
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background: var(--color-bg-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  color: var(--color-text-tertiary);
+  font-size: 1.2rem;
+}
+
+.api-status-card.active .status-icon {
+  background: #10b981;
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.pulse-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  border: 2px solid #10b981;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.6; }
+  70% { transform: scale(1.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+.status-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.status-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.status-value {
+  font-weight: 700;
+  color: var(--color-text-main);
+  font-size: 1rem;
+}
+
+/* Layout */
+.collection-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+/* Sidebar */
+.collection-sidebar {
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  position: sticky;
+  top: 100px;
+  padding: 12px;
+}
+
+.sidebar-header {
+  padding: 24px 20px 16px;
+  font-weight: 800;
+  color: var(--color-text-main);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  opacity: 0.5;
+}
+
+.task-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.task-nav-item:hover {
+  background-color: var(--color-bg-subtle);
+  transform: translateX(4px);
+}
+
+.task-nav-item.active {
+  background-color: var(--color-primary-light);
+}
+
+.nav-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: var(--color-bg-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: var(--color-text-secondary);
+  transition: all 0.3s;
+}
+
+.task-nav-item.active .nav-icon-box {
+  background: var(--color-primary-gradient);
+  color: white;
+  box-shadow: var(--shadow-primary);
+}
+
+.nav-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.nav-label {
+  font-weight: 700;
+  color: var(--color-text-main);
+  font-size: 1rem;
+}
+
+.task-nav-item.active .nav-label {
+  color: var(--color-primary);
+}
+
+.nav-desc {
+  font-size: 0.8rem;
+  color: var(--color-text-tertiary);
+}
+
+.active-indicator {
+  position: absolute;
+  left: 0;
+  width: 4px;
+  height: 0;
+  background: var(--color-primary-gradient);
+  border-radius: 0 4px 4px 0;
+  transition: height 0.3s ease;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.task-nav-item.active .active-indicator {
+  height: 50%;
+}
+
+/* Content */
+.content-card {
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  min-height: 700px;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.content-header {
+  padding: 32px 40px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-bg-subtle);
+}
+
+.content-header h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--color-text-main);
+  letter-spacing: -0.5px;
+}
+
+.task-component-wrapper {
+  padding: 40px;
+}
+
+/* Dialog */
+.status-visual {
+  width: 100px;
+  height: 100px;
+  border-radius: 30px;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 32px;
+  font-size: 2.5rem;
+}
+
+.status-visual.is-active {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #10b981;
 }
 
 .api-status-content {
   text-align: center;
 }
 
-.api-endpoint {
-  margin-top: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
+.api-status-content h3 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: var(--color-text-main);
 }
 
-/* 全局进度悬浮面板 */
+.api-status-content p {
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.api-endpoint {
+  background-color: var(--color-bg-subtle);
+  padding: 16px;
+  border-radius: var(--radius-base);
+  display: inline-block;
+  font-family: monospace;
+}
+
+.api-endpoint code {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* Progress Panel */
 .global-progress-panel {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
-  width: 350px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  bottom: 40px;
+  right: 40px;
+  width: 420px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--glass-border);
   z-index: 2000;
   overflow: hidden;
-  border: 1px solid #ebeef5;
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(40px) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
 }
 
 .panel-header {
-  padding: 12px 15px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #ebeef5;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--color-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.panel-title-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .panel-title {
-  font-size: 14px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.status-indicator {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: #909399;
-}
-
-.status-indicator.running { background-color: #409EFF; box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2); }
-.status-indicator.completed { background-color: #67C23A; }
-.status-indicator.failed { background-color: #F56C6C; }
-
-.close-btn {
-  cursor: pointer;
-  color: #909399;
-  transition: color 0.2s;
-}
-
-.close-btn:hover {
-  color: #303133;
+  font-weight: 700;
+  color: var(--color-text-main);
+  font-size: 1.05rem;
 }
 
 .panel-content {
-  padding: 15px;
+  padding: 24px;
 }
 
-.progress-info {
+.progress-stats {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stat-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
-  font-size: 13px;
-  color: #606266;
+  align-items: center;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.stat-value {
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--color-text-main);
 }
 
 .error-msg {
-  margin-top: 8px;
-  font-size: 12px;
-  color: #F56C6C;
-  line-height: 1.4;
+  margin-top: 16px;
+  font-size: 0.9rem;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+  padding: 12px;
+  border-radius: var(--radius-base);
+  border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
-.slide-fade-enter-active {
-  transition: all 0.3s ease-out;
+/* Responsive */
+@media (max-width: 1100px) {
+  .collection-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .collection-sidebar {
+    position: static;
+    margin-bottom: 32px;
+  }
+  
+  .task-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  
+  .task-nav-item {
+    min-width: 220px;
+  }
 }
 
-.slide-fade-leave-active {
-  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
-}
-
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateY(20px);
-  opacity: 0;
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+  
+  .page-title {
+    font-size: 2.25rem;
+  }
+  
+  .api-status-card {
+    width: 100%;
+  }
+  
+  .global-progress-panel {
+    width: calc(100% - 48px);
+    right: 24px;
+    bottom: 24px;
+  }
 }
 </style>

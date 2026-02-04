@@ -3,7 +3,8 @@ import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAppStore, SUPPORTED_LANGUAGES } from './store/app'
 import { Sunny, Moon } from '@element-plus/icons-vue'
-
+import { useI18n } from 'vue-i18n'
+const { t: $t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const appStore = useAppStore()
@@ -83,8 +84,10 @@ onMounted(() => {
     <header class="app-header">
       <div class="header-container">
         <div class="logo-area" @click="router.push('/')">
+          <!-- 纯 CSS 高级 Logo -->
           <div class="logo-icon">
-            <img src="./assets/logo.svg" alt="Logo" />
+            <span class="logo-char">B</span>
+            <span class="logo-char-i">I</span>
           </div>
           <div class="logo-text">
             <span>BaiduIndex</span>
@@ -138,12 +141,6 @@ onMounted(() => {
               </el-dropdown-menu>
             </template>
           </el-dropdown>
-          
-          <a href="https://github.com/your-repo" target="_blank" class="github-link" title="GitHub">
-            <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-            </svg>
-          </a>
         </div>
       </div>
     </header>
@@ -174,59 +171,83 @@ onMounted(() => {
 </template>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
   /* 现代 SaaS 色彩体系 (Light Mode) */
-  --color-primary: #4f46e5; /* Indigo 600 */
-  --color-primary-hover: #4338ca; /* Indigo 700 */
-  --color-primary-light: #e0e7ff; /* Indigo 100 */
+  --color-primary: #4f46e5; 
+  --color-primary-rgb: 79, 70, 229;
+  --color-primary-hover: #4338ca;
+  --color-primary-light: rgba(var(--color-primary-rgb), 0.1);
+  --color-primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   
-  --color-bg-body: #ffffff;
+  --color-success: #10b981;
+  --color-success-rgb: 16, 185, 129;
+  --color-warning: #f59e0b;
+  --color-warning-rgb: 245, 158, 11;
+  --color-danger: #ef4444;
+  --color-danger-rgb: 239, 68, 68;
+  --color-info: #64748b;
+  --color-info-rgb: 100, 116, 139;
+
+  --color-bg-body: #f8fafc;
   --color-bg-surface: #ffffff;
-  --color-bg-subtle: #f8fafc; /* Slate 50 */
+  --color-bg-surface-rgb: 255, 255, 255;
+  --color-bg-subtle: #f1f5f9;
   
-  --color-text-main: #0f172a; /* Slate 900 */
-  --color-text-secondary: #64748b; /* Slate 500 */
-  --color-text-tertiary: #94a3b8; /* Slate 400 */
+  --color-text-main: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-tertiary: #94a3b8;
   
-  --color-border: #e2e8f0; /* Slate 200 */
-  --color-border-hover: #cbd5e1; /* Slate 300 */
+  --color-border: #e2e8f0;
+  --color-border-hover: #cbd5e1;
   
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-primary: 0 4px 14px 0 rgba(79, 70, 229, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-primary: 0 10px 15px -3px rgba(var(--color-primary-rgb), 0.2), 0 4px 6px -2px rgba(var(--color-primary-rgb), 0.1);
   
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --header-height: 64px;
-  --max-width: 1280px;
-  --radius-base: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --glass-blur: blur(12px);
+
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --header-height: 72px;
+  --max-width: 1440px;
+  --radius-base: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
 }
 
 /* 深色模式变量覆盖 */
 .dark-mode {
-  --color-primary: #6366f1; /* Indigo 500 */
-  --color-primary-hover: #818cf8; /* Indigo 400 */
-  --color-primary-light: #312e81; /* Indigo 900 */
+  --color-primary: #6366f1;
+  --color-primary-rgb: 99, 102, 241;
+  --color-primary-hover: #818cf8;
+  --color-primary-light: rgba(var(--color-primary-rgb), 0.15);
+  --color-primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
   
-  --color-bg-body: #020617; /* Slate 950 */
-  --color-bg-surface: #0f172a; /* Slate 900 */
-  --color-bg-subtle: #1e293b; /* Slate 800 */
+  --color-bg-body: #020617;
+  --color-bg-surface: #0f172a;
+  --color-bg-surface-rgb: 15, 23, 42;
+  --color-bg-subtle: #1e293b;
   
-  --color-text-main: #f8fafc; /* Slate 50 */
-  --color-text-secondary: #cbd5e1; /* Slate 300 */
-  --color-text-tertiary: #64748b; /* Slate 500 */
+  --color-text-main: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-tertiary: #64748b;
   
-  --color-border: #1e293b; /* Slate 800 */
-  --color-border-hover: #334155; /* Slate 700 */
+  --color-border: #1e293b;
+  --color-border-hover: #334155;
   
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-  --shadow-primary: 0 4px 14px 0 rgba(99, 102, 241, 0.3);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  --shadow-primary: 0 10px 15px -3px rgba(var(--color-primary-rgb), 0.3), 0 4px 6px -2px rgba(var(--color-primary-rgb), 0.2);
+
+  --glass-bg: rgba(15, 23, 42, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.1);
 }
 
 * {
@@ -307,21 +328,58 @@ body {
   user-select: none;
 }
 
+/* 高级 Logo 样式 - 纯 CSS */
 .logo-icon {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, var(--color-primary), #8b5cf6);
-  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: -1px;
+  position: relative;
+  background: linear-gradient(135deg, var(--color-primary), #a855f7);
+  box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+  color: white;
+  transition: all 0.3s ease;
 }
 
-.logo-icon img {
-  width: 100%;
-  height: 100%;
-  filter: brightness(0) invert(1);
+.logo-icon::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  right: 1px;
+  bottom: 1px;
+  background: transparent; /* 实心模式 */
+  /* 若要边框模式，可以设为 var(--color-bg-surface) 并把上面的 color 设为 var(--color-primary) */
+  border-radius: 9px;
+  z-index: 0;
+}
+
+/* 微光边框效果 */
+.logo-icon::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.5), rgba(168, 85, 247, 0.5));
+  border-radius: 12px;
+  z-index: -1;
+  opacity: 0.5;
+}
+
+.logo-char {
+  z-index: 1;
+  margin-right: 1px;
+}
+.logo-char-i {
+  z-index: 1;
+  opacity: 0.9;
 }
 
 .logo-text {
@@ -437,17 +495,6 @@ body {
 
 .language-flag {
   font-size: 1.1rem;
-}
-
-.github-link {
-  color: var(--color-text-secondary);
-  transition: color 0.2s;
-  display: flex;
-  align-items: center;
-}
-
-.github-link:hover {
-  color: var(--color-text-main);
 }
 
 /* 主内容区域 */

@@ -2,16 +2,18 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useConfigStore } from '../store/config'
-
+import { List, Loading, Document, Files, Refresh, Check } from '@element-plus/icons-vue'
+import { useI18n } from 'vue-i18n'
+const { t: $t } = useI18n()
 // 使用配置存储
 const configStore = useConfigStore()
 
 // 配置分组（移除了不必要的配置组）
 const configGroups = [
-  { id: 'task', name: '任务配置', icon: 'List' },
-  { id: 'spider', name: '爬虫配置', icon: 'Loading' },
-  { id: 'output', name: '输出配置', icon: 'Document' },
-  { id: 'cookie', name: 'Cookie配置', icon: 'Files' },
+  { id: 'task', name: $t('views.settings.69o614'), icon: List, desc: $t('views.settings.793e27') },
+  { id: 'spider', name: $t('views.settings.qas51b'), icon: Loading, desc: $t('views.settings.55l5x3') },
+  { id: 'output', name: $t('views.settings.txk3c7'), icon: Document, desc: $t('views.settings.41yx5j') },
+  { id: 'cookie', name: $t('views.settings.6ip168'), icon: Files, desc: $t('views.settings.234y82') },
 ]
 
 // 当前选中的配置组
@@ -65,7 +67,7 @@ const getGroupConfigs = (group: string) => {
 const saveConfigs = async (prefix: string) => {
   const result = await configStore.saveConfigsByPrefix(prefix)
   if (result) {
-    ElMessage.success('配置保存成功')
+    ElMessage.success($t('views.settings.87n068'))
   }
 }
 
@@ -73,7 +75,7 @@ const saveConfigs = async (prefix: string) => {
 const resetConfigs = async () => {
   const result = await configStore.resetConfigs()
   if (result) {
-    ElMessage.success('配置已重置为默认值')
+    ElMessage.success($t('views.settings.jx4357'))
   }
 }
 
@@ -96,7 +98,7 @@ const getConfigType = (key: string, value: any) => {
 // 获取显示标签（优先使用中文描述）
 const getDisplayLabel = (key: string) => {
   const description = getConfigDescription(key)
-  return description !== '配置项描述' ? description : getConfigLabel(key)
+  return description !== $t('views.settings.8x81cv') ? description : getConfigLabel(key)
 }
 
 // 获取配置项标签（英文/键名）
@@ -115,38 +117,38 @@ const getConfigLabel = (key: string) => {
 const getConfigDescription = (key: string) => {
   const descriptions: Record<string, string> = {
     // 任务配置
-    'task.max_concurrent_tasks': '最大并发任务数',
-    'task.queue_check_interval': '任务队列检查间隔（秒）',
-    'task.default_priority': '默认任务优先级（1-10）',
-    'task.max_retry_count': '任务最大重试次数',
-    'task.retry_delay': '任务重试延迟（秒）',
+    'task.max_concurrent_tasks': $t('views.settings.u3c1hw'),
+    'task.queue_check_interval': $t('views.settings.6v1yu9'),
+    'task.default_priority': $t('views.settings.655xlj'),
+    'task.max_retry_count': $t('views.settings.pdxdm5'),
+    'task.retry_delay': $t('views.settings.vs2rn7'),
     
     // 爬虫配置
-    'spider.min_interval': '请求间隔最小秒数',
-    'spider.max_interval': '请求间隔最大秒数',
-    'spider.retry_times': '请求失败重试次数',
-    'spider.timeout': '请求超时时间（秒）',
-    'spider.max_workers': '最大工作线程数',
-    'spider.user_agent_rotation': '是否轮换User-Agent',
-    'spider.proxy_enabled': '是否启用代理',
-    'spider.proxy_url': '代理URL',
-    'spider.failure_multiplier': '失败后间隔倍数',
+    'spider.min_interval': $t('views.settings.atl87p'),
+    'spider.max_interval': $t('views.settings.00sc35'),
+    'spider.retry_times': $t('views.settings.o37987'),
+    'spider.timeout': $t('views.settings.q621z9'),
+    'spider.max_workers': $t('views.settings.vb1k63'),
+    'spider.user_agent_rotation': $t('views.settings.2x1gk7'),
+    'spider.proxy_enabled': $t('views.settings.r3739f'),
+    'spider.proxy_url': $t('views.settings.78hr7f'),
+    'spider.failure_multiplier': $t('views.settings.2732fq'),
     
     // 输出配置
-    'output.default_format': '默认输出格式：csv, excel',
-    'output.csv_encoding': 'CSV文件编码',
-    'output.excel_sheet_name': 'Excel工作表名称',
-    'output.file_name_template': '文件名模板',
-    'output.use_oss': '是否上传到阿里云OSS',
+    'output.default_format': $t('views.settings.5pe522'),
+    'output.csv_encoding': $t('views.settings.813612'),
+    'output.excel_sheet_name': $t('views.settings.1744lc'),
+    'output.file_name_template': $t('views.settings.275yf1'),
+    'output.use_oss': $t('views.settings.63ld83'),
     
     // Cookie配置
-    'cookie.block_cooldown': 'Cookie封禁冷却时间（秒）',
-    'cookie.max_usage_per_day': '每日最大使用次数',
-    'cookie.min_available_count': '最小可用Cookie数量',
-    'cookie.rotation_strategy': 'Cookie轮换策略',
+    'cookie.block_cooldown': $t('views.settings.42533h'),
+    'cookie.max_usage_per_day': $t('views.settings.t8dliz'),
+    'cookie.min_available_count': $t('views.settings.9ue5fu'),
+    'cookie.rotation_strategy': $t('views.settings.j56utr'),
   }
   
-  return descriptions[key] || '配置项描述'
+  return descriptions[key] || $t('views.settings.8x81cv')
 }
 
 // 生命周期钩子
@@ -156,186 +158,427 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="settings-container">
-    <h1 class="page-title">系统配置</h1>
-    <p class="page-subtitle">配置爬虫参数和任务设置，敏感配置请在 .env 文件中修改</p>
+  <div class="settings-page">
+    <!-- 页面头部 -->
+    <header class="page-header">
+      <h1 class="page-title">{{$t('views.settings.49a0cg')}}</h1>
+      <p class="page-subtitle">{{$t('views.settings.6316r3')}}</p>
+    </header>
     
-    <el-row :gutter="20">
-      <el-col :span="5">
-        <el-card class="settings-menu-card" shadow="hover">
-          <el-menu
-            :default-active="activeGroup"
-            class="settings-menu"
-            @select="activeGroup = $event"
+    <div class="settings-layout">
+      <!-- 侧边导航 -->
+      <aside class="settings-sidebar">
+        <nav class="settings-nav">
+          <div 
+            v-for="group in configGroups" 
+            :key="group.id" 
+            class="nav-item"
+            :class="{ active: activeGroup === group.id }"
+            @click="activeGroup = group.id"
           >
-            <el-menu-item 
-              v-for="group in configGroups" 
-              :key="group.id" 
-              :index="group.id"
-            >
+            <div class="nav-icon">
               <el-icon><component :is="group.icon" /></el-icon>
-              <span>{{ group.name }}</span>
-            </el-menu-item>
-          </el-menu>
-          
-          <div class="menu-actions">
-            <el-button 
-              type="warning" 
-              @click="resetConfigs" 
-              plain 
-              icon="Refresh" 
-              size="small"
-              :loading="loading"
-            >
-              重置为默认配置
-            </el-button>
-          </div>
-        </el-card>
-      </el-col>
-      
-      <el-col :span="19">
-        <el-card class="settings-card" shadow="hover" v-loading="loading">
-          <template #header>
-            <div class="card-header">
-              <h2>{{ configGroups.find(g => g.id === activeGroup)?.name || '系统配置' }}</h2>
-              <el-button 
-                type="primary" 
-                @click="saveConfigs(activeGroup)" 
-                :loading="loading"
-              >
-                保存配置
-              </el-button>
             </div>
-          </template>
+            <div class="nav-content">
+              <span class="nav-title">{{ group.name }}</span>
+              <span class="nav-desc">{{ group.desc }}</span>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="sidebar-actions">
+          <el-button 
+            class="reset-btn"
+            @click="resetConfigs" 
+            plain 
+            :icon="Refresh" 
+            :loading="loading"
+          >{{$t('views.settings.8u2y54')}}</el-button>
+        </div>
+      </aside>
+      
+      <!-- 配置内容 -->
+      <main class="settings-content" v-loading="loading">
+        <div class="content-card">
+          <div class="card-header">
+            <h2 class="group-title">
+              {{ configGroups.find(g => g.id === activeGroup)?.name }}
+            </h2>
+            <el-button 
+              type="primary" 
+              class="save-btn"
+              @click="saveConfigs(activeGroup)" 
+              :loading="loading"
+              :icon="Check"
+            >{{$t('views.settings.0q2j84')}}</el-button>
+          </div>
           
-          <div class="config-group">
+          <div class="config-form-wrapper">
             <template v-if="Object.keys(getGroupConfigs(activeGroup)).length > 0">
-              <el-form label-position="top">
-                <el-form-item 
-                  v-for="(value, key) in getGroupConfigs(activeGroup)" 
-                  :key="key"
-                  :label="getDisplayLabel(String(key))"
-                >
-                  <!-- 布尔类型 -->
-                  <el-switch 
-                    v-if="getConfigType(String(key), value) === 'boolean'"
-                    v-model="configStore.configs[key]"
-                    :active-value="typeof value === 'string' ? 'true' : true"
-                    :inactive-value="typeof value === 'string' ? 'false' : false"
-                  />
-                  
-                  <!-- 数字类型 -->
-                  <el-input-number 
-                    v-else-if="getConfigType(String(key), value) === 'number'"
-                    v-model="configStore.configs[key]"
-                    :min="0"
-                    :step="String(key).includes('interval') ? 0.1 : 1"
-                  />
-                  
-                  <!-- 端口类型 -->
-                  <el-input-number 
-                    v-else-if="getConfigType(String(key), value) === 'port'"
-                    v-model="configStore.configs[key]"
-                    :min="1"
-                    :max="65535"
-                  />
-                  
-                  <!-- 密码类型 -->
-                  <el-input 
-                    v-else-if="getConfigType(String(key), value) === 'password'"
-                    v-model="configStore.configs[key]"
-                    show-password
-                  />
-                  
-                  <!-- URL类型 -->
-                  <el-input 
-                    v-else-if="getConfigType(String(key), value) === 'url'"
-                    v-model="configStore.configs[key]"
-                    placeholder="例如: http://localhost:5000"
-                  />
-                  
-                  <!-- 默认字符串类型 -->
-                  <el-input 
-                    v-else
-                    v-model="configStore.configs[key]"
-                  />
-                  
-                  <div class="form-item-tip">
-                    {{ key }}
-                  </div>
-                </el-form-item>
+              <el-form label-position="top" class="config-form">
+                <el-row :gutter="24">
+                  <el-col 
+                    v-for="(value, key) in getGroupConfigs(activeGroup)" 
+                    :key="key"
+                    :span="12"
+                    :xs="24"
+                  >
+                    <el-form-item :label="getDisplayLabel(String(key))" class="custom-form-item">
+                      <!-- 布尔类型 -->
+                      <div v-if="getConfigType(String(key), value) === 'boolean'" class="switch-wrapper">
+                        <el-switch 
+                          v-model="configStore.configs[key]"
+                          :active-value="typeof value === 'string' ? 'true' : true"
+                          :inactive-value="typeof value === 'string' ? 'false' : false"
+                        />
+                        <span class="switch-label">{{ configStore.configs[key] ? $t('views.settings.7p05v8') : $t('views.settings.5n3p7s') }}</span>
+                      </div>
+                      
+                      <!-- 数字类型 -->
+                      <el-input-number 
+                        v-else-if="getConfigType(String(key), value) === 'number'"
+                        v-model="configStore.configs[key]"
+                        :min="0"
+                        :step="String(key).includes('interval') ? 0.1 : 1"
+                        controls-position="right"
+                        class="full-width-input"
+                      />
+                      
+                      <!-- 端口类型 -->
+                      <el-input-number 
+                        v-else-if="getConfigType(String(key), value) === 'port'"
+                        v-model="configStore.configs[key]"
+                        :min="1"
+                        :max="65535"
+                        controls-position="right"
+                        class="full-width-input"
+                      />
+                      
+                      <!-- 密码类型 -->
+                      <el-input 
+                        v-else-if="getConfigType(String(key), value) === 'password'"
+                        v-model="configStore.configs[key]"
+                        show-password
+                        class="custom-input"
+                      />
+                      
+                      <!-- URL类型 -->
+                      <el-input 
+                        v-else-if="getConfigType(String(key), value) === 'url'"
+                        v-model="configStore.configs[key]"
+                        :placeholder="$t('views.settings.7f3hu6')"
+                        class="custom-input"
+                      />
+                      
+                      <!-- 默认字符串类型 -->
+                      <el-input 
+                        v-else
+                        v-model="configStore.configs[key]"
+                        class="custom-input"
+                      />
+                      
+                      <div class="form-key-tip">{{ key }}</div>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
               </el-form>
             </template>
             
             <el-empty 
               v-else 
-              description="该分组下没有配置项" 
+              :description="$t('views.settings.dn9z5l')" 
+              :image-size="120"
             />
           </div>
-        </el-card>
-      </el-col>
-    </el-row>
+        </div>
+      </main>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.settings-container {
-  max-width: 1200px;
+.settings-page {
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 40px 24px;
 }
 
-.page-title {
-  font-size: 2rem;
-  margin-bottom: 8px;
-  color: var(--text-primary);
-}
-
-.page-subtitle {
-  color: var(--text-secondary);
-  margin-bottom: 24px;
-  font-size: 14px;
-}
-
-.settings-menu-card {
-  margin-bottom: 20px;
-}
-
-.settings-menu {
-  border-right: none;
-}
-
-.menu-actions {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border-color);
+/* Header */
+.page-header {
+  margin-bottom: 40px;
   text-align: center;
 }
 
-.settings-card {
-  margin-bottom: 20px;
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--color-text-main);
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -1px;
+}
+
+.page-subtitle {
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+}
+
+/* Layout */
+.settings-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+/* Sidebar */
+.settings-sidebar {
+  background: var(--color-bg-surface);
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 100px;
+}
+
+.settings-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.nav-item:hover {
+  background-color: var(--color-bg-subtle);
+}
+
+.nav-item.active {
+  background-color: var(--color-primary-light);
+  border-color: rgba(79, 70, 229, 0.1);
+}
+
+.nav-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: var(--color-bg-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  font-size: 1.2rem;
+  transition: all 0.2s;
+}
+
+.nav-item.active .nav-icon {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.nav-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-text-main);
+}
+
+.nav-item.active .nav-title {
+  color: var(--color-primary);
+}
+
+.nav-desc {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+}
+
+.sidebar-actions {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border);
+}
+
+.reset-btn {
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* Content */
+.content-card {
+  background: var(--color-bg-surface);
+  border-radius: 16px;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
 }
 
 .card-header {
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--color-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background-color: var(--color-bg-subtle);
 }
 
-.card-header h2 {
-  margin: 0;
+.group-title {
   font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  margin: 0;
+}
+
+.save-btn {
+  border-radius: 8px;
+  padding: 10px 24px;
   font-weight: 600;
-  color: var(--text-primary);
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  transition: all 0.2s;
 }
 
-.config-group {
-  padding: 10px 0;
+.save-btn:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
 }
 
-.form-item-tip {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin-top: 5px;
+.config-form-wrapper {
+  padding: 32px;
+}
+
+/* Form Styles */
+.custom-form-item {
+  background-color: var(--color-bg-subtle);
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  margin-bottom: 24px !important;
+}
+
+.custom-form-item:hover {
+  background-color: var(--color-bg-surface);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+:deep(.el-form-item__label) {
+  font-weight: 600;
+  color: var(--color-text-main) !important;
+  font-size: 0.95rem;
+  margin-bottom: 8px !important;
+}
+
+.form-key-tip {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  margin-top: 8px;
+  font-family: monospace;
+  background: rgba(0,0,0,0.03);
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Input Styles Overrides */
+:deep(.el-input__wrapper),
+:deep(.el-input-number__decrease),
+:deep(.el-input-number__increase) {
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px var(--color-border) inset !important;
+  background-color: var(--color-bg-surface);
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 0 0 1px var(--color-primary) inset !important;
+}
+
+.full-width-input {
+  width: 100% !important;
+}
+
+.switch-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.switch-label {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .settings-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .settings-sidebar {
+    position: static;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 20px;
+    align-items: center;
+  }
+  
+  .settings-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  
+  .nav-item {
+    min-width: 160px;
+  }
+  
+  .sidebar-actions {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .page-title {
+    font-size: 2rem;
+  }
+  
+  .settings-sidebar {
+    grid-template-columns: 1fr;
+  }
+  
+  .settings-nav {
+    flex-direction: column;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  
+  .save-btn {
+    width: 100%;
+  }
 }
 </style>

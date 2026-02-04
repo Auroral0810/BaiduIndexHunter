@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // @ts-nocheck
 import { ref, reactive, onMounted, computed, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
 import { 
   Refresh, Plus, Delete, Connection, Search, CopyDocument,
@@ -36,327 +37,7 @@ const accountDetailLoading = ref(false)
 const loading = ref(false)
 const updatingAbSr = ref(false)
 
-// 临时兜底函数，防止找不到 $t 报错
-const $t = (key: string) => {
-  const map = {
-    'views.cookiemanager.cslk87': 'Cookie管理',
-    'views.cookiemanager.s8b3r4': 'API已连接',
-    'views.cookiemanager.ryfkc7': 'API未连接',
-    'views.cookiemanager.584l78': 'Cookie池状态',
-    'views.cookiemanager.p3kgye': '刷新',
-    'views.cookiemanager.u72yh2': '添加Cookie',
-    'views.cookiemanager.elw1fx': '总数',
-    'views.cookiemanager.8qgc3r': '可用',
-    'views.cookiemanager.5t0x50': '临时封禁',
-    'views.cookiemanager.e6y884': '永久封禁',
-    'views.cookiemanager.1u4sy2': '测试全部',
-    'views.cookiemanager.dl2a0c': '更新状态',
-    'views.cookiemanager.rq4zij': '清理过期',
-    'views.cookiemanager.nlb473': '可用账号列表',
-    'views.cookiemanager.vne764': '测试',
-    'views.cookiemanager.s2tp53': '操作',
-    'views.cookiemanager.x4jo6h': '查看详情',
-    'views.cookiemanager.ee2q48': '更新ID',
-    'views.cookiemanager.115uyi': '删除',
-    'views.cookiemanager.61po6w': '封禁账号管理',
-    'views.cookiemanager.8st7lh': '全选',
-    'views.cookiemanager.d5714o': '批量解封',
-    'views.cookiemanager.j33j3w': '解封全部',
-    'views.cookiemanager.92zl33': '剩余时间: ',
-    'views.cookiemanager.mf8dc8': '解封',
-    'views.cookiemanager.ns9cp5': '批量强制解封',
-    'views.cookiemanager.sk5fy0': '强制解封全部',
-    'views.cookiemanager.8etq8j': '强制解封',
-    'views.cookiemanager.47kxcu': 'Cookie详细列表',
-    'views.cookiemanager.278g1g': '同步到Redis',
-    'views.cookiemanager.y9p7s8': '更新ab_sr',
-    'views.cookiemanager.33q43q': '搜索账号ID',
-    'views.cookiemanager.37b4p5': '筛选状态',
-    'views.cookiemanager.81u723': '已过期',
-    'views.cookiemanager.1209y9': '搜索',
-    'views.cookiemanager.7cu76x': '重置',
-    'views.cookiemanager.t4da2e': '添加Cookie',
-    'views.cookiemanager.psm0p5': '全部临时封禁',
-    'views.cookiemanager.d3v4ch': '全部解封',
-    'views.cookiemanager.8v7qie': '批量临时封禁',
-    'views.cookiemanager.87x3w7': '批量永久封禁',
-    'views.cookiemanager.sh12bf': '已选择 ',
-    'views.cookiemanager.epnr2i': ' 个账号',
-    'views.cookiemanager.fr15xl': '账号ID',
-    'views.cookiemanager.oz57n9': '数量',
-    'views.cookiemanager.q28nq7': 'Cookie值',
-    'views.cookiemanager.w5f1e1': '状态',
-    'views.cookiemanager.8j8u6u': '过期时间',
-    'views.cookiemanager.c805dh': '永不过期',
-    'views.cookiemanager.f46go7': '编辑',
-    'views.cookiemanager.881jd7': 'Cookie使用量趋势',
-    'views.cookiemanager.2623i5': '编辑Cookie',
-    'views.cookiemanager.3xcu12': '账号ID',
-    'views.cookiemanager.th42gs': '请输入账号ID',
-    'views.cookiemanager.b34o26': '字符串模式',
-    'views.cookiemanager.uk514y': 'Cookie字符串',
-    'views.cookiemanager.gd2jp8': '格式: name1=value1; name2=value2',
-    'views.cookiemanager.fva0k0': 'JSON模式',
-    'views.cookiemanager.87v8fc': '请输入标准的JSON格式',
-    'views.cookiemanager.4883c4': '格式化',
-    'views.cookiemanager.hixo3o': '字符串转JSON',
-    'views.cookiemanager.kr35u8': '表格模式',
-    'views.cookiemanager.n1j1b9': '添加字段',
-    'views.cookiemanager.qr83x8': '清空字段',
-    'views.cookiemanager.g4qpr8': '键名',
-    'views.cookiemanager.1p02i5': '键值',
-    'views.cookiemanager.72nhk1': '生成JSON',
-    'views.cookiemanager.94620b': 'JSON转表格',
-    'views.cookiemanager.6u74s1': '批量导入',
-    'views.cookiemanager.v75iyb': '导入格式',
-    'views.cookiemanager.7n8765': '选择文件类型',
-    'views.cookiemanager.y0on43': '文本文件 (.txt)',
-    'views.cookiemanager.oj2848': 'JSON文件 (.json)',
-    'views.cookiemanager.0kmv3e': 'CSV文件 (.csv)',
-    'views.cookiemanager.33ufz3': 'Excel文件 (.xlsx)',
-    'views.cookiemanager.7y1v98': '选择文件',
-    'views.cookiemanager.41x3g4': '点击上传',
-    'views.cookiemanager.vf7cx7': '支持 txt, json, csv, excel 格式',
-    'views.cookiemanager.2y13xa': '处理并预览',
-    'views.cookiemanager.23tt1n': '导入预览',
-    'views.cookiemanager.f13q7e': '确认导入',
-    'views.cookiemanager.5c03y1': '取消导入',
-    'views.cookiemanager.6wj7ss': '过期设置',
-    'views.cookiemanager.7hkyhk': '设置过期天数',
-    'views.cookiemanager.36h81u': '过期天数',
-    'views.cookiemanager.ud3t6n': '天后自动标记为过期',
-    'views.cookiemanager.w0o3pl': '是否可用',
-    'views.cookiemanager.jxt47y': '不可用',
-    'views.cookiemanager.6cqov8': '永久封禁中',
-    'views.cookiemanager.237n2f': '正常',
-    'views.cookiemanager.1psc3j': '临时封禁至',
-    'views.cookiemanager.bwoi8t': '选择日期时间',
-    'views.cookiemanager.x5j4qy': '确 定',
-    'views.cookiemanager.bc0ucq': '临时封禁账号',
-    'views.cookiemanager.yw8177': '封禁时长(分钟)',
-    'views.cookiemanager.shqml1': '封禁时间到期后将自动恢复可用',
-    'views.cookiemanager.c288pq': '原账号ID',
-    'views.cookiemanager.1w7hm4': '新账号ID',
-    'views.cookiemanager.yuju0p': '请输入新的唯一账号ID',
-    'views.cookiemanager.7v7w52': 'Cookie详情',
-    'views.cookiemanager.57v4p0': '复制字符串',
-    'views.cookiemanager.918rdv': 'Cookie键名',
-    'views.cookiemanager.865d07': 'Cookie值',
-    'views.cookiemanager.nyl3rr': '未找到账号详情',
-    'views.cookiemanager.47d298': '账号可用性测试结果',
-    'views.cookiemanager.a3782e': '测试通过',
-    'views.cookiemanager.29gqz2': '测试失败',
-    'views.cookiemanager.h324e4': '状态码',
-    'views.cookiemanager.1wxu3a': '系统操作',
-    'views.cookiemanager.6y0q17': '暂无测试数据',
-    'views.cookiemanager.d1w998': '批量测试结果',
-    'views.cookiemanager.5e9o59': '测试总数',
-    'views.cookiemanager.8k2v29': '可用数量',
-    'views.cookiemanager.31k5ft': '封禁数量',
-    'views.cookiemanager.7r1583': '未登录数量',
-    'views.cookiemanager.95c723': '可用账号',
-    'views.cookiemanager.6zi5yp': '无可用账号',
-    'views.cookiemanager.1j3e7c': '被封禁账号',
-    'views.cookiemanager.4uia1i': '无被封禁账号',
-    'views.cookiemanager.nf4qda': '未登录账号',
-    'views.cookiemanager.qjcdc8': '无未登录账号',
-    'views.cookiemanager.5t4569': '批量临时封禁账号',
-    'views.cookiemanager.bmf617': '已选账号',
-    'views.cookiemanager.cj97s5': '已过期/待解封',
-    'views.cookiemanager.n4d7oo': '{0}小时',
-    'views.cookiemanager.3yb40y': '{0}分钟',
-    'views.cookiemanager.2vus85': '即将在几秒内解封',
-    'views.cookiemanager.nzr215': '长度在 2 到 50 个字符',
-    'views.cookiemanager.s8l0f7': '请输入新的账号ID',
-    'views.cookiemanager.m8bw6q': '加载Cookie统计成功:',
-    'views.cookiemanager.fm55wb': '获取Cookie池状态失败: {0}',
-    'views.cookiemanager.yhv62u': '获取Cookie池状态出错:',
-    'views.cookiemanager.6k0j54': '获取Cookie状态失败，请检查API连接',
-    'views.cookiemanager.nyw444': '加载可用账号成功:',
-    'views.cookiemanager.9595fe': '获取可用账号列表失败: {0}',
-    'views.cookiemanager.06297z': '加载可用账号出错:',
-    'views.cookiemanager.3877rl': '获取账号列表失败',
-    'views.cookiemanager.nt6rw4': '临时封禁账号:',
-    'views.cookiemanager.r2um4g': '永久封禁账号:',
-    'views.cookiemanager.d370l8': '获取封禁账号失败: {0}',
-    'views.cookiemanager.4oi867': '加载封禁账号出错:',
-    'views.cookiemanager.4md8km': '获取封禁账号失败',
-    'views.cookiemanager.y73432': '加载Cookie列表成功:',
-    'views.cookiemanager.22y82w': '获取Cookie列表失败: {0}',
-    'views.cookiemanager.q7ga82': '加载Cookie列表出错:',
-    'views.cookiemanager.62jq54': '获取列表失败',
-    'views.cookiemanager.qgrx5n': '编辑表单已填充:',
-    'views.cookiemanager.73548z': '获取Cookie信息失败: {0}',
-    'views.cookiemanager.gbulp9': '获取详情出错:',
-    'views.cookiemanager.p28u6i': '获取账号详情失败',
-    'views.cookiemanager.py4r15': 'Cookie内容为空',
-    'views.cookiemanager.vpm68i': '解析后的字符串Cookie:',
-    'views.cookiemanager.r579kh': '解析Cookie字符串失败:',
-    'views.cookiemanager.elejp7': 'Cookie解析失败，请检查格式 (name=value; name2=value2)',
-    'views.cookiemanager.7o77s1': '解析JSON失败:',
-    'views.cookiemanager.y32143': 'JSON格式错误，请检查输入',
-    'views.cookiemanager.1u2wzd': '表格数据为空',
-    'views.cookiemanager.wi6cn1': '表格中存在空的字段名',
-    'views.cookiemanager.8w43al': '预览数据为空',
-    'views.cookiemanager.311o2a': '准备提交的Cookie数据:',
-    'views.cookiemanager.4534pf': '提交的最终JSON数据:',
-    'views.cookiemanager.5fkkmo': '更新Cookie成功',
-    'views.cookiemanager.g7u2yi': '添加Cookie成功',
-    'views.cookiemanager.g2987l': '更新',
-    'views.cookiemanager.u72yh2': '添加',
-    'views.cookiemanager.qa3xuk': '保存失败:',
-    'views.cookiemanager.f3jy50': 'JSON 格式无效',
-    'views.cookiemanager.669359': '请先输入Cookie字符串',
-    'views.cookiemanager.474st2': '转换成功',
-    'views.cookiemanager.5ghrc3': '解析失败:',
-    'views.cookiemanager.nroaf7': 'Cookie 字符串解析失败，请检查格式',
-    'views.cookiemanager.yb9x3t': '确认清空所有已输入的字段吗？',
-    'views.cookiemanager.lwo521': '提示',
-    'views.cookiemanager.86icn7': '确定',
-    'views.cookiemanager.fl98bx': '取消',
-    'views.cookiemanager.27eiu6': '已清空',
-    'views.cookiemanager.mu4bkt': '表格数据为空',
-    'views.cookiemanager.l6m6j9': '生成成功',
-    'views.cookiemanager.6o2ln6': '转换成功',
-    'views.cookiemanager.21g119': 'JSON 格式无效',
-    'views.cookiemanager.9s4ovr': '请先选择文件',
-    'views.cookiemanager.737pwz': '文件处理失败:',
-    'views.cookiemanager.was925': '解析文件失败，请检查格式',
-    'views.cookiemanager.b04g8f': '无法读取文件内容',
-    'views.cookiemanager.9s7630': '读取文件出错',
-    'views.cookiemanager.l4k485': '成功解析 {0} 个字段',
-    'views.cookiemanager.113i8h': '未在文件中找到有效的 name=value 格式',
-    'views.cookiemanager.gu9n94': 'JSON 中未找到有效数据',
-    'views.cookiemanager.t64i5t': '无效的 JSON 格式',
-    'views.cookiemanager.j011g6': '未在 CSV 中找到有效数据',
-    'views.cookiemanager.9y3nzo': '没有预览数据可导入',
-    'views.cookiemanager.m1eb6y': '导入成功',
-    'views.cookiemanager.o9m48o': '已取消导入',
-    'views.cookiemanager.96lf7s': '确定要删除该 Cookie 吗？删除后不可恢复',
-    'views.cookiemanager.2o2809': '确认删除',
-    'views.cookiemanager.g5651u': '删除成功',
-    'views.cookiemanager.cf1i41': '删除失败: {0}',
-    'views.cookiemanager.1w21ob': '删除出错:',
-    'views.cookiemanager.7q6yyr': '操作失败，请检查连接',
-    'views.cookiemanager.571777': '解封成功',
-    'views.cookiemanager.d54930': '解封失败: {0}',
-    'views.cookiemanager.1c1876': '解封出错:',
-    'views.cookiemanager.qks4og': '操作失败',
-    'views.cookiemanager.95zbt0': '已成功同步到 Redis',
-    'views.cookiemanager.o23jc7': '同步失败: {0}',
-    'views.cookiemanager.572hd7': '同步出错:',
-    'views.cookiemanager.i8i700': '操作失败',
-    'views.cookiemanager.lv56y5': '更新ab_sr失败: {0}',
-    'views.cookiemanager.159cck': '更新ab_sr出错:',
-    'views.cookiemanager.17221j': '更新失败',
-    'views.cookiemanager.tcz61g': '测试请求失败: {0}',
-    'views.cookiemanager.1n28v7': '测试出错:',
-    'views.cookiemanager.9at4s7': '测试失败',
-    'views.cookiemanager.l0z0ky': '测试请求失败: {0}',
-    'views.cookiemanager.oucusd': '批量测试出错:',
-    'views.cookiemanager.l8ekty': '批量测试失败',
-    'views.cookiemanager.6srmjj': '成功更新 {0} 个 Cookie 状态',
-    'views.cookiemanager.127qbk': '更新状态失败: {0}',
-    'views.cookiemanager.f65q9r': '更新状态出错:',
-    'views.cookiemanager.6y7tf4': '更新失败',
-    'views.cookiemanager.4m3644': '确定要清理所有已过期的 Cookie 吗？',
-    'views.cookiemanager.36a5u1': '清理确认',
-    'views.cookiemanager.s11lru': '开始清理',
-    'views.cookiemanager.1it2py': '成功删除 {0} 个过期 Cookie',
-    'views.cookiemanager.48ig46': '清理失败: {0}',
-    'views.cookiemanager.9v2e49': '清理出错:',
-    'views.cookiemanager.q93dxj': '操作失败',
-    'views.cookiemanager.c91ed6': '获取失败: {0}',
-    'views.cookiemanager.i2phqs': '详情查询出错:',
-    'views.cookiemanager.p2s635': '详情获取失败',
-    'views.cookiemanager.0x3yl3': '当前浏览器不支持剪贴板',
-    'views.cookiemanager.2c157h': '已复制到剪贴板',
-    'views.cookiemanager.kxhhb7': '复制出错:',
-    'views.cookiemanager.5x00ks': '复制失败',
-    'views.cookiemanager.6tt3m1': '账号 {0} 已成功临时封禁 {1} 分钟',
-    'views.cookiemanager.rmoi5b': '封禁失败: {0}',
-    'views.cookiemanager.h82589': '临时封禁出错:',
-    'views.cookiemanager.8v5z9x': '操作失败',
-    'views.cookiemanager.iw1a8d': '确定要永久封禁账号 {0} 吗？',
-    'views.cookiemanager.wy9gqv': '永久封禁确认',
-    'views.cookiemanager.h14i63': '永久封禁',
-    'views.cookiemanager.60b8ym': '账号 {0} 已永久封禁',
-    'views.cookiemanager.5215c3': '操作失败: {0}',
-    'views.cookiemanager.820gh6': '封禁操作出错:',
-    'views.cookiemanager.36zs5h': '操作失败',
-    'views.cookiemanager.644stx': '账号 {0} 已解封',
-    'views.cookiemanager.1w01sr': '解封失败: {0}',
-    'views.cookiemanager.23633d': '解封操作出错:',
-    'views.cookiemanager.36363t': '操作失败',
-    'views.cookiemanager.x4j49z': '确定要强制解封账号 {0} 吗？',
-    'views.cookiemanager.2t22kr': '强制解封确认',
-    'views.cookiemanager.e6tc1n': '账号 {0} 已强制解封',
-    'views.cookiemanager.vn0vpy': '强制解封失败: {0}',
-    'views.cookiemanager.5b4rzz': '强制解封出错:',
-    'views.cookiemanager.3h7t12': '操作失败',
-    'views.cookiemanager.68b827': '账号ID已从 {0} 更新为 {1}',
-    'views.cookiemanager.cl6b3x': '更新失败: {0}',
-    'views.cookiemanager.v4cf99': '更新ID出错:',
-    'views.cookiemanager.6pr34t': '更新失败',
-    'views.cookiemanager.8365s4': '确定要彻底删除账号 {0} 的所有数据吗？',
-    'views.cookiemanager.qeiey3': '账号 {0} 已删除',
-    'views.cookiemanager.5rdm42': '删除账号失败: {0}',
-    'views.cookiemanager.1bf1co': '账号删除出错:',
-    'views.cookiemanager.oq3rf6': '删除失败',
-    'views.cookiemanager.o1w9pl': '无法读取 Excel 文件内容',
-    'views.cookiemanager.r72u3m': 'Excel 文件为空',
-    'views.cookiemanager.56q81p': 'Excel 文件中必须包含 name 和 value 列',
-    'views.cookiemanager.h929uc': '未解析到有效数据',
-    'views.cookiemanager.8g5xrc': '解析 Excel 失败:',
-    'views.cookiemanager.00kt80': 'Excel 解析错误',
-    'views.cookiemanager.f0xi3y': 'Excel 加载失败:',
-    'views.cookiemanager.3mfklj': '无法加载 Excel 处理库',
-    'views.cookiemanager.11w111': '成功解封 {0} 个账号',
-    'views.cookiemanager.r58bc3': '批量解封出错',
-    'views.cookiemanager.o3k17t': '确定要解封所有临时封禁的账号吗？',
-    'views.cookiemanager.i5fk3t': '解封出错',
-    'views.cookiemanager.516123': '确定要强制解封所有永久封禁的账号吗？',
-    'views.cookiemanager.nyi371': '确定要临时封禁所有当前可用的账号吗？',
-    'views.cookiemanager.866552': '全部封禁确认',
-    'views.cookiemanager.w0x11t': '当前没有可用账号',
-    'views.cookiemanager.49bw7m': '封禁账号 {0} 出错:',
-    'views.cookiemanager.zvlkac': '成功封禁 {0} 个账号，失败 {1} 个',
-    'views.cookiemanager.t13gse': '获取账号列表失败: {0}',
-    'views.cookiemanager.i3g56q': '操作出错:',
-    'views.cookiemanager.30d34h': '操作失败',
-    'views.cookiemanager.lid246': '确定要解封所有临时封禁的账号吗？',
-    'views.cookiemanager.241361': '全部解封确认',
-    'views.cookiemanager.nbwin3': '当前没有封禁的账号',
-    'views.cookiemanager.9v446o': '解封账号 {0} 出错:',
-    'views.cookiemanager.qtx2n9': '成功解封 {0} 个账号，共处理 {1} 个',
-    'views.cookiemanager.23m5mp': '获取封禁账号失败: {0}',
-    'views.cookiemanager.j7887t': '操作出错:',
-    'views.cookiemanager.768gq2': '操作失败',
-    'views.cookiemanager.a7uc8x': '请先选择账号',
-    'views.cookiemanager.lx6v3t': '批量封禁账号 {0} 出错:',
-    'views.cookiemanager.vox4d8': '成功封禁 {0} 个账号，共处理 {1} 个，时长 {2} 分钟',
-    'views.cookiemanager.9jgsur': '批量封禁出错:',
-    'views.cookiemanager.utl8fd': '批量封禁失败',
-    'views.cookiemanager.j8c1xd': '确定要将选中的 {0} 个账号永久封禁吗？',
-    'views.cookiemanager.qvw6rw': '批量永久封禁确认',
-    'views.cookiemanager.xn5154': '永久封禁账号 {0} 出错:',
-    'views.cookiemanager.qyx343': '成功永久封禁 {0} 个账号，共处理 {1} 个',
-    'views.cookiemanager.514w67': '批量永久封禁出错:',
-    'views.cookiemanager.pl3n3k': '批量永久封禁失败',
-    'views.cookiemanager.s5426c': '请先选择要解封的账号',
-    'views.cookiemanager.8e2n55': '确定要解封选中的 {0} 个账号吗？',
-  }
-  
-  let res = map[key] || key
-  // 处理占位符 {0}, {1}...
-  if (arguments.length > 1) {
-    const params = Array.isArray(arguments[1]) ? arguments[1] : [arguments[1]]
-    params.forEach((p, i) => {
-      res = res.replace(`{${i}}`, p)
-    })
-  }
-  return res
-}
+const { t: $t } = useI18n()
 
 // Cookie池统计
 const cookieStats = reactive({
@@ -520,13 +201,13 @@ const refreshCookieStatus = async () => {
       cookieStats.permBanned = data.perm_banned || 0
       
       // 添加日志以便调试
-      console.log($t('views.cookiemanager.m8bw6q'), data)
+      console.log($t('views.cookiemanager.ok8s0f'), data)
     } else {
       ElMessage.error($t('views.cookiemanager.fm55wb', [response.data.msg]))
     }
   } catch (error) {
-    console.error($t('views.cookiemanager.yhv62u'), error)
-    ElMessage.error($t('views.cookiemanager.6k0j54'))
+    console.error($t('views.cookiemanager.2bd8so'), error)
+    ElMessage.error($t('views.cookiemanager.vkiw1q'))
   } finally {
     statusLoading.value = false
   }
@@ -551,13 +232,13 @@ const loadAvailableAccounts = async () => {
     const response = await axios.get(`${API_BASE_URL}/admin/cookie/available-accounts`)
     if (response.data.code === 10000) {
       availableAccounts.value = response.data.data.account_ids || []
-      console.log($t('views.cookiemanager.nyw444'), availableAccounts.value)
+      console.log($t('views.cookiemanager.8d2gqe'), availableAccounts.value)
     } else {
-      ElMessage.error($t('views.cookiemanager.9595fe', [response.data.msg]))
+      ElMessage.error($t('views.cookiemanager.c3ne55', [response.data.msg]))
     }
   } catch (error) {
-    console.error($t('views.cookiemanager.06297z'), error)
-    ElMessage.error($t('views.cookiemanager.3877rl'))
+    console.error($t('views.cookiemanager.14o491'), error)
+    ElMessage.error($t('views.cookiemanager.py5gs8'))
   } finally {
     accountsLoading.value = false
   }
@@ -580,14 +261,14 @@ const loadBannedAccounts = async () => {
       // 正确解析永久封禁Cookie
       permBannedAccounts.value = response.data.data.perm_banned || []
       
-      console.log($t('views.cookiemanager.nt6rw4'), tempBannedAccounts.value)
-      console.log($t('views.cookiemanager.r2um4g'), permBannedAccounts.value)
+      console.log($t('views.cookiemanager.984551'), tempBannedAccounts.value)
+      console.log($t('views.cookiemanager.e324p4'), permBannedAccounts.value)
     } else {
-      ElMessage.error($t('views.cookiemanager.d370l8', [response.data.msg]))
+      ElMessage.error($t('views.cookiemanager.21x5u6', [response.data.msg]))
     }
   } catch (error) {
-    console.error($t('views.cookiemanager.4oi867'), error)
-    ElMessage.error($t('views.cookiemanager.4md8km'))
+    console.error($t('views.cookiemanager.i5lwf1'), error)
+    ElMessage.error($t('views.cookiemanager.gutb5a'))
   } finally {
     bannedLoading.value = false
   }
@@ -625,7 +306,7 @@ const loadCookies = async () => {
         return item;
       });
       
-      console.log($t('views.cookiemanager.y73432'), cookieList.value)
+      console.log($t('views.cookiemanager.1951zu'), cookieList.value)
       
       // 如果后端返回了总数，使用后端的总数
       if (response.data.total) {
@@ -637,8 +318,8 @@ const loadCookies = async () => {
       ElMessage.error($t('views.cookiemanager.22y82w', [response.data.msg]))
     }
   } catch (error) {
-    console.error($t('views.cookiemanager.q7ga82'), error)
-    ElMessage.error($t('views.cookiemanager.62jq54'))
+    console.error($t('views.cookiemanager.6cm2xs'), error)
+    ElMessage.error($t('views.cookiemanager.sm2pes'))
   } finally {
     listLoading.value = false
   }
@@ -753,13 +434,13 @@ const editCookie = async (cookie: any) => {
       
       cookieDialogVisible.value = true;
       
-      console.log($t('views.cookiemanager.qgrx5n'), cookieForm);
+      console.log($t('views.cookiemanager.q46d47'), cookieForm);
     } else {
-      ElMessage.error($t('views.cookiemanager.73548z', [response.data.msg]));
+      ElMessage.error($t('views.cookiemanager.68uf7c', [response.data.msg]));
     }
   } catch (error) {
-    console.error($t('views.cookiemanager.gbulp9'), error);
-    ElMessage.error($t('views.cookiemanager.p28u6i'));
+    console.error($t('views.cookiemanager.u46r6j'), error);
+    ElMessage.error($t('views.cookiemanager.o82who'));
   } finally {
     loading.value = false;
   }
@@ -787,7 +468,7 @@ const submitCookieForm = async () => {
           // 检查是否有字符串输入
           if (!cookieForm.cookie_string || cookieForm.cookie_string.trim() === '') {
             // 警告但不阻止提交，使用空对象
-            ElMessage.warning($t('views.cookiemanager.py4r15'))
+            ElMessage.warning($t('views.cookiemanager.a4lvkm'))
             cookieData.cookie_data = {}
           } else {
             const cookieObj = {}
@@ -808,10 +489,10 @@ const submitCookieForm = async () => {
             
             cookieData.cookie_data = cookieObj
           }
-          console.log($t('views.cookiemanager.vpm68i'), cookieData.cookie_data)
+          console.log($t('views.cookiemanager.86m8s2'), cookieData.cookie_data)
         } catch (e) {
-          console.error($t('views.cookiemanager.r579kh'), e)
-          ElMessage.error($t('views.cookiemanager.elejp7'))
+          console.error($t('views.cookiemanager.c54ryv'), e)
+          ElMessage.error($t('views.cookiemanager.lc547n'))
           submitting.value = false
           return
         }
@@ -828,7 +509,7 @@ const submitCookieForm = async () => {
             cookieData.cookie_data = jsonData
           }
         } catch (e) {
-          console.error($t('views.cookiemanager.7o77s1'), e)
+          console.error($t('views.cookiemanager.17ykj8'), e)
           ElMessage.error($t('views.cookiemanager.y32143'))
           submitting.value = false
           return
@@ -837,7 +518,7 @@ const submitCookieForm = async () => {
       case 'table':
         // 表格模式
         if (cookieTableData.value.length === 0) {
-          ElMessage.error($t('views.cookiemanager.1u2wzd'))
+          ElMessage.error($t('views.cookiemanager.mu4bkt'))
           submitting.value = false
           return
         }
@@ -845,7 +526,7 @@ const submitCookieForm = async () => {
         // 验证表格数据
         for (const row of cookieTableData.value) {
           if (!row.name.trim()) {
-            ElMessage.error($t('views.cookiemanager.wi6cn1'))
+            ElMessage.error($t('views.cookiemanager.o60i16'))
             submitting.value = false
             return
           }
@@ -864,7 +545,7 @@ const submitCookieForm = async () => {
       case 'import':
         // 导入模式
         if (importPreviewData.value.length === 0) {
-          ElMessage.error($t('views.cookiemanager.8w43al'))
+          ElMessage.error($t('views.cookiemanager.d57we7'))
           submitting.value = false
           return
         }
@@ -887,7 +568,7 @@ const submitCookieForm = async () => {
     }
     // 如果expire_option为none，则不设置expire_days，后端默认为null
     
-    console.log($t('views.cookiemanager.311o2a'), cookieData)
+    console.log($t('views.cookiemanager.4534pf'), cookieData)
     
     // 添加详细的日志，方便调试
     console.log($t('views.cookiemanager.4534pf'), JSON.stringify(cookieData, null, 2))
@@ -905,21 +586,21 @@ const submitCookieForm = async () => {
     }
     
     if (response.data.code === 10000) {
-      ElMessage.success(cookieForm.id ? $t('views.cookiemanager.5fkkmo') : $t('views.cookiemanager.g7u2yi'))
+      ElMessage.success(cookieForm.id ? $t('views.cookiemanager.amde31') : $t('views.cookiemanager.5y2dsc'))
       cookieDialogVisible.value = false
       refreshCookieStatus()
       loadCookies()
       loadAvailableAccounts()
       loadBannedAccounts()
     } else {
-      ElMessage.error(`${cookieForm.id ? $t('views.cookiemanager.g2987l') : $t('views.cookiemanager.u72yh2')}Cookie失败: ${response.data.msg}`)
+      ElMessage.error(`${cookieForm.id ? $t('views.cookiemanager.g2987l') : $t('views.cookiemanager.t4da2e')}Cookie失败: ${response.data.msg}`)
     }
   } catch (error: any) {
     if (error.message) {
       ElMessage.error(error.message)
     } else {
-      console.error($t('views.cookiemanager.qa3xuk'), error)
-      ElMessage.error(`${cookieForm.id ? $t('views.cookiemanager.g2987l') : $t('views.cookiemanager.u72yh2')}Cookie失败，请检查网络连接`)
+      console.error($t('views.cookiemanager.i2lq17'), error)
+      ElMessage.error(`${cookieForm.id ? $t('views.cookiemanager.g2987l') : $t('views.cookiemanager.t4da2e')}Cookie失败，请检查网络连接`)
     }
   } finally {
     submitting.value = false
@@ -932,7 +613,7 @@ const formatJson = () => {
     const parsed = JSON.parse(cookieForm.cookie_json)
     cookieForm.cookie_json = JSON.stringify(parsed, null, 2)
   } catch (e) {
-    ElMessage.error($t('views.cookiemanager.f3jy50'))
+    ElMessage.error($t('views.cookiemanager.0739dv'))
   }
 }
 
@@ -969,8 +650,8 @@ const convertStringToJson = () => {
     
     ElMessage.success($t('views.cookiemanager.474st2'))
   } catch (e) {
-    console.error($t('views.cookiemanager.5ghrc3'), e)
-    ElMessage.error($t('views.cookiemanager.nroaf7'))
+    console.error($t('views.cookiemanager.67p41h'), e)
+    ElMessage.error($t('views.cookiemanager.8649r1'))
   }
 }
 
@@ -986,13 +667,13 @@ const removeCookieField = (index: number) => {
 
 // Cookie编辑 - 清空所有字段
 const clearAllFields = () => {
-  ElMessageBox.confirm($t('views.cookiemanager.yb9x3t'), $t('views.cookiemanager.lwo521'), {
+  ElMessageBox.confirm($t('views.cookiemanager.gyo861'), $t('views.cookiemanager.lwo521'), {
     confirmButtonText: $t('views.cookiemanager.86icn7'),
     cancelButtonText: $t('views.cookiemanager.fl98bx'),
     type: 'warning'
   }).then(() => {
     cookieTableData.value = []
-    ElMessage.success($t('views.cookiemanager.27eiu6'))
+    ElMessage.success($t('views.cookiemanager.62h3wn'))
   }).catch(() => {})
 }
 
@@ -1012,7 +693,7 @@ const generateJsonFromTable = () => {
   
   cookieForm.cookie_json = JSON.stringify(jsonObj, null, 2)
   cookieInputMode.value = 'json'
-  ElMessage.success($t('views.cookiemanager.l6m6j9'))
+  ElMessage.success($t('views.cookiemanager.te3wwq'))
 }
 
 // Cookie编辑 - JSON转表格数据
@@ -1026,9 +707,9 @@ const generateTableFromJson = () => {
     }))
     
     cookieInputMode.value = 'table'
-    ElMessage.success($t('views.cookiemanager.6o2ln6'))
+    ElMessage.success($t('views.cookiemanager.474st2'))
   } catch (e) {
-    ElMessage.error($t('views.cookiemanager.21g119'))
+    ElMessage.error($t('views.cookiemanager.0739dv'))
   }
 }
 
@@ -1068,8 +749,8 @@ const processCookieFile = async () => {
         break
     }
   } catch (error) {
-    console.error($t('views.cookiemanager.737pwz'), error)
-    ElMessage.error($t('views.cookiemanager.was925'))
+    console.error($t('views.cookiemanager.24z4mk'), error)
+    ElMessage.error($t('views.cookiemanager.2353e1'))
   }
 }
 
@@ -1082,12 +763,12 @@ const readFileContent = (file: File): Promise<string> => {
       if (event.target?.result) {
         resolve(event.target.result as string)
       } else {
-        reject(new Error($t('views.cookiemanager.b04g8f')))
+        reject(new Error($t('views.cookiemanager.y828v3')))
       }
     }
     
     reader.onerror = () => {
-      reject(new Error($t('views.cookiemanager.9s7630')))
+      reject(new Error($t('views.cookiemanager.7iz0dx')))
     }
     
     reader.readAsText(file)
@@ -1115,9 +796,9 @@ const processTxtContent = (content: string) => {
   
   if (result.length > 0) {
     importPreviewData.value = result
-    ElMessage.success($t('views.cookiemanager.l4k485', [result.length]))
+    ElMessage.success($t('views.cookiemanager.7tlafi', [result.length]))
   } else {
-    ElMessage.error($t('views.cookiemanager.113i8h'))
+    ElMessage.error($t('views.cookiemanager.w23bv8'))
   }
 }
 
@@ -1133,12 +814,12 @@ const processJsonContent = (content: string) => {
     
     if (result.length > 0) {
       importPreviewData.value = result
-      ElMessage.success($t('views.cookiemanager.l4k485', [result.length]))
+      ElMessage.success($t('views.cookiemanager.7tlafi', [result.length]))
     } else {
-      ElMessage.error($t('views.cookiemanager.gu9n94'))
+      ElMessage.error($t('views.cookiemanager.55yo7s'))
     }
   } catch (e) {
-    ElMessage.error($t('views.cookiemanager.t64i5t'))
+    ElMessage.error($t('views.cookiemanager.o453w6'))
   }
 }
 
@@ -1171,9 +852,9 @@ const processCsvContent = (content: string) => {
   
   if (result.length > 0) {
     importPreviewData.value = result
-    ElMessage.success($t('views.cookiemanager.l4k485', [result.length]))
+    ElMessage.success($t('views.cookiemanager.7tlafi', [result.length]))
   } else {
-    ElMessage.error($t('views.cookiemanager.j011g6'))
+    ElMessage.error($t('views.cookiemanager.714h0d'))
   }
 }
 
@@ -1203,7 +884,7 @@ const parseCSVLine = (line: string): string[] => {
 // 确认导入预览数据
 const confirmImport = () => {
   if (importPreviewData.value.length === 0) {
-    ElMessage.warning($t('views.cookiemanager.9y3nzo'))
+    ElMessage.warning($t('views.cookiemanager.125i38'))
     return
   }
   
@@ -1243,7 +924,7 @@ const cancelImport = () => {
 // 删除Cookie
 const deleteCookie = async (account_id: number) => {
   try {
-    await ElMessageBox.confirm($t('views.cookiemanager.96lf7s'), $t('views.cookiemanager.2o2809'), {
+    await ElMessageBox.confirm($t('views.cookiemanager.b475w4'), $t('views.cookiemanager.2o2809'), {
       confirmButtonText: $t('views.cookiemanager.115uyi'),
       cancelButtonText: $t('views.cookiemanager.fl98bx'),
       type: 'warning'
@@ -1253,16 +934,16 @@ const deleteCookie = async (account_id: number) => {
     
     const response = await axios.delete(`${API_BASE_URL}/admin/cookie/delete/${account_id}`)
     if (response.data.code === 10000) {
-      ElMessage.success($t('views.cookiemanager.g5651u'))
+      ElMessage.success($t('views.cookiemanager.d4y7wo'))
       loadCookies()
       refreshCookieStatus()
     } else {
-      ElMessage.error($t('views.cookiemanager.cf1i41', [response.data.msg]))
+      ElMessage.error($t('views.cookiemanager.2y37t2', [response.data.msg]))
     }
   } catch (error: any) {
     if (error !== 'cancel') {
-      console.error($t('views.cookiemanager.1w21ob'), error)
-      ElMessage.error($t('views.cookiemanager.7q6yyr'))
+      console.error($t('views.cookiemanager.88gk5b'), error)
+      ElMessage.error($t('views.cookiemanager.qp7ts2'))
     }
   } finally {
     listLoading.value = false
@@ -1301,15 +982,15 @@ const unbanCookie = async (id: number) => {
     
     const response = await axios.post(`${API_BASE_URL}/admin/cookie/unban/${id}`)
     if (response.data.code === 10000) {
-      ElMessage.success($t('views.cookiemanager.571777'))
+      ElMessage.success($t('views.cookiemanager.71bw8q'))
       loadCookies()
       refreshCookieStatus()
     } else {
-      ElMessage.error($t('views.cookiemanager.d54930', [response.data.msg]))
+      ElMessage.error($t('views.cookiemanager.4kt337', [response.data.msg]))
     }
   } catch (error) {
-    console.error($t('views.cookiemanager.1c1876'), error)
-    ElMessage.error($t('views.cookiemanager.qks4og'))
+    console.error($t('views.cookiemanager.25o26b'), error)
+    ElMessage.error($t('views.cookiemanager.4xpz05'))
   } finally {
     listLoading.value = false
   }
@@ -1322,14 +1003,14 @@ const syncToRedis = async () => {
     
     const response = await axios.post(`${API_BASE_URL}/admin/cookie/sync-to-redis`)
     if (response.data.code === 10000) {
-      ElMessage.success($t('views.cookiemanager.95zbt0'))
+      ElMessage.success($t('views.cookiemanager.dn1070'))
       refreshCookieStatus()
     } else {
-      ElMessage.error($t('views.cookiemanager.o23jc7', [response.data.msg]))
+      ElMessage.error($t('views.cookiemanager.c77ri3', [response.data.msg]))
     }
   } catch (error) {
-    console.error($t('views.cookiemanager.572hd7'), error)
-    ElMessage.error($t('views.cookiemanager.i8i700'))
+    console.error($t('views.cookiemanager.zvb424'), error)
+    ElMessage.error($t('views.cookiemanager.gp1dd8'))
   } finally {
     syncing.value = false
   }
@@ -1349,8 +1030,8 @@ const updateAbSr = async () => {
       ElMessage.error($t('views.cookiemanager.lv56y5', [response.data.msg]))
     }
   } catch (error) {
-    console.error($t('views.cookiemanager.159cck'), error)
-    ElMessage.error($t('views.cookiemanager.17221j'))
+    console.error($t('views.cookiemanager.5kcqge'), error)
+    ElMessage.error($t('views.cookiemanager.gp1dd8'))
   } finally {
     updatingAbSr.value = false
   }
@@ -1367,12 +1048,12 @@ const testAccountAvailability = async (accountId: string) => {
     if (response.data.code === 10000) {
       testResult.value = response.data.data
     } else {
-      ElMessage.error($t('views.cookiemanager.tcz61g', [response.data.msg]))
+      ElMessage.error($t('views.cookiemanager.bj07v2', [response.data.msg]))
       testResultDialogVisible.value = false
     }
   } catch (error) {
-    console.error($t('views.cookiemanager.1n28v7'), error)
-    ElMessage.error($t('views.cookiemanager.9at4s7'))
+    console.error($t('views.cookiemanager.937l19'), error)
+    ElMessage.error($t('views.cookiemanager.29gqz2'))
     testResultDialogVisible.value = false
   } finally {
     testingAccount.value = false
@@ -1390,12 +1071,12 @@ const testAllCookiesAvailability = async () => {
     if (response.data.code === 10000) {
       batchTestResult.value = response.data.data
     } else {
-      ElMessage.error($t('views.cookiemanager.l0z0ky', [response.data.msg]))
+      ElMessage.error($t('views.cookiemanager.bj07v2', [response.data.msg]))
       batchTestResultDialogVisible.value = false
     }
   } catch (error) {
-    console.error($t('views.cookiemanager.oucusd'), error)
-    ElMessage.error($t('views.cookiemanager.l8ekty'))
+    console.error($t('views.cookiemanager.348816'), error)
+    ElMessage.error($t('views.cookiemanager.279nuo'))
     batchTestResultDialogVisible.value = false
   } finally {
     testingAll.value = false
@@ -1409,15 +1090,15 @@ const updateCookieStatus = async () => {
     
     const response = await axios.post(`${API_BASE_URL}/admin/cookie/update-status`)
     if (response.data.code === 10000) {
-      ElMessage.success($t('views.cookiemanager.6srmjj', [response.data.data.updated_count]))
+      ElMessage.success($t('views.cookiemanager.511q7l', [response.data.data.updated_count]))
       refreshCookieStatus()
       loadCookies()
     } else {
-      ElMessage.error($t('views.cookiemanager.127qbk', [response.data.msg]))
+      ElMessage.error($t('views.cookiemanager.4e1y78', [response.data.msg]))
     }
   } catch (error) {
-    console.error($t('views.cookiemanager.f65q9r'), error)
-    ElMessage.error($t('views.cookiemanager.6y7tf4'))
+    console.error($t('views.cookiemanager.844qcu'), error)
+    ElMessage.error($t('views.cookiemanager.gp1dd8'))
   } finally {
     updatingStatus.value = false
   }
@@ -1426,8 +1107,8 @@ const updateCookieStatus = async () => {
 // 清理过期Cookie
 const cleanupExpiredCookies = async () => {
   try {
-    await ElMessageBox.confirm($t('views.cookiemanager.4m3644'), $t('views.cookiemanager.36a5u1'), {
-      confirmButtonText: $t('views.cookiemanager.s11lru'),
+    await ElMessageBox.confirm($t('views.cookiemanager.w111ux'), $t('views.cookiemanager.c7m27d'), {
+      confirmButtonText: $t('views.cookiemanager.lfpp9p'),
       cancelButtonText: $t('views.cookiemanager.fl98bx'),
       type: 'warning'
     })
@@ -1436,16 +1117,16 @@ const cleanupExpiredCookies = async () => {
     
     const response = await axios.post(`${API_BASE_URL}/admin/cookie/cleanup-expired`)
     if (response.data.code === 10000) {
-      ElMessage.success($t('views.cookiemanager.1it2py', [response.data.data.deleted_count]))
+      ElMessage.success($t('views.cookiemanager.jdrpgn', [response.data.data.deleted_count]))
       refreshCookieStatus()
       loadCookies()
     } else {
-      ElMessage.error($t('views.cookiemanager.48ig46', [response.data.msg]))
+      ElMessage.error($t('views.cookiemanager.lyosd4', [response.data.msg]))
     }
   } catch (error: any) {
     if (error !== 'cancel') {
-      console.error($t('views.cookiemanager.9v2e49'), error)
-      ElMessage.error($t('views.cookiemanager.q93dxj'))
+      console.error($t('views.cookiemanager.665727'), error)
+      ElMessage.error($t('views.cookiemanager.4xpz05'))
     }
   } finally {
     cleaningUp.value = false
@@ -1491,12 +1172,12 @@ const viewAccountDetail = async (accountId: string) => {
         };
       }
     } else {
-      ElMessage.error($t('views.cookiemanager.c91ed6', [response.data.msg]))
+      ElMessage.error($t('views.cookiemanager.f26paw', [response.data.msg]))
       accountDetailDialogVisible.value = false
     }
   } catch (error) {
-    console.error($t('views.cookiemanager.i2phqs'), error)
-    ElMessage.error($t('views.cookiemanager.p2s635'))
+    console.error($t('views.cookiemanager.it47f2'), error)
+    ElMessage.error($t('views.cookiemanager.5af555'))
     accountDetailDialogVisible.value = false
   } finally {
     accountDetailLoading.value = false
@@ -1506,15 +1187,15 @@ const viewAccountDetail = async (accountId: string) => {
 // 复制Cookie字符串
 const copyCookieString = async () => {
   if (!isSupported) {
-    ElMessage.error($t('views.cookiemanager.0x3yl3'))
+    ElMessage.error($t('views.cookiemanager.my3iml'))
     return
   }
   
   try {
     await copy(accountDetailCookieString.value)
-    ElMessage.success($t('views.cookiemanager.2c157h'))
+    ElMessage.success($t('views.cookiemanager.lt24jw'))
   } catch (error) {
-    console.error($t('views.cookiemanager.kxhhb7'), error)
+    console.error($t('views.cookiemanager.hj488l'), error)
     ElMessage.error($t('views.cookiemanager.5x00ks'))
   }
 }
@@ -1537,18 +1218,18 @@ const submitTempBan = async () => {
     })
     
     if (response.data.code === 10000) {
-      ElMessage.success($t('views.cookiemanager.6tt3m1', [tempBanForm.account_id,tempBanForm.duration_minutes]))
+      ElMessage.success($t('views.cookiemanager.vd686k', [tempBanForm.account_id,tempBanForm.duration_minutes]))
       tempBanDialogVisible.value = false
       refreshCookieStatus()
       loadCookies()
       loadAvailableAccounts()
       loadBannedAccounts()
     } else {
-      ElMessage.error($t('views.cookiemanager.rmoi5b', [response.data.msg]))
+      ElMessage.error($t('views.cookiemanager.7y6l48', [response.data.msg]))
     }
   } catch (error) {
-    console.error($t('views.cookiemanager.h82589'), error)
-    ElMessage.error($t('views.cookiemanager.8v5z9x'))
+    console.error($t('views.cookiemanager.1pi78u'), error)
+    ElMessage.error($t('views.cookiemanager.4xpz05'))
   } finally {
     submitting.value = false
   }
@@ -1557,8 +1238,8 @@ const submitTempBan = async () => {
 // 永久封禁账号
 const banAccountPermanently = async (accountId: string) => {
   try {
-    await ElMessageBox.confirm($t('views.cookiemanager.iw1a8d', [accountId]), $t('views.cookiemanager.wy9gqv'), {
-      confirmButtonText: $t('views.cookiemanager.h14i63'),
+    await ElMessageBox.confirm($t('views.cookiemanager.7gtd0w', [accountId]), $t('views.cookiemanager.si393u'), {
+      confirmButtonText: $t('views.cookiemanager.e6y884'),
       cancelButtonText: $t('views.cookiemanager.fl98bx'),
       type: 'warning'
     })
@@ -1573,12 +1254,12 @@ const banAccountPermanently = async (accountId: string) => {
       loadAvailableAccounts()
       loadBannedAccounts()
     } else {
-      ElMessage.error($t('views.cookiemanager.5215c3', [response.data.msg]))
+      ElMessage.error($t('views.cookiemanager.svdv0r', [response.data.msg]))
     }
   } catch (error: any) {
     if (error !== 'cancel') {
-      console.error($t('views.cookiemanager.820gh6'), error)
-      ElMessage.error($t('views.cookiemanager.36zs5h'))
+      console.error($t('views.cookiemanager.g025y4'), error)
+      ElMessage.error($t('views.cookiemanager.4xpz05'))
     }
   } finally {
     accountsLoading.value = false
@@ -1598,11 +1279,11 @@ const unbanAccount = async (accountId: string) => {
       loadAvailableAccounts()
       loadBannedAccounts()
     } else {
-      ElMessage.error($t('views.cookiemanager.1w01sr', [response.data.msg]))
+      ElMessage.error($t('views.cookiemanager.4kt337', [response.data.msg]))
     }
   } catch (error) {
-    console.error($t('views.cookiemanager.23633d'), error)
-    ElMessage.error($t('views.cookiemanager.36363t'))
+    console.error($t('views.cookiemanager.5q1rr6'), error)
+    ElMessage.error($t('views.cookiemanager.4xpz05'))
   } finally {
     bannedLoading.value = false
   }
@@ -1611,7 +1292,7 @@ const unbanAccount = async (accountId: string) => {
 // 强制解封账号
 const forceUnbanAccount = async (accountId: string) => {
   try {
-    await ElMessageBox.confirm($t('views.cookiemanager.x4j49z', [accountId]), $t('views.cookiemanager.2t22kr'), {
+    await ElMessageBox.confirm($t('views.cookiemanager.3173c4', [accountId]), $t('views.cookiemanager.188w8t'), {
       confirmButtonText: $t('views.cookiemanager.8etq8j'),
       cancelButtonText: $t('views.cookiemanager.fl98bx'),
       type: 'warning'
@@ -1627,12 +1308,12 @@ const forceUnbanAccount = async (accountId: string) => {
       loadAvailableAccounts()
       loadBannedAccounts()
     } else {
-      ElMessage.error($t('views.cookiemanager.vn0vpy', [response.data.msg]))
+      ElMessage.error($t('views.cookiemanager.0frwfn', [response.data.msg]))
     }
   } catch (error: any) {
     if (error !== 'cancel') {
-      console.error($t('views.cookiemanager.5b4rzz'), error)
-      ElMessage.error($t('views.cookiemanager.3h7t12'))
+      console.error($t('views.cookiemanager.ig1iw4'), error)
+      ElMessage.error($t('views.cookiemanager.4xpz05'))
     }
   } finally {
     bannedLoading.value = false
@@ -1667,14 +1348,14 @@ const submitUpdateId = async () => {
       loadAvailableAccounts()
       loadBannedAccounts()
     } else {
-      ElMessage.error($t('views.cookiemanager.cl6b3x', [response.data.msg]))
+      ElMessage.error($t('views.cookiemanager.u7lmsj', [response.data.msg]))
     }
   } catch (error: any) {
     if (error.message) {
       ElMessage.error(error.message)
     } else {
-      console.error($t('views.cookiemanager.v4cf99'), error)
-      ElMessage.error($t('views.cookiemanager.6pr34t'))
+      console.error($t('views.cookiemanager.mfk41z'), error)
+      ElMessage.error($t('views.cookiemanager.gp1dd8'))
     }
   } finally {
     submitting.value = false
@@ -1684,7 +1365,7 @@ const submitUpdateId = async () => {
 // 删除账号
 const deleteAccount = async (accountId: string) => {
   try {
-    await ElMessageBox.confirm($t('views.cookiemanager.8365s4', [accountId]), $t('views.cookiemanager.2o2809'), {
+    await ElMessageBox.confirm($t('views.cookiemanager.lkhbc0', [accountId]), $t('views.cookiemanager.2o2809'), {
       confirmButtonText: $t('views.cookiemanager.115uyi'),
       cancelButtonText: $t('views.cookiemanager.fl98bx'),
       type: 'warning'
@@ -1694,7 +1375,7 @@ const deleteAccount = async (accountId: string) => {
     
     const response = await axios.delete(`${API_BASE_URL}/admin/cookie/delete/${accountId}`)
     if (response.data.code === 10000) {
-      ElMessage.success($t('views.cookiemanager.qeiey3', [accountId]))
+      ElMessage.success($t('views.cookiemanager.f8957g', [accountId]))
       refreshCookieStatus()
       loadCookies()
       loadAvailableAccounts()
@@ -1704,8 +1385,8 @@ const deleteAccount = async (accountId: string) => {
     }
   } catch (error: any) {
     if (error !== 'cancel') {
-      console.error($t('views.cookiemanager.1bf1co'), error)
-      ElMessage.error($t('views.cookiemanager.oq3rf6'))
+      console.error($t('views.cookiemanager.mj2k0j'), error)
+      ElMessage.error($t('views.cookiemanager.ah6421'))
     }
   } finally {
     accountsLoading.value = false
@@ -1745,7 +1426,7 @@ const formatDateTime = (dateTime: string) => {
 
 // 格式化封禁剩余时间
 const formatBanTimeRemaining = (seconds) => {
-  if (!seconds || seconds <= 0) return $t('views.cookiemanager.cj97s5')
+  if (!seconds || seconds <= 0) return $t('views.cookiemanager.0xi183')
   
   const days = Math.floor(seconds / (24 * 3600))
   const hours = Math.floor((seconds % (24 * 3600)) / 3600)
@@ -1758,7 +1439,7 @@ const formatBanTimeRemaining = (seconds) => {
   if (minutes > 0) result += $t('views.cookiemanager.3yb40y', [minutes])
   if (remainingSeconds > 0 && !days && !hours) result += `${remainingSeconds}秒`
   
-  return result || $t('views.cookiemanager.2vus85')
+  return result || $t('views.cookiemanager.7mdr60')
 }
 
 // 更新临时封禁账号的剩余时间
@@ -1811,7 +1492,7 @@ const processExcelFile = async (file: File) => {
       try {
         const data = e.target?.result
         if (!data) {
-          ElMessage.error($t('views.cookiemanager.o1w9pl'))
+          ElMessage.error($t('views.cookiemanager.s6yicn'))
           return
         }
         
@@ -1824,7 +1505,7 @@ const processExcelFile = async (file: File) => {
         const jsonData = XLSX.utils.sheet_to_json(worksheet)
         
         if (jsonData.length === 0) {
-          ElMessage.error($t('views.cookiemanager.r72u3m'))
+          ElMessage.error($t('views.cookiemanager.nk3619'))
           return
         }
         
@@ -1834,7 +1515,7 @@ const processExcelFile = async (file: File) => {
         const hasValueCol = 'value' in firstRow || 'Value' in firstRow || 'VALUE' in firstRow
         
         if (!hasNameCol || !hasValueCol) {
-          ElMessage.error($t('views.cookiemanager.56q81p'))
+          ElMessage.error($t('views.cookiemanager.vci1y8'))
           return
         }
         
@@ -1854,24 +1535,24 @@ const processExcelFile = async (file: File) => {
         
         if (result.length > 0) {
           importPreviewData.value = result
-          ElMessage.success($t('views.cookiemanager.l4k485', [result.length]))
+          ElMessage.success($t('views.cookiemanager.7tlafi', [result.length]))
         } else {
-          ElMessage.error($t('views.cookiemanager.h929uc'))
+          ElMessage.error($t('views.cookiemanager.rmfc5u'))
         }
       } catch (error) {
-        console.error($t('views.cookiemanager.8g5xrc'), error)
-        ElMessage.error($t('views.cookiemanager.00kt80'))
+        console.error($t('views.cookiemanager.190v3u'), error)
+        ElMessage.error($t('views.cookiemanager.v136my'))
       }
     }
     
     reader.onerror = () => {
-      ElMessage.error($t('views.cookiemanager.o1w9pl'))
+      ElMessage.error($t('views.cookiemanager.s6yicn'))
     }
     
     reader.readAsArrayBuffer(file)
   } catch (error) {
-    console.error($t('views.cookiemanager.f0xi3y'), error)
-    ElMessage.error($t('views.cookiemanager.3mfklj'))
+    console.error($t('views.cookiemanager.s767vg'), error)
+    ElMessage.error($t('views.cookiemanager.q76dr5'))
   }
 }
 
@@ -1911,14 +1592,14 @@ const unbanSelectedTemp = async () => {
       const response = await axios.post(`${API_BASE_URL}/admin/cookie/unban/${accountId}`)
       if (response.data.code === 10000) successCount++
     }
-    ElMessage.success($t('views.cookiemanager.11w111', [successCount]))
+    ElMessage.success($t('views.cookiemanager.m823eg', [successCount]))
     loadBannedAccounts()
     refreshCookieStatus()
     loadCookies()
     tempBannedSelection.value = []
     checkAllTemp.value = false
   } catch (error) {
-    ElMessage.error($t('views.cookiemanager.r58bc3'))
+    ElMessage.error($t('views.cookiemanager.82h75y'))
   } finally {
     bannedLoading.value = false
   }
@@ -1929,7 +1610,7 @@ const unbanAllTemp = async () => {
   if (tempBannedAccounts.value.length === 0) return
   
   try {
-    await ElMessageBox.confirm($t('views.cookiemanager.o3k17t'), $t('views.cookiemanager.lwo521'), { type: 'warning' })
+    await ElMessageBox.confirm($t('views.cookiemanager.752va2'), $t('views.cookiemanager.lwo521'), { type: 'warning' })
     bannedLoading.value = true
     
     let successCount = 0
@@ -1938,14 +1619,14 @@ const unbanAllTemp = async () => {
       if (response.data.code === 10000) successCount++
     }
     
-    ElMessage.success($t('views.cookiemanager.11w111', [successCount]))
+    ElMessage.success($t('views.cookiemanager.m823eg', [successCount]))
     loadBannedAccounts()
     refreshCookieStatus()
     loadCookies()
     tempBannedSelection.value = []
     checkAllTemp.value = false
   } catch (error) {
-    if (error !== 'cancel') ElMessage.error($t('views.cookiemanager.i5fk3t'))
+    if (error !== 'cancel') ElMessage.error($t('views.cookiemanager.7vg03g'))
   } finally {
     bannedLoading.value = false
   }
@@ -1962,14 +1643,14 @@ const unbanSelectedPerm = async () => {
       const response = await axios.post(`${API_BASE_URL}/admin/cookie/force-unban/${accountId}`)
       if (response.data.code === 10000) successCount++
     }
-    ElMessage.success($t('views.cookiemanager.11w111', [successCount]))
+    ElMessage.success($t('views.cookiemanager.m823eg', [successCount]))
     loadBannedAccounts()
     refreshCookieStatus()
     loadCookies()
     permBannedSelection.value = []
     checkAllPerm.value = false
   } catch (error) {
-    ElMessage.error($t('views.cookiemanager.r58bc3'))
+    ElMessage.error($t('views.cookiemanager.82h75y'))
   } finally {
     bannedLoading.value = false
   }
@@ -1980,7 +1661,7 @@ const unbanAllPerm = async () => {
   if (permBannedAccounts.value.length === 0) return
   
   try {
-    await ElMessageBox.confirm($t('views.cookiemanager.516123'), $t('views.cookiemanager.lwo521'), { type: 'warning' })
+    await ElMessageBox.confirm($t('views.cookiemanager.18oe22'), $t('views.cookiemanager.lwo521'), { type: 'warning' })
     bannedLoading.value = true
     
     let successCount = 0
@@ -1989,14 +1670,14 @@ const unbanAllPerm = async () => {
       if (response.data.code === 10000) successCount++
     }
     
-    ElMessage.success($t('views.cookiemanager.11w111', [successCount]))
+    ElMessage.success($t('views.cookiemanager.m823eg', [successCount]))
     loadBannedAccounts()
     refreshCookieStatus()
     loadCookies()
     permBannedSelection.value = []
     checkAllPerm.value = false
   } catch (error) {
-    if (error !== 'cancel') ElMessage.error($t('views.cookiemanager.i5fk3t'))
+    if (error !== 'cancel') ElMessage.error($t('views.cookiemanager.7vg03g'))
   } finally {
     bannedLoading.value = false
   }
@@ -2005,7 +1686,7 @@ const unbanAllPerm = async () => {
 // 批量封禁所有Cookie
 const batchBanAll = async () => {
   try {
-    await ElMessageBox.confirm($t('views.cookiemanager.nyi371'), $t('views.cookiemanager.866552'), {
+    await ElMessageBox.confirm($t('views.cookiemanager.4w2y58'), $t('views.cookiemanager.499fk9'), {
       confirmButtonText: $t('views.cookiemanager.86icn7'),
       cancelButtonText: $t('views.cookiemanager.fl98bx'),
       type: 'warning'
@@ -2019,7 +1700,7 @@ const batchBanAll = async () => {
       const accountIds = response.data.data.account_ids || []
       
       if (accountIds.length === 0) {
-        ElMessage.warning($t('views.cookiemanager.w0x11t'))
+        ElMessage.warning($t('views.cookiemanager.vuc8y6'))
         batchActionLoading.value = false
         return
       }
@@ -2036,11 +1717,11 @@ const batchBanAll = async () => {
             successCount++
           }
         } catch (error) {
-          console.error($t('views.cookiemanager.49bw7m', [accountId]), error)
+          console.error($t('views.cookiemanager.55w1lt', [accountId]), error)
         }
       }
       
-      ElMessage.success($t('views.cookiemanager.zvlkac', [successCount,accountIds.length]))
+      ElMessage.success($t('views.cookiemanager.743m2w', [successCount,accountIds.length]))
       
       // 重新加载数据
       refreshCookieStatus()
@@ -2048,12 +1729,12 @@ const batchBanAll = async () => {
       loadAvailableAccounts()
       loadBannedAccounts()
     } else {
-      ElMessage.error($t('views.cookiemanager.t13gse', [response.data.msg]))
+      ElMessage.error($t('views.cookiemanager.v1688c', [response.data.msg]))
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error($t('views.cookiemanager.i3g56q'), error)
-      ElMessage.error($t('views.cookiemanager.30d34h'))
+      console.error($t('views.cookiemanager.d4ls3l'), error)
+      ElMessage.error($t('views.cookiemanager.4xpz05'))
     }
   } finally {
     batchActionLoading.value = false
@@ -2063,7 +1744,7 @@ const batchBanAll = async () => {
 // 批量解封所有Cookie
 const batchUnbanAll = async () => {
   try {
-    await ElMessageBox.confirm($t('views.cookiemanager.lid246'), $t('views.cookiemanager.241361'), {
+    await ElMessageBox.confirm($t('views.cookiemanager.752va2'), $t('views.cookiemanager.4pvsv6'), {
       confirmButtonText: $t('views.cookiemanager.86icn7'),
       cancelButtonText: $t('views.cookiemanager.fl98bx'),
       type: 'warning'
@@ -2077,7 +1758,7 @@ const batchUnbanAll = async () => {
       const tempBannedAccounts = response.data.data.temp_banned || []
       
       if (tempBannedAccounts.length === 0) {
-        ElMessage.warning($t('views.cookiemanager.nbwin3'))
+        ElMessage.warning($t('views.cookiemanager.uut1sx'))
         batchActionLoading.value = false
         return
       }
@@ -2092,11 +1773,11 @@ const batchUnbanAll = async () => {
             successCount++
           }
         } catch (error) {
-          console.error($t('views.cookiemanager.9v446o', [account.account_id]), error)
+          console.error($t('views.cookiemanager.sdo4vu', [account.account_id]), error)
         }
       }
       
-      ElMessage.success($t('views.cookiemanager.qtx2n9', [successCount,tempBannedAccounts.length]))
+      ElMessage.success($t('views.cookiemanager.1o9d8s', [successCount,tempBannedAccounts.length]))
       
       // 重新加载数据
       refreshCookieStatus()
@@ -2104,12 +1785,12 @@ const batchUnbanAll = async () => {
       loadAvailableAccounts()
       loadBannedAccounts()
     } else {
-      ElMessage.error($t('views.cookiemanager.23m5mp', [response.data.msg]))
+      ElMessage.error($t('views.cookiemanager.21x5u6', [response.data.msg]))
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error($t('views.cookiemanager.j7887t'), error)
-      ElMessage.error($t('views.cookiemanager.768gq2'))
+      console.error($t('views.cookiemanager.d4ls3l'), error)
+      ElMessage.error($t('views.cookiemanager.4xpz05'))
     }
   } finally {
     batchActionLoading.value = false
@@ -2119,7 +1800,7 @@ const batchUnbanAll = async () => {
 // 批量临时封禁选中的Cookie
 const batchTempBan = () => {
   if (multipleSelection.value.length === 0) {
-    ElMessage.warning($t('views.cookiemanager.a7uc8x'))
+    ElMessage.warning($t('views.cookiemanager.i184gl'))
     return
   }
   
@@ -2144,11 +1825,11 @@ const submitBatchTempBan = async () => {
           successCount++
         }
       } catch (error) {
-        console.error($t('views.cookiemanager.lx6v3t', [item.account_id]), error)
+        console.error($t('views.cookiemanager.pw1x8c', [item.account_id]), error)
       }
     }
     
-    ElMessage.success($t('views.cookiemanager.vox4d8', [successCount,multipleSelection.value.length,batchTempBanForm.duration_minutes]))
+    ElMessage.success($t('views.cookiemanager.43wsob', [successCount,multipleSelection.value.length,batchTempBanForm.duration_minutes]))
     batchTempBanDialogVisible.value = false
     
     // 重新加载数据
@@ -2160,8 +1841,8 @@ const submitBatchTempBan = async () => {
     // 清空选择
     multipleSelection.value = []
   } catch (error) {
-    console.error($t('views.cookiemanager.9jgsur'), error)
-    ElMessage.error($t('views.cookiemanager.utl8fd'))
+    console.error($t('views.cookiemanager.m75rm2'), error)
+    ElMessage.error($t('views.cookiemanager.611tx8'))
   } finally {
     batchActionLoading.value = false
   }
@@ -2170,12 +1851,12 @@ const submitBatchTempBan = async () => {
 // 批量永久封禁选中的Cookie
 const batchPermBan = async () => {
   if (multipleSelection.value.length === 0) {
-    ElMessage.warning($t('views.cookiemanager.a7uc8x'))
+    ElMessage.warning($t('views.cookiemanager.i184gl'))
     return
   }
   
   try {
-    await ElMessageBox.confirm($t('views.cookiemanager.j8c1xd', [multipleSelection.value.length]), $t('views.cookiemanager.qvw6rw'), {
+    await ElMessageBox.confirm($t('views.cookiemanager.42j2v1', [multipleSelection.value.length]), $t('views.cookiemanager.w7vu17'), {
       confirmButtonText: $t('views.cookiemanager.86icn7'),
       cancelButtonText: $t('views.cookiemanager.fl98bx'),
       type: 'warning'
@@ -2192,11 +1873,11 @@ const batchPermBan = async () => {
           successCount++
         }
       } catch (error) {
-        console.error($t('views.cookiemanager.xn5154', [item.account_id]), error)
+        console.error($t('views.cookiemanager.1so2vh', [item.account_id]), error)
       }
     }
     
-    ElMessage.success($t('views.cookiemanager.qyx343', [successCount,multipleSelection.value.length]))
+    ElMessage.success($t('views.cookiemanager.807tln', [successCount,multipleSelection.value.length]))
     
     // 重新加载数据
     refreshCookieStatus()
@@ -2208,8 +1889,8 @@ const batchPermBan = async () => {
     multipleSelection.value = []
   } catch (error) {
     if (error !== 'cancel') {
-      console.error($t('views.cookiemanager.514w67'), error)
-      ElMessage.error($t('views.cookiemanager.pl3n3k'))
+      console.error($t('views.cookiemanager.qx5d25'), error)
+      ElMessage.error($t('views.cookiemanager.qt6o66'))
     }
   } finally {
     batchActionLoading.value = false
@@ -2219,12 +1900,12 @@ const batchPermBan = async () => {
 // 批量解封选中的Cookie
 const batchUnban = async () => {
   if (multipleSelection.value.length === 0) {
-    ElMessage.warning($t('views.cookiemanager.s5426c'))
+    ElMessage.warning($t('views.cookiemanager.7x653r'))
     return
   }
   
   try {
-    await ElMessageBox.confirm($t('views.cookiemanager.8e2n55', [multipleSelection.value.length]), $t('views.cookiemanager.241361'), {
+    await ElMessageBox.confirm($t('views.cookiemanager.hv8683', [multipleSelection.value.length]), $t('views.cookiemanager.4pvsv6'), {
       confirmButtonText: $t('views.cookiemanager.86icn7'),
       cancelButtonText: $t('views.cookiemanager.fl98bx'),
       type: 'warning'
@@ -2256,11 +1937,11 @@ const batchUnban = async () => {
           successCount++
         }
       } catch (error) {
-        console.error($t('views.cookiemanager.9v446o', [item.account_id]), error)
+        console.error($t('views.cookiemanager.sdo4vu', [item.account_id]), error)
       }
     }
     
-    ElMessage.success($t('views.cookiemanager.qtx2n9', [successCount,multipleSelection.value.length]))
+    ElMessage.success($t('views.cookiemanager.1o9d8s', [successCount,multipleSelection.value.length]))
     
     // 重新加载数据
     refreshCookieStatus()
@@ -2272,8 +1953,8 @@ const batchUnban = async () => {
     multipleSelection.value = []
   } catch (error) {
     if (error !== 'cancel') {
-      console.error($t('views.cookiemanager.j7887t'), error)
-      ElMessage.error($t('views.cookiemanager.768gq2'))
+      console.error($t('views.cookiemanager.d4ls3l'), error)
+      ElMessage.error($t('views.cookiemanager.4xpz05'))
     }
   } finally {
     batchActionLoading.value = false
@@ -2283,85 +1964,109 @@ const batchUnban = async () => {
 
 <template>
   <div class="cookie-manager-container">
-    <div class="page-header">
-      <h1>{{$t('views.cookiemanager.cslk87')}}</h1>
-      <div class="api-status">
-        <el-tag :type="apiConnected ? 'success' : 'danger'" effect="dark">
-          {{ apiConnected ? $t('views.cookiemanager.s8b3r4') : $t('views.cookiemanager.ryfkc7') }}
+    <header class="page-header">
+      <div class="header-content">
+        <h1>{{$t('views.cookiemanager.h318s4')}}</h1>
+      </div>
+      <div class="header-right">
+        <el-tag :type="apiConnected ? 'success' : 'danger'" effect="dark" class="shine-effect premium-tag">
+          <el-icon class="mr-5"><Connection /></el-icon>
+          {{ apiConnected ? $t('views.cookiemanager.la9d7i') : $t('views.cookiemanager.frt8cm') }}
         </el-tag>
       </div>
-    </div>
+    </header>
     
-    <el-row :gutter="20">
-      <!-- 左侧面板 -->
-      <el-col :span="8">
-        <!-- Cookie池状态卡片 -->
-        <el-card class="status-card" shadow="hover">
-          <template #header>
-            <div class="card-header">
-              <span>{{$t('views.cookiemanager.584l78')}}</span>
-              <div>
-                <el-button type="primary" size="small" @click="refreshCookieStatus" :loading="statusLoading">
-                  <el-icon><Refresh /></el-icon>{{$t('views.cookiemanager.p3kgye')}}</el-button>
-                <el-button type="success" size="small" @click="openAddCookieDialog">
-                  <el-icon><Plus /></el-icon>{{$t('views.cookiemanager.u72yh2')}}</el-button>
-              </div>
-            </div>
-          </template>
+    <!-- 统计仪表盘 Dashboard -->
+    <section class="status-dashboard">
+      <div class="dashboard-card total premium-glow" v-loading="statusLoading">
+        <div class="card-icon"><el-icon><CopyDocument /></el-icon></div>
+        <div class="card-content">
+          <div class="card-value">{{ cookieStats.total }}</div>
+          <div class="card-label">{{$t('views.cookiemanager.elw1fx')}}</div>
+        </div>
+      </div>
+      <div class="dashboard-card available" v-loading="statusLoading">
+        <div class="card-icon"><el-icon><Check /></el-icon></div>
+        <div class="card-content">
+          <div class="card-value">{{ cookieStats.available }}</div>
+          <div class="card-label">{{$t('views.cookiemanager.8qgc3r')}}</div>
+        </div>
+      </div>
+      <div class="dashboard-card warning" v-loading="statusLoading">
+        <div class="card-icon"><el-icon><Warning /></el-icon></div>
+        <div class="card-content">
+          <div class="card-value">{{ cookieStats.tempBanned }}</div>
+          <div class="card-label">{{$t('views.cookiemanager.5t0x50')}}</div>
+        </div>
+      </div>
+      <div class="dashboard-card danger" v-loading="statusLoading">
+        <div class="card-icon"><el-icon><Delete /></el-icon></div>
+        <div class="card-content">
+          <div class="card-value">{{ cookieStats.permBanned }}</div>
+          <div class="card-label">{{$t('views.cookiemanager.e6y884')}}</div>
+        </div>
+      </div>
+    </section>
           
-          <div v-loading="statusLoading" class="status-overview">
-            <div class="status-item">
-              <div class="status-value">{{ cookieStats.total }}</div>
-              <div class="status-label">{{$t('views.cookiemanager.elw1fx')}}</div>
-            </div>
-            <div class="status-item success">
-              <div class="status-value">{{ cookieStats.available }}</div>
-              <div class="status-label">{{$t('views.cookiemanager.8qgc3r')}}</div>
-            </div>
-            <div class="status-item warning">
-              <div class="status-value">{{ cookieStats.tempBanned }}</div>
-              <div class="status-label">{{$t('views.cookiemanager.5t0x50')}}</div>
-            </div>
-            <div class="status-item danger">
-              <div class="status-value">{{ cookieStats.permBanned }}</div>
-              <div class="status-label">{{$t('views.cookiemanager.e6y884')}}</div>
+    <!-- 主体布局 Main Layout -->
+    <div class="main-content-row">
+      <!-- 左侧边栏 Side Panel -->
+      <aside class="side-panel">
+        <!-- 核心操作区 -->
+        <div class="premium-card-v2">
+          <div class="card-header-v2">
+            <h3>{{$t('views.cookiemanager.584l78')}}</h3>
+            <el-button type="primary" size="small" @click="refreshCookieStatus" :loading="statusLoading" circle>
+              <el-icon><Refresh /></el-icon>
+            </el-button>
+          </div>
+          <div class="card-body-v2">
+            <div class="action-buttons">
+              <el-button type="primary" class="w-full shine-effect" @click="testAllCookiesAvailability" :loading="testingAll">
+                <el-icon class="mr-5"><Check /></el-icon>{{$t('views.cookiemanager.o0ffn2')}}
+              </el-button>
+              <el-button type="warning" class="w-full" @click="updateCookieStatus" :loading="updatingStatus">
+                <el-icon class="mr-5"><RefreshRight /></el-icon>{{$t('views.cookiemanager.4lih7b')}}
+              </el-button>
+              <el-button type="danger" class="w-full" @click="cleanupExpiredCookies" :loading="cleaningUp">
+                <el-icon class="mr-5"><Delete /></el-icon>{{$t('views.cookiemanager.x768ru')}}
+              </el-button>
+              <el-button type="success" class="w-full mt-10" @click="openAddCookieDialog">
+                <el-icon class="mr-5"><Plus /></el-icon>{{$t('views.cookiemanager.t4da2e')}}
+              </el-button>
             </div>
           </div>
-          
-          <el-divider />
-          
-          <div class="action-buttons">
-            <el-button type="primary" @click="testAllCookiesAvailability" :loading="testingAll">
-              <el-icon><Check /></el-icon>{{$t('views.cookiemanager.1u4sy2')}}</el-button>
-            <el-button type="warning" @click="updateCookieStatus" :loading="updatingStatus">
-              <el-icon><RefreshRight /></el-icon>{{$t('views.cookiemanager.dl2a0c')}}</el-button>
-            <el-button type="danger" @click="cleanupExpiredCookies" :loading="cleaningUp">
-              <el-icon><Delete /></el-icon>{{$t('views.cookiemanager.rq4zij')}}</el-button>
+        </div>
+
+        <!-- 可用账号微列表 -->
+        <div class="premium-card-v2">
+          <div class="card-header-v2">
+            <h3>{{$t('views.cookiemanager.e19l34')}}</h3>
+            <el-button size="small" type="primary" link @click="loadAvailableAccounts">
+              <el-icon><Refresh /></el-icon>
+            </el-button>
           </div>
-          
-          <!-- 账号列表 -->
-          <div class="account-list-section">
-            <div class="section-header">
-              <h3>{{$t('views.cookiemanager.nlb473')}}</h3>
-              <el-button size="small" text @click="loadAvailableAccounts">{{$t('views.cookiemanager.p3kgye')}}</el-button>
-            </div>
-            <div v-loading="accountsLoading" class="account-list">
+          <div class="card-body-v2">
+            <div v-loading="accountsLoading" class="account-mini-list">
               <template v-if="availableAccounts.length > 0">
-                <div v-for="account in availableAccounts" :key="account" class="account-item">
-                  <div class="account-info">
-                    <el-tag size="small" effect="plain">{{ account }}</el-tag>
+                <div v-for="account in availableAccounts" :key="account" class="mini-item">
+                  <div class="item-info">
+                    <span class="account-id">{{ account }}</span>
                   </div>
                   <div class="account-actions">
-                    <el-button size="small" type="primary" @click="testAccountAvailability(account)" plain>{{$t('views.cookiemanager.vne764')}}</el-button>
+                    <el-button size="small" type="primary" link @click="testAccountAvailability(account)">
+                      <el-icon><Check /></el-icon>
+                    </el-button>
                     <el-dropdown trigger="click" @command="handleAccountCommand($event, account)">
-                      <el-button size="small" plain>{{$t('views.cookiemanager.s2tp53')}}<el-icon class="el-icon--right"><ArrowDown /></el-icon>
+                      <el-button size="small" type="info" link>
+                        <el-icon><ArrowDown /></el-icon>
                       </el-button>
                       <template #dropdown>
                         <el-dropdown-menu>
                           <el-dropdown-item command="view">{{$t('views.cookiemanager.x4jo6h')}}</el-dropdown-item>
                           <el-dropdown-item command="temp_ban" divided>{{$t('views.cookiemanager.5t0x50')}}</el-dropdown-item>
                           <el-dropdown-item command="perm_ban">{{$t('views.cookiemanager.e6y884')}}</el-dropdown-item>
-                          <el-dropdown-item command="update" divided>{{$t('views.cookiemanager.ee2q48')}}</el-dropdown-item>
+                          <el-dropdown-item command="update" divided>{{$t('views.cookiemanager.tvm48e')}}</el-dropdown-item>
                           <el-dropdown-item command="delete" divided>{{$t('views.cookiemanager.115uyi')}}</el-dropdown-item>
                         </el-dropdown-menu>
                       </template>
@@ -2369,75 +2074,56 @@ const batchUnban = async () => {
                   </div>
                 </div>
               </template>
-              <el-empty v-else :description="$t('views.cookiemanager.xt8ck8')" />
+              <el-empty v-else :description="$t('views.cookiemanager.xt8ck8')" :image-size="60" />
             </div>
           </div>
-        </el-card>
+        </div>
         
-        <!-- 封禁的账号卡片 -->
-        <el-card class="banned-accounts-card" shadow="hover">
-          <template #header>
-            <div class="card-header">
-              <span>{{$t('views.cookiemanager.61po6w')}}</span>
-              <el-button size="small" type="primary" @click="loadBannedAccounts" plain>
-                <el-icon><Refresh /></el-icon>{{$t('views.cookiemanager.p3kgye')}}</el-button>
-            </div>
-          </template>
-          
-          <div v-loading="bannedLoading" class="banned-accounts">
-            <el-tabs v-model="bannedTabActive">
+        <!-- 封禁管理微列表 -->
+        <div class="premium-card-v2">
+          <div class="card-header-v2">
+            <h3>{{$t('views.cookiemanager.k0r455')}}</h3>
+            <el-button size="small" type="primary" link @click="loadBannedAccounts">
+              <el-icon><Refresh /></el-icon>
+            </el-button>
+          </div>
+          <div class="card-body-v2">
+            <el-tabs v-model="bannedTabActive" class="custom-tabs">
               <el-tab-pane :label="$t('views.cookiemanager.5t0x50')" name="temp">
-                <div class="banned-toolbar" v-if="tempBannedAccounts.length > 0">
-                  <el-checkbox v-model="checkAllTemp" :indeterminate="isTempIndeterminate" @change="handleCheckAllTempChange">{{$t('views.cookiemanager.8st7lh')}}</el-checkbox>
-                  <el-button type="primary" link size="small" :disabled="tempBannedSelection.length === 0" @click="unbanSelectedTemp">{{$t('views.cookiemanager.d5714o')}}</el-button>
-                  <el-button type="danger" link size="small" @click="unbanAllTemp">{{$t('views.cookiemanager.j33j3w')}}</el-button>
-                </div>
-                <template v-if="tempBannedAccounts.length > 0">
-                  <el-checkbox-group v-model="tempBannedSelection">
-                    <div v-for="account in tempBannedAccounts" :key="account.account_id" class="banned-account-item">
-                      <el-checkbox :value="account.account_id" class="banned-checkbox" />
-                      <div class="banned-account-info">
-                        <div class="account-id">{{ account.account_id }}</div>
-                        <div class="ban-time">{{$t('views.cookiemanager.92zl33')}}{{ formatBanTimeRemaining(account.remaining_seconds) }}
-                        </div>
-                        <div class="ban-time-tooltip">
-                          {{ account.temp_ban_until }}
-                        </div>
+                <div v-loading="bannedLoading" class="account-mini-list">
+                  <template v-if="tempBannedAccounts.length > 0">
+                    <div v-for="account in tempBannedAccounts" :key="account.account_id" class="mini-item">
+                      <div class="item-info">
+                        <span class="account-id">{{ account.account_id }}</span>
+                        <span class="ban-info">{{ formatBanTimeRemaining(account.remaining_seconds) }}</span>
                       </div>
-                      <div class="banned-account-actions">
-                        <el-button size="small" type="primary" @click.stop="unbanAccount(account.account_id)" plain>{{$t('views.cookiemanager.mf8dc8')}}</el-button>
-                      </div>
+                      <el-button size="small" type="success" link @click="unbanAccount(account.account_id)">
+                        {{$t('views.cookiemanager.mf8dc8')}}
+                      </el-button>
                     </div>
-                  </el-checkbox-group>
-                </template>
-                <el-empty v-else :description="$t('views.cookiemanager.oi7woo')" />
+                  </template>
+                  <el-empty v-else :description="$t('views.cookiemanager.oi7woo')" :image-size="60" />
+                </div>
               </el-tab-pane>
               <el-tab-pane :label="$t('views.cookiemanager.e6y884')" name="perm">
-                <div class="banned-toolbar" v-if="permBannedAccounts.length > 0">
-                  <el-checkbox v-model="checkAllPerm" :indeterminate="isPermIndeterminate" @change="handleCheckAllPermChange">{{$t('views.cookiemanager.8st7lh')}}</el-checkbox>
-                  <el-button type="primary" link size="small" :disabled="permBannedSelection.length === 0" @click="unbanSelectedPerm">{{$t('views.cookiemanager.ns9cp5')}}</el-button>
-                  <el-button type="danger" link size="small" @click="unbanAllPerm">{{$t('views.cookiemanager.sk5fy0')}}</el-button>
-                </div>
-                <template v-if="permBannedAccounts.length > 0">
-                  <el-checkbox-group v-model="permBannedSelection">
-                    <div v-for="account in permBannedAccounts" :key="account" class="banned-account-item">
-                      <el-checkbox :value="account" class="banned-checkbox" />
-                      <div class="banned-account-info">
-                        <div class="account-id">{{ account }}</div>
-                        <div class="ban-status">{{$t('views.cookiemanager.e6y884')}}</div>
+                <div v-loading="bannedLoading" class="account-mini-list">
+                  <template v-if="permBannedAccounts.length > 0">
+                    <div v-for="account in permBannedAccounts" :key="account" class="mini-item">
+                      <div class="item-info">
+                        <span class="account-id">{{ account }}</span>
                       </div>
-                      <div class="banned-account-actions">
-                        <el-button size="small" type="danger" @click.stop="forceUnbanAccount(account)" plain>{{$t('views.cookiemanager.8etq8j')}}</el-button>
-                      </div>
+                      <el-button size="small" type="danger" link @click="unbanAccount(account)">
+                        {{$t('views.cookiemanager.8etq8j')}}
+                      </el-button>
                     </div>
-                  </el-checkbox-group>
-                </template>
-                <el-empty v-else :description="$t('views.cookiemanager.fvo87d')" />
+                  </template>
+                  <el-empty v-else :description="$t('views.cookiemanager.fvo87d')" :image-size="60" />
+                </div>
               </el-tab-pane>
             </el-tabs>
           </div>
-        </el-card>
-      </el-col>
+        </div>
+      </aside>
       
       <!-- 右侧面板 -->
       <el-col :span="16">
@@ -2445,7 +2131,7 @@ const batchUnban = async () => {
         <el-card class="cookie-list-card" shadow="hover">
           <template #header>
             <div class="card-header">
-              <span>{{$t('views.cookiemanager.47kxcu')}}</span>
+              <span>{{$t('views.cookiemanager.7368q6')}}</span>
               <div class="header-actions">
                 <el-button type="primary" size="small" @click="syncToRedis" :loading="syncing">
                   <el-icon><Connection /></el-icon>{{$t('views.cookiemanager.278g1g')}}</el-button>
@@ -2460,14 +2146,14 @@ const batchUnban = async () => {
           <div class="filter-section">
             <el-input
               v-model="searchAccount"
-              :placeholder="$t('views.cookiemanager.33q43q')"
+              :placeholder="$t('views.cookiemanager.554j21')"
               clearable
               prefix-icon="Search"
               class="filter-item"
             />
             <el-select
               v-model="statusFilter"
-              :placeholder="$t('views.cookiemanager.37b4p5')"
+              :placeholder="$t('views.cookiemanager.bmk76u')"
               clearable
               class="filter-item"
             >
@@ -2476,7 +2162,7 @@ const batchUnban = async () => {
               <el-option :label="$t('views.cookiemanager.e6y884')" value="perm_banned" />
               <el-option :label="$t('views.cookiemanager.81u723')" value="expired" />
             </el-select>
-            <el-button type="primary" @click="handleFilter">{{$t('views.cookiemanager.1209y9')}}</el-button>
+            <el-button type="primary" @click="handleFilter">{{$t('views.cookiemanager.7ti321')}}</el-button>
             <el-button plain @click="resetFilter">{{$t('views.cookiemanager.7cu76x')}}</el-button>
             <el-button type="success" @click="openAddCookieDialog">
               <el-icon><Plus /></el-icon>{{$t('views.cookiemanager.t4da2e')}}</el-button>
@@ -2484,15 +2170,15 @@ const batchUnban = async () => {
           
           <div class="batch-actions" v-if="cookieList.length > 0">
             <el-button-group>
-              <el-button type="danger" @click="batchBanAll" :loading="batchActionLoading">{{$t('views.cookiemanager.psm0p5')}}</el-button>
-              <el-button type="success" @click="batchUnbanAll" :loading="batchActionLoading">{{$t('views.cookiemanager.d3v4ch')}}</el-button>
+              <el-button type="danger" @click="batchBanAll" :loading="batchActionLoading">{{$t('views.cookiemanager.4i2gzk')}}</el-button>
+              <el-button type="success" @click="batchUnbanAll" :loading="batchActionLoading">{{$t('views.cookiemanager.gvg393')}}</el-button>
             </el-button-group>
             <el-button-group v-if="multipleSelection.length > 0" class="ml-10">
-              <el-button type="warning" @click="batchTempBan" :loading="batchActionLoading">{{$t('views.cookiemanager.8v7qie')}}</el-button>
-              <el-button type="danger" @click="batchPermBan" :loading="batchActionLoading">{{$t('views.cookiemanager.87x3w7')}}</el-button>
-              <el-button type="success" @click="batchUnban" :loading="batchActionLoading">{{$t('views.cookiemanager.d5714o')}}</el-button>
+              <el-button type="warning" @click="batchTempBan" :loading="batchActionLoading">{{$t('views.cookiemanager.s8yksu')}}</el-button>
+              <el-button type="danger" @click="batchPermBan" :loading="batchActionLoading">{{$t('views.cookiemanager.yt1jqk')}}</el-button>
+              <el-button type="success" @click="batchUnban" :loading="batchActionLoading">{{$t('views.cookiemanager.ae5zra')}}</el-button>
             </el-button-group>
-            <span v-if="multipleSelection.length > 0" class="selection-info">{{$t('views.cookiemanager.sh12bf')}}{{ multipleSelection.length }}{{$t('views.cookiemanager.epnr2i')}}</span>
+            <span v-if="multipleSelection.length > 0" class="selection-info">{{$t('views.cookiemanager.sh12bf')}}{{ multipleSelection.length }}{{$t('views.cookiemanager.58g533')}}</span>
           </div>
           
           <el-table
@@ -2505,8 +2191,8 @@ const batchUnban = async () => {
             @selection-change="handleSelectionChange"
           >
             <el-table-column type="selection" width="55" />
-            <el-table-column prop="account_id" :label="$t('views.cookiemanager.fr15xl')" width="120" show-overflow-tooltip sortable />
-            <el-table-column :label="$t('views.cookiemanager.oz57n9')" width="90">
+            <el-table-column prop="account_id" :label="$t('views.cookiemanager.pep1je')" width="120" show-overflow-tooltip sortable />
+            <el-table-column :label="$t('views.cookiemanager.rps185')" width="90">
               <template #default="scope">
                 <el-tag size="small" effect="plain" type="info">
                   {{ scope.row.cookie_count || 0 }}
@@ -2578,7 +2264,7 @@ const batchUnban = async () => {
     <el-card class="usage-chart-card" shadow="hover">
       <template #header>
         <div class="card-header">
-          <span>{{$t('views.cookiemanager.881jd7')}}</span>
+          <span>{{$t('views.cookiemanager.b1v50i')}}</span>
         </div>
       </template>
       
@@ -2592,47 +2278,47 @@ const batchUnban = async () => {
       destroy-on-close
     >
       <el-form :model="cookieForm" label-width="120px" :rules="cookieRules" ref="cookieFormRef">
-        <el-form-item :label="$t('views.cookiemanager.3xcu12')" prop="account_id">
-          <el-input v-model="cookieForm.account_id" :placeholder="$t('views.cookiemanager.th42gs')" />
+        <el-form-item :label="$t('views.cookiemanager.pep1je')" prop="account_id">
+          <el-input v-model="cookieForm.account_id" :placeholder="$t('views.cookiemanager.5s8vk4')" />
         </el-form-item>
         
         <el-tabs v-model="cookieInputMode" type="card">
           <!-- 字符串输入模式 -->
-          <el-tab-pane :label="$t('views.cookiemanager.b34o26')" name="string">
+          <el-tab-pane :label="$t('views.cookiemanager.0jv8m7')" name="string">
             <el-form-item :label="$t('views.cookiemanager.uk514y')">
-              <el-input v-model="cookieForm.cookie_string" type="textarea" rows="8" :placeholder="$t('views.cookiemanager.gd2jp8')" />
+              <el-input v-model="cookieForm.cookie_string" type="textarea" rows="8" :placeholder="$t('views.cookiemanager.56wc28')" />
             </el-form-item>
           </el-tab-pane>
           
           <!-- JSON输入模式 -->
-          <el-tab-pane :label="$t('views.cookiemanager.fva0k0')" name="json">
+          <el-tab-pane :label="$t('views.cookiemanager.6wnhzb')" name="json">
             <el-form-item label="Cookie JSON" prop="cookie_json">
-              <el-input v-model="cookieForm.cookie_json" type="textarea" rows="8" :placeholder="$t('views.cookiemanager.87v8fc')" :spellcheck="false" />
+              <el-input v-model="cookieForm.cookie_json" type="textarea" rows="8" :placeholder="$t('views.cookiemanager.oqt324')" :spellcheck="false" />
               <div class="form-actions">
-                <el-button size="small" type="primary" @click="formatJson">{{$t('views.cookiemanager.4883c4')}}</el-button>
-                <el-button size="small" type="info" @click="convertStringToJson">{{$t('views.cookiemanager.hixo3o')}}</el-button>
+                <el-button size="small" type="primary" @click="formatJson">{{$t('views.cookiemanager.144hw4')}}</el-button>
+                <el-button size="small" type="info" @click="convertStringToJson">{{$t('views.cookiemanager.bs6wbh')}}</el-button>
               </div>
             </el-form-item>
           </el-tab-pane>
           
           <!-- 表格输入模式 -->
-          <el-tab-pane :label="$t('views.cookiemanager.kr35u8')" name="table">
+          <el-tab-pane :label="$t('views.cookiemanager.c9u3wg')" name="table">
             <div class="table-toolbar">
               <el-button type="primary" size="small" @click="addCookieField">
                 <el-icon><Plus /></el-icon>{{$t('views.cookiemanager.n1j1b9')}}</el-button>
               <el-button type="danger" size="small" @click="clearAllFields">
-                <el-icon><Delete /></el-icon>{{$t('views.cookiemanager.qr83x8')}}</el-button>
+                <el-icon><Delete /></el-icon>{{$t('views.cookiemanager.kdgy84')}}</el-button>
             </div>
             
             <el-table :data="cookieTableData" border style="width: 100%" max-height="300px">
-              <el-table-column :label="$t('views.cookiemanager.fr15xl')" width="180">
+              <el-table-column :label="$t('views.cookiemanager.pep1je')" width="180">
                 <template #default="scope">
-                  <el-input v-model="scope.row.name" :placeholder="$t('views.cookiemanager.g4qpr8')" size="small" />
+                  <el-input v-model="scope.row.name" :placeholder="$t('views.cookiemanager.xuc351')" size="small" />
                 </template>
               </el-table-column>
               <el-table-column :label="$t('views.cookiemanager.q28nq7')">
                 <template #default="scope">
-                  <el-input v-model="scope.row.value" :placeholder="$t('views.cookiemanager.1p02i5')" size="small" />
+                  <el-input v-model="scope.row.value" :placeholder="$t('views.cookiemanager.3b8z62')" size="small" />
                 </template>
               </el-table-column>
               <el-table-column :label="$t('views.cookiemanager.s2tp53')" width="120">
@@ -2648,23 +2334,23 @@ const batchUnban = async () => {
               </el-table-column>
             </el-table>
             <div class="form-actions">
-              <el-button size="small" type="primary" @click="generateJsonFromTable">{{$t('views.cookiemanager.72nhk1')}}</el-button>
-              <el-button size="small" type="info" @click="generateTableFromJson">{{$t('views.cookiemanager.94620b')}}</el-button>
+              <el-button size="small" type="primary" @click="generateJsonFromTable">{{$t('views.cookiemanager.w4j2q1')}}</el-button>
+              <el-button size="small" type="info" @click="generateTableFromJson">{{$t('views.cookiemanager.6p2h3h')}}</el-button>
             </div>
           </el-tab-pane>
           
           <!-- 导入模式 -->
-          <el-tab-pane :label="$t('views.cookiemanager.6u74s1')" name="import">
-            <el-form-item :label="$t('views.cookiemanager.v75iyb')">
-              <el-select v-model="importType" :placeholder="$t('views.cookiemanager.7n8765')">
-                <el-option :label="$t('views.cookiemanager.y0on43')" value="txt" />
-                <el-option :label="$t('views.cookiemanager.oj2848')" value="json" />
-                <el-option :label="$t('views.cookiemanager.0kmv3e')" value="csv" />
-                <el-option :label="$t('views.cookiemanager.33ufz3')" value="excel" />
+          <el-tab-pane :label="$t('views.cookiemanager.1883e3')" name="import">
+            <el-form-item :label="$t('views.cookiemanager.td2u38')">
+              <el-select v-model="importType" :placeholder="$t('views.cookiemanager.628u23')">
+                <el-option :label="$t('views.cookiemanager.n95bbl')" value="txt" />
+                <el-option :label="$t('views.cookiemanager.o88dqp')" value="json" />
+                <el-option :label="$t('views.cookiemanager.301485')" value="csv" />
+                <el-option :label="$t('views.cookiemanager.0o7p74')" value="excel" />
               </el-select>
             </el-form-item>
             
-            <el-form-item :label="$t('views.cookiemanager.7y1v98')">
+            <el-form-item :label="$t('views.cookiemanager.41x3g4')">
               <el-upload
                 class="upload-demo"
                 action="#"
@@ -2678,15 +2364,15 @@ const batchUnban = async () => {
                   <el-button type="primary">{{$t('views.cookiemanager.41x3g4')}}</el-button>
                 </template>
                 <template #tip>
-                  <div class="el-upload__tip">{{$t('views.cookiemanager.vf7cx7')}}</div>
+                  <div class="el-upload__tip">{{$t('views.cookiemanager.g05hd1')}}</div>
                 </template>
               </el-upload>
-              <el-button type="success" @click="processCookieFile" :disabled="!selectedFile">{{$t('views.cookiemanager.2y13xa')}}</el-button>
+              <el-button type="success" @click="processCookieFile" :disabled="!selectedFile">{{$t('views.cookiemanager.42wv66')}}</el-button>
             </el-form-item>
             
             <el-form-item :label="$t('views.cookiemanager.23tt1n')" v-if="importPreviewData.length > 0">
               <el-table :data="importPreviewData" border style="width: 100%" max-height="200px">
-                <el-table-column :label="$t('views.cookiemanager.fr15xl')" prop="name" width="180" />
+                <el-table-column :label="$t('views.cookiemanager.pep1je')" prop="name" width="180" />
                 <el-table-column :label="$t('views.cookiemanager.q28nq7')" prop="value" show-overflow-tooltip />
               </el-table>
               <div class="form-actions">
@@ -2708,10 +2394,10 @@ const batchUnban = async () => {
         
         <el-form-item :label="$t('views.cookiemanager.36h81u')" v-if="cookieForm.expire_option === 'days'">
           <el-input-number v-model="cookieForm.expire_days" :min="1" :max="365" />
-          <span class="form-tip">{{$t('views.cookiemanager.ud3t6n')}}</span>
+          <span class="form-tip">{{$t('views.cookiemanager.l1d4m6')}}</span>
         </el-form-item>
         
-        <el-form-item v-if="cookieForm.id" :label="$t('views.cookiemanager.w0o3pl')" prop="is_available">
+        <el-form-item v-if="cookieForm.id" :label="$t('views.cookiemanager.iv86lc')" prop="is_available">
           <el-switch
             v-model="cookieForm.is_available"
             :disabled="cookieForm.is_permanently_banned || cookieForm.temp_ban_until"
@@ -2721,7 +2407,7 @@ const batchUnban = async () => {
         
         <el-form-item v-if="cookieForm.id" :label="$t('views.cookiemanager.e6y884')" prop="is_permanently_banned">
           <el-switch v-model="cookieForm.is_permanently_banned" />
-          <span class="form-tip">{{ cookieForm.is_permanently_banned ? $t('views.cookiemanager.6cqov8') : $t('views.cookiemanager.237n2f') }}</span>
+          <span class="form-tip">{{ cookieForm.is_permanently_banned ? $t('views.cookiemanager.e239nh') : $t('views.cookiemanager.2hu57i') }}</span>
         </el-form-item>
         
         <el-form-item v-if="cookieForm.id && !cookieForm.is_permanently_banned" :label="$t('views.cookiemanager.1psc3j')" prop="temp_ban_until">
@@ -2737,7 +2423,7 @@ const batchUnban = async () => {
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="cookieDialogVisible = false">{{$t('views.cookiemanager.fl98bx')}}</el-button>
-          <el-button type="primary" @click="submitCookieForm" :loading="submitting">{{$t('views.cookiemanager.x5j4qy')}}</el-button>
+          <el-button type="primary" @click="submitCookieForm" :loading="submitting">{{$t('views.cookiemanager.og231w')}}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -2745,23 +2431,23 @@ const batchUnban = async () => {
     <!-- 临时封禁对话框 -->
     <el-dialog
       v-model="tempBanDialogVisible"
-      :title="$t('views.cookiemanager.bc0ucq')"
+      :title="$t('views.cookiemanager.mj7whc')"
       width="400px"
       destroy-on-close
     >
       <el-form :model="tempBanForm" label-width="100px">
-        <el-form-item :label="$t('views.cookiemanager.3xcu12')">
+        <el-form-item :label="$t('views.cookiemanager.pep1je')">
           <el-tag>{{ tempBanForm.account_id }}</el-tag>
         </el-form-item>
-        <el-form-item :label="$t('views.cookiemanager.yw8177')">
+        <el-form-item :label="$t('views.cookiemanager.8sthw8')">
           <el-input-number v-model="tempBanForm.duration_minutes" :min="1" :max="1440" />
-          <span class="form-tip">{{$t('views.cookiemanager.shqml1')}}</span>
+          <span class="form-tip">{{$t('views.cookiemanager.8585f1')}}</span>
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="tempBanDialogVisible = false">{{$t('views.cookiemanager.fl98bx')}}</el-button>
-          <el-button type="primary" @click="submitTempBan" :loading="submitting">{{$t('views.cookiemanager.x5j4qy')}}</el-button>
+          <el-button type="primary" @click="submitTempBan" :loading="submitting">{{$t('views.cookiemanager.og231w')}}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -2769,22 +2455,22 @@ const batchUnban = async () => {
     <!-- 更新账号ID对话框 -->
     <el-dialog
       v-model="updateIdDialogVisible"
-      :title="$t('views.cookiemanager.ee2q48')"
+      :title="$t('views.cookiemanager.tvm48e')"
       width="400px"
       destroy-on-close
     >
       <el-form :model="updateIdForm" label-width="100px" :rules="updateIdRules" ref="updateIdFormRef">
-        <el-form-item :label="$t('views.cookiemanager.c288pq')">
+        <el-form-item :label="$t('views.cookiemanager.c2tmph')">
           <el-tag>{{ updateIdForm.old_account_id }}</el-tag>
         </el-form-item>
-        <el-form-item :label="$t('views.cookiemanager.1w7hm4')" prop="new_account_id">
-          <el-input v-model="updateIdForm.new_account_id" :placeholder="$t('views.cookiemanager.yuju0p')" />
+        <el-form-item :label="$t('views.cookiemanager.79rvpp')" prop="new_account_id">
+          <el-input v-model="updateIdForm.new_account_id" :placeholder="$t('views.cookiemanager.n82uxe')" />
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="updateIdDialogVisible = false">{{$t('views.cookiemanager.fl98bx')}}</el-button>
-          <el-button type="primary" @click="submitUpdateId" :loading="submitting">{{$t('views.cookiemanager.x5j4qy')}}</el-button>
+          <el-button type="primary" @click="submitUpdateId" :loading="submitting">{{$t('views.cookiemanager.og231w')}}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -2798,8 +2484,8 @@ const batchUnban = async () => {
     >
       <div v-loading="accountDetailLoading">
         <el-descriptions border :column="2" v-if="accountDetail">
-          <el-descriptions-item :label="$t('views.cookiemanager.fr15xl')" :span="2">{{ accountDetail.account_id }}</el-descriptions-item>
-          <el-descriptions-item :label="$t('views.cookiemanager.oz57n9')">{{ accountDetail.cookie_count }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('views.cookiemanager.pep1je')" :span="2">{{ accountDetail.account_id }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('views.cookiemanager.rps185')">{{ accountDetail.cookie_count }}</el-descriptions-item>
           <el-descriptions-item :label="$t('views.cookiemanager.w5f1e1')">
             <el-tag :type="accountDetail.is_available ? 'success' : 'danger'">
               {{ accountDetail.is_available ? $t('views.cookiemanager.8qgc3r') : $t('views.cookiemanager.jxt47y') }}
@@ -2819,22 +2505,22 @@ const batchUnban = async () => {
           />
           <div class="action-row">
             <el-button type="primary" @click="copyCookieString">
-              <el-icon><CopyDocument /></el-icon>{{$t('views.cookiemanager.57v4p0')}}</el-button>
+              <el-icon><CopyDocument /></el-icon>{{$t('views.cookiemanager.12b01g')}}</el-button>
           </div>
           
           <el-table :data="accountDetailCookies" style="width: 100%" border>
-            <el-table-column prop="name" :label="$t('views.cookiemanager.918rdv')" width="180" />
-            <el-table-column prop="value" :label="$t('views.cookiemanager.865d07')" show-overflow-tooltip />
+            <el-table-column prop="name" :label="$t('views.cookiemanager.4u7j97')" width="180" />
+            <el-table-column prop="value" :label="$t('views.cookiemanager.q28nq7')" show-overflow-tooltip />
           </el-table>
         </div>
-        <el-empty v-else :description="$t('views.cookiemanager.nyl3rr')" />
+        <el-empty v-else :description="$t('views.cookiemanager.33om7b')" />
       </div>
     </el-dialog>
     
     <!-- 测试结果对话框 -->
     <el-dialog
       v-model="testResultDialogVisible"
-      :title="$t('views.cookiemanager.47d298')"
+      :title="$t('views.cookiemanager.m2kpbj')"
       width="500px"
       destroy-on-close
     >
@@ -2842,19 +2528,19 @@ const batchUnban = async () => {
         <template v-if="testResult">
           <el-result
             :icon="testResult.is_valid ? 'success' : 'error'"
-            :title="testResult.is_valid ? $t('views.cookiemanager.a3782e') : $t('views.cookiemanager.29gqz2')"
+            :title="testResult.is_valid ? $t('views.cookiemanager.08l5c0') : $t('views.cookiemanager.6yn21w')"
             :sub-title="testResult.message"
           >
             <template #extra>
               <el-descriptions border :column="1">
-                <el-descriptions-item :label="$t('views.cookiemanager.3xcu12')">{{ testResult.account_id }}</el-descriptions-item>
+                <el-descriptions-item :label="$t('views.cookiemanager.pep1je')">{{ testResult.account_id }}</el-descriptions-item>
                 <el-descriptions-item :label="$t('views.cookiemanager.h324e4')">{{ testResult.status }}</el-descriptions-item>
-                <el-descriptions-item :label="$t('views.cookiemanager.1wxu3a')">{{ testResult.action_taken }}</el-descriptions-item>
+                <el-descriptions-item :label="$t('views.cookiemanager.he5717')">{{ testResult.action_taken }}</el-descriptions-item>
               </el-descriptions>
             </template>
           </el-result>
         </template>
-        <el-empty v-else :description="$t('views.cookiemanager.6y0q17')" />
+        <el-empty v-else :description="$t('views.cookiemanager.ksf4g2')" />
       </div>
     </el-dialog>
     
@@ -2869,7 +2555,7 @@ const batchUnban = async () => {
         <template v-if="batchTestResult">
           <el-descriptions border :column="2">
             <el-descriptions-item :label="$t('views.cookiemanager.5e9o59')">{{ batchTestResult.total_tested }}</el-descriptions-item>
-            <el-descriptions-item :label="$t('views.cookiemanager.8k2v29')">
+            <el-descriptions-item :label="$t('views.cookiemanager.92wnmz')">
               <el-tag type="success">{{ batchTestResult.valid_count }}</el-tag>
             </el-descriptions-item>
             <el-descriptions-item :label="$t('views.cookiemanager.31k5ft')">
@@ -2883,7 +2569,7 @@ const batchUnban = async () => {
           <el-divider />
           
           <el-tabs>
-            <el-tab-pane :label="$t('views.cookiemanager.95c723')">
+            <el-tab-pane :label="$t('views.cookiemanager.ukji93')">
               <div class="test-result-accounts">
                 <el-tag
                   v-for="account in batchTestResult.valid_accounts"
@@ -2894,10 +2580,10 @@ const batchUnban = async () => {
                 >
                   {{ account }}
                 </el-tag>
-                <el-empty v-if="!batchTestResult.valid_accounts.length" :description="$t('views.cookiemanager.6zi5yp')" />
+                <el-empty v-if="!batchTestResult.valid_accounts.length" :description="$t('views.cookiemanager.387e2o')" />
               </div>
             </el-tab-pane>
-            <el-tab-pane :label="$t('views.cookiemanager.1j3e7c')">
+            <el-tab-pane :label="$t('views.cookiemanager.80371x')">
               <div class="test-result-accounts">
                 <el-tag
                   v-for="account in batchTestResult.banned_accounts"
@@ -2908,10 +2594,10 @@ const batchUnban = async () => {
                 >
                   {{ account }}
                 </el-tag>
-                <el-empty v-if="!batchTestResult.banned_accounts.length" :description="$t('views.cookiemanager.4uia1i')" />
+                <el-empty v-if="!batchTestResult.banned_accounts.length" :description="$t('views.cookiemanager.y7o532')" />
               </div>
             </el-tab-pane>
-            <el-tab-pane :label="$t('views.cookiemanager.nf4qda')">
+            <el-tab-pane :label="$t('views.cookiemanager.8d95yp')">
               <div class="test-result-accounts">
                 <el-tag
                   v-for="account in batchTestResult.not_login_accounts"
@@ -2923,28 +2609,28 @@ const batchUnban = async () => {
                   {{ account }}
                 </el-tag>
                 
-                <el-empty v-if="!batchTestResult.not_login_accounts.length" :description="$t('views.cookiemanager.qjcdc8')" />
+                <el-empty v-if="!batchTestResult.not_login_accounts.length" :description="$t('views.cookiemanager.cjq16u')" />
               </div>
             </el-tab-pane>
           </el-tabs>
         </template>
-        <el-empty v-else :description="$t('views.cookiemanager.6y0q17')" />
+        <el-empty v-else :description="$t('views.cookiemanager.ksf4g2')" />
       </div>
     </el-dialog>
     
     <!-- 添加批量临时封禁对话框 -->
     <el-dialog
       v-model="batchTempBanDialogVisible"
-      :title="$t('views.cookiemanager.5t4569')"
+      :title="$t('views.cookiemanager.pm211s')"
       width="400px"
       destroy-on-close
     >
       <el-form :model="batchTempBanForm" label-width="100px">
-        <el-form-item :label="$t('views.cookiemanager.yw8177')">
+        <el-form-item :label="$t('views.cookiemanager.8sthw8')">
           <el-input-number v-model="batchTempBanForm.duration_minutes" :min="1" :max="1440" />
-          <span class="form-tip">{{$t('views.cookiemanager.shqml1')}}</span>
+          <span class="form-tip">{{$t('views.cookiemanager.8585f1')}}</span>
         </el-form-item>
-        <el-form-item :label="$t('views.cookiemanager.bmf617')">
+        <el-form-item :label="$t('views.cookiemanager.43648j')">
           <div class="selected-accounts">
             <el-tag
               v-for="item in multipleSelection"
@@ -2960,7 +2646,7 @@ const batchUnban = async () => {
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="batchTempBanDialogVisible = false">{{$t('views.cookiemanager.fl98bx')}}</el-button>
-          <el-button type="primary" @click="submitBatchTempBan" :loading="batchActionLoading">{{$t('views.cookiemanager.x5j4qy')}}</el-button>
+          <el-button type="primary" @click="submitBatchTempBan" :loading="batchActionLoading">{{$t('views.cookiemanager.og231w')}}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -2969,360 +2655,284 @@ const batchUnban = async () => {
 
 <style scoped>
 .cookie-manager-container {
-  padding: 20px;
-  max-width: 1600px;
+  padding: 32px;
+  max-width: var(--max-width);
   margin: 0 auto;
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
+  
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: -1.5px;
+    background: var(--color-primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 4px rgba(var(--color-primary-rgb), 0.1));
+  }
 }
 
-.page-header h1 {
-  font-size: 28px;
-  color: var(--color-text-main);
-  margin: 0;
-  background: linear-gradient(45deg, var(--color-primary), #8b5cf6);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* Dashboard 2.0 */
+.status-dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
 }
 
-.api-status {
-  display: flex;
-  align-items: center;
+.dashboard-card {
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--color-border);
+    transition: all 0.3s;
+  }
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--color-primary-light);
+    
+    &::before {
+      background: var(--color-primary);
+      width: 6px;
+    }
+  }
+
+  .card-icon {
+    font-size: 2rem;
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+
+  .card-content {
+    .card-value {
+      font-size: 2.25rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 8px;
+      font-family: 'Inter', sans-serif;
+    }
+    .card-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  }
+
+  &.total .card-value { color: var(--color-primary); }
+  &.available .card-value { color: var(--color-success); }
+  &.warning .card-value { color: var(--color-warning); }
+  &.danger .card-value { color: var(--color-danger); }
 }
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: bold;
-  font-size: 16px;
+/* Main Layout */
+.main-content-row {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 32px;
+  align-items: start;
 }
 
-.header-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.status-card {
-  margin-bottom: 20px;
-  border-radius: 8px;
-}
-
-.banned-accounts-card {
-  margin-bottom: 20px;
-  border-radius: 8px;
-}
-
-.cookie-list-card {
-  margin-bottom: 20px;
-  border-radius: 8px;
-}
-
-.status-overview {
-  display: flex;
-  justify-content: space-between;
-  padding: 15px 0;
-}
-
-.status-item {
-  text-align: center;
-  padding: 10px;
-  border-radius: 8px;
-  background-color: var(--color-bg-subtle);
-  flex: 1;
-  margin: 0 5px;
-}
-
-.status-value {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.status-label {
-  font-size: 12px;
-  color: var(--color-text-secondary);
-}
-
-.status-item.success .status-value {
-  color: #67C23A;
-}
-
-.status-item.warning .status-value {
-  color: #E6A23C;
-}
-
-.status-item.danger .status-value {
-  color: #F56C6C;
-}
-
-.action-buttons {
+.side-panel {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: 32px;
+  position: sticky;
+  top: calc(var(--header-height) + 32px);
 }
 
-.account-list-section {
-  margin-top: 15px;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.section-header h3 {
-  margin: 0;
-  font-size: 16px;
-  color: var(--color-text-secondary);
-}
-
-.account-list {
-  max-height: 300px;
-  overflow-y: auto;
+.premium-card-v2 {
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-xl);
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+
+  .card-header-v2 {
+    padding: 24px 24px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    h3 {
+      margin: 0;
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+    }
+  }
+
+  .card-body-v2 {
+    padding: 0 24px 24px;
+  }
 }
 
-.account-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--color-border);
-  transition: background-color 0.3s;
-}
-
-.account-item:hover {
-  background-color: var(--color-bg-subtle);
-}
-
-.account-item:last-child {
-  border-bottom: none;
-}
-
-.account-info {
-  display: flex;
-  align-items: center;
-}
-
-.account-actions {
-  display: flex;
-  gap: 5px;
-}
-
-.banned-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 5px 10px;
-  background-color: var(--color-bg-subtle);
-  border-bottom: 1px solid var(--color-border);
-  margin-bottom: 10px;
-}
-
-.banned-checkbox {
-  margin-right: 10px;
-}
-
-.banned-accounts {
-  max-height: 500px;
+/* Account Lists */
+.account-mini-list {
+  max-height: 400px;
   overflow-y: auto;
+  padding-right: 4px;
+
+  .mini-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-radius: var(--radius-base);
+    transition: all 0.2s;
+    margin-bottom: 8px;
+    background: var(--color-bg-subtle);
+    border: 1px solid transparent;
+
+    &:hover {
+      background: var(--color-bg-surface);
+      border-color: var(--color-primary-light);
+      transform: translateX(4px);
+    }
+
+    .item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      
+      .account-id {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--color-text-main);
+      }
+      .ban-info {
+        font-size: 0.75rem;
+        color: var(--color-text-tertiary);
+      }
+    }
+  }
 }
 
-.banned-account-item {
-  display: flex;
-  align-items: flex-start;
-  padding: 16px 15px;
-  border-bottom: 1px solid var(--color-border);
-  gap: 15px;
+/* Table Area */
+.table-container-v2 {
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xl);
+  padding: 32px;
+
+  .table-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .search-filters {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+    max-width: 600px;
+  }
 }
 
-.banned-account-item:last-child {
-  border-bottom: none;
-}
-
-.banned-account-item:hover {
-  background-color: var(--color-bg-subtle);
-}
-
-.banned-checkbox {
-  margin-top: 8px;
-  flex-shrink: 0;
-}
-
-.banned-checkbox :deep(.el-checkbox__label) {
-  display: none;
-}
-
-.banned-account-info {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 0;
-  gap: 6px;
-}
-
-.account-id {
-  font-weight: bold;
-  font-size: 16px;
-  color: var(--color-text-main);
-  line-height: 1.5;
-  word-break: break-all;
-  margin-bottom: 4px;
-}
-
-.ban-time {
-  font-size: 13px;
-  color: #67C23A;
-  font-weight: 500;
-  line-height: 1.6;
-}
-
-.ban-time-tooltip {
-  font-size: 12px;
-  color: var(--color-text-secondary);
-  line-height: 1.5;
-}
-
-.ban-status {
-  font-size: 13px;
-  color: #F56C6C;
-  font-weight: 500;
-  line-height: 1.6;
-}
-
-.banned-account-actions {
-  flex-shrink: 0;
-  margin-top: 4px;
-}
-
-.filter-section {
-  display: flex;
-  margin-bottom: 15px;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.filter-item {
-  width: 200px;
-}
-
-.pagination-container {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 15px;
-}
-
-.form-tip {
-  margin-left: 10px;
-  font-size: 12px;
-  color: var(--color-text-secondary);
-}
-
-.dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 15px;
-}
-
-.cookie-detail-list {
-  margin-top: 15px;
-}
-
-.action-row {
-  margin: 10px 0;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.test-result-accounts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
-  padding: 10px;
-  max-height: 200px;
-  overflow-y: auto;
-  border: 1px solid #EBEEF5;
-  border-radius: 4px;
-}
-
-.test-result-tag {
-  margin-bottom: 5px;
-}
-
-.form-actions {
-  display: flex;
-  margin-top: 10px;
-  gap: 10px;
-  justify-content: flex-end;
-}
-
-.table-toolbar {
-  margin-bottom: 10px;
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-}
-
-.el-upload__tip {
-  margin-top: 8px;
-  color: var(--color-text-secondary);
-  line-height: 1.4;
-}
-
-.dialog-subtitle {
-  margin: 0 0 15px 0;
-  padding-bottom: 10px;
-  font-size: 16px;
-  border-bottom: 1px solid var(--color-border);
-  color: var(--color-primary);
-}
-
-.batch-actions {
-  margin: 10px 0;
+.batch-actions-v2 {
   display: flex;
   align-items: center;
-}
-
-.selection-info {
-  margin-left: 15px;
-  color: var(--color-text-secondary);
-  font-size: 14px;
-}
-
-
-.usage-chart-card {
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--color-primary-light);
+  border-radius: var(--radius-lg);
   margin-bottom: 20px;
-  border-radius: 8px;
-}
-.ml-10 {
-  margin-left: 10px;
-}
-
-.mr-5 {
-  margin-right: 5px;
+  
+  .selection-count {
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-right: 8px;
+  }
 }
 
-.mb-5 {
-  margin-bottom: 5px;
+/* Form Styles */
+.custom-form-v2 {
+  :deep(.el-form-item) {
+    margin-bottom: 24px;
+    
+    .el-form-item__label {
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      margin-bottom: 8px;
+    }
+  }
+  
+  .form-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 12px;
+  }
 }
 
-.selected-accounts {
-  max-height: 100px;
-  overflow-y: auto;
-  padding: 5px;
+/* Dialog Micro-animations */
+:deep(.el-dialog) {
+  animation: dialogZoom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes dialogZoom {
+  from { transform: scale(0.9) translateY(20px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.usage-chart-section {
+  margin-top: 40px;
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-xl);
+  padding: 32px;
   border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Scrollbar */
+.account-mini-list::-webkit-scrollbar {
+  width: 4px;
+}
+.account-mini-list::-webkit-scrollbar-thumb {
+  background: var(--color-border);
   border-radius: 4px;
+}
+.account-mini-list::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
+}
+
+@media (max-width: 1200px) {
+  .main-content-row {
+    grid-template-columns: 1fr;
+  }
+  .side-panel {
+    position: static;
+  }
 }
 </style>

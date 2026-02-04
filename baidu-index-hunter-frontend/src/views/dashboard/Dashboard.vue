@@ -2,38 +2,38 @@
 <template>
   <div class="dashboard-container">
     <div class="dashboard-header">
-      <h1 class="dashboard-title">百度指数爬虫数据大屏</h1>
+      <h1 class="dashboard-title">{{$t('dashboard.dashboard.2dwsg6')}}</h1>
       <div class="dashboard-filters">
-        <el-select v-model="selectedTaskType" placeholder="选择任务类型" @change="handleTaskTypeChange" class="task-type-select">
-          <el-option label="全部统计" value="all" />
+        <el-select v-model="selectedTaskType" :placeholder="$t('dashboard.dashboard.y0p3v7')" @change="handleTaskTypeChange" class="task-type-select">
+          <el-option :label="$t('dashboard.dashboard.o0v3d0')" value="all" />
           <el-option v-for="type in taskTypes" :key="type" :label="formatTaskType(type)" :value="type" />
         </el-select>
-        <el-select v-model="selectedDays" placeholder="统计周期" @change="handleDaysChange" class="time-select">
-          <el-option label="最近24小时" :value="1" />
-          <el-option label="最近3天" :value="3" />
-          <el-option label="最近7天" :value="7" />
-          <el-option label="最近30天" :value="30" />
-          <el-option label="最近90天" :value="90" />
-          <el-option label="最近半年" :value="180" />
-          <el-option label="最近一年" :value="365" />
-          <el-option label="全部时间" :value="-1" />
-          <el-option label="自定义时间范围" value="custom" />
+        <el-select v-model="selectedDays" :placeholder="$t('dashboard.dashboard.dd5kiw')" @change="handleDaysChange" class="time-select">
+          <el-option :label="$t('dashboard.dashboard.22s42m')" :value="1" />
+          <el-option :label="$t('dashboard.dashboard.bl75nm')" :value="3" />
+          <el-option :label="$t('dashboard.dashboard.2a174n')" :value="7" />
+          <el-option :label="$t('dashboard.dashboard.zk61g6')" :value="30" />
+          <el-option :label="$t('dashboard.dashboard.5o84wx')" :value="90" />
+          <el-option :label="$t('dashboard.dashboard.096ld1')" :value="180" />
+          <el-option :label="$t('dashboard.dashboard.rvgg9y')" :value="365" />
+          <el-option :label="$t('dashboard.dashboard.o64878')" :value="-1" />
+          <el-option :label="$t('dashboard.dashboard.tt8075')" value="custom" />
         </el-select>
         
         <el-date-picker
           v-if="selectedDays === 'custom'"
           v-model="dateRange"
           type="daterange"
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
+          :range-separator="$t('dashboard.dashboard.n14bv6')"
+          :start-placeholder="$t('dashboard.dashboard.778577')"
+          :end-placeholder="$t('dashboard.dashboard.sq6620')"
           format="YYYY-MM-DD"
           value-format="YYYY-MM-DD"
           @change="loadDashboardData"
           class="date-range-picker"
         />
         
-        <el-button type="primary" @click="loadDashboardData">刷新数据</el-button>
+        <el-button type="primary" @click="loadDashboardData">{{$t('dashboard.dashboard.327577')}}</el-button>
       </div>
     </div>
 
@@ -42,37 +42,37 @@
         <el-card class="dashboard-card overview-card">
           <template #header>
             <div class="card-header">
-              <span>{{ selectedTaskType === 'all' ? '总体统计' : formatTaskType(selectedTaskType) + ' 统计' }}</span>
+              <span>{{ selectedTaskType === 'all' ? $t('dashboard.dashboard.g1431k') : formatTaskType(selectedTaskType) + $t('dashboard.dashboard.2c6u95') }}</span>
             </div>
           </template>
           <div class="overview-stats">
             <div class="stat-item">
               <div class="stat-value">{{ formatNumber(currentStats.total_tasks || 0) }}</div>
-              <div class="stat-label">总任务数</div>
+              <div class="stat-label">{{$t('dashboard.dashboard.7iv3g2')}}</div>
             </div>
             <div class="stat-item">
               <div class="stat-value">{{ formatNumber(currentStats.completed_tasks || 0) }}</div>
-              <div class="stat-label">完成任务</div>
+              <div class="stat-label">{{$t('dashboard.dashboard.u3rve9')}}</div>
             </div>
             <div class="stat-item">
               <div class="stat-value">{{ formatNumber(currentStats.failed_tasks || 0) }}</div>
-              <div class="stat-label">失败任务</div>
+              <div class="stat-label">{{$t('dashboard.dashboard.x2j7a1')}}</div>
             </div>
             <div class="stat-item">
               <div class="stat-value">{{ formatNumber(currentStats.total_items || 0) }}</div>
-              <div class="stat-label">数据总量</div>
+              <div class="stat-label">{{$t('dashboard.dashboard.mx5z5v')}}</div>
             </div>
             <div class="stat-item">
               <div class="stat-value">{{ formatNumber(currentStats.total_crawled_items || 0) }}</div>
-              <div class="stat-label">爬取条数</div>
+              <div class="stat-label">{{$t('dashboard.dashboard.vmawkx')}}</div>
             </div>
             <div class="stat-item">
               <div class="stat-value">{{ formatNumber(currentStats.success_rate || 0, 2) }}%</div>
-              <div class="stat-label">成功率</div>
+              <div class="stat-label">{{$t('dashboard.dashboard.n53625')}}</div>
             </div>
             <div class="stat-item">
               <div class="stat-value">{{ formatNumber(currentStats.avg_duration || 0, 2) }}s</div>
-              <div class="stat-label">平均耗时</div>
+              <div class="stat-label">{{$t('dashboard.dashboard.jpm4gu')}}</div>
             </div>
           </div>
         </el-card>
@@ -84,7 +84,7 @@
         <el-card class="dashboard-card">
           <template #header>
             <div class="card-header">
-              <span>任务执行趋势</span>
+              <span>{{$t('dashboard.dashboard.8wa961')}}</span>
             </div>
           </template>
           <div ref="taskTrendChart" class="chart-container"></div>
@@ -94,7 +94,7 @@
         <el-card class="dashboard-card">
           <template #header>
             <div class="card-header">
-              <span>数据爬取趋势</span>
+              <span>{{$t('dashboard.dashboard.466m31')}}</span>
             </div>
           </template>
           <div ref="dataTrendChart" class="chart-container"></div>
@@ -107,7 +107,7 @@
         <el-card class="dashboard-card">
           <template #header>
             <div class="card-header">
-              <span>任务成功率对比</span>
+              <span>{{$t('dashboard.dashboard.f261uw')}}</span>
             </div>
           </template>
           <div ref="successRateChart" class="chart-container"></div>
@@ -117,7 +117,7 @@
         <el-card class="dashboard-card">
           <template #header>
             <div class="card-header">
-              <span>平均执行时间对比</span>
+              <span>{{$t('dashboard.dashboard.fxx3gx')}}</span>
             </div>
           </template>
           <div ref="avgDurationChart" class="chart-container"></div>
@@ -127,7 +127,7 @@
         <el-card class="dashboard-card">
           <template #header>
             <div class="card-header">
-              <span>数据爬取量对比</span>
+              <span>{{$t('dashboard.dashboard.1cdzp8')}}</span>
             </div>
           </template>
           <div ref="dataVolumeChart" class="chart-container"></div>
@@ -142,15 +142,17 @@ import { ref, reactive, onMounted, watch, nextTick } from 'vue'
 import { getDashboardData } from '@/api/statistics'
 import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
+import { useI18n } from 'vue-i18n'
+const { t: $t } = useI18n()
 
 // 任务类型映射
 const taskTypeMap = {
-  'search_index': '搜索指数',
-  'feed_index': '资讯指数',
-  'word_graph': '需求图谱',
-  'region_distribution': '地域分布',
-  'demographic_attributes': '人群属性',
-  'interest_profile': '兴趣分布'
+  'search_index': $t('views.datacollection.2ncis3'),
+  'feed_index': $t('views.datacollection.653q6s'),
+  'word_graph': $t('views.datacollection.k08266'),
+  'region_distribution': $t('views.datacollection.sciq8u'),
+  'demographic_attributes': $t('views.datacollection.i19rq5'),
+  'interest_profile': $t('dashboard.dashboard.py2bk3')
 }
 
 // 格式化任务类型
@@ -225,11 +227,11 @@ const loadDashboardData = async () => {
         initCharts()
       })
     } else {
-      ElMessage.error(res.msg || '获取大屏数据失败')
+      ElMessage.error(res.msg || $t('dashboard.dashboard.vx7j16'))
     }
   } catch (error) {
-    console.error('加载大屏数据失败:', error)
-    ElMessage.error('加载大屏数据失败')
+    console.error($t('dashboard.dashboard.1yq0uj'), error)
+    ElMessage.error($t('dashboard.dashboard.1co67w'))
   }
 }
 
@@ -303,7 +305,7 @@ const initTaskTrendChart = () => {
       }
     },
     legend: {
-      data: ['总任务数', '完成任务', '失败任务']
+      data: [$t('dashboard.dashboard.7iv3g2'), $t('dashboard.dashboard.u3rve9'), $t('dashboard.dashboard.x2j7a1')]
     },
     grid: {
       left: '3%',
@@ -320,7 +322,7 @@ const initTaskTrendChart = () => {
     },
     series: [
       {
-        name: '总任务数',
+        name: $t('dashboard.dashboard.7iv3g2'),
         type: 'line',
         data: totalTasks,
         smooth: true,
@@ -329,7 +331,7 @@ const initTaskTrendChart = () => {
         }
       },
       {
-        name: '完成任务',
+        name: $t('dashboard.dashboard.u3rve9'),
         type: 'line',
         data: completedTasks,
         smooth: true,
@@ -338,7 +340,7 @@ const initTaskTrendChart = () => {
         }
       },
       {
-        name: '失败任务',
+        name: $t('dashboard.dashboard.x2j7a1'),
         type: 'line',
         data: failedTasks,
         smooth: true,
@@ -385,7 +387,7 @@ const initDataTrendChart = () => {
       }
     },
     legend: {
-      data: ['数据总量', '爬取条数']
+      data: [$t('dashboard.dashboard.mx5z5v'), $t('dashboard.dashboard.vmawkx')]
     },
     grid: {
       left: '3%',
@@ -402,12 +404,12 @@ const initDataTrendChart = () => {
     },
     series: [
       {
-        name: '数据总量',
+        name: $t('dashboard.dashboard.mx5z5v'),
         type: 'bar',
         data: totalItems
       },
       {
-        name: '爬取条数',
+        name: $t('dashboard.dashboard.vmawkx'),
         type: 'bar',
         data: crawledItems
       }
@@ -485,7 +487,7 @@ const initAvgDurationChart = () => {
       axisPointer: {
         type: 'shadow'
       },
-      formatter: '{b}: {c}秒'
+      formatter: $t('dashboard.dashboard.48i4x2')
     },
     grid: {
       left: '3%',
@@ -496,7 +498,7 @@ const initAvgDurationChart = () => {
     xAxis: {
       type: 'value',
       axisLabel: {
-        formatter: '{value}秒'
+        formatter: $t('dashboard.dashboard.y69h15')
       }
     },
     yAxis: {
