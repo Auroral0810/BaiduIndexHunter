@@ -297,7 +297,7 @@ onMounted(() => {
           
           <div class="progress-bar-wrapper">
           <el-progress 
-            :percentage="currentRunningTask.progress || 0" 
+            :percentage="Number((currentRunningTask.progress || 0).toFixed(2))" 
             :status="getProgressStatus(currentRunningTask.status)"
               :stroke-width="8"
             striped
