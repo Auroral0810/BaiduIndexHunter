@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElNotification } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import axios from 'axios'
 import SearchIndexTask from '@/components/tasks/SearchIndexTask.vue'
 import FeedIndexTask from '@/components/tasks/FeedIndexTask.vue'
@@ -13,6 +14,7 @@ import TaskList from '@/components/tasks/TaskList.vue'
 import { webSocketService } from '@/utils/websocket'
 import { Close } from '@element-plus/icons-vue'
 
+const { t } = useI18n()
 const API_BASE_URL = 'http://127.0.0.1:5001/api'
 
 const route = useRoute()
@@ -145,10 +147,10 @@ onMounted(() => {
   <div class="data-collection-container">
     <!-- 页面头部 -->
     <div class="page-header">
-      <h1>百度指数数据采集</h1>
+      <h1>{{ t('dataCollection.title') }}</h1>
       <div class="api-status-indicator" @click="apiStatusDialog = true">
         <div class="status-dot" :class="{ active: apiStatus }"></div>
-        <span>{{ apiStatus ? '服务运行中' : '服务未连接' }}</span>
+        <span>{{ apiStatus ? t('dataCollection.status.running') : t('dataCollection.status.disconnected') }}</span>
       </div>
     </div>
 
@@ -160,31 +162,31 @@ onMounted(() => {
         tab-position="left"
         @tab-change="handleTabChange"
       >
-        <el-tab-pane label="搜索指数" name="search_index">
+        <el-tab-pane :label="t('dataCollection.tabs.searchIndex')" name="search_index">
           <search-index-task></search-index-task>
         </el-tab-pane>
         
-        <el-tab-pane label="资讯指数" name="feed_index">
+        <el-tab-pane :label="t('dataCollection.tabs.feedIndex')" name="feed_index">
           <feed-index-task></feed-index-task>
         </el-tab-pane>
         
-        <el-tab-pane label="需求图谱" name="word_graph">
+        <el-tab-pane :label="t('dataCollection.tabs.wordGraph')" name="word_graph">
           <word-graph-task></word-graph-task>
         </el-tab-pane>
         
-        <el-tab-pane label="人群属性" name="demographic_attributes">
+        <el-tab-pane :label="t('dataCollection.tabs.demographicAttributes')" name="demographic_attributes">
           <demographic-attributes-task></demographic-attributes-task>
         </el-tab-pane>
         
-        <el-tab-pane label="兴趣分析" name="interest_profile">
+        <el-tab-pane :label="t('dataCollection.tabs.interestProfile')" name="interest_profile">
           <interest-profile-task></interest-profile-task>
         </el-tab-pane>
         
-        <el-tab-pane label="地域分布" name="region_distribution">
+        <el-tab-pane :label="t('dataCollection.tabs.regionDistribution')" name="region_distribution">
           <region-distribution-task></region-distribution-task>
         </el-tab-pane>
         
-        <el-tab-pane label="任务列表" name="task_list">
+        <el-tab-pane :label="t('dataCollection.tabs.taskList')" name="task_list">
           <task-list ref="taskListRef"></task-list>
         </el-tab-pane>
       </el-tabs>
@@ -194,7 +196,7 @@ onMounted(() => {
     <el-dialog 
       :visible="apiStatusDialog"
       @update:visible="apiStatusDialog = $event"
-      title="API服务状态" 
+      :title="t('dataCollection.dialog.title')" 
       width="400px"
       destroy-on-close
       center
@@ -202,14 +204,14 @@ onMounted(() => {
       <div class="api-status-content">
         <el-result 
           :icon="apiStatus ? 'success' : 'error'"
-          :title="apiStatus ? 'API服务正常' : 'API服务异常'"
-          :sub-title="apiStatus ? '服务连接正常，可以正常采集数据' : '无法连接到API服务，请确保后端服务已启动'"
+          :title="apiStatus ? t('dataCollection.dialog.normal') : t('dataCollection.dialog.abnormal')"
+          :sub-title="apiStatus ? t('dataCollection.dialog.normalDesc') : t('dataCollection.dialog.abnormalDesc')"
         >
           <template #extra>
-            <el-button type="primary" @click="checkApiHealth">刷新状态</el-button>
-            <el-button @click="apiStatusDialog = false">关闭</el-button>
+            <el-button type="primary" @click="checkApiHealth">{{ t('common.refresh') }}</el-button>
+            <el-button @click="apiStatusDialog = false">{{ t('common.cancel') }}</el-button>
             <div v-if="apiStatus" class="api-endpoint">
-              <span>API地址: </span>
+              <span>{{ t('dataCollection.dialog.apiAddress') }}: </span>
               <el-tag size="small">{{ API_BASE_URL }}</el-tag>
             </div>
           </template>
@@ -223,17 +225,17 @@ onMounted(() => {
         <div class="panel-header">
           <span class="panel-title">
             <span class="status-indicator" :class="currentRunningTask.status"></span>
-            当前任务: {{ currentRunningTask.taskId }}
+            {{ t('dataCollection.progress.currentTask') }}: {{ currentRunningTask.taskId }}
           </span>
           <el-icon class="close-btn" @click="showProgressPanel = false"><Close /></el-icon>
         </div>
         <div class="panel-content">
           <div class="progress-info">
             <span class="progress-text">
-              进度: {{ currentRunningTask.completed_items || 0 }} / {{ currentRunningTask.total_items || '?' }} 
+              {{ t('dataCollection.progress.progress') }}: {{ currentRunningTask.completed_items || 0 }} / {{ currentRunningTask.total_items || '?' }} 
               ({{ currentRunningTask.progress ? currentRunningTask.progress.toFixed(2) : 0 }}%)
             </span>
-            <span class="status-text">{{ currentRunningTask.status === 'running' ? '正在执行...' : currentRunningTask.status }}</span>
+            <span class="status-text">{{ currentRunningTask.status === 'running' ? t('dataCollection.progress.running') : currentRunningTask.status }}</span>
           </div>
           <el-progress 
             :percentage="currentRunningTask.progress || 0" 
@@ -256,9 +258,9 @@ onMounted(() => {
   max-width: 1280px;
   margin: 0 auto;
   padding: 30px;
-  background: #f4f7fc;
+  background: var(--bg-page);
   border-radius: 16px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 .page-header {
@@ -266,14 +268,13 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .page-header h1 {
   font-size: 32px;
   font-weight: bold;
-  color: #409EFF;
-  background: linear-gradient(45deg, #409EFF, #67C23A);
+  background: var(--primary-gradient);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -285,14 +286,16 @@ onMounted(() => {
   gap: 10px;
   padding: 10px 15px;
   border-radius: 25px;
-  background-color: #f9fafb;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-regular);
 }
 
 .api-status-indicator:hover {
-  background-color: #e3f4ff;
+  background-color: var(--primary-light);
   transform: translateY(-2px);
 }
 
@@ -300,20 +303,21 @@ onMounted(() => {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background-color: #F56C6C;
+  background-color: var(--error-color);
   transition: all 0.3s;
 }
 
 .status-dot.active {
-  background-color: #67C23A;
+  background-color: var(--success-color);
   box-shadow: 0 0 0 3px rgba(103, 194, 58, 0.2);
 }
 
 .main-card {
   border-radius: 15px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
-  background-color: #fff;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
 }
 
 .task-tabs {
@@ -322,12 +326,12 @@ onMounted(() => {
 
 .task-tabs :deep(.el-tabs__header) {
   padding: 15px 0;
-  background-color: #ffffff;
-  border-bottom: 2px solid #eff2f7;
+  background-color: var(--bg-card);
+  border-bottom: 2px solid var(--border-color);
 }
 
 .task-tabs :deep(.el-tabs__nav) {
-  background-color: #ffffff;
+  background-color: var(--bg-card);
   border-radius: 8px;
   padding: 10px 0;
 }
@@ -338,19 +342,20 @@ onMounted(() => {
   padding: 0 20px;
   transition: all 0.3s;
   border-left: 3px solid transparent;
+  color: var(--text-regular);
 }
 
 .task-tabs :deep(.el-tabs__item.is-active) {
-  color: #409EFF;
-  background-color: #ecf5ff;
-  border-left: 3px solid #409EFF;
+  color: var(--primary-color);
+  background-color: var(--primary-light);
+  border-left: 3px solid var(--primary-color);
 }
 
 .task-tabs :deep(.el-tabs__content) {
   padding: 20px;
-  background-color: #fafafa;
+  background-color: var(--bg-page);
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
 }
 
 .api-status-content {
@@ -364,6 +369,7 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   font-size: 14px;
+  color: var(--text-regular);
 }
 
 /* 全局进度悬浮面板 */
@@ -372,18 +378,18 @@ onMounted(() => {
   bottom: 30px;
   right: 30px;
   width: 350px;
-  background: white;
+  background: var(--bg-card);
   border-radius: 12px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
   z-index: 2000;
   overflow: hidden;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--border-color);
 }
 
 .panel-header {
   padding: 12px 15px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #ebeef5;
+  background-color: var(--bg-elevated);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -395,27 +401,28 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
+  color: var(--text-primary);
 }
 
 .status-indicator {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #909399;
+  background-color: var(--text-secondary);
 }
 
-.status-indicator.running { background-color: #409EFF; box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2); }
-.status-indicator.completed { background-color: #67C23A; }
-.status-indicator.failed { background-color: #F56C6C; }
+.status-indicator.running { background-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2); }
+.status-indicator.completed { background-color: var(--success-color); }
+.status-indicator.failed { background-color: var(--error-color); }
 
 .close-btn {
   cursor: pointer;
-  color: #909399;
+  color: var(--text-secondary);
   transition: color 0.2s;
 }
 
 .close-btn:hover {
-  color: #303133;
+  color: var(--text-primary);
 }
 
 .panel-content {
@@ -427,13 +434,13 @@ onMounted(() => {
   justify-content: space-between;
   margin-bottom: 8px;
   font-size: 13px;
-  color: #606266;
+  color: var(--text-regular);
 }
 
 .error-msg {
   margin-top: 8px;
   font-size: 12px;
-  color: #F56C6C;
+  color: var(--error-color);
   line-height: 1.4;
 }
 

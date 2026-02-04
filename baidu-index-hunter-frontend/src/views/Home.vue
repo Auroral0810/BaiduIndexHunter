@@ -1,6 +1,7 @@
 <script setup>
-import { ref } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { 
   Lightning, 
   DataAnalysis, 
@@ -13,73 +14,74 @@ import {
   Download
 } from '@element-plus/icons-vue'
 
+const { t } = useI18n()
 const router = useRouter()
 
 const goToDataCollection = () => {
   router.push('/data-collection')
 }
 
-const features = ref([
+const features = computed(() => [
   {
-    title: '高效爬取',
-    description: '优化的爬取策略，智能管理Cookie，确保爬取效率和成功率',
+    title: t('home.features.efficient.title'),
+    description: t('home.features.efficient.desc'),
     icon: Lightning
   },
   {
-    title: '多维度数据',
-    description: '支持搜索指数、媒体指数等多维度数据采集，满足不同研究需求',
+    title: t('home.features.multiData.title'),
+    description: t('home.features.multiData.desc'),
     icon: DataAnalysis
   },
   {
-    title: '丰富的时间维度',
-    description: '支持日度、周度数据，可灵活选择时间范围和对比时间',
+    title: t('home.features.timeDimension.title'),
+    description: t('home.features.timeDimension.desc'),
     icon: Calendar
   },
   {
-    title: '多终端支持',
-    description: '区分PC和移动端数据，全面了解用户行为特征',
+    title: t('home.features.multiTerminal.title'),
+    description: t('home.features.multiTerminal.desc'),
     icon: Monitor
   },
   {
-    title: '智能导出',
-    description: '支持Excel、CSV等多种格式导出，数据处理更便捷',
+    title: t('home.features.smartExport.title'),
+    description: t('home.features.smartExport.desc'),
     icon: DocumentCopy
   },
   {
-    title: '稳定可靠',
-    description: '智能Cookie池管理，保障长时间稳定采集',
+    title: t('home.features.stable.title'),
+    description: t('home.features.stable.desc'),
     icon: Connection
   }
 ])
 
 // 使用流程步骤
-const workflowSteps = [
+const workflowSteps = computed(() => [
   {
-    title: '选择关键词',
-    description: '输入关键词或上传文件',
+    title: t('home.workflow.step1.title'),
+    description: t('home.workflow.step1.desc'),
     icon: Edit
   },
   {
-    title: '选择时间范围',
-    description: '自定义采集的时间范围',
+    title: t('home.workflow.step2.title'),
+    description: t('home.workflow.step2.desc'),
     icon: Calendar
   },
   {
-    title: '选择城市',
-    description: '全国或特定城市数据',
+    title: t('home.workflow.step3.title'),
+    description: t('home.workflow.step3.desc'),
     icon: Location
   },
   {
-    title: '选择数据类型',
-    description: '搜索指数、媒体指数等',
+    title: t('home.workflow.step4.title'),
+    description: t('home.workflow.step4.desc'),
     icon: DataAnalysis
   },
   {
-    title: '开始采集',
-    description: '一键获取所需数据',
+    title: t('home.workflow.step5.title'),
+    description: t('home.workflow.step5.desc'),
     icon: Download
   }
-]
+])
 </script>
 
 <template>
@@ -88,22 +90,22 @@ const workflowSteps = [
     <section class="hero-section">
       <div class="hero-content">
         <h1 class="hero-title">BaiduIndexHunter</h1>
-        <p class="hero-subtitle">高效、稳定的百度指数数据采集工具</p>
+        <p class="hero-subtitle">{{ t('home.subtitle') }}</p>
         <div class="hero-buttons">
           <el-button type="primary" size="large" @click="goToDataCollection">
-            开始采集
+            {{ t('home.startNow') }}
           </el-button>
-          <el-button size="large" @click="router.push('/about')">了解更多</el-button>
+          <el-button size="large" @click="router.push('/about')">{{ t('home.learnMore') }}</el-button>
         </div>
       </div>
       <div class="hero-image">
-        <img src="../assets/logo.svg" alt="百度指数数据可视化" />
+        <img src="../assets/logo.svg" alt="BaiduIndexHunter" />
       </div>
     </section>
 
     <!-- 特性介绍区域 -->
     <section class="features-section">
-      <h2 class="section-title">核心特性</h2>
+      <h2 class="section-title">{{ t('home.featuresTitle') }}</h2>
       <div class="features-grid">
         <div v-for="(feature, index) in features" :key="index" class="feature-card">
           <div class="feature-icon">
@@ -119,7 +121,7 @@ const workflowSteps = [
 
     <!-- 使用流程区域 -->
     <section class="workflow-section">
-      <h2 class="section-title">使用流程</h2>
+      <h2 class="section-title">{{ t('home.workflowTitle') }}</h2>
       
       <div class="workflow-container">
         <div class="workflow-progress">
@@ -144,12 +146,10 @@ const workflowSteps = [
     <!-- 开始使用区域 -->
     <section class="cta-section">
       <div class="cta-content">
-        <h2 class="cta-title">深度挖掘数据价值，抢占市场先机</h2>
-        <p class="cta-description">
-          专业级百度指数采集引擎，助您实时掌控行业风向，用数据驱动业务的每一次飞跃。
-        </p>
+        <h2 class="cta-title">{{ t('home.cta.title') }}</h2>
+        <p class="cta-description">{{ t('home.cta.description') }}</p>
         <el-button type="primary" size="large" @click="goToDataCollection" class="cta-button">
-          立即开启体验
+          {{ t('home.cta.button') }}
         </el-button>
       </div>
     </section>
@@ -300,17 +300,16 @@ const workflowSteps = [
 }
 
 .feature-card {
-  background-color: white;
+  background-color: var(--bg-card);
   border-radius: var(--radius-lg);
   padding: 40px 32px;
-  /* 极简边框，代替投影 */
   border: 1px solid var(--border-color);
   box-shadow: none;
   transition: all 0.3s ease;
   height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* 左对齐更现代 */
+  align-items: flex-start;
   text-align: left;
 }
 
@@ -409,7 +408,7 @@ const workflowSteps = [
 .step-icon-container {
   width: 80px;
   height: 80px;
-  background-color: white;
+  background-color: var(--bg-card);
   border-radius: 20px;
   display: flex;
   align-items: center;

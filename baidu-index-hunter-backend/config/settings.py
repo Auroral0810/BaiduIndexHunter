@@ -1,131 +1,124 @@
 """
 项目全局配置
+
+此模块为兼容层，实际配置统一由 core.config 管理
+
+配置优先级：数据库 > 环境变量 > 默认值
 """
 import os
-import multiprocessing
-from dotenv import load_dotenv
+import sys
 from pathlib import Path
-from fake_useragent import UserAgent
-ua = UserAgent()
-useragent=ua.random#随机生成useragent
 
-# 加载环境变量
-env_path = Path(__file__).parent.parent / '.env'
-load_dotenv(dotenv_path=env_path)
+# 添加项目根目录到路径
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+# 导入统一配置管理器
+from core.config import (
+    config,
+    get_mysql_config,
+    get_redis_config,
+    get_spider_config,
+    get_task_config,
+    get_cookie_config,
+    BAIDU_INDEX_API,
+    OUTPUT_DIR,
+    LOG_DIR,
+    CIPHER_TEXT_JS_PATH,
+)
+
+# ==================== 兼容旧代码的配置导出 ====================
 
 # 数据库配置
-MYSQL_CONFIG = {
-    'host': os.getenv('MYSQL_HOST', 'localhost'),
-    'port': int(os.getenv('MYSQL_PORT', 3306)),
-    'user': os.getenv('MYSQL_USER', 'root'),
-    'password': os.getenv('MYSQL_PASSWORD', '123456'),
-    'db': os.getenv('MYSQL_DB', 'BaiduIndexHunter'),
-}
+MYSQL_CONFIG = config.mysql_config
 
-# Redis配置
-REDIS_CONFIG = {
-    'host': os.getenv('REDIS_HOST', 'localhost'),
-    'port': int(os.getenv('REDIS_PORT', 6379)),
-    'db': int(os.getenv('REDIS_DB', 0)),
-    'password': os.getenv('REDIS_PASSWORD', '') or None,
-}
+# Redis 配置
+REDIS_CONFIG = config.redis_config
 
-# 阿里云OSS配置
-OSS_CONFIG = {
-    'enabled': os.getenv('OSS_ENABLED', 'False').lower() == 'true',  # 是否启用OSS上传，默认False
-    'url': os.getenv('OSS_URL'),
-    'endpoint': os.getenv('OSS_ENDPOINT'),
-    'access_key_id': os.getenv('OSS_ACCESS_KEY_ID'),
-    'access_key_secret': os.getenv('OSS_ACCESS_KEY_SECRET'),
-    'bucket_name': os.getenv('OSS_BUCKET_NAME'),
-    'region': os.getenv('OSS_REGION'),
-}
-
-# API配置
+# API 配置
 API_CONFIG = {
-    'host': os.getenv('API_HOST', '0.0.0.0'),
-    'port': int(os.getenv('API_PORT', 5001)),
-    'debug': os.getenv('API_DEBUG', 'True').lower() == 'true',
-    'secret_key': os.getenv('API_SECRET_KEY', 'baidu_index_hunter_secret_key'),
-    'token_expire': int(os.getenv('API_TOKEN_EXPIRE', 86400)),  # 默认1天
-    'cors_origins': os.getenv('API_CORS_ORIGINS', '*').split(','),
+    'host': config.get('api.host'),
+    'port': config.get('api.port'),
+    'debug': config.get('api.debug'),
+    'secret_key': config.get('api.secret_key'),
+    'token_expire': config.get('api.token_expire'),
+    'cors_origins': config.get('api.cors_origins', '*').split(',') if isinstance(config.get('api.cors_origins'), str) else ['*'],
 }
 
 # 任务配置
 TASK_CONFIG = {
-    'max_concurrent_tasks': int(os.getenv('MAX_CONCURRENT_TASKS', 10)),  # 最大并发任务数
-    'task_queue_check_interval': int(os.getenv('TASK_QUEUE_CHECK_INTERVAL', 10)),  # 任务队列检查间隔（秒）
-    'default_task_priority': int(os.getenv('DEFAULT_TASK_PRIORITY', 5)),  # 默认任务优先级（1-10）
-    'max_retry_count': int(os.getenv('MAX_RETRY_COUNT', 3)),  # 任务最大重试次数
-    'retry_delay': int(os.getenv('RETRY_DELAY', 300)),  # 任务重试延迟（秒）
+    'max_concurrent_tasks': config.get('task.max_concurrent_tasks'),
+    'task_queue_check_interval': config.get('task.queue_check_interval'),
+    'default_task_priority': config.get('task.default_priority'),
+    'max_retry_count': config.get('task.max_retry_count'),
+    'retry_delay': config.get('task.retry_delay'),
 }
 
-# 登录和健康检查配置
-LOGIN_INTERVAL = int(os.getenv('LOGIN_INTERVAL', 86400))  # 默认24小时
-HEALTH_CHECK_INTERVAL = int(os.getenv('HEALTH_CHECK_INTERVAL', 3600))  # 默认1小时
-
-# 日志配置
-LOG_CONFIG = {
-    'level': os.getenv('LOG_LEVEL', 'INFO'),
-    'retention': int(os.getenv('LOG_RETENTION', 7)),  # 日志保留天数
-    'format': os.getenv('LOG_FORMAT', '%(asctime)s - %(levelname)s - %(name)s - %(message)s'),
-    'file_size': int(os.getenv('LOG_FILE_SIZE', 10 * 1024 * 1024)),  # 单个日志文件大小限制，默认10MB
-    'backup_count': int(os.getenv('LOG_BACKUP_COUNT', 5)),  # 日志文件备份数量
-}
-
-LOG_DIR = Path(__file__).parent.parent / 'output/logs'
-LOG_DIR.mkdir(parents=True, exist_ok=True)
-
-# Cookie相关配置
-# 注意：百度指数Cookie不会过期，只会被锁住
+# Cookie 配置
 COOKIE_CONFIG = {
-    'min_available_count': int(os.getenv('COOKIE_MIN_AVAILABLE_COUNT', 10)),  # 最小可用Cookie数量
-    'max_login_retry': int(os.getenv('COOKIE_MAX_LOGIN_RETRY', 2)),  # 登录重试最大次数
-    'block_cooldown': int(os.getenv('COOKIE_BLOCK_COOLDOWN', 1800)),  # Cookie被锁后的冷却时间（秒），默认30分钟
-    'expiration_buffer': int(os.getenv('COOKIE_EXPIRATION_BUFFER', 3600)),  # Cookie过期前的缓冲时间（秒），默认1小时
-    'rotation_strategy': os.getenv('COOKIE_ROTATION_STRATEGY', 'round_robin'),  # Cookie轮换策略：round_robin, random, least_used
-    'max_usage_per_day': int(os.getenv('COOKIE_MAX_USAGE_PER_DAY', 1800)),  # 每个Cookie每天最大使用次数
-}
-
-# 百度指数API配置
-BAIDU_INDEX_API = {
-    'search_url': 'https://index.baidu.com/api/SearchApi/index', #搜索指数的url
-    'trend_url': 'https://index.baidu.com/api/FeedSearchApi/getFeedIndex', #资讯指数的url
-    'word_graph_url': 'https://index.baidu.com/api/WordGraph/multi', #需求图谱的url
-    'social_api_url': 'https://index.baidu.com/api/SocialApi/baseAttributes', #社会指数的url
-    'region_api_url': 'https://index.baidu.com/api/SearchApi/region', #地域指数的url
-    'interest_api_url': 'https://index.baidu.com/api/SocialApi/interest', #兴趣指数的url
-    'user_agent': useragent,
-    'referer': 'https://index.baidu.com/v2/main/index.html', # 构造cipher-text的url
+    'min_available_count': config.get('cookie.min_available_count'),
+    'block_cooldown': config.get('cookie.block_cooldown'),
+    'rotation_strategy': config.get('cookie.rotation_strategy'),
+    'max_usage_per_day': config.get('cookie.max_usage_per_day'),
+    'max_login_retry': 2,
+    'expiration_buffer': 3600,
 }
 
 # 爬虫配置
 SPIDER_CONFIG = {
-    'min_interval': float(os.getenv('SPIDER_MIN_INTERVAL', 0.3)),  # 请求间隔最小秒数，降低到0.1秒
-    'max_interval': float(os.getenv('SPIDER_MAX_INTERVAL', 0.5)),  # 请求间隔最大秒数，降低到0.3秒
-    'default_interval': float(os.getenv('SPIDER_DEFAULT_INTERVAL', 0.4)),  # 默认请求间隔秒数，降低到0.2秒
-    'retry_times': int(os.getenv('SPIDER_RETRY_TIMES', 2)),  # 请求失败重试次数
-    'timeout': int(os.getenv('SPIDER_TIMEOUT', 10)),     # 请求超时时间（秒），降低到10秒
-    'max_workers': int(os.getenv('SPIDER_MAX_WORKERS', min(10, multiprocessing.cpu_count()*4))),  # 最大工作线程数，增加到20或CPU核心数的6倍
-    'max_consecutive_failures': int(os.getenv('SPIDER_MAX_CONSECUTIVE_FAILURES', 2)),  # 最大连续失败次数
-    'failure_multiplier': float(os.getenv('SPIDER_FAILURE_MULTIPLIER', 1.1)),  # 失败后等待时间倍数，降低到1.1
-    'user_agent_rotation': os.getenv('SPIDER_USER_AGENT_ROTATION', 'True').lower() == 'true',  # 是否轮换User-Agent
-    'proxy_enabled': os.getenv('SPIDER_PROXY_ENABLED', 'False').lower() == 'true',  # 是否启用代理
-    'proxy_url': os.getenv('SPIDER_PROXY_URL', ''),  # 代理URL
-    'proxy_auth': os.getenv('SPIDER_PROXY_AUTH', ''),  # 代理认证信息
+    'min_interval': config.get('spider.min_interval'),
+    'max_interval': config.get('spider.max_interval'),
+    'default_interval': config.get('spider.default_interval'),
+    'retry_times': config.get('spider.retry_times'),
+    'timeout': config.get('spider.timeout'),
+    'max_workers': config.get('spider.max_workers'),
+    'max_consecutive_failures': 2,
+    'failure_multiplier': config.get('spider.failure_multiplier'),
+    'user_agent_rotation': config.get('spider.user_agent_rotation'),
+    'proxy_enabled': config.get('spider.proxy_enabled'),
+    'proxy_url': config.get('spider.proxy_url'),
+    'proxy_auth': '',
 }
 
 # 输出配置
 OUTPUT_CONFIG = {
-    'default_format': os.getenv('OUTPUT_DEFAULT_FORMAT', 'csv'),  # 默认输出格式：csv, excel
-    'csv_encoding': os.getenv('OUTPUT_CSV_ENCODING', 'utf-8-sig'),  # CSV文件编码
-    'excel_sheet_name': os.getenv('OUTPUT_EXCEL_SHEET_NAME', 'BaiduIndex'),  # Excel工作表名称
-    'file_name_template': os.getenv('OUTPUT_FILE_NAME_TEMPLATE', '{task_type}_{timestamp}'),  # 输出文件名模板
+    'default_format': config.get('output.default_format'),
+    'csv_encoding': config.get('output.csv_encoding'),
+    'excel_sheet_name': config.get('output.excel_sheet_name'),
+    'file_name_template': config.get('output.file_name_template'),
 }
 
-# Cipher-Text配置
-CIPHER_TEXT_JS_PATH = Path(__file__).parent.parent / 'utils' / 'Cipher-Text.js'
+# 日志配置
+LOG_CONFIG = {
+    'level': config.get('log.level'),
+    'retention': config.get('log.retention'),
+    'format': '%(asctime)s - %(levelname)s - %(name)s - %(message)s',
+    'file_size': config.get('log.file_size'),
+    'backup_count': config.get('log.backup_count'),
+}
 
-# 输出目录配置
-OUTPUT_DIR = os.getenv('OUTPUT_DIR', str(Path(__file__).parent.parent / 'output'))
-Path(OUTPUT_DIR).mkdir(parents=True, exist_ok=True) 
+# OSS 配置
+OSS_CONFIG = {
+    'enabled': config.get('output.use_oss', False),
+    'url': config.get('oss.url'),
+    'endpoint': config.get('oss.endpoint'),
+    'access_key_id': config.get('oss.access_key_id'),
+    'access_key_secret': config.get('oss.access_key_secret'),
+    'bucket_name': config.get('oss.bucket_name'),
+    'region': config.get('oss.region'),
+}
+
+# 登录和健康检查配置
+LOGIN_INTERVAL = 86400
+HEALTH_CHECK_INTERVAL = 3600
+
+# 确保日志目录存在
+Path(LOG_DIR).mkdir(parents=True, exist_ok=True)
+
+# User-Agent（动态生成）
+try:
+    from fake_useragent import UserAgent
+    ua = UserAgent()
+    BAIDU_INDEX_API['user_agent'] = ua.random
+except:
+    BAIDU_INDEX_API['user_agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
