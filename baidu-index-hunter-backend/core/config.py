@@ -114,13 +114,19 @@ class UnifiedConfig:
         'log.retention': 7,
         'log.file_size': 10485760,
         'log.backup_count': 5,
+        
+        # UI 配置
+        'ui.theme': 'light',
+        'ui.language': 'zh_CN',
+        'ui.items_per_page': 20,
+        'ui.auto_refresh': True,
+        'ui.refresh_interval': 30,
+        
+        # 系统配置
+        'system.version': '2.0.0',
+        'system.name': '百度指数爬虫',
+        'system.maintenance_mode': False,
     }
-    
-    # 注意：以下配置已移除（本地使用不需要）：
-    # - ui.* : 界面设置由前端本地存储管理
-    # - system.admin_email : 本地使用不需要
-    # - system.maintenance_mode : 本地使用不需要
-    # - system.version/name : 已硬编码在前端
     
     # 环境变量映射：config_key -> ENV_VAR_NAME
     ENV_MAPPING = {

@@ -1,102 +1,38 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed, watch } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useConfigStore } from '../store/config'
-import { useI18n } from 'vue-i18n'
-import { setLocale } from '../i18n'
-
-const { t, locale } = useI18n()
 
 // 使用配置存储
 const configStore = useConfigStore()
 
-// 配置分组（精简后）
-const configGroups = computed(() => [
-  { id: 'task', name: t('settings.groups.task'), icon: 'List' },
-  { id: 'spider', name: t('settings.groups.spider'), icon: 'Loading' },
-  { id: 'cookie', name: t('settings.groups.cookie'), icon: 'Files' },
-  { id: 'output', name: t('settings.groups.output'), icon: 'Document' },
-  { id: 'ui', name: t('settings.groups.ui'), icon: 'Monitor' }
-])
+// 配置分组
+const configGroups = [
+  { id: 'api', name: 'API配置', icon: 'Connection' },
+  { id: 'task', name: '任务配置', icon: 'List' },
+  { id: 'spider', name: '爬虫配置', icon: 'Loading' },
+  { id: 'output', name: '输出配置', icon: 'Document' },
+  { id: 'cookie', name: 'Cookie配置', icon: 'Files' },
+  { id: 'system', name: '系统配置', icon: 'Setting' },
+  { id: 'ui', name: '界面配置', icon: 'Monitor' }
+]
 
 // 当前选中的配置组
-const activeGroup = ref('task')
+const activeGroup = ref('api')
 
 // 加载状态
 const loading = computed(() => configStore.isLoading)
 
-// 语言选项
-const languageOptions = [
-  { value: 'zh_CN', label: '简体中文' },
-  { value: 'zh_TW', label: '繁體中文' },
-  { value: 'en', label: 'English' },
-  { value: 'ja', label: '日本語' }
-]
-
-// 主题选项
-const themeOptions = computed(() => [
-  { value: 'light', label: t('settings.ui.themeLight') },
-  { value: 'dark', label: t('settings.ui.themeDark') }
-])
-
-// 本地界面设置
-const localSettings = reactive({
-  theme: localStorage.getItem('ui.theme') || 'light',
-  language: localStorage.getItem('ui.language') || 'zh_CN'
-})
-
-// 监听主题变化
-watch(() => localSettings.theme, (newTheme) => {
-  localStorage.setItem('ui.theme', newTheme)
-  applyTheme(newTheme)
-})
-
-// 监听语言变化
-watch(() => localSettings.language, (newLang) => {
-  setLocale(newLang)
-  ElMessage.success(t('settings.messages.saveSuccess'))
-})
-
-// 应用主题
-const applyTheme = (theme: string) => {
-  if (theme === 'dark') {
-    document.documentElement.classList.add('dark')
-  } else {
-    document.documentElement.classList.remove('dark')
-  }
-}
-
-// 获取指定分组的配置项（过滤掉不需要的配置）
+// 获取指定分组的配置项
 const getGroupConfigs = (group: string) => {
-  const configs = configStore.getConfigsByPrefix(group)
-  
-  // 过滤掉不需要的配置项
-  const excludeKeys = [
-    'system.admin_email',
-    'system.maintenance_mode',
-    'system.version',
-    'system.name',
-    'ui.theme',
-    'ui.language',
-    'ui.items_per_page',
-    'ui.auto_refresh',
-    'ui.refresh_interval'
-  ]
-  
-  const filtered: Record<string, any> = {}
-  for (const [key, value] of Object.entries(configs)) {
-    if (!excludeKeys.includes(key)) {
-      filtered[key] = value
-    }
-  }
-  return filtered
+  return configStore.getConfigsByPrefix(group)
 }
 
 // 保存配置
 const saveConfigs = async (prefix: string) => {
   const result = await configStore.saveConfigsByPrefix(prefix)
   if (result) {
-    ElMessage.success(t('settings.messages.saveSuccess'))
+    ElMessage.success('配置保存成功')
   }
 }
 
@@ -104,13 +40,13 @@ const saveConfigs = async (prefix: string) => {
 const resetConfigs = async () => {
   const result = await configStore.resetConfigs()
   if (result) {
-    ElMessage.success(t('settings.messages.resetSuccess'))
+    ElMessage.success('配置已重置为默认值')
   }
 }
 
 // 获取配置项类型
 const getConfigType = (key: string, value: any) => {
-  if (typeof value === 'boolean' || value === 'True' || value === 'False' || value === 'true' || value === 'false') return 'boolean'
+  if (typeof value === 'boolean' || value === 'True' || value === 'False') return 'boolean'
   if (typeof value === 'number') {
     if (key.includes('interval') || key.includes('timeout')) return 'number'
     if (key.includes('port')) return 'port'
@@ -118,30 +54,99 @@ const getConfigType = (key: string, value: any) => {
   }
   if (typeof value === 'string') {
     if (key.includes('url') || key.includes('host')) return 'url'
-    if (key.includes('password') || key.includes('secret')) return 'password'
+    if (key.includes('password') || key.includes('secret') || key.includes('key_id')) return 'string' // Key ID usually visible
+    if (key.includes('secret') || key.includes('password')) return 'password'
     return 'string'
   }
   return 'string'
 }
 
+// 获取显示标签（优先使用中文描述）
+const getDisplayLabel = (key: string) => {
+  const description = getConfigDescription(key)
+  return description !== '配置项描述' ? description : getConfigLabel(key)
+}
+
+// 获取配置项标签（英文/键名）
+const getConfigLabel = (key: string) => {
+  const parts = key.split('.')
+  if (parts.length < 2) return key
+  
+  const lastPart = parts[parts.length - 1]
+  return lastPart
+    .replace(/_/g, ' ')
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, (str) => str.toUpperCase())
+}
+
 // 获取配置项描述
 const getConfigDescription = (key: string) => {
-  const configKey = `settings.configs.${key}`
-  const translated = t(configKey)
-  // 如果翻译键不存在，返回原始键名
-  return translated === configKey ? key.split('.').pop() : translated
+  const descriptions: Record<string, string> = {
+    'api.host': '服务器监听的主机地址',
+    'api.port': '服务器监听的端口',
+    'api.debug': '是否启用调试模式',
+    'api.cors_origins': '允许的跨域来源',
+    'api.secret_key': 'API安全密钥',
+    'api.token_expire': 'Token过期时间（秒）',
+    
+    'task.max_concurrent_tasks': '最大并发任务数',
+    'task.queue_check_interval': '任务队列检查间隔（秒）',
+    'task.default_priority': '默认任务优先级（1-10）',
+    'task.max_retry_count': '任务最大重试次数',
+    'task.retry_delay': '任务重试延迟（秒）',
+    
+    'spider.min_interval': '请求间隔最小秒数',
+    'spider.max_interval': '请求间隔最大秒数',
+    'spider.retry_times': '请求失败重试次数',
+    'spider.timeout': '请求超时时间（秒）',
+    'spider.max_workers': '最大工作线程数',
+    'spider.user_agent_rotation': '是否轮换User-Agent',
+    'spider.proxy_enabled': '是否启用代理',
+    'spider.proxy_url': '代理URL',
+    'spider.failure_multiplier': '失败后间隔倍数',
+    
+    'output.default_format': '默认输出格式：csv, excel',
+    'output.csv_encoding': 'CSV文件编码',
+    'output.excel_sheet_name': 'Excel工作表名称',
+    'output.file_name_template': '文件名模板',
+    'output.use_oss': '是否上传到阿里云OSS',
+    
+    'oss.access_key_id': '阿里云AccessKey ID',
+    'oss.access_key_secret': '阿里云AccessKey Secret',
+    'oss.bucket_name': 'OSS Bucket名称',
+    'oss.endpoint': 'OSS Endpoint（例如 oss-cn-beijing.aliyuncs.com）',
+    'oss.region': 'OSS Region（例如 cn-beijing）',
+    'oss.url': '自定义访问域名（可选）',
+    
+    'cookie.block_cooldown': 'Cookie封禁冷却时间（秒）',
+    'cookie.max_usage_per_day': '每日最大使用次数',
+    'cookie.min_available_count': '最小可用Cookie数量',
+    'cookie.rotation_strategy': 'Cookie轮换策略',
+    
+    'system.admin_email': '管理员邮箱',
+    'system.maintenance_mode': '是否启用维护模式',
+    'system.name': '系统名称',
+    'system.version': '系统版本',
+    
+    'ui.auto_refresh': '是否自动刷新',
+    'ui.items_per_page': '每页显示条数',
+    'ui.language': '界面语言',
+    'ui.refresh_interval': '刷新间隔（秒）',
+    'ui.theme': '界面主题'
+  }
+  
+  return descriptions[key] || '配置项描述'
 }
 
 // 生命周期钩子
 onMounted(async () => {
   await configStore.fetchConfigs()
-  applyTheme(localSettings.theme)
 })
 </script>
 
 <template>
   <div class="settings-container">
-    <h1 class="page-title">{{ t('settings.title') }}</h1>
+    <h1 class="page-title">系统配置</h1>
     
     <el-row :gutter="20">
       <el-col :span="5">
@@ -170,7 +175,7 @@ onMounted(async () => {
               size="small"
               :loading="loading"
             >
-              {{ t('settings.actions.reset') }}
+              重置为默认配置
             </el-button>
           </div>
         </el-card>
@@ -180,76 +185,31 @@ onMounted(async () => {
         <el-card class="settings-card" shadow="hover" v-loading="loading">
           <template #header>
             <div class="card-header">
-              <h2>{{ configGroups.find(g => g.id === activeGroup)?.name }}</h2>
+              <h2>{{ configGroups.find(g => g.id === activeGroup)?.name || '系统配置' }}</h2>
               <el-button 
-                v-if="activeGroup !== 'ui'"
                 type="primary" 
                 @click="saveConfigs(activeGroup)" 
                 :loading="loading"
               >
-                {{ t('settings.actions.save') }}
+                保存配置
               </el-button>
             </div>
           </template>
           
           <div class="config-group">
-            <!-- 界面设置：使用本地存储 -->
-            <template v-if="activeGroup === 'ui'">
-              <el-form label-position="top">
-                <el-form-item :label="t('settings.ui.theme')">
-                  <el-radio-group v-model="localSettings.theme">
-                    <el-radio-button 
-                      v-for="option in themeOptions" 
-                      :key="option.value" 
-                      :value="option.value"
-                    >
-                      {{ option.label }}
-                    </el-radio-button>
-                  </el-radio-group>
-                  <div class="form-item-tip">{{ t('settings.ui.themeTip') }}</div>
-                </el-form-item>
-                
-                <el-form-item :label="t('settings.ui.language')">
-                  <el-select v-model="localSettings.language" style="width: 200px;">
-                    <el-option
-                      v-for="option in languageOptions"
-                      :key="option.value"
-                      :label="option.label"
-                      :value="option.value"
-                    />
-                  </el-select>
-                  <div class="form-item-tip">{{ t('settings.ui.languageTip') }}</div>
-                </el-form-item>
-              </el-form>
-              
-              <el-divider />
-              
-              <el-alert
-                :title="t('common.info')"
-                type="info"
-                :closable="false"
-                show-icon
-              >
-                <template #default>
-                  {{ t('settings.ui.localStorageNote') }}
-                </template>
-              </el-alert>
-            </template>
-            
-            <!-- 其他配置：从服务器读取 -->
-            <template v-else-if="Object.keys(getGroupConfigs(activeGroup)).length > 0">
+            <template v-if="Object.keys(getGroupConfigs(activeGroup)).length > 0">
               <el-form label-position="top">
                 <el-form-item 
                   v-for="(value, key) in getGroupConfigs(activeGroup)" 
                   :key="key"
-                  :label="getConfigDescription(key)"
+                  :label="getDisplayLabel(key)"
                 >
                   <!-- 布尔类型 -->
                   <el-switch 
                     v-if="getConfigType(key, value) === 'boolean'"
                     v-model="configStore.configs[key]"
-                    :active-value="typeof value === 'string' ? 'true' : true"
-                    :inactive-value="typeof value === 'string' ? 'false' : false"
+                    :active-value="typeof value === 'string' ? 'True' : true"
+                    :inactive-value="typeof value === 'string' ? 'False' : false"
                   />
                   
                   <!-- 数字类型 -->
@@ -279,7 +239,7 @@ onMounted(async () => {
                   <el-input 
                     v-else-if="getConfigType(key, value) === 'url'"
                     v-model="configStore.configs[key]"
-                    placeholder="http://localhost:5000"
+                    placeholder="例如: http://localhost:5000"
                   />
                   
                   <!-- 默认字符串类型 -->
@@ -288,14 +248,16 @@ onMounted(async () => {
                     v-model="configStore.configs[key]"
                   />
                   
-                  <div class="form-item-tip">{{ key }}</div>
+                  <div class="form-item-tip">
+                    {{ key }}
+                  </div>
                 </el-form-item>
               </el-form>
             </template>
             
             <el-empty 
               v-else 
-              :description="t('common.noData')" 
+              description="该分组下没有配置项" 
             />
           </div>
         </el-card>
@@ -314,7 +276,7 @@ onMounted(async () => {
 .page-title {
   font-size: 2rem;
   margin-bottom: 24px;
-  color: var(--text-primary);
+  color: #303133;
 }
 
 .settings-menu-card {
@@ -328,7 +290,7 @@ onMounted(async () => {
 .menu-actions {
   margin-top: 20px;
   padding-top: 20px;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid #ebeef5;
   text-align: center;
 }
 
@@ -346,7 +308,6 @@ onMounted(async () => {
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--text-primary);
 }
 
 .config-group {
@@ -355,7 +316,7 @@ onMounted(async () => {
 
 .form-item-tip {
   font-size: 0.85rem;
-  color: var(--text-secondary);
+  color: #909399;
   margin-top: 5px;
 }
-</style>
+</style> 

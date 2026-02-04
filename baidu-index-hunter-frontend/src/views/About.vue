@@ -1,6 +1,5 @@
 <script setup>
-import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { ref } from 'vue'
 import {
   Lightning,
   DataAnalysis,
@@ -8,132 +7,162 @@ import {
   DocumentCopy,
   TrendCharts,
   Monitor,
-  WarningFilled,
-  InfoFilled,
-  Document,
-  Cpu
+  Service,
+  Tools,
+  DataLine,
+  Refresh
 } from '@element-plus/icons-vue'
 
-const { t } = useI18n()
+const version = ref('1.0.0')
+const releaseDate = ref('2025-6-26')
 
-const version = 'v2.0'
-const releaseDate = '2026-02-04'
-
-const features = computed(() => [
+const features = ref([
   {
-    title: t('about.coreFeatures.efficient.title'),
-    description: t('about.coreFeatures.efficient.desc'),
+    title: '高效爬取',
+    description: '智能Cookie管理和负载均衡，确保稳定可靠的数据获取',
     icon: Lightning
   },
   {
-    title: t('about.coreFeatures.multiData.title'),
-    description: t('about.coreFeatures.multiData.desc'),
+    title: '多维数据',
+    description: '支持搜索指数、媒体指数、需求图谱等多种数据类型',
     icon: DataAnalysis
   },
   {
-    title: t('about.coreFeatures.easyUse.title'),
-    description: t('about.coreFeatures.easyUse.desc'),
+    title: '易于使用',
+    description: '直观的用户界面，简化复杂操作，快速获取所需数据',
     icon: User
   },
   {
-    title: t('about.coreFeatures.export.title'),
-    description: t('about.coreFeatures.export.desc'),
+    title: '灵活导出',
+    description: '支持多种格式导出，便于进一步分析和处理',
     icon: DocumentCopy
   },
   {
-    title: t('about.coreFeatures.monitor.title'),
-    description: t('about.coreFeatures.monitor.desc'),
+    title: '实时监控',
+    description: '实时监控任务执行状态，及时发现和处理异常情况',
     icon: Monitor
   },
   {
-    title: t('about.coreFeatures.trend.title'),
-    description: t('about.coreFeatures.trend.desc'),
+    title: '趋势分析',
+    description: '内置趋势分析工具，帮助您洞察市场动态和用户需求',
     icon: TrendCharts
   }
 ])
 
-const faqs = computed(() => [
-  { question: t('about.faq.q1'), answer: t('about.faq.a1') },
-  { question: t('about.faq.q2'), answer: t('about.faq.a2') },
-  { question: t('about.faq.q3'), answer: t('about.faq.a3') },
-  { question: t('about.faq.q4'), answer: t('about.faq.a4') },
-  { question: t('about.faq.q5'), answer: t('about.faq.a5') },
-  { question: t('about.faq.q6'), answer: t('about.faq.a6') },
+// FAQ 数据
+const faqs = ref([
+  {
+    question: 'BaiduIndexHunter是什么？',
+    answer: 'BaiduIndexHunter是一个高效、稳定的百度指数数据采集和分析工具，帮助您获取关键词搜索趋势、地域分布等重要数据。'
+  },
+  {
+    question: '如何开始使用？',
+    answer: '首先在配置页面设置您的数据库和Redis连接信息，然后添加您的百度账号Cookie，最后在数据采集页面输入关键词、选择时间范围和地域即可开始获取数据。'
+  },
+  {
+    question: '数据采集需要多长时间？',
+    answer: '采集时间取决于关键词数量、时间范围和选择的地域数量。系统采用智能爬取策略，通常每个请求间隔0.1-0.3秒。大量数据采集建议使用任务调度功能，系统会自动完成采集。'
+  },
+  {
+    question: '支持哪些数据导出格式？',
+    answer: '当前支持CSV、Excel、JSON格式导出。导出的数据包含完整的时间序列信息，可直接导入Excel或其他数据分析工具进行深度分析。'
+  },
+  {
+    question: '如何保证数据采集的稳定性？',
+    answer: '系统内置Cookie池管理机制，支持多账号轮换使用；采用智能限流策略，避免触发反爬机制；提供任务断点续传功能，异常中断后可自动恢复。'
+  },
+  {
+    question: '产品技术支持与售后',
+    answer: '我们提供完善的技术支持服务，包括安装部署指导、使用培训、问题排查等。购买后可获得专属技术支持渠道，响应时间不超过24小时。'
+  }
+])
+
+const services = ref([
+  {
+    title: '企业定制服务',
+    description: '根据您的业务需求，提供定制化功能开发和系统集成服务。',
+    icon: Service,
+    color: '#409EFF'
+  },
+  {
+    title: '技术支持',
+    description: '提供安装部署指导、使用培训、问题排查等全方位技术支持。',
+    icon: Tools,
+    color: '#E6A23C'
+  },
+  {
+    title: '数据分析咨询',
+    description: '协助您解读数据，提供专业的市场分析建议和决策支持。',
+    icon: DataLine,
+    color: '#67C23A'
+  },
+  {
+    title: '持续更新维护',
+    description: '定期更新系统功能，及时适配百度指数平台变化，确保长期稳定使用。',
+    icon: Refresh,
+    color: '#F56C6C'
+  }
 ])
 </script>
 
 <template>
   <div class="about-container">
-    <!-- 免责声明 -->
-    <section class="disclaimer-section">
-      <el-alert
-        :title="t('about.disclaimer.title')"
-        type="warning"
-        :closable="false"
-        show-icon>
-        <template #default>
-          <p><strong>{{ t('about.disclaimer.content1') }}</strong></p>
-          <p>{{ t('about.disclaimer.content2') }}</p>
-        </template>
-      </el-alert>
-    </section>
-
     <section class="hero-section">
-      <h1 class="page-title gradient-text">{{ t('about.title') }}</h1>
-      <p class="subtitle">{{ t('about.subtitle') }}</p>
+      <h1 class="page-title gradient-text">关于BaiduIndexHunter</h1>
+      <p class="subtitle">高效、稳定的百度指数数据采集和分析工具</p>
       <div class="version-info">
-        <el-tag effect="dark" class="version-tag">{{ version }}</el-tag>
-        <span class="release-date">{{ releaseDate }}</span>
+        <el-tag effect="dark" class="version-tag">v{{ version }}</el-tag>
+        <span class="release-date">发布于: {{ releaseDate }}</span>
       </div>
     </section>
     
     <div class="content-wrapper">
       <div class="left-column">
         <section class="intro-section">
-          <h2>{{ t('about.intro.title') }}</h2>
+          <h2>产品介绍</h2>
           <div class="intro-text">
-            <p>{{ t('about.intro.p1') }}</p>
-            <p>{{ t('about.intro.p2') }}</p>
-            <p>{{ t('about.intro.p3') }}</p>
+            <p>BaiduIndexHunter是一个专为营销人员、数据分析师和研究人员设计的专业工具，旨在帮助用户高效获取和分析百度指数数据。</p>
+            <p>通过本产品，您可以轻松监控关键词趋势、了解用户需求变化、分析地域分布特征，为您的市场决策和研究工作提供强有力的数据支撑。我们致力于提供最稳定、最高效的数据采集体验。</p>
+            <p>本产品采用先进的分布式架构设计，支持多账号协同工作，内置智能限流机制，确保数据采集的稳定性和可靠性。无论您是需要简单的数据导出，还是复杂的数据分析，BaiduIndexHunter都能满足您的需求。</p>
           </div>
         </section>
         
         <section class="advantages-section">
-          <h2>{{ t('about.features.title') }}</h2>
+          <h2>产品优势</h2>
           <div class="advantages-list">
             <div class="advantage-item">
               <div class="advantage-number">01</div>
               <div class="advantage-content">
-                <h3>{{ t('about.features.scrapy.title') }}</h3>
-                <p>{{ t('about.features.scrapy.desc') }}</p>
+                <h3>企业级稳定性</h3>
+                <p>采用多Cookie池轮换机制，智能故障转移，确保7x24小时稳定运行，数据采集成功率高达99%以上。</p>
               </div>
             </div>
             <div class="advantage-item">
               <div class="advantage-number">02</div>
               <div class="advantage-content">
-                <h3>{{ t('about.features.scheduler.title') }}</h3>
-                <p>{{ t('about.features.scheduler.desc') }}</p>
+                <h3>高性能并发处理</h3>
+                <p>支持多任务并发执行，智能负载均衡，相比传统方案效率提升300%，大幅缩短数据获取时间。</p>
               </div>
             </div>
             <div class="advantage-item">
               <div class="advantage-number">03</div>
               <div class="advantage-content">
-                <h3>{{ t('about.features.dataTypes.title') }}</h3>
-                <p>{{ t('about.features.dataTypes.desc') }}</p>
+                <h3>全面的数据覆盖</h3>
+                <p>支持搜索指数、资讯指数、需求图谱、人群画像、地域分布、兴趣分布等全方位数据采集，满足各类分析需求。</p>
               </div>
             </div>
             <div class="advantage-item">
               <div class="advantage-number">04</div>
               <div class="advantage-content">
-                <h3>{{ t('about.features.resume.title') }}</h3>
-                <p>{{ t('about.features.resume.desc') }}</p>
+                <h3>断点续传机制</h3>
+                <p>采集过程中如遇异常中断，系统自动保存进度，重启后可从断点继续，避免重复劳动和时间浪费。</p>
               </div>
             </div>
           </div>
         </section>
         
         <section class="faq-section">
-          <h2>{{ t('about.faq.title') }}</h2>
+          <h2>常见问题</h2>
           <el-collapse accordion>
             <el-collapse-item v-for="(faq, index) in faqs" :key="index" :title="faq.question">
               <div class="faq-answer">{{ faq.answer }}</div>
@@ -144,11 +173,11 @@ const faqs = computed(() => [
       
       <div class="right-column">
         <section class="features-section">
-          <h2>{{ t('about.coreFeatures.title') }}</h2>
+          <h2>核心特性</h2>
           <div class="features-list">
             <div v-for="(feature, index) in features" :key="index" class="feature-item">
               <div class="feature-icon">
-                <el-icon :size="24" color="var(--primary-color)">
+                <el-icon :size="24" color="#4facfe">
                   <component :is="feature.icon" />
                 </el-icon>
               </div>
@@ -161,34 +190,35 @@ const faqs = computed(() => [
         </section>
         
         <section class="tech-stack-section">
-          <h2>{{ t('about.techStack.title') }}</h2>
+          <h2>技术架构</h2>
           <div class="tech-list">
             <div class="tech-category">
-              <h3>{{ t('about.techStack.frontend') }}</h3>
+              <h3>前端技术</h3>
               <ul>
                 <li>Vue 3 + Composition API</li>
-                <li>Element Plus UI</li>
-                <li>Vue Router</li>
-                <li>Pinia</li>
-                <li>ECharts</li>
+                <li>Element Plus UI组件库</li>
+                <li>Vue Router 路由管理</li>
+                <li>Pinia 状态管理</li>
+                <li>ECharts 数据可视化</li>
               </ul>
             </div>
             <div class="tech-category">
-              <h3>{{ t('about.techStack.backend') }}</h3>
+              <h3>后端技术</h3>
               <ul>
-                <li>Python + Flask</li>
-                <li>Scrapy</li>
-                <li>Redis</li>
-                <li>MySQL</li>
-                <li>WebSocket</li>
+                <li>Python + Flask框架</li>
+                <li>Redis 缓存与队列</li>
+                <li>MySQL 数据存储</li>
+                <li>多线程任务调度</li>
+                <li>智能Cookie池管理</li>
               </ul>
             </div>
             <div class="tech-category">
-              <h3>{{ t('about.techStack.dataProcess') }}</h3>
+              <h3>数据处理</h3>
               <ul>
-                <li>Pandas</li>
-                <li>NumPy</li>
-                <li>CSV / Excel / JSON</li>
+                <li>Pandas 数据分析</li>
+                <li>NumPy 科学计算</li>
+                <li>多格式数据导出</li>
+                <li>实时数据流处理</li>
               </ul>
             </div>
           </div>
@@ -196,47 +226,21 @@ const faqs = computed(() => [
       </div>
     </div>
 
-    <!-- 项目信息 -->
-    <section class="project-info-section">
-      <div class="project-info-header">
-        <h2>{{ t('about.projectInfo.title') }}</h2>
+    <!-- 服务支持 - 移至底部全宽显示 -->
+    <section class="service-section">
+      <div class="service-header">
+        <h2>服务支持</h2>
+        <p class="service-subtitle">全方位的专业服务，为您保驾护航</p>
       </div>
-      <div class="project-info-content">
-        <div class="project-info-item">
-          <div class="project-info-icon-wrapper" style="background-color: var(--primary-light);">
-            <el-icon :size="32" color="var(--primary-color)">
-              <Document />
-            </el-icon>
+      <div class="service-content">
+        <div v-for="(service, index) in services" :key="index" class="service-item">
+          <div class="service-icon-wrapper" :style="{ backgroundColor: service.color + '15' }">
+             <el-icon :size="32" :color="service.color">
+               <component :is="service.icon" />
+             </el-icon>
           </div>
-          <h3>{{ t('about.projectInfo.personalProject.title') }}</h3>
-          <p>{{ t('about.projectInfo.personalProject.desc') }}</p>
-        </div>
-        <div class="project-info-item">
-          <div class="project-info-icon-wrapper warning-bg">
-            <el-icon :size="32" color="var(--warning-color)">
-              <WarningFilled />
-            </el-icon>
-          </div>
-          <h3>{{ t('about.projectInfo.disclaimer.title') }}</h3>
-          <p>{{ t('about.projectInfo.disclaimer.desc') }}</p>
-        </div>
-        <div class="project-info-item">
-          <div class="project-info-icon-wrapper success-bg">
-            <el-icon :size="32" color="var(--success-color)">
-              <Cpu />
-            </el-icon>
-          </div>
-          <h3>{{ t('about.projectInfo.techLearning.title') }}</h3>
-          <p>{{ t('about.projectInfo.techLearning.desc') }}</p>
-        </div>
-        <div class="project-info-item">
-          <div class="project-info-icon-wrapper error-bg">
-            <el-icon :size="32" color="var(--error-color)">
-              <InfoFilled />
-            </el-icon>
-          </div>
-          <h3>{{ t('about.projectInfo.localUse.title') }}</h3>
-          <p>{{ t('about.projectInfo.localUse.desc') }}</p>
+          <h3>{{ service.title }}</h3>
+          <p>{{ service.description }}</p>
         </div>
       </div>
     </section>
@@ -251,38 +255,22 @@ const faqs = computed(() => [
   padding-bottom: 60px;
 }
 
-.disclaimer-section {
-  margin-bottom: 30px;
-}
-
-.disclaimer-section p {
-  margin: 5px 0;
-  line-height: 1.6;
-}
-
 .hero-section {
   text-align: center;
   margin-bottom: 40px;
   padding-bottom: 40px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-lighter);
 }
 
 .page-title {
   font-size: 2.5rem;
-  color: var(--text-primary);
+  color: #303133;
   margin-bottom: 15px;
-}
-
-.gradient-text {
-  background: var(--primary-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .subtitle {
   font-size: 1.2rem;
-  color: var(--text-secondary);
+  color: #606266;
   margin-bottom: 20px;
 }
 
@@ -299,7 +287,7 @@ const faqs = computed(() => [
 }
 
 .release-date {
-  color: var(--text-secondary);
+  color: #909399;
   font-size: 0.9rem;
 }
 
@@ -318,15 +306,15 @@ const faqs = computed(() => [
 
 .intro-section, .advantages-section, .faq-section,
 .features-section, .tech-stack-section {
-  background-color: var(--bg-card);
-  border-radius: 12px;
+  background-color: white;
+  border-radius: var(--border-radius-large);
   padding: 30px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-light);
+  border: 1px solid var(--border-lighter);
 }
 
 h2 {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   margin-bottom: 25px;
   color: var(--text-primary);
   position: relative;
@@ -347,7 +335,7 @@ h2:after {
 }
 
 .intro-text {
-  font-size: 1rem;
+  font-size: 1.05rem;
   line-height: 1.8;
   color: var(--text-regular);
 }
@@ -359,35 +347,36 @@ h2:after {
 .advantages-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .advantage-item {
   display: flex;
-  gap: 16px;
-  padding: 16px;
-  background-color: var(--bg-page);
-  border-radius: 8px;
+  gap: 20px;
+  padding: 20px;
+  background-color: #f8fafc;
+  border-radius: var(--border-radius-medium);
   transition: all 0.3s ease;
   border: 1px solid transparent;
 }
 
 .advantage-item:hover {
   transform: translateX(5px);
-  background-color: var(--bg-card);
-  box-shadow: var(--shadow-md);
+  background-color: white;
+  box-shadow: var(--shadow-medium);
   border-color: var(--primary-light);
 }
 
 .advantage-number {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: bold;
-  width: 40px;
-  height: 40px;
+  color: var(--primary-color);
+  width: 50px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--primary-gradient);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -395,7 +384,7 @@ h2:after {
 }
 
 .advantage-content h3 {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   margin-bottom: 8px;
   color: var(--text-primary);
 }
@@ -403,7 +392,6 @@ h2:after {
 .advantage-content p {
   color: var(--text-regular);
   line-height: 1.6;
-  font-size: 0.95rem;
 }
 
 .faq-answer {
@@ -412,57 +400,59 @@ h2:after {
   line-height: 1.6;
 }
 
+/* Features List Styles */
 .features-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 15px;
 }
 
 .feature-item {
   display: flex;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 8px;
+  gap: 15px;
+  padding: 15px;
+  border-radius: var(--border-radius-medium);
   transition: all 0.3s ease;
   align-items: flex-start;
 }
 
 .feature-item:hover {
-  background-color: var(--bg-page);
+  background-color: #f8fafc;
 }
 
 .feature-icon {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: var(--primary-light);
-  border-radius: 8px;
+  border-radius: 10px;
   flex-shrink: 0;
 }
 
 .feature-title {
-  font-size: 1rem;
-  margin-bottom: 4px;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
   color: var(--text-primary);
 }
 
 .feature-description {
   color: var(--text-secondary);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   line-height: 1.5;
 }
 
+/* Tech Stack Styles */
 .tech-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .tech-category h3 {
-  font-size: 1rem;
-  margin-bottom: 8px;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
   color: var(--text-primary);
   border: none;
   padding: 0;
@@ -479,11 +469,11 @@ h2:after {
 }
 
 .tech-category ul li {
-  padding: 4px 0;
+  padding: 6px 0;
   color: var(--text-regular);
   position: relative;
-  padding-left: 16px;
-  font-size: 0.9rem;
+  padding-left: 18px;
+  font-size: 0.95rem;
 }
 
 .tech-category ul li:before {
@@ -499,102 +489,104 @@ h2:after {
   opacity: 0.7;
 }
 
-/* Project Info Section */
-.project-info-section {
-  background: var(--bg-card);
-  border-radius: 12px;
+/* Service Section - New Bottom Layout */
+.service-section {
+  background: white;
+  border-radius: var(--border-radius-large);
   padding: 40px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-light);
+  border: 1px solid var(--border-lighter);
 }
 
-.project-info-header {
+.service-header {
   text-align: center;
   margin-bottom: 40px;
 }
 
-.project-info-header h2 {
-  font-size: 1.6rem;
+.service-header h2 {
+  font-size: 1.8rem;
   margin-bottom: 10px;
 }
 
-.project-info-header h2:after {
+.service-header h2:after {
   left: 50%;
   transform: translateX(-50%);
   width: 60px;
 }
 
-.project-info-content {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 24px;
+.service-subtitle {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
 }
 
-.project-info-item {
-  padding: 24px 16px;
-  background-color: var(--bg-page);
-  border-radius: 8px;
+.service-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 30px;
+}
+
+.service-item {
+  padding: 30px 20px;
+  background-color: #fff;
+  border-radius: var(--border-radius-medium);
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  border: 1px solid var(--border-color);
+  border: 1px solid #eee;
 }
 
-.project-info-item:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
+.service-item:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-medium);
+  border-color: transparent;
 }
 
-.project-info-icon-wrapper {
-  width: 64px;
-  height: 64px;
+.service-icon-wrapper {
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
-  background-color: var(--primary-light);
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
 }
 
-.warning-bg {
-  background-color: rgba(217, 119, 6, 0.1);
+.service-item:hover .service-icon-wrapper {
+  transform: scale(1.1);
 }
 
-.success-bg {
-  background-color: rgba(22, 163, 74, 0.1);
-}
-
-.error-bg {
-  background-color: rgba(220, 38, 38, 0.1);
-}
-
-.project-info-item h3 {
-  font-size: 1.1rem;
-  margin-bottom: 12px;
+.service-item h3 {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
   color: var(--text-primary);
   border: none;
   padding: 0;
 }
 
-.project-info-item h3:after {
+.service-item h3:after {
   display: none;
 }
 
-.project-info-item p {
+.service-item p {
   color: var(--text-regular);
   line-height: 1.6;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
-/* 响应式 */
+/* 响应式设计 */
 @media (max-width: 1024px) {
   .content-wrapper {
     grid-template-columns: 1fr;
   }
   
-  .project-info-content {
+  .right-column {
+    /* 保持原来的顺序，或者根据需要调整 */
+  }
+  
+  .service-content {
     grid-template-columns: repeat(2, 1fr);
   }
 }
@@ -614,7 +606,7 @@ h2:after {
     text-align: center;
   }
   
-  .project-info-content {
+  .service-content {
     grid-template-columns: 1fr;
   }
 }

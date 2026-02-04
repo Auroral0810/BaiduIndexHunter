@@ -2,22 +2,22 @@
 <template>
   <div class="dashboard-container">
     <div class="dashboard-header">
-      <h1 class="dashboard-title">{{ t('dashboard.title') }}</h1>
+      <h1 class="dashboard-title">百度指数爬虫数据大屏</h1>
       <div class="dashboard-filters">
-        <el-select v-model="selectedTaskType" :placeholder="t('dashboard.selectTaskType')" @change="handleTaskTypeChange" class="task-type-select">
-          <el-option :label="t('dashboard.allStats')" value="all" />
+        <el-select v-model="selectedTaskType" placeholder="选择任务类型" @change="handleTaskTypeChange" class="task-type-select">
+          <el-option label="全部统计" value="all" />
           <el-option v-for="type in taskTypes" :key="type" :label="formatTaskType(type)" :value="type" />
         </el-select>
-        <el-select v-model="selectedDays" :placeholder="t('dashboard.selectPeriod')" @change="handleDaysChange" class="time-select">
-          <el-option :label="t('dashboard.periods.last24h')" :value="1" />
-          <el-option :label="t('dashboard.periods.last3d')" :value="3" />
-          <el-option :label="t('dashboard.periods.last7d')" :value="7" />
-          <el-option :label="t('dashboard.periods.last30d')" :value="30" />
-          <el-option :label="t('dashboard.periods.last90d')" :value="90" />
-          <el-option :label="t('dashboard.periods.last180d')" :value="180" />
-          <el-option :label="t('dashboard.periods.last365d')" :value="365" />
-          <el-option :label="t('dashboard.periods.allTime')" :value="-1" />
-          <el-option :label="t('dashboard.periods.custom')" value="custom" />
+        <el-select v-model="selectedDays" placeholder="统计周期" @change="handleDaysChange" class="time-select">
+          <el-option label="最近24小时" :value="1" />
+          <el-option label="最近3天" :value="3" />
+          <el-option label="最近7天" :value="7" />
+          <el-option label="最近30天" :value="30" />
+          <el-option label="最近90天" :value="90" />
+          <el-option label="最近半年" :value="180" />
+          <el-option label="最近一年" :value="365" />
+          <el-option label="全部时间" :value="-1" />
+          <el-option label="自定义时间范围" value="custom" />
         </el-select>
         
         <el-date-picker
@@ -33,7 +33,7 @@
           class="date-range-picker"
         />
         
-        <el-button type="primary" @click="loadDashboardData">{{ t('common.refresh') }}</el-button>
+        <el-button type="primary" @click="loadDashboardData">刷新数据</el-button>
       </div>
     </div>
 
@@ -48,31 +48,31 @@
           <div class="overview-stats">
             <div class="stat-item">
               <div class="stat-value">{{ formatNumber(currentStats.total_tasks || 0) }}</div>
-              <div class="stat-label">{{ t('dashboard.stats.totalTasks') }}</div>
+              <div class="stat-label">总任务数</div>
             </div>
             <div class="stat-item">
               <div class="stat-value">{{ formatNumber(currentStats.completed_tasks || 0) }}</div>
-              <div class="stat-label">{{ t('dashboard.stats.completedTasks') }}</div>
+              <div class="stat-label">完成任务</div>
             </div>
             <div class="stat-item">
               <div class="stat-value">{{ formatNumber(currentStats.failed_tasks || 0) }}</div>
-              <div class="stat-label">{{ t('dashboard.stats.failedTasks') }}</div>
+              <div class="stat-label">失败任务</div>
             </div>
             <div class="stat-item">
               <div class="stat-value">{{ formatNumber(currentStats.total_items || 0) }}</div>
-              <div class="stat-label">{{ t('dashboard.stats.totalItems') }}</div>
+              <div class="stat-label">数据总量</div>
             </div>
             <div class="stat-item">
               <div class="stat-value">{{ formatNumber(currentStats.total_crawled_items || 0) }}</div>
-              <div class="stat-label">{{ t('dashboard.stats.crawledItems') }}</div>
+              <div class="stat-label">爬取条数</div>
             </div>
             <div class="stat-item">
               <div class="stat-value">{{ formatNumber(currentStats.success_rate || 0, 2) }}%</div>
-              <div class="stat-label">{{ t('dashboard.stats.successRate') }}</div>
+              <div class="stat-label">成功率</div>
             </div>
             <div class="stat-item">
               <div class="stat-value">{{ formatNumber(currentStats.avg_duration || 0, 2) }}s</div>
-              <div class="stat-label">{{ t('dashboard.stats.avgDuration') }}</div>
+              <div class="stat-label">平均耗时</div>
             </div>
           </div>
         </el-card>
@@ -84,7 +84,7 @@
         <el-card class="dashboard-card">
           <template #header>
             <div class="card-header">
-              <span>{{ t('dashboard.charts.taskTrend') }}</span>
+              <span>任务执行趋势</span>
             </div>
           </template>
           <div ref="taskTrendChart" class="chart-container"></div>
@@ -94,7 +94,7 @@
         <el-card class="dashboard-card">
           <template #header>
             <div class="card-header">
-              <span>{{ t('dashboard.charts.dataTrend') }}</span>
+              <span>数据爬取趋势</span>
             </div>
           </template>
           <div ref="dataTrendChart" class="chart-container"></div>
@@ -107,7 +107,7 @@
         <el-card class="dashboard-card">
           <template #header>
             <div class="card-header">
-              <span>{{ t('dashboard.charts.successRate') }}</span>
+              <span>任务成功率对比</span>
             </div>
           </template>
           <div ref="successRateChart" class="chart-container"></div>
@@ -117,7 +117,7 @@
         <el-card class="dashboard-card">
           <template #header>
             <div class="card-header">
-              <span>{{ t('dashboard.charts.avgDuration') }}</span>
+              <span>平均执行时间对比</span>
             </div>
           </template>
           <div ref="avgDurationChart" class="chart-container"></div>
@@ -127,7 +127,7 @@
         <el-card class="dashboard-card">
           <template #header>
             <div class="card-header">
-              <span>{{ t('dashboard.charts.dataVolume') }}</span>
+              <span>数据爬取量对比</span>
             </div>
           </template>
           <div ref="dataVolumeChart" class="chart-container"></div>
@@ -138,27 +138,24 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch, nextTick, computed } from 'vue'
+import { ref, reactive, onMounted, watch, nextTick } from 'vue'
 import { getDashboardData } from '@/api/statistics'
 import { ElMessage } from 'element-plus'
-import { useI18n } from 'vue-i18n'
 import * as echarts from 'echarts'
 
-const { t } = useI18n()
-
-// 任务类型映射 - 使用国际化
-const getTaskTypeMap = () => ({
-  'search_index': t('dataCollection.tabs.searchIndex'),
-  'feed_index': t('dataCollection.tabs.feedIndex'),
-  'word_graph': t('dataCollection.tabs.wordGraph'),
-  'region_distribution': t('dataCollection.tabs.regionDistribution'),
-  'demographic_attributes': t('dataCollection.tabs.demographicAttributes'),
-  'interest_profile': t('dataCollection.tabs.interestProfile')
-})
+// 任务类型映射
+const taskTypeMap = {
+  'search_index': '搜索指数',
+  'feed_index': '资讯指数',
+  'word_graph': '需求图谱',
+  'region_distribution': '地域分布',
+  'demographic_attributes': '人群属性',
+  'interest_profile': '兴趣分布'
+}
 
 // 格式化任务类型
 const formatTaskType = (type) => {
-  return getTaskTypeMap()[type] || type
+  return taskTypeMap[type] || type
 }
 
 // 格式化数字
@@ -589,11 +586,10 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 32px;
-  background: var(--bg-card);
+  background: white;
   padding: 24px 32px;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-color);
 }
 
 .dashboard-title {
@@ -658,14 +654,14 @@ onMounted(() => {
 }
 
 .stat-item {
-  background-color: var(--bg-card);
+  background-color: white;
   border-radius: var(--radius-lg);
   padding: 24px;
   box-shadow: var(--shadow-sm);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(229, 231, 235, 0.5);
 }
 
 .stat-item:hover {
@@ -734,10 +730,10 @@ onMounted(() => {
 }
 
 .dashboard-card {
-  background: var(--bg-card);
+  background: white;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-color);
+  border: none;
   height: 100%;
   transition: box-shadow 0.3s ease;
 }
