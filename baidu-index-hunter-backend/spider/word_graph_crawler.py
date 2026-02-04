@@ -594,21 +594,92 @@ class WordGraphCrawler:
         
         # 更新任务完成状态
         with self.lock:
-            self.task_status[task_id]['status'] = 'completed'
+            failed_count = self.task_status[task_id]['failed']
+            total_count = self.task_status[task_id]['total']
+            completed_count = self.task_status[task_id]['completed']
+            
             self.task_status[task_id]['end_time'] = datetime.now()
             elapsed_time = (self.task_status[task_id]['end_time'] - self.task_status[task_id]['start_time']).total_seconds()
-            success_rate = round(self.task_status[task_id]['completed'] / self.task_status[task_id]['total'] * 100, 2)
+            success_rate = round(completed_count / total_count * 100, 2) if total_count > 0 else 0
             
-            log.info(f"任务 {task_id} 完成: 总计 {self.task_status[task_id]['total']} 个任务，"
-                   f"成功 {self.task_status[task_id]['completed']} 个，"
-                   f"失败 {self.task_status[task_id]['failed']} 个，"
+            log.info(f"任务 {task_id} 完成: 总计 {total_count} 个任务，"
+                   f"成功 {completed_count} 个，"
+                   f"失败 {failed_count} 个，"
                    f"成功率 {success_rate}%，"
                    f"耗时 {elapsed_time:.2f} 秒")
             
             # 保存最终检查点
             self._save_global_checkpoint(task_id)
             
-            return self.task_status[task_id]['failed'] == 0
+            # 根据失败数量更新数据库状态
+            try:
+                mysql = MySQLManager()
+                now = datetime.now()
+                
+                if failed_count > 0:
+                    # 有失败的任务，将整体任务标记为失败状态
+                    fail_rate = (failed_count / total_count * 100) if total_count > 0 else 0
+                    error_message = f"任务执行完成但有 {failed_count} 个子任务失败（失败率: {fail_rate:.2f}%），需要重试"
+                    
+                    self.task_status[task_id]['status'] = 'failed'
+                    self.task_status[task_id]['error_message'] = error_message
+                    
+                    update_query = """
+                        UPDATE spider_tasks 
+                        SET progress = 100, completed_items = %s, failed_items = %s, 
+                            status = 'failed', error_message = %s, update_time = %s, end_time = %s
+                        WHERE task_id = %s
+                    """
+                    mysql.execute_query(update_query, (completed_count, failed_count, error_message, now, now, task_id))
+                    
+                    log.warning(f"任务完成但有失败项! 成功: {completed_count}, 失败: {failed_count}, 总计: {total_count}")
+                    
+                    # 推送 WebSocket 更新
+                    try:
+                        from utils.websocket_manager import emit_task_update
+                        emit_task_update(task_id, {
+                            'progress': 100,
+                            'completed_items': completed_count,
+                            'failed_items': failed_count,
+                            'total_items': total_count,
+                            'status': 'failed',
+                            'error_message': error_message
+                        })
+                    except Exception as ws_error:
+                        log.debug(f"推送 WebSocket 更新失败: {ws_error}")
+                    
+                    return False
+                else:
+                    # 全部成功完成
+                    self.task_status[task_id]['status'] = 'completed'
+                    
+                    update_query = """
+                        UPDATE spider_tasks 
+                        SET progress = 100, completed_items = %s, failed_items = 0, 
+                            status = 'completed', update_time = %s, end_time = %s
+                        WHERE task_id = %s
+                    """
+                    mysql.execute_query(update_query, (completed_count, now, now, task_id))
+                    
+                    log.info(f"任务完成! 总共处理了 {completed_count}/{total_count} 个任务")
+                    
+                    # 推送 WebSocket 更新
+                    try:
+                        from utils.websocket_manager import emit_task_update
+                        emit_task_update(task_id, {
+                            'progress': 100,
+                            'completed_items': completed_count,
+                            'failed_items': 0,
+                            'total_items': total_count,
+                            'status': 'completed'
+                        })
+                    except Exception as ws_error:
+                        log.debug(f"推送 WebSocket 更新失败: {ws_error}")
+                    
+                    return True
+            except Exception as e:
+                log.error(f"更新最终任务状态失败: {e}")
+                return failed_count == 0
     
     def resume_task(self, task_id):
         """

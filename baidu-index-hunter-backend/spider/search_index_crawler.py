@@ -50,7 +50,9 @@ class SearchIndexCrawler:
         # 初始化任务计数器和状态变量
         self.total_tasks = 0
         self.completed_tasks = 0
+        self.failed_tasks = 0  # 新增：追踪失败的任务数
         self.completed_keywords = set()  # 使用集合以加速查找
+        self.failed_keywords = set()  # 新增：追踪失败的任务键
         self.current_keyword_index = 0
         self.current_city_index = 0
         self.current_date_range_index = 0
@@ -198,6 +200,7 @@ class SearchIndexCrawler:
         """保存全局检查点"""
         # 将集合转换为列表，以避免序列化大型集合时的问题
         completed_keywords_list = list(self.completed_keywords) if isinstance(self.completed_keywords, set) else self.completed_keywords
+        failed_keywords_list = list(self.failed_keywords) if isinstance(self.failed_keywords, set) else self.failed_keywords
         
         # 如果列表过大，分批保存
         if len(completed_keywords_list) > 2500:
@@ -209,10 +212,13 @@ class SearchIndexCrawler:
             checkpoint = {
                 'task_id': self.task_id,
                 'completed_tasks': self.completed_tasks,
+                'failed_tasks': self.failed_tasks,  # 新增：保存失败任务数
                 'total_tasks': self.total_tasks,
                 # 只保存一个标志，表明关键词被分块了
                 'completed_keywords_chunked': True,
                 'chunks_count': len(chunks),
+                # 保存失败的关键词（通常不会太多，直接保存）
+                'failed_keywords': failed_keywords_list,
                 # 保存当前处理进度的详细信息
                 'current_keyword_index': self.current_keyword_index,
                 'current_city_index': self.current_city_index,
@@ -240,9 +246,11 @@ class SearchIndexCrawler:
             checkpoint = {
                 'task_id': self.task_id,
                 'completed_tasks': self.completed_tasks,
+                'failed_tasks': self.failed_tasks,  # 新增：保存失败任务数
                 'total_tasks': self.total_tasks,
                 # 保存当前处理进度的详细信息
                 'completed_keywords': completed_keywords_list,
+                'failed_keywords': failed_keywords_list,  # 新增：保存失败的关键词
                 'completed_keywords_chunked': False,
                 'current_keyword_index': self.current_keyword_index,
                 'current_city_index': self.current_city_index,
@@ -333,6 +341,11 @@ class SearchIndexCrawler:
                     completed_keywords = checkpoint.get('completed_keywords', [])
                     self.completed_keywords = set(completed_keywords) if isinstance(completed_keywords, list) else completed_keywords
                 
+                # 加载失败任务信息
+                self.failed_tasks = checkpoint.get('failed_tasks', 0)
+                failed_keywords = checkpoint.get('failed_keywords', [])
+                self.failed_keywords = set(failed_keywords) if isinstance(failed_keywords, list) else failed_keywords
+                
                 # 加载其他索引信息
                 self.current_keyword_index = checkpoint.get('current_keyword_index', 0)
                 self.current_city_index = checkpoint.get('current_city_index', 0)
@@ -342,22 +355,26 @@ class SearchIndexCrawler:
                 self.city_dict = checkpoint.get('city_dict', {})
                 self.output_path = checkpoint.get('output_path', os.path.join(OUTPUT_DIR, 'search_index', self.task_id))
                 
-                log.info(f"已加载检查点: {self.checkpoint_path}, 已完成任务: {self.completed_tasks}/{self.total_tasks}")
-                log.info(f"已完成的任务项: {len(self.completed_keywords)}, 恢复时将跳过这些任务")
+                log.info(f"已加载检查点: {self.checkpoint_path}, 已完成任务: {self.completed_tasks}/{self.total_tasks}, 失败任务: {self.failed_tasks}")
+                log.info(f"已完成的任务项: {len(self.completed_keywords)}, 失败的任务项: {len(self.failed_keywords)}, 恢复时将跳过已完成任务并重试失败任务")
                 return True
             except Exception as e:
                 log.error(f"加载检查点文件失败: {e}")
                 log.error(traceback.format_exc())
                 # 加载失败时重置计数器
                 self.completed_tasks = 0
+                self.failed_tasks = 0
                 self.total_tasks = 0
                 self.completed_keywords = set()
+                self.failed_keywords = set()
                 return False
         
         # 如果检查点不存在，确保计数器为0
         self.completed_tasks = 0
+        self.failed_tasks = 0
         self.total_tasks = 0
         self.completed_keywords = set()
+        self.failed_keywords = set()
         return False
 
     def _update_ab_sr_cookies(self):
@@ -983,6 +1000,11 @@ class SearchIndexCrawler:
         参数:
             task_data (tuple): (keyword, city_code, city_name, start_date, end_date)
         或者 (keywords, city_code, city_name, start_date, end_date) 其中keywords是关键词列表
+        
+        返回值:
+            对于单关键词模式: (task_key, daily_data, stats_record, is_success)
+            对于批量模式: ([task_keys], daily_data_list, stats_records_list, is_success)
+            其中 is_success 表示是否成功获取到有效数据
         """
         rate_limiter.wait()
         
@@ -997,12 +1019,16 @@ class SearchIndexCrawler:
             city_code, city_name, start_date, end_date = task_data[1:]
             is_batch = False
         
-        # 检查任务是否已完成
+        # 检查任务是否已完成（成功完成的任务跳过，失败的任务需要重试）
         if not is_batch:
             task_key = f"{keyword}_{city_code}_{start_date}_{end_date}"
             if task_key in self.completed_keywords:
                 # 如果任务已完成，直接返回None，不增加completed_tasks计数
                 return None
+            # 如果任务之前失败过，从失败集合中移除（准备重试）
+            if task_key in self.failed_keywords:
+                with self.task_lock:
+                    self.failed_keywords.discard(task_key)
         else:
             # 批量模式下，检查所有关键词是否都已完成
             all_completed = True
@@ -1011,6 +1037,10 @@ class SearchIndexCrawler:
                 if task_key not in self.completed_keywords:
                     all_completed = False
                     break
+                # 如果任务之前失败过，从失败集合中移除（准备重试）
+                if task_key in self.failed_keywords:
+                    with self.task_lock:
+                        self.failed_keywords.discard(task_key)
             
             if all_completed:
                 return None
@@ -1019,175 +1049,27 @@ class SearchIndexCrawler:
             # 获取数据
             result = self._get_search_index(city_code, keywords, start_date, end_date)
             if not result:
-                log.warning(f"获取数据失败，跳过当前任务: {city_code}, {start_date}-{end_date}, 关键词数量: {len(keywords)}")
+                log.warning(f"获取数据失败，标记为失败任务: {city_code}, {start_date}-{end_date}, 关键词数量: {len(keywords)}")
                 
-                # 构造空结果
+                # 返回失败标记，不保存空数据
                 if not is_batch:
-                    # 单关键词模式
-                    empty_daily_data = [{
-                        '关键词': keyword,
-                        '城市代码': city_code,
-                        '城市': city_name,
-                        '日期': start_date,
-                        '数据类型': '日度',
-                        '数据间隔(天)': 1,
-                        '所属年份': start_date[:4],
-                        'PC+移动指数': '0',
-                        '移动指数': '0',
-                        'PC指数': '0',
-                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                    }]
-                    
-                    empty_stats_record = {
-                        '关键词': keyword,
-                        '城市代码': city_code,
-                        '城市': city_name,
-                        '时间范围': f"{start_date} 至 {end_date}",
-                        '整体日均值': 0,
-                        '整体同比': '-',
-                        '整体环比': '-',
-                        '移动日均值': 0,
-                        '移动同比': '-',
-                        '移动环比': '-',
-                        'PC日均值': 0,
-                        'PC同比': '-',
-                        'PC环比': '-',
-                        '整体总值': 0,
-                        '移动总值': 0,
-                        'PC总值': 0,
-                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                    }
-                    
-                    return task_key, empty_daily_data, empty_stats_record
+                    # 单关键词模式 - 返回失败标记
+                    return task_key, None, None, False
                 else:
-                    # 批量模式，为每个关键词构造空结果
-                    empty_daily_data = []
-                    empty_stats_records = []
-                    
-                    for keyword in keywords:
-                        task_key = f"{keyword}_{city_code}_{start_date}_{end_date}"
-                        
-                        empty_daily_data.append({
-                            '关键词': keyword,
-                            '城市代码': city_code,
-                            '城市': city_name,
-                            '日期': start_date,
-                            '数据类型': '日度',
-                            '数据间隔(天)': 1,
-                            '所属年份': start_date[:4],
-                            'PC+移动指数': '0',
-                            '移动指数': '0',
-                            'PC指数': '0',
-                            '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                        })
-                        
-                        empty_stats_records.append({
-                            '关键词': keyword,
-                            '城市代码': city_code,
-                            '城市': city_name,
-                            '时间范围': f"{start_date} 至 {end_date}",
-                            '整体日均值': 0,
-                            '整体同比': '-',
-                            '整体环比': '-',
-                            '移动日均值': 0,
-                            '移动同比': '-',
-                            '移动环比': '-',
-                            'PC日均值': 0,
-                            'PC同比': '-',
-                            'PC环比': '-',
-                            '整体总值': 0,
-                            '移动总值': 0,
-                            'PC总值': 0,
-                            '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                        })
-                    
-                    # 返回所有关键词的任务键和空结果
-                    return [f"{kw}_{city_code}_{start_date}_{end_date}" for kw in keywords], empty_daily_data, empty_stats_records
+                    # 批量模式 - 返回失败标记
+                    return [f"{kw}_{city_code}_{start_date}_{end_date}" for kw in keywords], None, None, False
         except NoCookieAvailableError:
             # 向上层抛出异常，通知主线程暂停任务
             raise
         except Exception as e:
             log.error(f"处理任务时出错: {e}")
-            # 构造空结果，与上面相同
+            # 返回失败标记，不保存空数据
             if not is_batch:
-                # 单关键词模式
-                empty_daily_data = [{
-                    '关键词': keyword,
-                    '城市代码': city_code,
-                    '城市': city_name,
-                    '日期': start_date,
-                    '数据类型': '日度',
-                    '数据间隔(天)': 1,
-                    '所属年份': start_date[:4],
-                    'PC+移动指数': '0',
-                    '移动指数': '0',
-                    'PC指数': '0',
-                    '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                }]
-                
-                empty_stats_record = {
-                    '关键词': keyword,
-                    '城市代码': city_code,
-                    '城市': city_name,
-                    '时间范围': f"{start_date} 至 {end_date}",
-                    '整体日均值': 0,
-                    '整体同比': '-',
-                    '整体环比': '-',
-                    '移动日均值': 0,
-                    '移动同比': '-',
-                    '移动环比': '-',
-                    'PC日均值': 0,
-                    'PC同比': '-',
-                    'PC环比': '-',
-                    '整体总值': 0,
-                    '移动总值': 0,
-                    'PC总值': 0,
-                    '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                }
-                
-                return task_key, empty_daily_data, empty_stats_record
+                # 单关键词模式 - 返回失败标记
+                return task_key, None, None, False
             else:
-                # 批量模式，为每个关键词构造空结果
-                empty_daily_data = []
-                empty_stats_records = []
-                
-                for keyword in keywords:
-                    empty_daily_data.append({
-                        '关键词': keyword,
-                        '城市代码': city_code,
-                        '城市': city_name,
-                        '日期': start_date,
-                        '数据类型': '日度',
-                        '数据间隔(天)': 1,
-                        '所属年份': start_date[:4],
-                        'PC+移动指数': '0',
-                        '移动指数': '0',
-                        'PC指数': '0',
-                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                    })
-                    
-                    empty_stats_records.append({
-                        '关键词': keyword,
-                        '城市代码': city_code,
-                        '城市': city_name,
-                        '时间范围': f"{start_date} 至 {end_date}",
-                        '整体日均值': 0,
-                        '整体同比': '-',
-                        '整体环比': '-',
-                        '移动日均值': 0,
-                        '移动同比': '-',
-                        '移动环比': '-',
-                        'PC日均值': 0,
-                        'PC同比': '-',
-                        'PC环比': '-',
-                        '整体总值': 0,
-                        '移动总值': 0,
-                        'PC总值': 0,
-                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                    })
-                
-                # 返回所有关键词的任务键和空结果
-                return [f"{kw}_{city_code}_{start_date}_{end_date}" for kw in keywords], empty_daily_data, empty_stats_records
+                # 批量模式 - 返回失败标记
+                return [f"{kw}_{city_code}_{start_date}_{end_date}" for kw in keywords], None, None, False
         
         data, cookie = result
         
@@ -1198,102 +1080,26 @@ class SearchIndexCrawler:
                 data, cookie, keyword, city_code, city_name, start_date, end_date
             )
             
-            # 如果处理结果为None，构造空结果
+            # 如果处理结果为None，标记为失败
             if daily_data is None or stats_record is None:
-                log.warning(f"处理数据失败，构造空结果: {task_key}")
-                empty_daily_data = [{
-                    '关键词': keyword,
-                    '城市代码': city_code,
-                    '城市': city_name,
-                    '日期': start_date,
-                    '数据类型': '日度',
-                    '数据间隔(天)': 1,
-                    '所属年份': start_date[:4],
-                    'PC+移动指数': '0',
-                    '移动指数': '0',
-                    'PC指数': '0',
-                    '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                }]
-                
-                empty_stats_record = {
-                    '关键词': keyword,
-                    '城市代码': city_code,
-                    '城市': city_name,
-                    '时间范围': f"{start_date} 至 {end_date}",
-                    '整体日均值': 0,
-                    '整体同比': '-',
-                    '整体环比': '-',
-                    '移动日均值': 0,
-                    '移动同比': '-',
-                    '移动环比': '-',
-                    'PC日均值': 0,
-                    'PC同比': '-',
-                    'PC环比': '-',
-                    '整体总值': 0,
-                    '移动总值': 0,
-                    'PC总值': 0,
-                    '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                }
-                
-                return task_key, empty_daily_data, empty_stats_record
+                log.warning(f"处理数据失败，标记为失败任务: {task_key}")
+                return task_key, None, None, False
             
-            return task_key, daily_data, stats_record
+            # 成功获取数据
+            return task_key, daily_data, stats_record, True
         else:
             # 批量处理多个关键词
             daily_data_list, stats_records_list = self._process_multi_search_index_data(
                 data, cookie, keywords, city_code, city_name, start_date, end_date
             )
             
-            # 如果处理结果为空，构造空结果
+            # 如果处理结果为空，标记为失败
             if not daily_data_list or not stats_records_list:
-                log.warning(f"批量处理数据失败，构造空结果: {city_code}, {start_date}-{end_date}, 关键词数量: {len(keywords)}")
-                log.warning(f"data: {data}")
-                log.warning(f"daily_data_list: {daily_data_list}")
-                log.warning(f"stats_records_list: {stats_records_list}")
-                
-                empty_daily_data = []
-                empty_stats_records = []
-                
-                for keyword in keywords:
-                    empty_daily_data.append({
-                        '关键词': keyword,
-                        '城市代码': city_code,
-                        '城市': city_name,
-                        '日期': start_date,
-                        '数据类型': '日度',
-                        '数据间隔(天)': 1,
-                        '所属年份': start_date[:4],
-                        'PC+移动指数': '0',
-                        '移动指数': '0',
-                        'PC指数': '0',
-                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                    })
-                    
-                    empty_stats_records.append({
-                        '关键词': keyword,
-                        '城市代码': city_code,
-                        '城市': city_name,
-                        '时间范围': f"{start_date} 至 {end_date}",
-                        '整体日均值': 0,
-                        '整体同比': '-',
-                        '整体环比': '-',
-                        '移动日均值': 0,
-                        '移动同比': '-',
-                        '移动环比': '-',
-                        'PC日均值': 0,
-                        'PC同比': '-',
-                        'PC环比': '-',
-                        '整体总值': 0,
-                        '移动总值': 0,
-                        'PC总值': 0,
-                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                    })
-                
-                # 返回所有关键词的任务键和空结果
-                return [f"{kw}_{city_code}_{start_date}_{end_date}" for kw in keywords], empty_daily_data, empty_stats_records
+                log.warning(f"批量处理数据失败，标记为失败任务: {city_code}, {start_date}-{end_date}, 关键词数量: {len(keywords)}")
+                return [f"{kw}_{city_code}_{start_date}_{end_date}" for kw in keywords], None, None, False
             
-            # 返回所有关键词的任务键和处理结果
-            return [f"{kw}_{city_code}_{start_date}_{end_date}" for kw in keywords], daily_data_list, stats_records_list
+            # 成功获取数据
+            return [f"{kw}_{city_code}_{start_date}_{end_date}" for kw in keywords], daily_data_list, stats_records_list, True
 
     
     def crawl(self, task_id=None, keywords=None, cities=None, date_ranges=None, days=None, 
@@ -1333,8 +1139,10 @@ class SearchIndexCrawler:
             self.task_id = task_id if task_id else self._generate_task_id()
             # 初始化进度追踪变量
             self.completed_keywords = set()  # 改为使用set而不是list
+            self.failed_keywords = set()  # 新增：追踪失败的任务
             # 重置任务计数器
             self.completed_tasks = 0
+            self.failed_tasks = 0  # 新增：失败任务计数
             self.current_keyword_index = 0
             self.current_city_index = 0
             self.current_date_range_index = 0
@@ -1347,6 +1155,7 @@ class SearchIndexCrawler:
             os.makedirs(os.path.dirname(self.checkpoint_path), exist_ok=True)
             # 确保非恢复模式下重置完成任务计数
             self.completed_tasks = 0
+            self.failed_tasks = 0  # 新增：重置失败任务计数
 
         # 加载关键词
         if keywords_file:
@@ -1520,14 +1329,19 @@ class SearchIndexCrawler:
                         try:
                             result = future.result()
                             if result:
+                                # 解析返回值 - 新格式包含 is_success 标记
                                 # 判断是单个任务还是批量任务
                                 if isinstance(result[0], list):
-                                    # 批量任务
-                                    task_keys, daily_data, stats_records = result
+                                    # 批量任务: (task_keys, daily_data, stats_records, is_success)
+                                    if len(result) == 4:
+                                        task_keys, daily_data, stats_records, is_success = result
+                                    else:
+                                        # 兼容旧格式
+                                        task_keys, daily_data, stats_records = result
+                                        is_success = daily_data is not None and stats_records is not None
                                     
-                                    # 确保 daily_data 和 stats_records 不为 None
-                                    if daily_data is not None and stats_records is not None:
-                                        # 添加到本地缓存
+                                    if is_success and daily_data is not None and stats_records is not None:
+                                        # 成功：添加到本地缓存
                                         local_data_cache.extend(daily_data)
                                         local_stats_cache.extend(stats_records)
                                         
@@ -1539,13 +1353,24 @@ class SearchIndexCrawler:
                                             # 每完成10个任务保存一次检查点
                                             if self.completed_tasks % 10 == 0:
                                                 self._save_global_checkpoint()
+                                    else:
+                                        # 失败：标记为失败任务
+                                        with self.task_lock:
+                                            for task_key in task_keys:
+                                                self.failed_keywords.add(task_key)
+                                                self.failed_tasks += 1
+                                            log.warning(f"批量任务失败，已标记 {len(task_keys)} 个任务为失败状态")
                                 else:
-                                    # 单个任务
-                                    task_key, daily_data, stats_record = result
+                                    # 单个任务: (task_key, daily_data, stats_record, is_success)
+                                    if len(result) == 4:
+                                        task_key, daily_data, stats_record, is_success = result
+                                    else:
+                                        # 兼容旧格式
+                                        task_key, daily_data, stats_record = result
+                                        is_success = daily_data is not None and stats_record is not None
                                     
-                                    # 确保 daily_data 和 stats_record 不为 None
-                                    if daily_data is not None and stats_record is not None:
-                                        # 添加到本地缓存
+                                    if is_success and daily_data is not None and stats_record is not None:
+                                        # 成功：添加到本地缓存
                                         local_data_cache.extend(daily_data)
                                         local_stats_cache.append(stats_record)
                                         
@@ -1556,6 +1381,12 @@ class SearchIndexCrawler:
                                             # 每完成10个任务保存一次检查点
                                             if self.completed_tasks % 10 == 0:
                                                 self._save_global_checkpoint()
+                                    else:
+                                        # 失败：标记为失败任务
+                                        with self.task_lock:
+                                            self.failed_keywords.add(task_key)
+                                            self.failed_tasks += 1
+                                            log.warning(f"任务失败: {task_key}")
                                 
                                 # 定期保存数据
                                 if len(local_data_cache) >= 200:
@@ -1564,8 +1395,9 @@ class SearchIndexCrawler:
                                     local_data_cache = []
                                     local_stats_cache = []
                                     
-                                    # 计算当前进度百分比
-                                    current_progress_percent = ((self.completed_tasks / self.total_tasks) * 100)
+                                    # 计算当前进度百分比（包含成功和失败的任务）
+                                    total_processed = self.completed_tasks + self.failed_tasks
+                                    current_progress_percent = ((total_processed / self.total_tasks) * 100) if self.total_tasks > 0 else 0
                                     # log.info(f"当前进度: {current_progress_percent}%, 上次进度: {last_progress_percent}%")
                                     # 每完成0.05%的任务更新一次数据库进度
                                     if current_progress_percent >= last_progress_percent + 0.05:
@@ -1575,19 +1407,19 @@ class SearchIndexCrawler:
                                             from db.mysql_manager import MySQLManager
                                             mysql = MySQLManager()
                                             
-                                            # 更新任务进度
+                                            # 更新任务进度（包含失败任务数）
                                             update_query = """
                                                 UPDATE spider_tasks 
-                                                SET progress = %s, completed_items = %s, update_time = %s
+                                                SET progress = %s, completed_items = %s, failed_items = %s, update_time = %s
                                                 WHERE task_id = %s
                                             """
                                             affected_rows = mysql.execute_query(
                                                 update_query, 
-                                                (min(current_progress_percent, 100), self.completed_tasks, datetime.now(), self.task_id)
+                                                (min(current_progress_percent, 100), self.completed_tasks, self.failed_tasks, datetime.now(), self.task_id)
                                             )
                                             
                                             if affected_rows > 0:
-                                                log.info(f"已更新数据库进度: {min(current_progress_percent, 100)}%, 完成任务: {self.completed_tasks}/{self.total_tasks}")
+                                                log.info(f"已更新数据库进度: {min(current_progress_percent, 100):.2f}%, 成功: {self.completed_tasks}, 失败: {self.failed_tasks}, 总计: {self.total_tasks}")
                                                 
                                                 # 推送 WebSocket 更新
                                                 try:
@@ -1595,6 +1427,7 @@ class SearchIndexCrawler:
                                                     emit_task_update(self.task_id, {
                                                         'progress': min(current_progress_percent, 100),
                                                         'completed_items': self.completed_tasks,
+                                                        'failed_items': self.failed_tasks,
                                                         'total_items': self.total_tasks,
                                                         'status': 'running'
                                                     })
@@ -1732,23 +1565,73 @@ class SearchIndexCrawler:
                 from db.mysql_manager import MySQLManager
                 mysql = MySQLManager()
                 
-                # 确保进度不超过100%
-                final_progress = 100
-                final_completed = min(self.completed_tasks, self.total_tasks)
+                # 计算完成进度和失败率
+                total_processed = self.completed_tasks + self.failed_tasks
+                final_progress = min(int((total_processed / self.total_tasks) * 100) if self.total_tasks > 0 else 0, 100)
+                final_completed = self.completed_tasks
                 
-                update_query = """
-                    UPDATE spider_tasks 
-                    SET progress = %s, completed_items = %s, status = 'completed', update_time = %s, end_time = %s
-                    WHERE task_id = %s
-                """
-                now = datetime.now()
-                mysql.execute_query(update_query, (final_progress, final_completed, now, now, self.task_id))
-                
-                log.info(f"任务完成! 总共处理了 {self.completed_tasks}/{self.total_tasks} 个任务")
+                # 判断任务是否应该标记为失败
+                # 如果有失败的任务，将任务标记为失败状态，以便重试
+                if self.failed_tasks > 0:
+                    fail_rate = (self.failed_tasks / self.total_tasks * 100) if self.total_tasks > 0 else 0
+                    error_message = f"任务执行完成但有 {self.failed_tasks} 个子任务失败（失败率: {fail_rate:.2f}%），需要重试"
+                    
+                    update_query = """
+                        UPDATE spider_tasks 
+                        SET progress = %s, completed_items = %s, failed_items = %s, 
+                            status = 'failed', error_message = %s, update_time = %s, end_time = %s
+                        WHERE task_id = %s
+                    """
+                    now = datetime.now()
+                    mysql.execute_query(update_query, (final_progress, final_completed, self.failed_tasks, error_message, now, now, self.task_id))
+                    
+                    log.warning(f"任务完成但有失败项! 成功: {self.completed_tasks}, 失败: {self.failed_tasks}, 总计: {self.total_tasks}")
+                    
+                    # 推送 WebSocket 更新
+                    try:
+                        from utils.websocket_manager import emit_task_update
+                        emit_task_update(self.task_id, {
+                            'progress': final_progress,
+                            'completed_items': final_completed,
+                            'failed_items': self.failed_tasks,
+                            'total_items': self.total_tasks,
+                            'status': 'failed',
+                            'error_message': error_message
+                        })
+                    except Exception as ws_error:
+                        log.debug(f"推送 WebSocket 更新失败: {ws_error}")
+                    
+                    return False
+                else:
+                    # 全部成功完成
+                    update_query = """
+                        UPDATE spider_tasks 
+                        SET progress = 100, completed_items = %s, failed_items = 0, 
+                            status = 'completed', update_time = %s, end_time = %s
+                        WHERE task_id = %s
+                    """
+                    now = datetime.now()
+                    mysql.execute_query(update_query, (final_completed, now, now, self.task_id))
+                    
+                    log.info(f"任务完成! 总共处理了 {self.completed_tasks}/{self.total_tasks} 个任务")
+                    
+                    # 推送 WebSocket 更新
+                    try:
+                        from utils.websocket_manager import emit_task_update
+                        emit_task_update(self.task_id, {
+                            'progress': 100,
+                            'completed_items': final_completed,
+                            'failed_items': 0,
+                            'total_items': self.total_tasks,
+                            'status': 'completed'
+                        })
+                    except Exception as ws_error:
+                        log.debug(f"推送 WebSocket 更新失败: {ws_error}")
+                    
+                    return True
             except Exception as e:
                 log.error(f"更新最终任务状态失败: {e}")
-            
-            return True
+                return False
             
         except Exception as e:
             log.error(f"爬取过程中出错: {str(e)}")

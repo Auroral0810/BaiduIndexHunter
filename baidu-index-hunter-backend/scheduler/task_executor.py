@@ -714,14 +714,19 @@ class TaskExecutor:
                 return True
             else:
                 # 检查是否是由于cookie不可用导致的失败
-                # 查询任务状态，如果已经被爬虫设置为paused，则不再更新为failed
+                # 查询任务状态，如果已经被爬虫设置为paused或failed，则不再更新状态
                 from db.mysql_manager import MySQLManager
                 mysql = MySQLManager()
-                query = "SELECT status, error_message FROM spider_tasks WHERE task_id = %s"
+                query = "SELECT status, error_message, failed_items FROM spider_tasks WHERE task_id = %s"
                 task_info = mysql.fetch_one(query, (task_id,))
                 
                 if task_info and task_info['status'] == 'paused':
                     log.info(f"任务 {task_id} 已被爬虫设置为暂停状态，保持该状态")
+                    return False
+                
+                if task_info and task_info['status'] == 'failed':
+                    # 爬虫已经设置了失败状态（可能是因为有失败的子任务）
+                    log.info(f"任务 {task_id} 已被爬虫设置为失败状态，保持该状态。失败项数: {task_info.get('failed_items', 0)}")
                     return False
                 
                 # 查看cookie管理器中是否有可用cookie
@@ -956,6 +961,16 @@ class TaskExecutor:
                 
                 return True
             else:
+                # 检查任务状态，如果已经被爬虫设置为paused或failed，则不再更新状态
+                from db.mysql_manager import MySQLManager
+                mysql = MySQLManager()
+                query = "SELECT status, error_message, failed_items FROM spider_tasks WHERE task_id = %s"
+                task_info = mysql.fetch_one(query, (task_id,))
+                
+                if task_info and task_info['status'] in ['paused', 'failed']:
+                    log.info(f"任务 {task_id} 已被爬虫设置为 {task_info['status']} 状态，保持该状态。失败项数: {task_info.get('failed_items', 0)}")
+                    return False
+                
                 # 更新任务状态为失败
                 self._update_task_status(
                     task_id, 'failed',

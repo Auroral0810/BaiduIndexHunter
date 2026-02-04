@@ -59,7 +59,9 @@ class RegionDistributionCrawler:
         # 初始化任务计数器和状态变量
         self.total_tasks = 0
         self.completed_tasks = 0
+        self.failed_tasks = 0  # 新增：追踪失败的任务数
         self.completed_task_keys = set()  # 使用集合以加速查找
+        self.failed_task_keys = set()  # 新增：追踪失败的任务键
         self.task_id = None
         self.output_path = None  # 输出路径，在crawl方法中设置
         self._shutdown_flag = False  # 退出标志
@@ -563,6 +565,9 @@ class RegionDistributionCrawler:
         参数:
             task_data (tuple): (keywords, region, start_date, end_date)
             其中 keywords 是关键词列表（虽然API不支持批量，但为了统一接口，仍然使用列表格式，但只包含一个关键词）
+        
+        返回值:
+            (task_key, data_records, is_success) 其中 is_success 表示是否成功获取到有效数据
         """
         rate_limiter.wait()
         
@@ -578,9 +583,13 @@ class RegionDistributionCrawler:
         # 生成任务键（用于检查点恢复）
         task_key = f"{keyword}_{region}_{start_date}_{end_date}"
         
-        # 检查任务是否已完成
+        # 检查任务是否已完成（成功完成的任务跳过，失败的任务需要重试）
         if task_key in self.completed_task_keys:
             return None
+        # 如果任务之前失败过，从失败集合中移除（准备重试）
+        if task_key in self.failed_task_keys:
+            with self.lock:
+                self.failed_task_keys.discard(task_key)
         
         try:
             # 获取地域分布数据（单个关键词）
@@ -593,71 +602,28 @@ class RegionDistributionCrawler:
             )
             
             if not result:
-                log.warning(f"获取数据失败，构造空结果: keyword={keyword}, region={region}, date={start_date} 至 {end_date}")
-                
-                # 构造空数据记录
-                period = f"{start_date}|{end_date}" if end_date else start_date
-                empty_record = {
-                    '关键词': keyword,
-                    '地区代码': region,
-                    '地区名称': "全国" if region == 0 else f"地区{region}",
-                    '时间范围': period,
-                    '地区级别': '',
-                    '地区代码（具体）': '',
-                    '地区名称（具体）': '',
-                    '指数': 0,
-                    '占比': 0.0,
-                    '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                }
-                
-                return task_key, [empty_record]
+                log.warning(f"获取数据失败，标记为失败任务: keyword={keyword}, region={region}, date={start_date} 至 {end_date}")
+                # 返回失败标记，不保存空数据
+                return task_key, None, False
             
             # 使用data_processor处理数据（单个关键词）
             df = data_processor.process_region_distribution_data(
                 result, region, keyword, start_date, end_date
             )
             
-            # 如果数据为空，构造空数据记录以保持数据维度一致性
+            # 如果数据为空，标记为失败
             if df is None or len(df) == 0:
-                log.warning(f"数据为空，构造空数据记录: keyword={keyword}, region={region}, date={start_date} 至 {end_date}")
-                period = f"{start_date}|{end_date}" if end_date else start_date
-                empty_record = {
-                    '关键词': keyword,
-                    '地区代码': region,
-                    '地区名称': "全国" if region == 0 else f"地区{region}",
-                    '时间范围': period,
-                    '地区级别': '',
-                    '地区代码（具体）': '',
-                    '地区名称（具体）': '',
-                    '指数': 0,
-                    '占比': 0.0,
-                    '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                }
-                return task_key, [empty_record]
+                log.warning(f"数据为空，标记为失败任务: keyword={keyword}, region={region}, date={start_date} 至 {end_date}")
+                return task_key, None, False
             else:
-                # 将DataFrame转换为字典列表
-                return task_key, df.to_dict('records')
+                # 将DataFrame转换为字典列表，返回成功
+                return task_key, df.to_dict('records'), True
             
         except Exception as e:
             log.error(f"处理任务时出错: {e}")
             log.error(traceback.format_exc())
-            
-            # 构造空结果
-            period = f"{start_date}|{end_date}" if end_date else start_date
-            empty_record = {
-                '关键词': keyword,
-                '地区代码': region,
-                '地区名称': "全国" if region == 0 else f"地区{region}",
-                '时间范围': period,
-                '地区级别': '',
-                '地区代码（具体）': '',
-                '地区名称（具体）': '',
-                '指数': 0,
-                '占比': 0.0,
-                '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            }
-            
-            return task_key, [empty_record]
+            # 返回失败标记，不保存空数据
+            return task_key, None, False
     
     def crawl(self, task_id=None, keywords=None, regions=None, days=None, start_date=None, end_date=None,
               date_ranges=None, year_range=None, output_format='csv', resume=True, checkpoint_task_id=None):
@@ -835,32 +801,45 @@ class RegionDistributionCrawler:
                 try:
                     result = future.result()
                     if result:
-                        task_key, records = result
+                        # 解析返回值 - 新格式包含 is_success 标记
+                        if len(result) == 3:
+                            task_key, records, is_success = result
+                        else:
+                            # 兼容旧格式
+                            task_key, records = result
+                            is_success = records is not None and len(records) > 0
                         
-                        # 添加到本地缓存
-                        if records:
+                        if is_success and records:
+                            # 成功：添加到本地缓存
                             local_data_cache.extend(records)
-                        
-                        # 更新全局任务状态
-                        with self.lock:
-                            self.completed_task_keys.add(task_key)
-                            self.completed_tasks += 1
                             
-                            # 每完成10个任务保存一次检查点
-                            if self.completed_tasks % 10 == 0:
-                                self._save_global_checkpoint(task_id)
-                        
-                        # 定期保存数据（降低阈值，更频繁地保存）
-                        if len(local_data_cache) >= 50:  # 降低阈值，从200改为50
-                            with self.save_lock:
-                                self.data_cache.extend(local_data_cache)
-                                # 直接调用内部方法，避免重复获取锁
-                                self._save_data_cache_internal(force=True)
-                            local_data_cache = []
-                        
-                        # 计算进度
-                        progress = 100.0 * self.completed_tasks / self.total_tasks if self.total_tasks > 0 else 0
-                        log.info(f"进度: [{self.completed_tasks}/{self.total_tasks}] {progress:.2f}% - 已处理{len(records)}条数据记录")
+                            # 更新全局任务状态
+                            with self.lock:
+                                self.completed_task_keys.add(task_key)
+                                self.completed_tasks += 1
+                                
+                                # 每完成10个任务保存一次检查点
+                                if self.completed_tasks % 10 == 0:
+                                    self._save_global_checkpoint(task_id)
+                            
+                            # 定期保存数据（降低阈值，更频繁地保存）
+                            if len(local_data_cache) >= 50:  # 降低阈值，从200改为50
+                                with self.save_lock:
+                                    self.data_cache.extend(local_data_cache)
+                                    # 直接调用内部方法，避免重复获取锁
+                                    self._save_data_cache_internal(force=True)
+                                local_data_cache = []
+                            
+                            # 计算进度
+                            total_processed = self.completed_tasks + self.failed_tasks
+                            progress = 100.0 * total_processed / self.total_tasks if self.total_tasks > 0 else 0
+                            log.info(f"进度: [{self.completed_tasks}/{self.total_tasks}] {progress:.2f}% - 已处理{len(records)}条数据记录")
+                        else:
+                            # 失败：标记为失败任务
+                            with self.lock:
+                                self.failed_task_keys.add(task_key)
+                                self.failed_tasks += 1
+                                log.warning(f"任务失败: {task_key}")
                         
                 except Exception as e:
                     log.error(f"处理任务时出错: {e}")
@@ -912,23 +891,48 @@ class RegionDistributionCrawler:
         
         # 更新任务完成状态
         with self.lock:
-            self.task_status[task_id] = {
-                'task_id': task_id,
-                'status': 'completed',
-                'total': self.total_tasks,
-                'completed': self.completed_tasks,
-                'failed': self.total_tasks - self.completed_tasks,
-                'progress': 100.0,
-                'completed_task_keys': list(self.completed_task_keys),
-                'output_file': self._get_output_path(task_id, output_format)
-            }
-            
-            # 保存最终检查点
-            self._save_global_checkpoint(task_id)
-            
-            log.info(f"任务完成! 总共处理了 {self.completed_tasks}/{self.total_tasks} 个任务")
-            
-            return True
+            # 判断任务是否应该标记为失败
+            if self.failed_tasks > 0:
+                # 有失败的任务，将整体任务标记为失败
+                fail_rate = (self.failed_tasks / self.total_tasks * 100) if self.total_tasks > 0 else 0
+                self.task_status[task_id] = {
+                    'task_id': task_id,
+                    'status': 'failed',
+                    'total': self.total_tasks,
+                    'completed': self.completed_tasks,
+                    'failed': self.failed_tasks,
+                    'progress': 100.0,
+                    'completed_task_keys': list(self.completed_task_keys),
+                    'failed_task_keys': list(self.failed_task_keys),
+                    'output_file': self._get_output_path(task_id, output_format),
+                    'error_message': f"任务执行完成但有 {self.failed_tasks} 个子任务失败（失败率: {fail_rate:.2f}%），需要重试"
+                }
+                
+                # 保存最终检查点
+                self._save_global_checkpoint(task_id)
+                
+                log.warning(f"任务完成但有失败项! 成功: {self.completed_tasks}, 失败: {self.failed_tasks}, 总计: {self.total_tasks}")
+                
+                return False
+            else:
+                # 全部成功完成
+                self.task_status[task_id] = {
+                    'task_id': task_id,
+                    'status': 'completed',
+                    'total': self.total_tasks,
+                    'completed': self.completed_tasks,
+                    'failed': 0,
+                    'progress': 100.0,
+                    'completed_task_keys': list(self.completed_task_keys),
+                    'output_file': self._get_output_path(task_id, output_format)
+                }
+                
+                # 保存最终检查点
+                self._save_global_checkpoint(task_id)
+                
+                log.info(f"任务完成! 总共处理了 {self.completed_tasks}/{self.total_tasks} 个任务")
+                
+                return True
     
     def resume_task(self, task_id):
         """

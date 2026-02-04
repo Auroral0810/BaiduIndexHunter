@@ -1009,40 +1009,59 @@ class BaiduIndexDataProcessor:
                 # 每天一个数据点 - 日度数据
                 interval = 1
                 data_type = '日度'
+                expected_data_points = total_days
             elif abs(total_days - data_length * 7) <= 7:
                 # 每周一个数据点 - 周度数据
                 interval = 7
                 data_type = '周度'
+                expected_data_points = (total_days + 6) // 7  # 向上取整
             else:
                 # 其他间隔 - 可能是月度数据或自定义间隔
                 interval = total_days // data_length if data_length > 0 else 1
                 data_type = '自定义'
+                expected_data_points = data_length
             
-            # 生成日期列表
+            # 检查数据维度一致性：如果返回的数据点数量少于预期，需要补齐
+            if data_length < expected_data_points:
+                log.warning(f"数据点数量不足，预期 {expected_data_points} 个，实际 {data_length} 个，将补齐空数据: {keyword}, {city_name}, {start_date} - {end_date}")
+                # 补齐数据到预期数量
+                missing_count = expected_data_points - data_length
+                all_values.extend(['0'] * missing_count)
+                wise_values.extend(['0'] * missing_count)
+                pc_values.extend(['0'] * missing_count)
+                data_length = expected_data_points
+            
+            # 生成日期列表 - 确保覆盖完整的日期范围
             date_range = []
-            for i in range(data_length):
+            for i in range(expected_data_points):
                 current_date = (start + timedelta(days=i*interval)).strftime('%Y-%m-%d')
+                # 确保不超过结束日期
+                if current_date > end_date:
+                    break
                 date_range.append(current_date)
                 
             # 准备日度/周度数据
             daily_data = []
             for i in range(len(date_range)):
-                # 确保索引在有效范围内
-                if i < len(all_values) and i < len(wise_values) and i < len(pc_values):
-                    daily_record = {
-                        '关键词': keyword,
-                        '城市代码': city_code,
-                        '城市': city_name,
-                        '日期': date_range[i],
-                        '数据类型': data_type,
-                        '数据间隔(天)': interval,
-                        '所属年份': date_range[i][:4],
-                        'PC+移动指数': all_values[i],
-                        '移动指数': wise_values[i],
-                        'PC指数': pc_values[i],
-                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                    }
-                    daily_data.append(daily_record)
+                # 获取对应的值，如果索引越界则使用 '0'
+                all_val = all_values[i] if i < len(all_values) else '0'
+                wise_val = wise_values[i] if i < len(wise_values) else '0'
+                pc_val = pc_values[i] if i < len(pc_values) else '0'
+                
+                daily_record = {
+                    '关键词': keyword,
+                    '城市代码': city_code,
+                    '城市': city_name,
+                    '日期': date_range[i],
+                    '数据类型': data_type,
+                    '数据间隔(天)': interval,
+                    '所属年份': date_range[i][:4],
+                    'PC+移动指数': all_val,
+                    '移动指数': wise_val,
+                    'PC指数': pc_val,
+                    '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                }
+                daily_data.append(daily_record)
                 
             # 如果没有有效数据，创建默认数据
         
@@ -1265,32 +1284,47 @@ class BaiduIndexDataProcessor:
                 # API明确返回week类型，使用周度数据
                 interval = 7
                 data_frequency = '周度'
+                expected_data_points = (total_days + 6) // 7  # 向上取整
                 log.info(f"{city_name} - {keyword}: API返回周度数据, 共 {data_length} 周")
             elif data_type == 'day' or (data_length == total_days):
                 # 每天一个数据点 - 日度数据
                 interval = 1
                 data_frequency = '日度'
+                expected_data_points = total_days
             elif abs(total_days - data_length * 7) <= 7:
                 # 每周一个数据点 - 周度数据（通过数据量推断）
                 interval = 7
                 data_frequency = '周度'
+                expected_data_points = (total_days + 6) // 7
             else:
                 # 其他间隔 - 可能是月度数据或自定义间隔
                 interval = total_days // data_length if data_length > 0 else 1
                 data_frequency = '自定义'
+                expected_data_points = data_length
                 
             log.debug(f"{city_name} - {keyword} 数据粒度: {data_frequency} (每{interval}天一个数据点, 共{data_length}个数据点)")
             
-            # 生成日期列表
+            # 检查数据维度一致性：如果返回的数据点数量少于预期，需要补齐
+            if data_length < expected_data_points:
+                log.warning(f"资讯指数数据点数量不足，预期 {expected_data_points} 个，实际 {data_length} 个，将补齐空数据: {keyword}, {city_name}, {api_start_date} - {api_end_date}")
+                # 补齐数据到预期数量
+                missing_count = expected_data_points - data_length
+                values.extend(['0'] * missing_count)
+                data_length = expected_data_points
+            
+            # 生成日期列表 - 确保覆盖完整的日期范围
             date_range = []
-            for i in range(data_length):
+            for i in range(expected_data_points):
                 current_date = (start + timedelta(days=i*interval)).strftime('%Y-%m-%d')
+                # 确保不超过结束日期
+                if current_date > api_end_date:
+                    break
                 date_range.append(current_date)
                 
             # 准备日度/周度数据
             daily_data = []
             for i in range(len(date_range)):
-                # 确保索引不越界
+                # 获取对应的值，如果索引越界则使用 '0'
                 value = values[i] if i < len(values) else '0'
                 daily_record = {
                     '关键词': keyword,
