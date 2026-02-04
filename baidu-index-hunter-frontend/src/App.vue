@@ -4,7 +4,8 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAppStore, SUPPORTED_LANGUAGES } from './store/app'
 import { Sunny, Moon } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
-const { t: $t } = useI18n()
+
+const { t: $t, locale } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const appStore = useAppStore()
@@ -71,11 +72,15 @@ const toggleTheme = () => {
 const currentLanguage = computed(() => appStore.getCurrentLanguage())
 const handleLanguageChange = (langCode) => {
   appStore.setLanguage(langCode)
+  locale.value = langCode // 实际更新 vue-i18n 的 locale
 }
 
-// 初始化主题
+// 初始化主题和语言
 onMounted(() => {
   appStore.initTheme()
+  // 从 localStorage 恢复语言设置
+  const savedLanguage = localStorage.getItem('language') || 'zh-CN'
+  locale.value = savedLanguage
 })
 </script>
 
@@ -125,7 +130,7 @@ onMounted(() => {
           <el-dropdown trigger="click" @command="handleLanguageChange" popper-class="language-popper">
             <button class="language-btn">
               <span class="language-flag">{{ currentLanguage.flag }}</span>
-              <span class="language-code">{{ currentLanguage.code === 'zh-CN' ? 'CN' : 'EN' }}</span>
+              <span class="language-code">{{ currentLanguage.code.split('-')[0].toUpperCase() }}</span>
             </button>
             <template #dropdown>
               <el-dropdown-menu>
@@ -487,6 +492,43 @@ body {
 
 .language-flag {
   font-size: 1.1rem;
+}
+
+.language-code {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* 语言下拉菜单样式 */
+.dropdown-flag {
+  font-size: 1.2rem;
+  margin-right: 10px;
+}
+
+.dropdown-name {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+/* 语言下拉菜单项激活状态 */
+:deep(.el-dropdown-menu__item.is-active) {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+:deep(.el-dropdown-menu__item.is-active .dropdown-name) {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+:deep(.el-dropdown-menu__item) {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+}
+
+:deep(.el-dropdown-menu__item:hover) {
+  background-color: var(--color-bg-subtle);
 }
 
 /* 主内容区域 */

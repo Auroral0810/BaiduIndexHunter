@@ -2650,26 +2650,27 @@ const batchUnban = async () => {
 
 <style scoped>
 .cookie-manager-container {
-  padding: 20px;
-  max-width: 1600px;
+  max-width: var(--max-width);
   margin: 0 auto;
+  padding: 40px 24px;
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 }
 
 .page-header h1 {
-  font-size: 28px;
-  color: var(--color-text-main);
-  margin: 0;
-  background: linear-gradient(45deg, var(--color-primary), #8b5cf6);
-  background-clip: text;
+  font-size: 2.75rem;
+  font-weight: 800;
+  background: var(--color-primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -1.5px;
+  margin: 0;
 }
 
 .api-status {
@@ -2677,118 +2678,142 @@ const batchUnban = async () => {
   align-items: center;
 }
 
+/* Stats Overview */
+.status-overview {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.status-item {
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  text-align: left;
+}
+
+.status-item:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary-light);
+}
+
+.status-value {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--color-text-main);
+  line-height: 1;
+}
+
+.status-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.status-item.success .status-value { color: var(--color-success); }
+.status-item.warning .status-value { color: var(--color-warning); }
+.status-item.danger .status-value { color: var(--color-danger); }
+
+/* Card Styles */
+.status-card,
+.banned-accounts-card,
+.cookie-list-card {
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  margin-bottom: 32px !important;
+}
+
+.status-card:hover,
+.banned-accounts-card:hover,
+.cookie-list-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-weight: bold;
-  font-size: 16px;
+  width: 100%;
+}
+
+.card-header span {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-main);
 }
 
 .header-actions {
   display: flex;
-  gap: 8px;
-}
-
-.status-card {
-  margin-bottom: 20px;
-  border-radius: 8px;
-}
-
-.banned-accounts-card {
-  margin-bottom: 20px;
-  border-radius: 8px;
-}
-
-.cookie-list-card {
-  margin-bottom: 20px;
-  border-radius: 8px;
-}
-
-.status-overview {
-  display: flex;
-  justify-content: space-between;
-  padding: 15px 0;
-}
-
-.status-item {
-  text-align: center;
-  padding: 10px;
-  border-radius: 8px;
-  background-color: var(--color-bg-subtle);
-  flex: 1;
-  margin: 0 5px;
-}
-
-.status-value {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.status-label {
-  font-size: 12px;
-  color: var(--color-text-secondary);
-}
-
-.status-item.success .status-value {
-  color: #67C23A;
-}
-
-.status-item.warning .status-value {
-  color: #E6A23C;
-}
-
-.status-item.danger .status-value {
-  color: #F56C6C;
+  gap: 12px;
 }
 
 .action-buttons {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: flex-start;
 }
 
+/* Account List */
 .account-list-section {
-  margin-top: 15px;
+  margin-top: 32px;
 }
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
 }
 
 .section-header h3 {
+  font-size: 1rem;
+  font-weight: 700;
   margin: 0;
-  font-size: 16px;
-  color: var(--color-text-secondary);
+  color: var(--color-text-main);
 }
 
 .account-list {
-  max-height: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 500px;
   overflow-y: auto;
+  padding-right: 4px;
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: var(--radius-base);
+  padding: 8px;
+  background: var(--color-bg-subtle);
 }
 
 .account-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--color-border);
-  transition: background-color 0.3s;
+  padding: 12px 16px;
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-base);
+  border: 1px solid transparent;
+  transition: all 0.2s;
 }
 
 .account-item:hover {
-  background-color: var(--color-bg-subtle);
-}
-
-.account-item:last-child {
-  border-bottom: none;
+  border-color: var(--color-primary-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .account-info {
@@ -2798,21 +2823,19 @@ const batchUnban = async () => {
 
 .account-actions {
   display: flex;
-  gap: 5px;
+  gap: 8px;
 }
 
+/* Banned Accounts Section */
 .banned-toolbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 5px 10px;
-  background-color: var(--color-bg-subtle);
-  border-bottom: 1px solid var(--color-border);
-  margin-bottom: 10px;
-}
-
-.banned-checkbox {
-  margin-right: 10px;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-base);
+  border-bottom: none;
 }
 
 .banned-accounts {
@@ -2822,98 +2845,143 @@ const batchUnban = async () => {
 
 .banned-account-item {
   display: flex;
-  align-items: flex-start;
-  padding: 16px 15px;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
   border-bottom: 1px solid var(--color-border);
-  gap: 15px;
+  transition: background 0.2s;
+}
+
+.banned-account-item:hover {
+  background: var(--color-bg-subtle);
 }
 
 .banned-account-item:last-child {
   border-bottom: none;
 }
 
-.banned-account-item:hover {
-  background-color: var(--color-bg-subtle);
-}
-
 .banned-checkbox {
-  margin-top: 8px;
-  flex-shrink: 0;
-}
-
-.banned-checkbox :deep(.el-checkbox__label) {
-  display: none;
+  margin-top: 0;
+  margin-right: 0;
 }
 
 .banned-account-info {
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-width: 0;
-  gap: 6px;
+  gap: 4px;
 }
 
 .account-id {
-  font-weight: bold;
-  font-size: 16px;
-  color: var(--color-text-main);
-  line-height: 1.5;
-  word-break: break-all;
-  margin-bottom: 4px;
+  font-weight: 700;
+  font-family: monospace;
+  font-size: 1rem;
 }
 
 .ban-time {
-  font-size: 13px;
-  color: #67C23A;
-  font-weight: 500;
-  line-height: 1.6;
+  font-size: 0.85rem;
+  color: var(--color-warning);
 }
 
 .ban-time-tooltip {
-  font-size: 12px;
-  color: var(--color-text-secondary);
-  line-height: 1.5;
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
 }
 
 .ban-status {
-  font-size: 13px;
-  color: #F56C6C;
-  font-weight: 500;
-  line-height: 1.6;
+  font-size: 0.85rem;
+  color: var(--color-danger);
+  font-weight: 600;
 }
 
 .banned-account-actions {
-  flex-shrink: 0;
-  margin-top: 4px;
+  margin-top: 0;
 }
 
+/* Filters and Tables */
 .filter-section {
   display: flex;
-  margin-bottom: 15px;
-  gap: 10px;
+  margin-bottom: 24px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .filter-item {
-  width: 200px;
+  width: 220px;
+}
+
+.batch-actions {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 12px;
+  padding: 12px 20px;
+  background: var(--color-primary-light);
+  border-radius: var(--radius-lg);
+  align-items: center;
+}
+
+.selection-info {
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-left: 12px;
+}
+
+.el-table {
+  --el-table-border-color: var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
 }
 
 .pagination-container {
   display: flex;
   justify-content: flex-end;
-  margin-top: 15px;
+  margin-top: 24px;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* Helper Classes from User */
+.mr-5 { margin-right: 5px; }
+.mb-5 { margin-bottom: 5px; }
+.ml-10 { margin-left: 10px; }
+
+.selected-accounts {
+  max-height: 100px;
+  overflow-y: auto;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  background: var(--color-bg-subtle);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.usage-chart-card {
+  margin-bottom: 24px;
+  border-radius: var(--radius-lg);
+}
+
+.table-toolbar {
+  margin-bottom: 16px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.search-bar {
+  margin-bottom: 24px;
 }
 
 .form-tip {
   margin-left: 10px;
   font-size: 12px;
   color: var(--color-text-secondary);
-}
-
-.dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 15px;
 }
 
 .cookie-detail-list {
@@ -2931,79 +2999,35 @@ const batchUnban = async () => {
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 10px;
-  padding: 10px;
+  padding: 12px;
   max-height: 200px;
   overflow-y: auto;
-  border: 1px solid #EBEEF5;
-  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
 }
 
 .test-result-tag {
-  margin-bottom: 5px;
+  margin-bottom: 0;
 }
 
 .form-actions {
   display: flex;
-  margin-top: 10px;
-  gap: 10px;
-  justify-content: flex-end;
-}
-
-.table-toolbar {
-  margin-bottom: 10px;
-  display: flex;
-  gap: 10px;
+  margin-top: 16px;
+  gap: 12px;
   justify-content: flex-end;
 }
 
 .el-upload__tip {
   margin-top: 8px;
   color: var(--color-text-secondary);
-  line-height: 1.4;
 }
 
 .dialog-subtitle {
-  margin: 0 0 15px 0;
-  padding-bottom: 10px;
-  font-size: 16px;
-  border-bottom: 1px solid #EBEEF5;
-  color: #409EFF;
-}
-
-.batch-actions {
-  margin: 10px 0;
-  display: flex;
-  align-items: center;
-}
-
-.selection-info {
-  margin-left: 15px;
-  color: #606266;
-  font-size: 14px;
-}
-
-
-.usage-chart-card {
-  margin-bottom: 20px;
-  border-radius: 8px;
-}
-.ml-10 {
-  margin-left: 10px;
-}
-
-.mr-5 {
-  margin-right: 5px;
-}
-
-.mb-5 {
-  margin-bottom: 5px;
-}
-
-.selected-accounts {
-  max-height: 100px;
-  overflow-y: auto;
-  padding: 5px;
-  border: 1px solid #EBEEF5;
-  border-radius: 4px;
+  margin: 0 0 16px 0;
+  padding-bottom: 12px;
+  font-size: 1.1rem;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-primary);
+  font-weight: 600;
 }
 </style>
