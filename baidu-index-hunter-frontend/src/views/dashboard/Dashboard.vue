@@ -419,9 +419,13 @@ const initDistributionChart = () => {
   if (!distributionChartRef.value) return
   if (!distributionChartInstance) distributionChartInstance = echarts.init(distributionChartRef.value)
   
-  const data = dashboardData.success_rate_comparison.map(it => ({
-    name: formatTaskType(it.task_type), 
-    value: parseFloat(Number(it.success_rate).toFixed(2)) || 0
+  const sourceData = dashboardData.success_rate_comparison && dashboardData.success_rate_comparison.length > 0 
+    ? dashboardData.success_rate_comparison 
+    : (dashboardData.by_task_type || [])
+    
+  const data = sourceData.map(it => ({
+    name: formatTaskType(it.task_type || it.taskType), 
+    value: parseFloat(Number(it.success_rate || it.successRate || 0).toFixed(2))
   }))
   
   distributionChartInstance.setOption({
@@ -448,8 +452,12 @@ const initDurationChart = () => {
   if (!durationChartRef.value) return
   if (!durationChartInstance) durationChartInstance = echarts.init(durationChartRef.value)
   
-  const data = dashboardData.avg_duration_comparison.map(it => Number(it.avg_duration) || 0)
-  const names = dashboardData.avg_duration_comparison.map(it => formatTaskType(it.task_type))
+  const sourceData = dashboardData.avg_duration_comparison && dashboardData.avg_duration_comparison.length > 0
+    ? dashboardData.avg_duration_comparison
+    : (dashboardData.by_task_type || [])
+    
+  const data = sourceData.map(it => Number(it.avg_duration || it.avgDuration) || 0)
+  const names = sourceData.map(it => formatTaskType(it.task_type || it.taskType))
   
   durationChartInstance.setOption({
     ...commonOptions.value,
@@ -466,8 +474,13 @@ const initDurationChart = () => {
     grid: { left: '5%', right: '12%', top: '5%', bottom: '5%', containLabel: true },
     xAxis: { 
       type: 'value', 
+      splitNumber: 4,
       splitLine: { show: true, lineStyle: { color: isDark.value ? '#1e293b' : '#f1f5f9' } },
-      axisLabel: { formatter: '{value}s' }
+      axisLabel: { 
+        formatter: '{value}s',
+        hideOverlap: true,
+        fontSize: 10
+      }
     },
     yAxis: { 
       type: 'category', 
@@ -503,8 +516,19 @@ const initVolumeChart = () => {
   if (!volumeChartRef.value) return
   if (!volumeChartInstance) volumeChartInstance = echarts.init(volumeChartRef.value)
   
-  const data = dashboardData.data_volume_comparison.map(it => Number(it.total_crawled_items) || 0)
-  const names = dashboardData.data_volume_comparison.map(it => formatTaskType(it.task_type))
+  // Fallback to data_volume_comparison then by_task_type
+  let sourceData = []
+  if (dashboardData.data_volume_comparison && dashboardData.data_volume_comparison.length > 0) {
+    sourceData = dashboardData.data_volume_comparison
+  } else if (dashboardData.by_task_type && dashboardData.by_task_type.length > 0) {
+    sourceData = dashboardData.by_task_type
+  } else {
+    // Last resort: use success_rate_comparison which might have volume info
+    sourceData = dashboardData.success_rate_comparison || []
+  }
+  
+  const data = sourceData.map(it => Number(it.total_crawled_items || it.totalCrawledItems || it.count || 0))
+  const names = sourceData.map(it => formatTaskType(it.task_type || it.taskType))
   
   volumeChartInstance.setOption({
     ...commonOptions.value,
@@ -521,13 +545,23 @@ const initVolumeChart = () => {
     grid: { left: '5%', right: '12%', top: '5%', bottom: '5%', containLabel: true },
     xAxis: { 
       type: 'value', 
+      splitNumber: 3,
       splitLine: { show: true, lineStyle: { color: isDark.value ? '#1e293b' : '#f1f5f9' } },
-      axisLabel: { formatter: (value) => value >= 10000 ? (value / 10000).toFixed(1) + 'w' : value }
+      axisLabel: { 
+        formatter: (value) => value >= 10000 ? (value / 10000).toFixed(1) + 'w' : value,
+        hideOverlap: true,
+        fontSize: 10
+      }
     },
     yAxis: { 
       type: 'category', 
       data: names, 
-      axisLabel: { color: isDark.value ? '#94a3b8' : '#64748b', fontSize: 11 }
+      axisLabel: { 
+        fontSize: 11,
+        width: 100,
+        overflow: 'truncate',
+        color: isDark.value ? '#94a3b8' : '#64748b' 
+      }
     },
     series: [{
       type: 'bar',
