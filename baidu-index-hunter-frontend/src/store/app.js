@@ -27,10 +27,10 @@ export const THEMES = [
 export const useAppStore = defineStore('app', () => {
   // 当前主题
   const theme = ref(localStorage.getItem('theme') || 'light')
-  
+
   // 当前语言
   const language = ref(localStorage.getItem('language') || 'zh-CN')
-  
+
   // 应用版本
   const version = ref('2.0.0')
 
@@ -52,32 +52,10 @@ export const useAppStore = defineStore('app', () => {
   // 应用主题到 DOM
   const applyTheme = (themeName) => {
     const root = document.documentElement
-    
-    if (themeName === 'dark') {
-      root.classList.add('dark')
-      root.style.setProperty('--background-color', '#1a1a2e')
-      root.style.setProperty('--surface-color', '#16213e')
-      root.style.setProperty('--text-primary', '#e4e6eb')
-      root.style.setProperty('--text-regular', '#b0b3b8')
-      root.style.setProperty('--text-secondary', '#8a8d91')
-      root.style.setProperty('--border-color', '#3a3a4a')
-      root.style.setProperty('--border-lighter', '#2d2d3a')
-      root.style.setProperty('--shadow-sm', '0 1px 2px 0 rgba(0, 0, 0, 0.3)')
-      root.style.setProperty('--shadow-md', '0 4px 6px -1px rgba(0, 0, 0, 0.3)')
-      root.style.setProperty('--shadow-lg', '0 10px 15px -3px rgba(0, 0, 0, 0.3)')
-    } else {
-      root.classList.remove('dark')
-      root.style.setProperty('--background-color', '#f8fafc')
-      root.style.setProperty('--surface-color', '#ffffff')
-      root.style.setProperty('--text-primary', '#0f172a')
-      root.style.setProperty('--text-regular', '#334155')
-      root.style.setProperty('--text-secondary', '#64748b')
-      root.style.setProperty('--border-color', '#e2e8f0')
-      root.style.setProperty('--border-lighter', '#f1f5f9')
-      root.style.setProperty('--shadow-sm', '0 1px 2px 0 rgba(0, 0, 0, 0.05)')
-      root.style.setProperty('--shadow-md', '0 4px 6px -1px rgba(0, 0, 0, 0.05)')
-      root.style.setProperty('--shadow-lg', '0 10px 15px -3px rgba(0, 0, 0, 0.05)')
-    }
+
+    // 移除之前的类
+    root.classList.remove('dark', 'light')
+    root.classList.add(themeName)
   }
 
   // 初始化主题

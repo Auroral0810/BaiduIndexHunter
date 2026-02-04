@@ -88,7 +88,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="app-wrapper" :class="{ 'dark-mode': isDark }">
+  <div class="app-wrapper">
     <header class="app-header">
       <div class="header-container">
         <div class="logo-area" @click="router.push('/')">
@@ -259,7 +259,8 @@ onMounted(() => {
 }
 
 /* 深色模式变量覆盖 */
-.dark-mode {
+/* 深色模式变量覆盖 */
+html.dark {
   --color-primary: #6366f1;
   --color-primary-hover: #818cf8;
   --color-primary-light: rgba(99, 102, 241, 0.15);
@@ -316,7 +317,7 @@ body {
   --el-border-radius-base: var(--radius-base);
 }
 
-.dark-mode {
+html.dark {
   --el-bg-color: var(--color-bg-surface);
   --el-bg-color-overlay: var(--color-bg-subtle);
   --el-fill-color-blank: var(--color-bg-body);
@@ -343,7 +344,7 @@ body {
   transition: all 0.3s ease;
 }
 
-.dark-mode .app-header {
+html.dark .app-header {
   background-color: rgba(15, 23, 42, 0.8);
 }
 

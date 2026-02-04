@@ -5,7 +5,7 @@
 
   color-scheme: light dark;
   color: #213547;
-  background-color: #ffffff;
+  background-color: var(--color-bg-body);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
