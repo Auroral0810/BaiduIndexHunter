@@ -1055,7 +1055,7 @@ defineExpose({
   margin-top: 0;
   margin-bottom: 15px;
   font-size: 16px;
-  color: #409eff;
+  color: #4f46e5;
 }
 
 .dialog-footer {

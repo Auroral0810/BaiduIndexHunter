@@ -1499,7 +1499,7 @@ const getLogLevelTag = (level: string) => {
 .task-list-container h2 {
   margin-bottom: 20px;
   font-size: 24px;
-  color: #409eff;
+  color: #4f46e5;
 }
 
 .search-bar {
@@ -1549,7 +1549,7 @@ const getLogLevelTag = (level: string) => {
 
 .loading-icon {
   font-size: 40px;
-  color: #409eff;
+  color: #4f46e5;
   animation: rotate 1.5s linear infinite;
 }
 
@@ -1731,7 +1731,7 @@ const getLogLevelTag = (level: string) => {
   margin-top: 0;
   margin-bottom: 10px;
   font-size: 14px;
-  color: #409eff;
+  color: #4f46e5;
 }
 
 .checkpoint-data pre {

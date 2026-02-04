@@ -611,23 +611,25 @@ onMounted(async () => {
 }
 
 .special-item {
-  background-color: #e6f1fc;
-  border-bottom: 1px solid #ebeef5;
+  background-color: var(--color-bg-subtle);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .province-item {
   padding: 10px 15px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
 }
 
 .province-item:hover {
-  background-color: #ebeef5;
+  background-color: var(--color-bg-subtle);
 }
 
 .province-item.active {
-  background-color: #e6f1fc;
-  color: #409eff;
+  background-color: rgba(99, 102, 241, 0.1);
+  color: var(--color-primary);
+  font-weight: 600;
+  border-left: 3px solid var(--color-primary);
 }
 
 .city-list {

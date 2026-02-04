@@ -1306,7 +1306,7 @@ onMounted(() => {
 
 .task-header h2 {
   font-size: 28px;
-  color: #409eff;
+  color: #4f46e5;
   margin-bottom: 10px;
 }
 
@@ -1464,5 +1464,52 @@ onMounted(() => {
 
 .overview-tag {
   margin-bottom: 4px;
+}
+
+/* Deep Theme Overrides for Element Plus */
+:deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  box-shadow: -1px 0 0 0 var(--color-primary) !important;
+}
+
+:deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+:deep(.el-checkbox__input.is-checked + .el-checkbox__label) {
+  color: var(--color-primary) !important;
+}
+
+:deep(.el-button--primary) {
+  --el-button-bg-color: var(--color-primary);
+  --el-button-border-color: var(--color-primary);
+  --el-button-hover-bg-color: var(--color-primary-light);
+  --el-button-hover-border-color: var(--color-primary-light);
+  --el-button-active-bg-color: var(--color-primary-dark);
+  --el-button-active-border-color: var(--color-primary-dark);
+}
+
+:deep(.el-button--primary.is-plain) {
+  --el-button-text-color: var(--color-primary);
+  --el-button-bg-color: var(--color-bg-subtle);
+  --el-button-border-color: var(--color-primary);
+  --el-button-hover-text-color: white;
+  --el-button-hover-bg-color: var(--color-primary);
+  --el-button-hover-border-color: var(--color-primary);
+}
+
+:deep(.el-switch.is-checked .el-switch__core) {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+:deep(.el-slider__bar) {
+  background-color: var(--color-primary) !important;
+}
+
+:deep(.el-slider__button) {
+  border-color: var(--color-primary) !important;
 }
 </style>

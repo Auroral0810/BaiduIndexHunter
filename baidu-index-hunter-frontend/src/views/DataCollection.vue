@@ -167,24 +167,15 @@ onMounted(() => {
 <template>
   <div class="data-collection-container">
     <!-- 页面头部 -->
-    <header class="page-header">
-      <div class="header-left">
-        <h1 class="page-title">{{$t('views.datacollection.1r5t7h')}}</h1>
-        <p class="page-subtitle">{{$t('views.datacollection.8h711p')}}</p>
-      </div>
-      
-      <div class="api-status-card" @click="apiStatusDialog = true" :class="{ active: apiStatus }">
-        <div class="status-icon">
-          <div class="pulse-ring" v-if="apiStatus"></div>
-          <el-icon v-if="apiStatus"><Check /></el-icon>
-          <el-icon v-else><Close /></el-icon>
-        </div>
-        <div class="status-info">
-          <span class="status-label">{{$t('views.datacollection.j887qn')}}</span>
-          <span class="status-value">{{ apiStatus ? $t('views.datacollection.qww0ij') : $t('views.datacollection.v35896') }}</span>
+    <!-- 页面头部 -->
+    <div class="page-header">
+      <h1>{{$t('views.datacollection.1r5t7h')}}</h1>
+      <div class="header-actions">
+        <el-tag :type="apiStatus ? 'success' : 'danger'" effect="dark" class="status-tag" @click="apiStatusDialog = true">
+          {{ apiStatus ? $t('views.datacollection.qww0ij') : $t('views.datacollection.v35896') }}
+        </el-tag>
       </div>
     </div>
-    </header>
 
     <!-- 主布局 -->
     <div class="collection-layout">
@@ -327,97 +318,41 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
-}
-
-.page-title {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: var(--color-text-main);
-  margin-bottom: 8px;
-  background: linear-gradient(135deg, var(--color-primary) 0%, #8b5cf6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -1px;
-}
-
-.page-subtitle {
-  font-size: 1.1rem;
-  color: var(--color-text-secondary);
-}
-
-.api-status-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background: var(--color-bg-surface);
-  padding: 12px 20px;
+  margin-bottom: 24px;
+  padding: 20px 32px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: 16px;
   border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  z-index: 10;
+  position: relative;
+}
+
+:root.dark .page-header {
+  background: rgba(30, 41, 59, 0.8);
+}
+
+.page-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  margin: 0;
+}
+
+.status-tag {
   cursor: pointer;
+  padding: 0 12px;
+  height: 32px;
+  line-height: 32px;
+  font-weight: 500;
   transition: all 0.2s;
 }
 
-.api-status-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--color-border-hover);
-}
-
-.api-status-card.active {
-  border-color: rgba(16, 185, 129, 0.3);
-  background: rgba(16, 185, 129, 0.05);
-}
-
-.status-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: var(--color-bg-subtle);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  color: var(--color-text-tertiary);
-}
-
-.api-status-card.active .status-icon {
-  background: #10b981;
-  color: white;
-}
-
-.pulse-ring {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 12px;
-  border: 2px solid #10b981;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 0.8; }
-  70% { transform: scale(1.4); opacity: 0; }
-  100% { transform: scale(1); opacity: 0; }
-}
-
-.status-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.status-label {
-  font-size: 0.75rem;
-  color: var(--color-text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.status-value {
-  font-weight: 600;
-  color: var(--color-text-main);
-  font-size: 0.95rem;
+.status-tag:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 /* Layout */
@@ -745,5 +680,54 @@ onMounted(() => {
     right: 24px;
     bottom: 24px;
   }
+}
+</style>
+
+<style scoped>
+/* Global Deep Theme Overrides for all child tasks */
+:deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  box-shadow: -1px 0 0 0 var(--color-primary) !important;
+}
+
+:deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+:deep(.el-checkbox__input.is-checked + .el-checkbox__label) {
+  color: var(--color-primary) !important;
+}
+
+:deep(.el-button--primary) {
+  --el-button-bg-color: var(--color-primary);
+  --el-button-border-color: var(--color-primary);
+  --el-button-hover-bg-color: var(--color-primary-light);
+  --el-button-hover-border-color: var(--color-primary-light);
+  --el-button-active-bg-color: var(--color-primary-dark);
+  --el-button-active-border-color: var(--color-primary-dark);
+}
+
+:deep(.el-button--primary.is-plain) {
+  --el-button-text-color: var(--color-primary);
+  --el-button-bg-color: var(--color-bg-subtle);
+  --el-button-border-color: var(--color-primary);
+  --el-button-hover-text-color: white;
+  --el-button-hover-bg-color: var(--color-primary);
+  --el-button-hover-border-color: var(--color-primary);
+}
+
+:deep(.el-switch.is-checked .el-switch__core) {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+:deep(.el-slider__bar) {
+  background-color: var(--color-primary) !important;
+}
+
+:deep(.el-slider__button) {
+  border-color: var(--color-primary) !important;
 }
 </style>

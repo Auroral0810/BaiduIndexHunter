@@ -932,7 +932,7 @@ const confirmSubmitTask = async () => {
 
 .task-header h2 {
   font-size: 28px;
-  color: #409eff;
+  color: #4f46e5;
   margin-bottom: 10px;
 }
 

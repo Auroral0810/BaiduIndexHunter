@@ -951,7 +951,7 @@ const removeInvalidKeywords = () => {
 
 .task-header h2 {
   font-size: 28px;
-  color: #409eff;
+  color: #4f46e5;
   margin-bottom: 10px;
 }
 
@@ -1121,7 +1121,7 @@ const removeInvalidKeywords = () => {
 
 .overview-count {
   font-weight: bold;
-  color: #409eff;
+  color: #4f46e5;
 }
 
 .overview-tags {
