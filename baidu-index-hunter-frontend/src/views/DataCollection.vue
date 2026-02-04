@@ -684,50 +684,60 @@ onMounted(() => {
 </style>
 
 <style scoped>
-/* Global Deep Theme Overrides for all child tasks */
+/*
+ * Global Theme Override for Data Collection Module
+ * define --el-color-primary to standard Indigo (#4f46e5)
+ * This automatically handles buttons (text/primary), checkboxes, radios, switches, sliders, etc.
+ */
+.data-collection-container {
+  /* Primary Indigo-600 */
+  --el-color-primary: #4f46e5;
+  /* Darker shade for active states (Indigo-700) */
+  --el-color-primary-dark-2: #4338ca;
+  
+  /* Lighter shades for hover/backgrounds */
+  --el-color-primary-light-3: #818cf8;
+  --el-color-primary-light-5: #a5b4fc;
+  --el-color-primary-light-7: #c7d2fe;
+  --el-color-primary-light-8: #e0e7ff;
+  --el-color-primary-light-9: #eef2ff;
+}
+
+/* Ensure deep overrides for components that might not inherit efficiently or rely on direct scope */
+:deep(.el-button--primary) {
+  --el-button-bg-color: var(--el-color-primary);
+  --el-button-border-color: var(--el-color-primary);
+  --el-button-hover-bg-color: var(--el-color-primary-light-3);
+  --el-button-hover-border-color: var(--el-color-primary-light-3);
+  --el-button-active-bg-color: var(--el-color-primary-dark-2);
+  --el-button-active-border-color: var(--el-color-primary-dark-2);
+}
+
+/* Text buttons - Ensure they use the new primary color */
+:deep(.el-button--text) {
+  color: var(--el-color-primary);
+}
+:deep(.el-button--text:hover) {
+  color: var(--el-color-primary-light-3);
+}
+
 :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
-  background-color: var(--color-primary) !important;
-  border-color: var(--color-primary) !important;
-  box-shadow: -1px 0 0 0 var(--color-primary) !important;
+  background-color: var(--el-color-primary) !important;
+  border-color: var(--el-color-primary) !important;
+  box-shadow: -1px 0 0 0 var(--el-color-primary) !important;
 }
 
 :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
-  background-color: var(--color-primary) !important;
-  border-color: var(--color-primary) !important;
+  background-color: var(--el-color-primary) !important;
+  border-color: var(--el-color-primary) !important;
 }
 
 :deep(.el-checkbox__input.is-checked + .el-checkbox__label) {
-  color: var(--color-primary) !important;
-}
-
-:deep(.el-button--primary) {
-  --el-button-bg-color: var(--color-primary);
-  --el-button-border-color: var(--color-primary);
-  --el-button-hover-bg-color: var(--color-primary-light);
-  --el-button-hover-border-color: var(--color-primary-light);
-  --el-button-active-bg-color: var(--color-primary-dark);
-  --el-button-active-border-color: var(--color-primary-dark);
-}
-
-:deep(.el-button--primary.is-plain) {
-  --el-button-text-color: var(--color-primary);
-  --el-button-bg-color: var(--color-bg-subtle);
-  --el-button-border-color: var(--color-primary);
-  --el-button-hover-text-color: white;
-  --el-button-hover-bg-color: var(--color-primary);
-  --el-button-hover-border-color: var(--color-primary);
+  color: var(--el-color-primary) !important;
 }
 
 :deep(.el-switch.is-checked .el-switch__core) {
-  background-color: var(--color-primary) !important;
-  border-color: var(--color-primary) !important;
-}
-
-:deep(.el-slider__bar) {
-  background-color: var(--color-primary) !important;
-}
-
-:deep(.el-slider__button) {
-  border-color: var(--color-primary) !important;
+  background-color: var(--el-color-primary) !important;
+  border-color: var(--el-color-primary) !important;
 }
 </style>
