@@ -17,7 +17,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from utils.logger import log
 from db.mysql_manager import MySQLManager
-from scheduler.task_executor import task_executor
+# 使用 Scrapy 任务执行器
+from scheduler.scrapy_task_executor import scrapy_task_executor as task_executor
 
 
 class TaskScheduler:

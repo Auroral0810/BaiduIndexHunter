@@ -17,6 +17,15 @@ requests==2.26.0
 selenium>=4.10.0
 webdriver-manager>=3.8.0
 
+# Scrapy 框架
+Scrapy>=2.11.0
+Twisted>=23.10.0
+# Scrapy 相关依赖
+itemadapter>=0.8.0
+parsel>=1.8.0
+protego>=0.2.0
+w3lib>=2.1.0
+
 # 任务调度
 apscheduler>=3.9.0
 schedule==1.2.1
