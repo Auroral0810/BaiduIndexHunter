@@ -92,10 +92,7 @@ onMounted(() => {
     <header class="app-header">
       <div class="header-container">
         <div class="logo-area" @click="router.push('/')">
-          <!-- 纯 CSS 高级 Logo -->
-          <div class="logo-icon">
-            <span class="logo-char">B</span> <span class="logo-char-i">I</span>
-          </div>
+          <img src="@/assets/logo.svg" alt="Logo" class="logo-image" />
           <div class="logo-text">
             <span>BaiduIndex</span> <span class="logo-suffix">Hunter</span>
           </div>
@@ -357,7 +354,6 @@ html.dark .app-header {
   justify-content: space-between;
   padding: 0 24px;
 }
-
 /* Logo 区域 */
 .logo-area {
   display: flex;
@@ -367,62 +363,15 @@ html.dark .app-header {
   user-select: none;
 }
 
-/* 高级 Logo 样式 - 纯 CSS */
-.logo-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 1.1rem;
-  letter-spacing: -1px;
-  position: relative;
-  background: linear-gradient(135deg, var(--color-primary), #a855f7);
-  box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
-  color: white;
-  transition: all 0.3s ease;
+.logo-image {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.3s ease;
 }
 
-.logo-icon::after {
-  content: "";
-  position: absolute;
-  top: 1px;
-  left: 1px;
-  right: 1px;
-  bottom: 1px;
-  background: transparent; /* 实心模式 */
-  /* 若要边框模式，可以设为 var(--color-bg-surface) 并把上面的 color 设为 var(--color-primary) */
-  border-radius: 9px;
-  z-index: 0;
-}
-
-/* 微光边框效果 */
-.logo-icon::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(
-    135deg,
-    rgba(79, 70, 229, 0.5),
-    rgba(168, 85, 247, 0.5)
-  );
-  border-radius: 12px;
-  z-index: -1;
-  opacity: 0.5;
-}
-
-.logo-char {
-  z-index: 1;
-  margin-right: 1px;
-}
-.logo-char-i {
-  z-index: 1;
-  opacity: 0.9;
+.logo-area:hover .logo-image {
+  transform: scale(1.05);
 }
 
 .logo-text {

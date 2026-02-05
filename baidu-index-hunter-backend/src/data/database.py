@@ -46,7 +46,7 @@ def session_scope():
     上下文管理器形式的 Session 获取
     用法: with session_scope() as session: ...
     """
-    session = Session(engine)
+    session = Session(engine, expire_on_commit=False)
     try:
         yield session
         session.commit()

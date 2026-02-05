@@ -27,12 +27,39 @@ class TaskRepository(BaseRepository[SpiderTaskModel]):
             statement = select(SpiderTaskModel).where(SpiderTaskModel.task_id == task_id)
             return session.exec(statement).first()
 
-    def count_tasks(self, start_time: Optional[datetime] = None) -> int:
-        """统计任务总数"""
+    def list_tasks(self, status: Optional[str] = None, task_type: Optional[str] = None, 
+                   created_by: Optional[str] = None, limit: int = 10, offset: int = 0) -> List[SpiderTaskModel]:
+        """获取任务列表 (支持筛选)"""
+        with session_scope() as session:
+            statement = select(SpiderTaskModel)
+            
+            if status:
+                statement = statement.where(SpiderTaskModel.status == status)
+            if task_type:
+                statement = statement.where(SpiderTaskModel.task_type == task_type)
+            if created_by:
+                statement = statement.where(SpiderTaskModel.created_by == created_by)
+                
+            statement = statement.order_by(col(SpiderTaskModel.create_time).desc())
+            statement = statement.offset(offset).limit(limit)
+            
+            return session.exec(statement).all()
+
+    def count_tasks(self, status: Optional[str] = None, task_type: Optional[str] = None, 
+                    created_by: Optional[str] = None, start_time: Optional[datetime] = None) -> int:
+        """统计任务总数 (支持筛选)"""
         with session_scope() as session:
             statement = select(func.count(SpiderTaskModel.id))
+            
+            if status:
+                statement = statement.where(SpiderTaskModel.status == status)
+            if task_type:
+                statement = statement.where(SpiderTaskModel.task_type == task_type)
+            if created_by:
+                statement = statement.where(SpiderTaskModel.created_by == created_by)
             if start_time:
                 statement = statement.where(SpiderTaskModel.create_time >= start_time)
+                
             return session.exec(statement).one() or 0
 
     def get_task_counts_by_status(self, start_time: Optional[datetime] = None) -> List[Dict]:

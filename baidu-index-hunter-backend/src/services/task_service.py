@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Dict, Any, List, Optional, Union, Tuple
 from src.core.logger import log
 from src.scheduler.scheduler import task_scheduler
+from src.data.repositories.task_repository import task_repo
 from src.core.constants.respond import ResponseCode
 
 class TaskService:
@@ -254,15 +255,21 @@ class TaskService:
 
     def list_tasks(self, **kwargs):
         """获取任务列表"""
-        return task_scheduler.list_tasks(**kwargs)
+        # 使用 Repo 直接获取 (支持筛选)
+        tasks = task_repo.list_tasks(**kwargs)
+        # 转换为字典列表
+        return [t.model_dump() for t in tasks]
 
     def count_tasks(self, **kwargs):
         """获取任务数量"""
-        return task_scheduler.count_tasks(**kwargs)
+        return task_repo.count_tasks(**kwargs)
 
     def get_task(self, task_id: str):
         """获取任务详情"""
-        return task_scheduler.get_task(task_id)
+        task = task_repo.get_by_task_id(task_id)
+        if task:
+            return task.model_dump()
+        return None
 
     def get_task_logs(self, task_id: str, limit: int = 100):
         """获取任务日志"""
