@@ -14,8 +14,10 @@ from typing import Dict, List, Tuple, Any, Optional, Set, Union
 import execjs
 import redis
 from src.core.logger import log
-from src.core.config import MYSQL_CONFIG, REDIS_CONFIG, CIPHER_TEXT_JS_PATH
+from src.core.config import REDIS_CONFIG, CIPHER_TEXT_JS_PATH
 from src.engine.crypto.ab_sr_updater import AbSrUpdater
+from src.data.repositories.cookie_repository import cookie_repo
+from src.data.models.cookie import CookieModel
 
 
 
@@ -32,9 +34,9 @@ class CookieManager:
     REDIS_EXPIRE = 60 * 60 * 24 * 7
     
     def __init__(self):
-        """初始化数据库连接"""
-        self.conn = None
-        self._connect_db()
+        """初始化"""
+        # 注入 Repository
+        self.repo = cookie_repo
         
         # 初始化Redis连接
         self.redis_client = None
@@ -54,35 +56,7 @@ class CookieManager:
             raise FileNotFoundError(f"找不到 Cipher-Text.js 文件: {CIPHER_TEXT_JS_PATH}")
         return str(CIPHER_TEXT_JS_PATH)
 
-    def _connect_db(self):
-        """连接到MySQL数据库"""
-        max_retries = 3
-        retry_delay = 2  # 秒
-        
-        for attempt in range(max_retries):
-            try:
-                self.conn = pymysql.connect(
-                    host=MYSQL_CONFIG['host'],
-                    port=MYSQL_CONFIG['port'],
-                    user=MYSQL_CONFIG['user'],
-                    password=MYSQL_CONFIG['password'],
-                    db=MYSQL_CONFIG['db'],
-                    charset='utf8mb4',
-                    cursorclass=pymysql.cursors.DictCursor,
-                    connect_timeout=10,  # 增加连接超时时间
-                    read_timeout=30,     # 增加读取超时时间
-                    write_timeout=30     # 增加写入超时时间
-                )
-                # log.info("成功连接到MySQL数据库")
-                return
-            except Exception as e:
-                log.error(f"连接MySQL数据库失败: {e}")
-                if attempt < max_retries - 1:
-                    log.info(f"尝试重新连接MySQL，第 {attempt + 1} 次...")
-                    time.sleep(retry_delay)
-                else:
-                    log.error("已达到最大重试次数，无法连接到MySQL数据库")
-                    self.conn = None
+
     
     def _connect_redis(self):
         """连接Redis"""
@@ -937,7 +911,7 @@ class CookieManager:
         
         for attempt in range(max_retries):
             try:
-                cursor = self._get_cursor()
+                cursor = self.conn.cursor(pymysql.cursors.DictCursor)
                 sql = """
                 SELECT DISTINCT account_id FROM cookies 
                 WHERE is_available = 1 
