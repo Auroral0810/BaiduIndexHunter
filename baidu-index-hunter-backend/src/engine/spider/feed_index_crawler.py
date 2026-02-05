@@ -17,7 +17,7 @@ from src.core.config import BAIDU_INDEX_API, OUTPUT_DIR
 from fake_useragent import UserAgent
 from src.engine.spider.base_crawler import BaseCrawler
 from datetime import datetime
-from src.utils import storage_service
+from src.services.storage_service import storage_service
 
 # 自定义异常类
 class NoCookieAvailableError(Exception):

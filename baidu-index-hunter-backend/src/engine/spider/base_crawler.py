@@ -278,8 +278,12 @@ class BaseCrawler:
         try:
             data = storage_service.load_pickle(path)
             if data:
-                self.completed_keywords = set(data.get('completed_keywords', []))
-                self.failed_keywords = set(data.get('failed_keywords', []))
+                completed_keywords = data.get('completed_keywords', [])
+                self.completed_keywords = set(completed_keywords) if isinstance(completed_keywords, list) else completed_keywords
+                
+                failed_keywords = data.get('failed_keywords', [])
+                self.failed_keywords = set(failed_keywords) if isinstance(failed_keywords, list) else failed_keywords
+                
                 self.completed_tasks = data.get('completed_tasks', 0)
                 self.failed_tasks = data.get('failed_tasks', 0)
                 self.total_tasks = data.get('total_tasks', 0)
@@ -344,5 +348,23 @@ class BaseCrawler:
             return False
             
         except Exception as e:
-            log.error(f"Resume Task Error: {e}")
+            log.error(f"[{self.task_type}] Resume Task Error: {e}")
             return False
+    def _process_task(self, task_data: Any) -> Any:
+        """
+        [Template Method] 处理单个任务项的通用流程。
+        子类应实现此方法来执行具体的业务逻辑。
+        """
+        raise NotImplementedError("Subclasses must implement _process_task")
+
+    def _prepare_tasks(self, **kwargs) -> List[Any]:
+        """
+        [Template Method] 准备所有待抓取的任务项列表。
+        """
+        return []
+
+    def _finalize_crawl(self, status: str, message: Optional[str] = None):
+        """爬取结束后的通用清理逻辑"""
+        self._flush_buffer(force=True)
+        self._update_task_db_status(status, progress=100, error_message=message)
+        log.info(f"[{self.task_type}] 任务 {self.task_id} 结束，状态: {status}")

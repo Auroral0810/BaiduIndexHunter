@@ -1,19 +1,6 @@
 """
 搜索指数爬虫（日度、周度数据和整体统计数据）
 """
-import pandas as pd
-import requests
-import json
-import time
-import signal
-import os
-import sys
-import threading
-import pickle
-from datetime import datetime, timedelta
-from pathlib import Path
-import traceback
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import urllib.parse
 
 from src.core.logger import log
@@ -22,8 +9,6 @@ from src.utils.decorators import retry
 from src.engine.crypto.cipher_generator import cipher_text_generator
 from src.services.processor_service import data_processor
 from src.services.storage_service import storage_service
-from src.services.region_service import get_region_manager
-from src.services.cookie_rotator import cookie_rotator
 from src.core.config import BAIDU_INDEX_API, OUTPUT_DIR
 from src.engine.spider.base_crawler import BaseCrawler
 
@@ -38,40 +23,37 @@ class SearchIndexCrawler(BaseCrawler):
     def __init__(self):
         """初始化爬虫"""
         super().__init__(task_type="search_index")
-        # 设置线程池最大工作线程数
+        
+        # 爬虫特定配置
         from src.services.config_service import config_manager
         self.max_workers = int(config_manager.get('spider.max_workers', 5))
         self.timeout = int(config_manager.get('spider.timeout', 15))
         self.retry_times = int(config_manager.get('spider.retry_times', 2))
-        log.info(f"爬虫配置已加载: max_workers={self.max_workers}, timeout={self.timeout}, retry_times={self.retry_times}")
         
         self.current_keyword_index = 0
         self.current_city_index = 0
         self.current_date_range_index = 0
         self.city_dict = {}
-        # 设置线程池最大工作线程数
-        from src.services.config_service import config_manager
-        self.max_workers = int(config_manager.get('spider.max_workers', 5))
-        self.timeout = int(config_manager.get('spider.timeout', 15))
-        self.retry_times = int(config_manager.get('spider.retry_times', 2))
-        log.info(f"爬虫配置已加载: max_workers={self.max_workers}, timeout={self.timeout}, retry_times={self.retry_times}")
-        # 修改为动态配置线程
         
-    # _update_task_db_status, _update_spider_statistics, _flush_buffer, _save_global_checkpoint 均由 BaseCrawler 提供
-    
+        log.info(f"SearchIndexCrawler 爬虫配置已加载: max_workers={self.max_workers}, timeout={self.timeout}, retry_times={self.retry_times}")
+        
+    # --- 覆盖基类方法以处理特定的状态 ---
+
     def _load_global_checkpoint(self, task_id):
         """加载全局检查点 (覆盖基类以处理 city_dict)"""
         checkpoint = super()._load_global_checkpoint(task_id)
         if checkpoint:
             self.city_dict = checkpoint.get('city_dict', {})
+            self.current_keyword_index = checkpoint.get('current_keyword_index', 0)
+            self.current_city_index = checkpoint.get('current_city_index', 0)
+            self.current_date_range_index = checkpoint.get('current_date_range_index', 0)
             return True
         return False
 
     def _save_global_checkpoint(self):
-        """保存全局检查点 (覆盖基类以包含 city_dict)"""
+        """保存全局检查点 (覆盖基类以包含特定状态)"""
         if not self.checkpoint_path: return
         try:
-            # 获取基类导出的数据
             checkpoint_data = {
                 'completed_keywords': list(self.completed_keywords),
                 'failed_keywords': list(self.failed_keywords),
@@ -81,51 +63,15 @@ class SearchIndexCrawler(BaseCrawler):
                 'task_id': self.task_id,
                 'output_path': self.output_path,
                 'update_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'city_dict': self.city_dict # 额外保存 city_dict
+                'city_dict': self.city_dict,
+                'current_keyword_index': self.current_keyword_index,
+                'current_city_index': self.current_city_index,
+                'current_date_range_index': self.current_date_range_index,
             }
             storage_service.save_pickle(checkpoint_data, self.checkpoint_path)
-            log.info(f"检查点已更新: {self.completed_tasks}/{self.total_tasks}")
+            log.info(f"[{self.task_type}] 检查点已保存: {self.completed_tasks}/{self.total_tasks}")
         except Exception as e:
             log.error(f"Save Checkpoint Error: {e}")
-
-
-    def _update_ab_sr_cookies(self):
-        """更新所有账号的ab_sr cookie"""
-        try:
-            # log.info("开始更新所有账号的ab_sr cookie...")
-            # 导入需要的模块
-            from src.services.cookie_service import CookieManager
-            
-            # 创建Cookie管理器
-            cookie_manager = CookieManager()
-            
-            # 更新所有账号的ab_sr cookie
-            result = cookie_manager.update_ab_sr_for_all_accounts()
-            
-            # 关闭Cookie管理器连接
-            cookie_manager.close()
-            
-            if 'error' in result:
-                log.error(f"更新ab_sr cookie失败: {result['error']}")
-                return False
-            
-            # log.info(f"成功更新ab_sr cookie: 更新{result['updated_count']}个，新增{result['added_count']}个，失败{result['failed_count']}个")
-            
-            # 更新完成后重置cookie轮换器的缓存
-            self.cookie_rotator.reset_cache()
-            
-            return True
-        except Exception as e:
-            log.error(f"更新ab_sr cookie时出错: {e}")
-            log.error(traceback.format_exc())
-            return False
-    
-    @retry(max_retries=3, delay=2)
-    def _get_cipher_text(self, keyword):
-        """获取Cipher-Text参数"""
-        encoded_keyword = keyword.replace(' ', '%20')
-        cipher_url = f'{BAIDU_INDEX_API["referer"]}#/trend/{encoded_keyword}?words={encoded_keyword}'
-        return cipher_text_generator.generate(cipher_url)
     
     @retry(max_retries=3, delay=2)
     def _get_search_index(self, area, keywords, start_date, end_date):
@@ -560,84 +506,6 @@ class SearchIndexCrawler(BaseCrawler):
             self._update_task_db_status('failed', error_message=str(e))
             return False
     
-    def resume_task(self, task_id):
-        """恢复指定的任务"""
-        log.info(f"尝试恢复任务: {task_id}")
-        
-        # 检查检查点文件是否存在
-        checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/search_index_checkpoint_{task_id}.pkl")
-        if not os.path.exists(checkpoint_path):
-            log.warning(f"未找到任务 {task_id} 的检查点文件，无法恢复")
-            return False
-            
-        # 检查任务在数据库中的状态
-        try:
-            from src.data.repositories.mysql_manager import MySQLManager
-            mysql = MySQLManager()
-            
-            # 查询任务信息
-            query = """
-                SELECT status, progress, completed_items, error_message 
-                FROM spider_tasks 
-                WHERE task_id = %s
-            """
-            task_info = mysql.fetch_one(query, (task_id,))
-            
-            if not task_info:
-                log.warning(f"数据库中未找到任务 {task_id} 的信息，无法恢复")
-                return False
-                
-            log.info(f"任务 {task_id} 当前状态: {task_info['status']}, 进度: {task_info['progress']}%, 已完成项: {task_info['completed_items']}")
-            
-            # 更新任务状态为进行中
-            update_query = """
-                UPDATE spider_tasks 
-                SET status = 'running', error_message = %s, update_time = %s
-                WHERE task_id = %s
-            """
-            mysql.execute_query(
-                update_query, 
-                (f"任务于 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} 恢复执行", datetime.now(), task_id)
-            )
-            
-            log.info(f"已将任务 {task_id} 状态更新为进行中")
-            
-        except Exception as e:
-            log.error(f"查询或更新任务状态失败: {e}")
-            log.error(traceback.format_exc())
-        
-        # 恢复任务执行
-        return self.crawl(resume=True, checkpoint_task_id=task_id)
-    
-    def list_tasks(self):
-        """列出所有任务及其状态"""
-        checkpoint_dir = os.path.join(OUTPUT_DIR, "checkpoints")
-        if not os.path.exists(checkpoint_dir):
-            log.info("没有找到任何任务")
-            return []
-            
-        tasks = []
-        for file in os.listdir(checkpoint_dir):
-            if file.endswith("_checkpoint.pkl"):
-                task_id = file.split("_checkpoint.pkl")[0]
-                checkpoint_path = os.path.join(checkpoint_dir, file)
-                
-                with open(checkpoint_path, 'rb') as f:
-                    checkpoint = pickle.load(f)
-                    completed = checkpoint.get('completed_tasks', 0)
-                    total = checkpoint.get('total_tasks', 0)
-                    
-                tasks.append({
-                    'task_id': task_id,
-                    'completed': completed,
-                    'total': total,
-                    'progress': f"{completed}/{total} ({completed/total*100:.2f}%)" if total > 0 else "0%"
-                })
-                
-        return tasks
-
-
-
 # 创建爬虫实例
 search_index_crawler = SearchIndexCrawler()
 
