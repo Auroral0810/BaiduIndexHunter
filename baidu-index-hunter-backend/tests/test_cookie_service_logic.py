@@ -128,6 +128,9 @@ class TestCookieServiceLogic(unittest.TestCase):
         mock_resp = MagicMock()
         mock_resp.json.return_value = {"status": 10001}
         mock_requests_get.return_value = mock_resp
+        
+        # Mock ban_account_temporarily to return an int (banned count)
+        self.service.repo.ban_account_temporarily.return_value = 1
 
         # 2. Run test
         result = self.service.test_cookies_availability()
@@ -135,7 +138,8 @@ class TestCookieServiceLogic(unittest.TestCase):
         # 3. Assertions
         self.assertEqual(result['banned_count'], 1)
         self.service.repo.ban_account_temporarily.assert_called_once()
-        self.service.redis_client.hset.assert_called() # Updates status to 0
+        # In ban_account_temporarily, it calls self.redis_client.hset twice
+        self.assertEqual(self.service.redis_client.hset.call_count, 2)
 
     def test_check_and_update_cookie_status_logic(self):
         """Test the logic for restoring expired temporary bans."""
