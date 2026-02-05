@@ -66,6 +66,11 @@ class CSVExportPipeline:
     def process_item(self, item):
         """将 Item 写入 CSV"""
         spider = self.spider
+        
+        # 跳过 word_check 爬虫
+        if spider.name == 'word_check':
+            return item
+            
         item_type = type(item).__name__
         
         # 跳过内部使用的 Item

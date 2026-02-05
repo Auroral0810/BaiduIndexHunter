@@ -114,7 +114,7 @@ def wait_for_task_results(task_id: str, words: list, redis_client, timeout: int 
             return final_results
         
         # 检查任务状态
-        task_info = task_scheduler.get_task_info(task_id)
+        task_info = task_scheduler.get_task(task_id)
         if task_info and task_info.get('status') in ['completed', 'failed', 'cancelled']:
             # 任务已结束，返回已有结果
             final_results = {}
@@ -401,7 +401,7 @@ def delete_word_cache(keyword):
 def get_word_check_task(task_id):
     """获取关键词检查任务状态"""
     try:
-        task_info = task_scheduler.get_task_info(task_id)
+        task_info = task_scheduler.get_task(task_id)
         
         if not task_info:
             return jsonify(ResponseFormatter.error(ResponseCode.NOT_FOUND, f"任务不存在: {task_id}"))

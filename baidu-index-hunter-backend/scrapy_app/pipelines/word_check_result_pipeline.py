@@ -57,10 +57,10 @@ class WordCheckResultPipeline:
         if self.redis_client:
             self.redis_client.close()
     
-    def process_item(self, item, spider):
+    def process_item(self, item):
         """处理 item，保存到 Redis"""
         # 只处理 word_check 爬虫
-        if spider.name != 'word_check':
+        if self.spider.name != 'word_check':
             return item
         
         try:
@@ -96,9 +96,9 @@ class WordCheckResultPipeline:
                     # 设置任务结果过期时间（1 小时）
                     self.redis_client.expire(task_result_key, 3600)
                 
-                spider.logger.debug(f"Saved word check result to Redis: {keyword} -> {exists}")
+                self.spider.logger.debug(f"Saved word check result to Redis: {keyword} -> {exists}")
         
         except Exception as e:
-            spider.logger.error(f"Failed to save word check result to Redis: {e}")
+            self.spider.logger.error(f"Failed to save word check result to Redis: {e}")
         
         return item
