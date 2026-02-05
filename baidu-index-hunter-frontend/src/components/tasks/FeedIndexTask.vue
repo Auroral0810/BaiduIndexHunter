@@ -480,29 +480,22 @@
                 {{ $t("tasks-FeedIndexTask-19c298e1d0a206148-100") }}</span
               >
               <div class="overview-tags">
-                <template v-if="nationwideSelected"
-                  ><el-tag size="small" class="overview-tag">{{
-                    $t("tasks-FeedIndexTask-19c298e1d0a206148-101")
-                  }}</el-tag></template
+                <el-tag
+                  v-for="(code, index) in selectedCities.slice(0, 10)"
+                  :key="index"
+                  size="small"
+                  class="overview-tag"
+                  >{{ getCityOrProvinceName(code) }}</el-tag
                 >
-                <template v-else
-                  ><el-tag
-                    v-for="(code, index) in selectedCities.slice(0, 10)"
-                    :key="index"
-                    size="small"
-                    class="overview-tag"
-                    >{{ getCityOrProvinceName(code) }}</el-tag
-                  >
-                  <el-tag
-                    v-if="selectedCities.length > 10"
-                    type="info"
-                    size="small"
-                    >{{ $t("tasks-FeedIndexTask-19c298e1d0a206148-102") }}
-                    {{ selectedCities.length - 10 }}
-                    {{
-                      $t("tasks-FeedIndexTask-19c298e1d0a206148-103")
-                    }}</el-tag
-                  ></template
+                <el-tag
+                  v-if="selectedCities.length > 10"
+                  type="info"
+                  size="small"
+                  >{{ $t("tasks-FeedIndexTask-19c298e1d0a206148-102") }}
+                  {{ selectedCities.length - 10 }}
+                  {{
+                    $t("tasks-FeedIndexTask-19c298e1d0a206148-103")
+                  }}</el-tag
                 >
               </div>
             </div></el-descriptions-item
@@ -1248,6 +1241,10 @@ const confirmSubmitTask = async () => {
 
 // 获取城市或省份名称
 const getCityOrProvinceName = (code: string) => {
+  // 处理全国代码
+  if (code === "0") {
+    return t("tasks-FeedIndexTask-19c298e1d0a206148-101"); // 全国
+  }
   if (regionStore.getProvincesList[code]) {
     return regionStore.getProvinceName(code);
   } else if (regionStore.getAllCities[code]) {

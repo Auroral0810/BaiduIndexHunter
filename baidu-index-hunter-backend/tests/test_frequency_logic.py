@@ -111,13 +111,10 @@ class TestFrequencyLogic(unittest.TestCase):
         self.assertEqual(daily_data[4]['PC+移动指数'], '0') # 5th day should be 0 (padded)
 
     def test_duration_based_detection(self):
-        """Test weekly detection based on > 365 days duration"""
+        """Test weekly detection based on > 366 days duration"""
         start_date = "2024-01-01"
-        end_date = "2025-01-02"  # 367 days > 365
+        end_date = "2025-01-02"  # 367 days > 366 (since 2024 is leap year, 366 days)
         
-        # Even if points ratio isn't extremely skewed (hypothetically),
-        # implementation forces weekly for > 365 days.
-        # Let's say we have ~52 points (weekly)
         decrypted_all = ",".join(["100"] * 53)
         decrypted_wise = ",".join(["50"] * 53)
         decrypted_pc = ",".join(["50"] * 53)
@@ -132,6 +129,36 @@ class TestFrequencyLogic(unittest.TestCase):
         # Should be weekly
         self.assertEqual(daily_data[0]['数据类型'], '周度')
         self.assertEqual(daily_data[0]['数据间隔(天)'], 7)
+
+    def test_leap_year_daily(self):
+        """Test leap year (366 days) should be daily"""
+        start_date = "2024-01-01"
+        end_date = "2024-12-31"  # 366 days (leap year)
+        
+        decrypted_all = ",".join(["100"] * 366)
+        decrypted_wise = ",".join(["50"] * 366)
+        decrypted_pc = ",".join(["50"] * 366)
+        
+        data = {"data": {"generalRatio": [{"all": {"avg": 100}}]}}
+        
+        daily_data, _ = self.processor.process_search_index_daily_data(
+            data, {}, "test", 0, "test", start_date, end_date, 
+            decrypted_all, decrypted_wise, decrypted_pc
+        )
+        
+        self.assertEqual(len(daily_data), 366)
+        self.assertEqual(daily_data[0]['数据类型'], '日度') # Must be daily
+        self.assertEqual(daily_data[0]['数据间隔(天)'], 1)
+        
+        data = {"data": {"generalRatio": [{"all": {"avg": 100}}]}}
+        
+        daily_data, _ = self.processor.process_search_index_daily_data(
+            data, {}, "test", 0, "test", start_date, end_date, 
+            decrypted_all, decrypted_wise, decrypted_pc
+        )
+        
+        self.assertEqual(daily_data[0]['数据类型'], '日度') # Must be daily
+        self.assertEqual(daily_data[0]['数据间隔(天)'], 1)
 
 
 if __name__ == '__main__':

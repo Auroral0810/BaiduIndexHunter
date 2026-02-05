@@ -102,17 +102,16 @@ class SearchProcessor:
             delta = end_dt - start_dt
             expected_days = delta.days + 1
             
-            # 自动探测数据频率 (日度 vs 周度)
-            # 规则: 跨度超过365天，强制认为周度；否则认为日度
-            if expected_days > 365:
+            # 规则: 跨度超过366天（考虑到闰年），强制认为周度；否则认为日度
+            if expected_days > 366:
                 interval_days = 7
                 data_type = '周度'
-                log.info(f"Detect weekly data for {keyword} (Duration > 365 days). Range: {expected_days} days")
+                log.info(f"Detect weekly data for {keyword} (Duration > 366 days). Range: {expected_days} days")
             else:
-                # 即使数据点少，只要是一年内，也强制认为是日度（根据用户要求，可能是缺失数据需要补0）
+                # 即使数据点少，只要是一年内（含闰年），也强制认为是日度（根据用户要求，可能是缺失数据需要补0）
                 interval_days = 1
                 data_type = '日度'
-                log.info(f"Detect daily data for {keyword} (Duration <= 365 days). Range: {expected_days} days")
+                log.info(f"Detect daily data for {keyword} (Duration <= 366 days). Range: {expected_days} days")
             
             daily_data = []
             

@@ -57,13 +57,13 @@ class FeedProcessor:
             values = [v if v.strip() else '0' for v in raw_values]
             data_length = len(values)
             
-            if total_days > 365:
+            if total_days > 366:
                  # Auto-detect weekly for long duration
                  interval, data_frequency = 7, '周度'
-                 log.info(f"FeedProcessor: Auto-detect weekly data for {keyword} (Duration > 365 days)")
+                 log.info(f"FeedProcessor: Auto-detect weekly data for {keyword} (Duration > 366 days)")
             else:
                 interval, data_frequency = 1, '日度'
-                log.info(f"FeedProcessor: Detect daily data for {keyword} (Duration <= 365 days)")
+                log.info(f"FeedProcessor: Detect daily data for {keyword} (Duration <= 366 days)")
 
             daily_data = []
             
