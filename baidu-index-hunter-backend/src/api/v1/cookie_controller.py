@@ -611,58 +611,7 @@ def update_account_id(cookie_manager,old_account_id):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"更新账号ID失败: {str(e)}"))
 
 @admin_cookie_bp.route('/test-availability', methods=['POST'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '测试Cookie可用性',
-    'description': '测试所有可用Cookie的可用性，并根据测试结果更新Cookie状态',
-    'responses': {
-        '200': {
-            'description': '测试成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': 'Cookie可用性测试完成'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'valid_accounts': {
-                                'type': 'array',
-                                'items': {'type': 'string'},
-                                'description': '可用的账号ID列表'
-                            },
-                            'banned_accounts': {
-                                'type': 'array',
-                                'items': {'type': 'string'},
-                                'description': '被封禁的账号ID列表'
-                            },
-                            'not_login_accounts': {
-                                'type': 'array',
-                                'items': {'type': 'string'},
-                                'description': '未登录的账号ID列表'
-                            },
-                            'total_tested': {'type': 'integer', 'description': '测试的总账号数'},
-                            'valid_count': {'type': 'integer', 'description': '可用的账号数'},
-                            'banned_count': {'type': 'integer', 'description': '被封禁的账号数'},
-                            'not_login_count': {'type': 'integer', 'description': '未登录的账号数'}
-                        }
-                    }
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(TEST_COOKIE_AVAILABILITY_SPEC)
 @with_cookie_manager
 def test_cookie_availability(cookie_manager):
     """测试所有可用Cookie的可用性"""
@@ -857,42 +806,7 @@ def get_banned_accounts(cookie_manager):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取被封禁账号列表失败: {str(e)}"))
 
 @admin_cookie_bp.route('/update-ab-sr', methods=['POST'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '更新所有账号的ab_sr cookie',
-    'description': '为所有账号获取最新的ab_sr cookie值，如果账号没有则添加',
-    'responses': {
-        '200': {
-            'description': '更新成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '成功更新ab_sr cookie'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'updated_count': {'type': 'integer', 'description': '更新成功的账号数'},
-                            'failed_count': {'type': 'integer', 'description': '更新失败的账号数'},
-                            'added_count': {'type': 'integer', 'description': '新增ab_sr字段的账号数'}
-                        }
-                    }
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(UPDATE_AB_SR_SPEC)
 @with_cookie_manager
 def update_ab_sr(cookie_manager):
     """更新所有账号的ab_sr cookie值"""
@@ -920,35 +834,7 @@ def update_ab_sr(cookie_manager):
         })
 
 @admin_cookie_bp.route('/sync-to-redis', methods=['POST'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '同步Cookie到Redis',
-    'description': '将数据库中的Cookie数据同步到Redis缓存中',
-    'responses': {
-        '200': {
-            'description': '同步成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': 'Cookie数据成功同步到Redis'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(SYNC_TO_REDIS_SPEC)
 @with_cookie_manager
 def sync_to_redis(cookie_manager):
     """将数据库中的Cookie数据同步到Redis"""
@@ -963,70 +849,7 @@ def sync_to_redis(cookie_manager):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"同步到Redis失败: {str(e)}"))
 
 @admin_cookie_bp.route('/usage', methods=['GET'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '获取Cookie使用量统计',
-    'description': '获取指定时间范围内的Cookie使用量统计',
-    'parameters': [
-        {
-            'name': 'account_id',
-            'in': 'query',
-            'type': 'string',
-            'required': False,
-            'description': '账号ID，用于过滤指定账号的使用量'
-        },
-        {
-            'name': 'start_date',
-            'in': 'query',
-            'type': 'string',
-            'format': 'date',
-            'required': False,
-            'description': '开始日期，格式为YYYY-MM-DD'
-        },
-        {
-            'name': 'end_date',
-            'in': 'query',
-            'type': 'string',
-            'format': 'date',
-            'required': False,
-            'description': '结束日期，格式为YYYY-MM-DD'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '请求成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'array',
-                        'items': {
-                            'type': 'object',
-                            'properties': {
-                                'account_id': {'type': 'string'},
-                                'usage_date': {'type': 'string', 'format': 'date'},
-                                'usage_count': {'type': 'integer'}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(GET_COOKIE_USAGE_SPEC)
 def get_cookie_usage():
     """获取Cookie使用量统计"""
     try:
@@ -1052,40 +875,7 @@ def get_cookie_usage():
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取Cookie使用量统计失败: {str(e)}"))
 
 @admin_cookie_bp.route('/usage/today', methods=['GET'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '获取今日Cookie使用量',
-    'description': '从Redis获取今日的Cookie使用量统计',
-    'responses': {
-        '200': {
-            'description': '请求成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'additionalProperties': {
-                            'type': 'integer'
-                        }
-                    }
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(GET_TODAY_COOKIE_USAGE_SPEC)
 def get_today_cookie_usage():
     """获取今日Cookie使用量"""
     try:
@@ -1101,40 +891,7 @@ def get_today_cookie_usage():
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取今日Cookie使用量失败: {str(e)}"))
 
 @admin_cookie_bp.route('/usage/sync', methods=['POST'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '同步Redis和MySQL中的Cookie使用量数据',
-    'description': '手动同步Redis和MySQL中的Cookie使用量数据，确保两者一致',
-    'responses': {
-        '200': {
-            'description': '同步成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '同步成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'synced_accounts': {'type': 'integer', 'description': '同步的账号数量'}
-                        }
-                    }
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(SYNC_COOKIE_USAGE_SPEC)
 def sync_cookie_usage():
     """同步Redis和MySQL中的Cookie使用量数据"""
     try:
