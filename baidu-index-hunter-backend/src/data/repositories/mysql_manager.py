@@ -13,6 +13,10 @@ from src.core.config import MYSQL_CONFIG
 
 
 import threading
+from typing import List, Dict, Any, Optional, Union, Tuple, Type, TypeVar
+
+# 导入基础模型类型（用于泛型提示）
+T = TypeVar("T", bound="src.data.models.base.BaseDataModel")
 
 class MySQLManager:
     """MySQL数据库连接管理器"""
@@ -240,6 +244,22 @@ class MySQLManager:
                 raise
         
         return []
+
+    def fetch_model(self, model_class: Type[T], query: str, params: tuple = None) -> Optional[T]:
+        """
+        执行查询并将单条结果映射为 Pydantic 模型
+        """
+        row = self.fetch_one(query, params)
+        if not row:
+            return None
+        return model_class.from_db_row(row)
+
+    def fetch_all_models(self, model_class: Type[T], query: str, params: tuple = None) -> List[T]:
+        """
+        执行查询并将结果集映射为 Pydantic 模型列表
+        """
+        rows = self.fetch_all(query, params)
+        return [model_class.from_db_row(row) for row in rows if row]
     def insert(self, table, data):
         """
         插入数据
