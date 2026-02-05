@@ -9,7 +9,8 @@ from datetime import datetime
 from src.core.logger import log, log_task_operation
 from src.services.cookie_service import CookieManager
 from src.services.config_service import config_manager
-from src.data.repositories.mysql_manager import MySQLManager
+# from src.data.repositories.mysql_manager import MySQLManager
+from src.data.repositories.task_repository import task_repo
 from src.scheduler.scheduler import task_scheduler
 
 # Cookie检查配置
@@ -80,13 +81,8 @@ def resume_paused_tasks():
             log.info("没有可用cookie，无法恢复任务")
             return
 
-        mysql = MySQLManager()
-        query = """
-            SELECT task_id, error_message, update_time FROM spider_tasks 
-            WHERE status = 'paused'
-            ORDER BY update_time DESC LIMIT 10
-        """
-        paused_tasks = mysql.fetch_all(query)
+        # 使用 Repository 获取暂停的任务
+        paused_tasks = task_repo.get_paused_tasks(limit=10)
 
         if not paused_tasks:
             log.info("没有暂停的任务需要恢复")
@@ -94,7 +90,7 @@ def resume_paused_tasks():
 
         resumed_count = 0
         for task in paused_tasks:
-            task_id = task['task_id']
+            task_id = task.task_id
             if task_scheduler.resume_task(task_id):
                 resumed_count += 1
                 log.info(f"成功恢复任务: {task_id}")

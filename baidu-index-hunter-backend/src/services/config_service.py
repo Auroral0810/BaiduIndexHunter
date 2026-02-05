@@ -6,21 +6,20 @@ import os
 import sys
 import json
 import time
-import pymysql
 from typing import Dict, Any, Optional, Union
 from datetime import datetime
 
 from src.core.logger import log
-from src.data.repositories.mysql_manager import MySQLManager
-from src.core.config import MYSQL_CONFIG
-
+# from src.data.repositories.mysql_manager import MySQLManager # Removed
+from src.data.repositories.config_repository import config_repo
 
 class ConfigManager:
     """配置管理器，用于从数据库中读取和更新系统配置"""
     
     def __init__(self):
         """初始化配置管理器"""
-        self.mysql = MySQLManager()
+        # self.mysql = MySQLManager() # Removed
+        self.repo = config_repo
         self.config_cache = {}
         self.last_refresh_time = 0
         self.cache_ttl = 300  # 缓存有效期（秒）
@@ -31,23 +30,19 @@ class ConfigManager:
     def refresh_cache(self) -> bool:
         """刷新配置缓存"""
         try:
-            # 从数据库加载所有配置
-            query = "SELECT config_key, config_value FROM system_config"
-            results = self.mysql.fetch_all(query)
+            # 从 Repository 加载所有配置 (返回 Dict[str, str])
+            raw_configs = self.repo.get_all_as_dict()
             
-            if results:
+            if raw_configs:
                 # 更新缓存
                 new_cache = {}
-                for row in results:
-                    key = row['config_key']
-                    value = row['config_value']
-                    
+                for key, value_str in raw_configs.items():
                     # 尝试将JSON字符串转换为Python对象
                     try:
-                        value = json.loads(value)
+                        value = json.loads(value_str)
                     except (json.JSONDecodeError, TypeError):
                         # 如果不是有效的JSON，保留原始字符串
-                        pass
+                        value = value_str
                     
                     new_cache[key] = value
                 
@@ -66,13 +61,6 @@ class ConfigManager:
     def get(self, key: str, default: Any = None) -> Any:
         """
         获取配置项
-        
-        参数:
-            key: 配置键
-            default: 默认值，如果配置不存在则返回此值
-            
-        返回:
-            配置值或默认值
         """
         # 检查缓存是否过期
         if time.time() - self.last_refresh_time > self.cache_ttl:
@@ -83,13 +71,6 @@ class ConfigManager:
     def set(self, key: str, value: Any) -> bool:
         """
         设置配置项
-        
-        参数:
-            key: 配置键
-            value: 配置值
-            
-        返回:
-            bool: 是否设置成功
         """
         try:
             # 将复杂对象转换为JSON字符串
@@ -98,13 +79,8 @@ class ConfigManager:
             else:
                 value_str = str(value)
             
-            # 更新或插入配置
-            query = """
-                INSERT INTO system_config (config_key, config_value) 
-                VALUES (%s, %s)
-                ON DUPLICATE KEY UPDATE config_value = %s, update_time = NOW()
-            """
-            self.mysql.execute_query(query, (key, value_str, value_str))
+            # 使用 Repository 更新 (封装了 UPSERT 逻辑)
+            self.repo.set_config(key, value_str)
             
             # 更新缓存
             self.config_cache[key] = value
@@ -119,23 +95,18 @@ class ConfigManager:
     def delete(self, key: str) -> bool:
         """
         删除配置项
-        
-        参数:
-            key: 配置键
-            
-        返回:
-            bool: 是否删除成功
         """
         try:
-            query = "DELETE FROM system_config WHERE config_key = %s"
-            result = self.mysql.execute_query(query, (key,))
-            
-            # 从缓存中移除
-            if key in self.config_cache:
-                del self.config_cache[key]
-            
-            log.info(f"配置已删除: {key}")
-            return True
+            if self.repo.delete_by_key(key):
+                # 从缓存中移除
+                if key in self.config_cache:
+                    del self.config_cache[key]
+                
+                log.info(f"配置已删除: {key}")
+                return True
+            else:
+                log.warning(f"删除配置失败: 未找到键 {key}")
+                return False
             
         except Exception as e:
             log.error(f"删除配置失败: {key} - {e}")

@@ -5,9 +5,10 @@ import time
 import random
 import json
 import threading
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from src.core.logger import log
-from src.data.repositories.mysql_manager import mysql_manager
+# from src.data.repositories.mysql_manager import mysql_manager # Removed
+from src.data.repositories.cookie_usage_repository import cookie_usage_repo
 from src.core.config import COOKIE_CONFIG
 from src.services.cookie_service import CookieManager
 
@@ -25,6 +26,9 @@ class CookieRotator:
         # Redis键名 - 添加cookie使用量相关的键
         self.REDIS_COOKIE_USAGE_KEY = "baidu_index:cookie_usage"
         self.REDIS_COOKIE_USAGE_DATE_KEY = "baidu_index:cookie_usage_date"
+        
+        self.usage_repo = cookie_usage_repo
+
         # 同步Redis和MySQL中的使用量数据
         self._sync_usage_data()
         self._update_cookie_list()
@@ -38,21 +42,18 @@ class CookieRotator:
                 return
             
             # 获取当前日期
-            today = datetime.now().strftime('%Y-%m-%d')
+            today_str = datetime.now().strftime('%Y-%m-%d')
+            today_date = datetime.now().date()
             
-            # 从MySQL获取今日的使用量数据
-            query = """
-            SELECT account_id, usage_count FROM cookie_daily_usage 
-            WHERE usage_date = %s
-            """
-            mysql_data = mysql_manager.fetch_all(query, (today,))
+            # 从MySQL获取今日的使用量数据 (使用 Repository)
+            mysql_data = self.usage_repo.get_usage_by_date(today_date)
             
             # 从Redis获取今日的使用量数据
-            redis_key = f"{self.REDIS_COOKIE_USAGE_KEY}:{today}"
+            redis_key = f"{self.REDIS_COOKIE_USAGE_KEY}:{today_str}"
             redis_data = self.cookie_manager.redis_client.hgetall(redis_key)
             
             # 将MySQL数据转换为字典格式
-            mysql_dict = {item['account_id']: item['usage_count'] for item in mysql_data}
+            mysql_dict = {item.account_id: item.usage_count for item in mysql_data}
             
             # 将Redis数据转换为字典格式
             redis_dict = {account_id: int(count) for account_id, count in redis_data.items()}
@@ -77,14 +78,9 @@ class CookieRotator:
             
             pipe.execute()
             
-            # 更新MySQL数据
+            # 更新MySQL数据 (使用 Repository)
             for account_id, count in merged_data.items():
-                query = """
-                INSERT INTO cookie_daily_usage (account_id, usage_date, usage_count)
-                VALUES (%s, %s, %s)
-                ON DUPLICATE KEY UPDATE usage_count = %s
-                """
-                mysql_manager.execute_query(query, (account_id, today, count, count))
+                self.usage_repo.update_usage(account_id, today_date, count)
             
             log.info(f"已同步{len(merged_data)}个账号的使用量数据")
             
@@ -179,96 +175,60 @@ class CookieRotator:
         return None, None
     
     def _record_cookie_usage(self, account_id):
-        """记录cookie使用量
-        
-        Args:
-            account_id: cookie账号ID
-        """
+        """记录cookie使用量"""
         try:
-            # 获取当前日期
-            today = datetime.now().strftime('%Y-%m-%d')
+            today_str = datetime.now().strftime('%Y-%m-%d')
+            today_date = datetime.now().date()
             
             # 更新Redis中的使用量
             if self.cookie_manager.redis_client:
-                # 使用Redis的哈希表存储每个账号的使用量
-                # 格式: {account_id: usage_count}
-                self.cookie_manager.redis_client.hincrby(f"{self.REDIS_COOKIE_USAGE_KEY}:{today}", account_id, 1)
-                # 设置过期时间为30天
-                self.cookie_manager.redis_client.expire(f"{self.REDIS_COOKIE_USAGE_KEY}:{today}", 60*60*24*30)
+                redis_key = f"{self.REDIS_COOKIE_USAGE_KEY}:{today_str}"
+                self.cookie_manager.redis_client.hincrby(redis_key, account_id, 1)
+                self.cookie_manager.redis_client.expire(redis_key, 60*60*24*30)
             
-            # 异步更新MySQL数据库
-            threading.Thread(target=self._update_db_cookie_usage, args=(account_id, today)).start()
+            # 异步更新MySQL数据库 (使用 Repository)
+            threading.Thread(target=self._update_db_cookie_usage, args=(account_id, today_date)).start()
             
         except Exception as e:
             log.error(f"记录cookie使用量失败: {e}")
     
     def _update_db_cookie_usage(self, account_id, usage_date):
-        """更新数据库中的cookie使用量
-        
-        Args:
-            account_id: cookie账号ID
-            usage_date: 使用日期，格式为'YYYY-MM-DD'
-        """
+        """更新数据库中的cookie使用量 (异步调用)"""
         try:
-            # 使用MySQL管理器更新数据库
-            # 使用INSERT ... ON DUPLICATE KEY UPDATE语法
-            query = """
-            INSERT INTO cookie_daily_usage (account_id, usage_date, usage_count)
-            VALUES (%s, %s, 1)
-            ON DUPLICATE KEY UPDATE usage_count = usage_count + 1
-            """
-            mysql_manager.execute_query(query, (account_id, usage_date))
+            # 使用 Repository 增加使用量
+            self.usage_repo.increment_usage(account_id, usage_date)
         except Exception as e:
             log.error(f"更新数据库cookie使用量失败: {e}")
     
     def get_cookie_usage(self, account_id=None, start_date=None, end_date=None):
-        """获取cookie使用量统计
-        
-        Args:
-            account_id: 可选，指定账号ID
-            start_date: 可选，开始日期，格式为'YYYY-MM-DD'
-            end_date: 可选，结束日期，格式为'YYYY-MM-DD'
-            
-        Returns:
-            list: 使用量统计列表
-        """
+        """获取cookie使用量统计"""
         try:
-            # 构建查询条件
-            conditions = []
-            params = []
+            # 日期字符串转换为 date 对象
+            start_d = datetime.strptime(start_date, '%Y-%m-%d').date() if start_date else None
+            end_d = datetime.strptime(end_date, '%Y-%m-%d').date() if end_date else None
             
-            if account_id:
-                conditions.append("account_id = %s")
-                params.append(account_id)
+            # 使用 Repository 获取统计
+            results = self.usage_repo.get_usage_stats(
+                account_id=account_id,
+                start_date=start_d,
+                end_date=end_d
+            )
             
-            if start_date:
-                conditions.append("usage_date >= %s")
-                params.append(start_date)
-            
-            if end_date:
-                conditions.append("usage_date <= %s")
-                params.append(end_date)
-            
-            # 构建SQL查询
-            query = "SELECT account_id, usage_date, usage_count FROM cookie_daily_usage"
-            if conditions:
-                query += " WHERE " + " AND ".join(conditions)
-            
-            query += " ORDER BY usage_date DESC, usage_count DESC"
-            
-            # 执行查询
-            results = mysql_manager.fetch_all(query, tuple(params) if params else None)
-            return results
+            # 转换为字典列表以保持兼容性
+            return [
+                {
+                    "account_id": r.account_id,
+                    "usage_date": r.usage_date.strftime('%Y-%m-%d') if isinstance(r.usage_date, (date, datetime)) else str(r.usage_date),
+                    "usage_count": r.usage_count
+                }
+                for r in results
+            ]
         except Exception as e:
             log.error(f"获取cookie使用量统计失败: {e}")
             return []
     
     def get_today_usage_from_redis(self):
-        """从Redis获取今日的cookie使用量
-        
-        Returns:
-            dict: 账号ID到使用量的映射
-        """
+        """从Redis获取今日的cookie使用量"""
         try:
             if not self.cookie_manager.redis_client:
                 return {}
@@ -300,18 +260,13 @@ class CookieRotator:
         with self.cookie_lock:
             # 根据不同的负载均衡策略选择Cookie
             if self.load_balancing_strategy == 'random':
-                # 随机选择策略
                 cookie_info = random.choice(self.cookie_list)
             elif self.load_balancing_strategy == 'least_used':
-                # 最少使用策略
                 cookie_info = min(self.cookie_list, key=lambda x: x['use_count'])
             elif self.load_balancing_strategy == 'least_recently_used':
-                # 最近最少使用策略
                 cookie_info = min(self.cookie_list, key=lambda x: x['last_use_time'] or 0)
             else:
-                # 默认轮询策略
                 cookie_info = self.cookie_list[self.cookie_index]
-                # 更新索引，循环使用
                 self.cookie_index = (self.cookie_index + 1) % len(self.cookie_list)
             
             # 更新使用计数和时间
@@ -324,20 +279,11 @@ class CookieRotator:
             return {
                 'account_id': cookie_info['account_id'],
                 'cookie': cookie_info['cookie'],
-                'cookie_id': cookie_info['account_id']  # 使用account_id作为cookie_id
+                'cookie_id': cookie_info['account_id']
             }
     
     def report_cookie_status(self, account_id, is_valid, permanent=False):
-        """报告Cookie状态，用于与爬虫代码兼容
-        
-        Args:
-            account_id (str): Cookie账号ID
-            is_valid (bool): Cookie是否有效
-            permanent (bool): 是否永久封禁
-        
-        Returns:
-            bool: 操作是否成功
-        """
+        """报告Cookie状态，用于与爬虫代码兼容"""
         if is_valid:
             return self.mark_cookie_valid(account_id)
         elif permanent:
@@ -384,18 +330,10 @@ class CookieRotator:
     
     def mark_cookie_valid(self, cookie_id):
         """标记Cookie为有效"""
-        # 对于有效的Cookie，不需要特殊处理
         return True
     
     def set_load_balancing_strategy(self, strategy):
-        """设置负载均衡策略
-        
-        策略选项:
-        - round_robin: 轮询策略（默认）
-        - random: 随机选择策略
-        - least_used: 最少使用策略
-        - least_recently_used: 最近最少使用策略
-        """
+        """设置负载均衡策略"""
         valid_strategies = ['round_robin', 'random', 'least_used', 'least_recently_used']
         if strategy in valid_strategies:
             self.load_balancing_strategy = strategy
