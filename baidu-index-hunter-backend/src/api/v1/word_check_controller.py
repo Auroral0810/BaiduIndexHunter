@@ -8,6 +8,8 @@ from flasgger import swag_from
 from src.core.logger import log
 from src.core.constants.respond import ResponseCode, ResponseFormatter
 from src.engine.spider.word_check_spider import word_check_spider
+from src.api.schemas.word_check import CheckWordsRequest, CheckSingleWordRequest
+from src.api.utils.validators import validate_json, validate_args
 
 # 创建蓝图
 word_check_blueprint = Blueprint('word_check', __name__, url_prefix='/api/word-check')
@@ -88,22 +90,12 @@ word_check_blueprint = Blueprint('word_check', __name__, url_prefix='/api/word-c
         }
     }
 })
-def check_words():
+@validate_json(CheckWordsRequest)
+def check_words(validated_data: CheckWordsRequest):
     """检查关键词是否存在"""
     try:
-        # 获取请求参数
-        data = request.get_json()
-        if not data:
-            return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "请求参数为空"))
-        
-        # 验证必要参数
-        words = data.get('words')
-        if not words:
-            return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "缺少必要参数: words"))
-        
-        # 验证参数类型
-        if not isinstance(words, list):
-            return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "参数 words 必须是数组"))
+        # 从校验后的 Schema 对象获取参数
+        words = validated_data.words
         
         # 检查关键词
         log.info(f"开始检查 {len(words)} 个关键词")
@@ -184,13 +176,12 @@ def check_words():
         }
     }
 })
-def check_single_word():
+@validate_args(CheckSingleWordRequest)
+def check_single_word(validated_data: CheckSingleWordRequest):
     """检查单个关键词是否存在"""
     try:
-        # 获取请求参数
-        word = request.args.get('word')
-        if not word:
-            return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "缺少必要参数: word"))
+        # 从校验后的 Schema 对象获取参数
+        word = validated_data.word
         
         # 检查关键词
         log.info(f"检查关键词: {word}")
@@ -213,4 +204,4 @@ def check_single_word():
 
 def register_word_check_blueprint(app):
     """注册关键词检查蓝图"""
-    app.register_blueprint(word_check_blueprint) 
+    app.register_blueprint(word_check_blueprint)

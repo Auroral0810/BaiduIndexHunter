@@ -9,6 +9,8 @@ from flasgger import swag_from
 from src.services.config_service import config_manager
 from src.core.logger import log
 from src.core.constants.respond import ResponseCode, ResponseFormatter
+from src.api.schemas.config import SetConfigRequest, BatchSetConfigRequest
+from src.api.utils.validators import validate_json
 
 # 创建蓝图
 config_bp = Blueprint('config', __name__, url_prefix='/api/config')
@@ -205,16 +207,12 @@ def get_config(key):
         }
     }
 })
-def set_config():
+@validate_json(SetConfigRequest)
+def set_config(validated_data: SetConfigRequest):
     """设置配置项"""
     try:
-        data = request.json
-        
-        if not data or 'key' not in data or 'value' not in data:
-            return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "缺少必要参数 'key' 或 'value'")), 400
-        
-        key = data['key']
-        value = data['value']
+        key = validated_data.key
+        value = validated_data.value
         
         success = config_manager.set(key, value)
         

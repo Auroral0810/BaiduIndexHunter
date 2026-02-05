@@ -1,7 +1,7 @@
 """
 Cookie管理控制器 - 提供Cookie管理的API接口
 """
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, g
 import json
 from datetime import datetime, timedelta
 from flasgger import swag_from
@@ -13,6 +13,8 @@ from src.services.cookie_service import CookieManager
 from src.core.constants.respond import ResponseCode, ResponseFormatter
 from src.core.config import MYSQL_CONFIG
 from src.core.logger import log
+from src.api.schemas.cookie import AddCookieRequest, BanAccountRequest
+from src.api.utils.validators import validate_json
 
 # 创建蓝图
 admin_cookie_bp = Blueprint('admin_cookie', __name__, url_prefix='/api/admin/cookie')
@@ -416,19 +418,16 @@ def list_accounts(cookie_manager):
     }
 })
 @with_cookie_manager
+@validate_json(AddCookieRequest, inject_as_arg=False)
 def add_cookie(cookie_manager):
     """添加Cookie"""
     try:
-        data = request.json
-        if not data:
-            return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "请求参数不能为空"))
+        # 从 flask.g 获取校验后的数据
+        validated_data: AddCookieRequest = g.validated_data
         
-        account_id = data.get('account_id')
-        cookie_data = data.get('cookie_data')
-        expire_days = data.get('expire_days')
-        
-        if not account_id or not cookie_data:
-            return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "账号ID和Cookie数据不能为空"))
+        account_id = validated_data.account_id
+        cookie_data = validated_data.cookie_data
+        expire_days = validated_data.expire_days
         
         # 设置过期时间
         expire_time = None
