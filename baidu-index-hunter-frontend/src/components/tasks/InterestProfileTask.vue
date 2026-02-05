@@ -49,7 +49,7 @@
             :show-file-list="false"
             :on-change="handleKeywordsFileChange"
             accept=".xlsx,.csv,.txt"
-            ><el-button type="primary" plain
+            ><el-button type="primary"
               ><el-icon><Upload /></el-icon>
               {{
                 $t("tasks-InterestProfileTask-19c298e1e7a81a799-10")
@@ -103,7 +103,6 @@
               >
               <el-button
                 type="primary"
-                plain
                 size="small"
                 @click="checkKeywords"
                 :loading="checkingKeywords"

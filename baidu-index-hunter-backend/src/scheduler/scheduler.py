@@ -128,13 +128,16 @@ class TaskScheduler:
         if not task_name:
             task_name = f"{task_type}_{task_id}"
             
+        if isinstance(parameters, (dict, list)):
+             parameters = json.dumps(parameters, ensure_ascii=False)
+
         # 创建任务记录
         new_task = SpiderTaskModel(
             task_id=task_id,
             task_name=task_name,
             task_type=task_type,
             status='pending',
-            parameters=parameters, # Pydantic validator 会自动处理 dict -> json
+            parameters=parameters,
             priority=priority,
             created_by=created_by,
             create_time=datetime.now()
@@ -348,6 +351,10 @@ class TaskScheduler:
                     queue_item.complete_time = complete_time
                 session.add(queue_item)
                 session.commit()
+
+    def _add_task_to_queue(self, task_id: str, priority: int):
+        """添加任务到内存队列"""
+        self.task_queue.put((priority, task_id))
 
 # 全局单例
 task_scheduler = TaskScheduler()

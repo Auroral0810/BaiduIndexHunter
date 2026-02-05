@@ -45,7 +45,7 @@
             :show-file-list="false"
             :on-change="handleKeywordsFileChange"
             accept=".xlsx,.csv,.txt"
-            ><el-button type="primary" plain
+            ><el-button type="primary"
               ><el-icon><Upload /></el-icon>
               {{ $t("tasks-WordGraphTask-19c298e227e044aa6-10") }}</el-button
             >
@@ -93,7 +93,6 @@
               >
               <el-button
                 type="primary"
-                plain
                 size="small"
                 @click="checkKeywords"
                 :loading="checkingKeywords"

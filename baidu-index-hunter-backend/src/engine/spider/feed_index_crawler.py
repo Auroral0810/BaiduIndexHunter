@@ -6,6 +6,8 @@ import requests
 import json
 import time
 import urllib.parse
+import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # 添加项目根目录到Python路径
 from src.core.logger import log
@@ -662,7 +664,7 @@ class FeedIndexCrawler(BaseCrawler):
     
     def crawl(self, task_id=None, keywords=None, cities=None, date_ranges=None, days=None, 
               keywords_file=None, cities_file=None, date_ranges_file=None,
-              year_range=None, resume=False, checkpoint_task_id=None, total_tasks=None, batch_size=5):
+              year_range=None, resume=False, checkpoint_task_id=None, total_tasks=None, batch_size=5, **kwargs):
         """
         爬取百度资讯指数数据
         

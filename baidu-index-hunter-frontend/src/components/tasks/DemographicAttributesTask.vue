@@ -53,7 +53,7 @@
             :show-file-list="false"
             :on-change="handleKeywordsFileChange"
             accept=".xlsx,.csv,.txt"
-            ><el-button type="primary" plain
+            ><el-button type="primary"
               ><el-icon><Upload /></el-icon>
               {{
                 $t("tasks-DemographicAttributesTask-19c298e1c74d5b997-10")
@@ -107,7 +107,6 @@
               >
               <el-button
                 type="primary"
-                plain
                 size="small"
                 @click="checkKeywords"
                 :loading="checkingKeywords"

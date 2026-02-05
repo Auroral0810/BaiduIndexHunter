@@ -45,7 +45,7 @@
             :show-file-list="false"
             :on-change="handleKeywordsFileChange"
             accept=".xlsx,.csv,.txt"
-            ><el-button type="primary" plain
+            ><el-button type="primary"
               ><el-icon><Upload /></el-icon>
               {{ $t("tasks-SearchIndexTask-19c298e21d4fb2dcd-10") }}</el-button
             >
@@ -95,7 +95,6 @@
               >
               <el-button
                 type="primary"
-                plain
                 size="small"
                 @click="checkKeywords"
                 :loading="checkingKeywords"

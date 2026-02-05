@@ -2,6 +2,11 @@
 搜索指数爬虫（日度、周度数据和整体统计数据）
 """
 import urllib.parse
+import os
+import json
+import requests
+from datetime import datetime, timedelta
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from src.core.logger import log
 from src.utils.rate_limiter import rate_limiter
@@ -258,7 +263,7 @@ class SearchIndexCrawler(BaseCrawler):
     
     def crawl(self, task_id=None, keywords=None, cities=None, date_ranges=None, days=None, 
               keywords_file=None, cities_file=None, date_ranges_file=None,
-              year_range=None, resume=False, checkpoint_task_id=None, total_tasks=None, batch_size=5):
+              year_range=None, resume=False, checkpoint_task_id=None, total_tasks=None, batch_size=5, **kwargs):
         """
         爬取百度搜索指数数据
         

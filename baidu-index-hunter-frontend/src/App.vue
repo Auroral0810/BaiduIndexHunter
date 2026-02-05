@@ -302,11 +302,13 @@ body {
 
 /* 覆盖 Element Plus 默认样式以匹配新主题 */
 :root {
-  --el-color-primary: var(--color-primary);
+  --el-color-primary: #4f46e5;
   --el-color-primary-light-3: #818cf8;
   --el-color-primary-light-5: #a5b4fc;
   --el-color-primary-light-7: #c7d2fe;
   --el-color-primary-light-9: #e0e7ff;
+  --el-menu-active-color: #4f46e5;
+  --el-menu-hover-text-color: #4f46e5;
   --el-bg-color: var(--color-bg-surface);
   --el-text-color-primary: var(--color-text-main);
   --el-text-color-regular: var(--color-text-secondary);
@@ -315,9 +317,33 @@ body {
 }
 
 html.dark {
+  --el-color-primary: #818cf8;
+  --el-menu-active-color: #818cf8;
+  --el-menu-hover-text-color: #818cf8;
+}
+
+html.dark {
   --el-bg-color: var(--color-bg-surface);
   --el-bg-color-overlay: var(--color-bg-subtle);
   --el-fill-color-blank: var(--color-bg-body);
+}
+
+/* 强制覆盖 Element Plus 菜单激活颜色 */
+.el-menu--horizontal .el-menu-item.is-active {
+  color: #4f46e5 !important;
+  border-bottom-color: transparent !important;
+}
+
+.el-menu--horizontal .el-menu-item:not(.is-disabled):hover {
+  color: #4f46e5 !important;
+}
+
+html.dark .el-menu--horizontal .el-menu-item.is-active {
+  color: #818cf8 !important;
+}
+
+html.dark .el-menu--horizontal .el-menu-item:not(.is-disabled):hover {
+  color: #818cf8 !important;
 }
 </style>
 
@@ -426,14 +452,43 @@ html.dark .app-header {
 }
 
 .nav-item:hover {
-  color: var(--color-primary) !important;
+  color: #4f46e5 !important;
   background-color: var(--color-bg-subtle) !important;
 }
 
+/* 深色模式下 hover 颜色 */
+html.dark .nav-item:hover {
+  color: #818cf8 !important;
+}
+
 .nav-item.is-active {
-  color: var(--color-primary) !important;
+  color: #4f46e5 !important;
   background-color: var(--color-primary-light) !important;
   font-weight: 600 !important;
+}
+
+/* 深色模式下激活菜单的颜色 */
+html.dark .nav-item.is-active {
+  color: #818cf8 !important;
+}
+
+/* 覆盖 Element Plus 菜单的默认激活样式 */
+:deep(.el-menu--horizontal .el-menu-item.is-active) {
+  color: #4f46e5 !important;
+  border-bottom: none !important;
+}
+
+:deep(.el-menu--horizontal .el-menu-item:not(.is-disabled):hover) {
+  color: #4f46e5 !important;
+}
+
+/* 深色模式下的 Element Plus 菜单覆盖 */
+:global(html.dark) :deep(.el-menu--horizontal .el-menu-item.is-active) {
+  color: #818cf8 !important;
+}
+
+:global(html.dark) :deep(.el-menu--horizontal .el-menu-item:not(.is-disabled):hover) {
+  color: #818cf8 !important;
 }
 
 /* 右侧工具栏 */
