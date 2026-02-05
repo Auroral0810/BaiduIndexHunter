@@ -5,6 +5,7 @@ import requests
 import json
 import execjs
 import os
+import time
 from pathlib import Path
 from fake_useragent import UserAgent
 from src.core.logger import log
@@ -37,7 +38,8 @@ class AbSrUpdater:
         生成请求头
         :return: 请求头字典
         """
-        user_agent = self.ua.random
+        # 固定 User-Agent 以匹配 Client Hints
+        user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
         return {
             "Accept": "*/*",
             "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
@@ -72,48 +74,60 @@ class AbSrUpdater:
                 log.error(f"加载ab_sr.js文件失败: {e}")
                 return None
 
-    def update_ab_sr(self):
+    def update_ab_sr(self, max_retries=3):
         """
         更新ab_sr cookie
+        :param max_retries: 最大重试次数
         :return: 更新后的ab_sr值，如果失败则返回None
         """
-        try:
-            # 加载JS代码
-            js_code = self._load_js_code()
-            if not js_code:
-                return None
-            
-            # 编译JS代码
-            ctx = execjs.compile(js_code)
-            data_js = ctx.call('get_data')
-            log.debug(f"JS生成的数据: {data_js}")
-            
-            data_obj = json.loads(data_js)
-            
-            # 使用从JS获取的数据构建请求体
-            data = {
-                "data": data_obj["data"],
-                "key_id": data_obj["key_id"],
-                "enc": data_obj["enc"]
-            }
-            
-            # 将数据转换为JSON字符串，不包含空格
-            data_json = json.dumps(data, separators=(',', ':'))
-            
-            # 发送请求
-            headers = self._get_headers()
-            response = requests.post(self.url, headers=headers, params=self.params, data=data_json)
-            
-            # 获取ab_sr cookie
-            ab_sr = response.cookies.get('ab_sr')
-            
-            if ab_sr:
-                # log.info(f"成功更新ab_sr: {ab_sr}")
-                return ab_sr
-            else:
-                log.error(f"更新ab_sr失败: 响应中没有ab_sr cookie. Status: {response.status_code}, Body: {response.text[:200]}")
-                return None
+        
+        for attempt in range(max_retries):
+            try:
+                # 加载JS代码
+                js_code = self._load_js_code()
+                if not js_code:
+                    return None
                 
-        except Exception as e:
-            log.error(f"更新ab_sr时发生错误: {e}")
-            return None
+                # 编译JS代码
+                ctx = execjs.compile(js_code)
+                data_js = ctx.call('get_data')
+                
+                data_obj = json.loads(data_js)
+                
+                # 使用从JS获取的数据构建请求体
+                data = {
+                    "data": data_obj["data"],
+                    "key_id": data_obj["key_id"],
+                    "enc": data_obj["enc"]
+                }
+                
+                # 将数据转换为JSON字符串，不包含空格
+                data_json = json.dumps(data, separators=(',', ':'))
+                
+                # 发送请求
+                headers = self._get_headers()
+                response = requests.post(self.url, headers=headers, params=self.params, data=data_json, timeout=10)
+                
+                # 获取ab_sr cookie
+                ab_sr = response.cookies.get('ab_sr')
+                
+                if ab_sr:
+                    # log.info(f"成功更新ab_sr: {ab_sr}")
+                    return ab_sr
+                else:
+                    log.warning(f"更新ab_sr失败 (尝试 {attempt+1}/{max_retries}): Status: {response.status_code}, Body: {response.text[:200]}")
+                    
+                    # 如果是400错误，可能是因为请求频繁或者参数问题，稍微等待一下
+                    if attempt < max_retries - 1:
+                        time.sleep(1.5 * (attempt + 1))
+                        continue
+                        
+                    return None
+                    
+            except Exception as e:
+                log.error(f"更新ab_sr时发生错误 (尝试 {attempt+1}/{max_retries}): {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(1)
+                else:
+                    return None
+        return None
