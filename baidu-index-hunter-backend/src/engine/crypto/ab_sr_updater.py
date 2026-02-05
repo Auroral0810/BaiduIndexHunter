@@ -111,13 +111,9 @@ class AbSrUpdater:
                 # log.info(f"成功更新ab_sr: {ab_sr}")
                 return ab_sr
             else:
-                log.error("更新ab_sr失败: 响应中没有ab_sr cookie")
+                log.error(f"更新ab_sr失败: 响应中没有ab_sr cookie. Status: {response.status_code}, Body: {response.text[:200]}")
                 return None
                 
         except Exception as e:
             log.error(f"更新ab_sr时发生错误: {e}")
             return None
-
-# 创建一个AbSrUpdater实例
-updater = AbSrUpdater()
-updater.update_ab_sr()

@@ -184,5 +184,28 @@ class ConfigManager:
         log.info(f"默认配置初始化完成，共设置 {len(default_configs)} 项配置")
 
 
+    
+    def get_all_sorted(self) -> Dict[str, Any]:
+        """获取按键排序的所有配置"""
+        configs = self.get_all()
+        return {k: configs[k] for k in sorted(configs.keys())}
+
+    def batch_set(self, configs: Dict[str, Any]) -> None:
+        """
+        批量设置配置项
+        Returns:
+            Tuple[int, List[str]]: (成功数量, 失败的键列表)
+        """
+        success_count = 0
+        failed_keys = []
+        
+        for key, value in configs.items():
+            if self.set(key, value):
+                success_count += 1
+            else:
+                failed_keys.append(key)
+        
+        return success_count, failed_keys
+
 # 创建全局实例
 config_manager = ConfigManager() 

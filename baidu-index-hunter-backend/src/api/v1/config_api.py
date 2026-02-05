@@ -96,11 +96,10 @@ def list_configs(validated_data: ListConfigsRequest):
         
         if prefix:
             configs = config_manager.get_by_prefix(prefix)
+            # Sort locally for prefix search
+            sorted_configs = {k: configs[k] for k in sorted(configs.keys())}
         else:
-            configs = config_manager.get_all()
-        
-        # 按键名排序
-        sorted_configs = {k: configs[k] for k in sorted(configs.keys())}
+            sorted_configs = config_manager.get_all_sorted()
         
         return jsonify(ResponseFormatter.success(sorted_configs))
     except Exception as e:
@@ -171,14 +170,7 @@ def batch_set_config(validated_data: BatchSetConfigRequest):
     try:
         configs = validated_data.configs
         
-        success_count = 0
-        failed_keys = []
-        
-        for key, value in configs.items():
-            if config_manager.set(key, value):
-                success_count += 1
-            else:
-                failed_keys.append(key)
+        success_count, failed_keys = config_manager.batch_set(configs)
         
         if not failed_keys:
             return jsonify(ResponseFormatter.success(None, f"所有配置项设置成功，共 {success_count} 项"))

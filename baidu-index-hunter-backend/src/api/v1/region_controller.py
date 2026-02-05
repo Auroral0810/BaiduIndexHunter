@@ -473,6 +473,7 @@ def update_city_province():
     
     city_code = data.get('city_code')
     province_code = data.get('province_code')
+    province_name = data.get('province_name')
     
     if not city_code or not province_code:
         return jsonify(ResponseFormatter.error(
@@ -480,14 +481,7 @@ def update_city_province():
             "缺少必要参数: city_code 或 province_code"
         )), 400
     
-    # 如果没有提供省份名称，则尝试从数据库获取
-    province_name = data.get('province_name')
-    if not province_name:
-        # 从省份信息中查找
-        province_info = region_manager.get_region_by_code(province_code)
-        if province_info:
-            province_name = province_info.get('name')
-    
+    # Service内部已经处理了province_name为空时的自动查找逻辑
     result = region_manager.update_city_province(city_code, province_code, province_name)
     
     if not result:
@@ -499,7 +493,7 @@ def update_city_province():
     return jsonify(ResponseFormatter.success({
         'city_code': city_code,
         'province_code': province_code,
-        'province_name': province_name,
+        'province_name': province_name, # Note: if service autocompleted name, we don't return it here unless we fetch again or change service to return name. But existing API just returns success.
         'success': True
     }, "更新城市所属省份信息成功"))
 
@@ -523,33 +517,10 @@ def batch_update_city_province():
             "cities 必须是非空数组"
         )), 400
     
-    success_count = 0
-    failed_count = 0
-    
-    for city_data in cities:
-        city_code = city_data.get('city_code')
-        province_code = city_data.get('province_code')
-        province_name = city_data.get('province_name')
-        
-        if not city_code or not province_code:
-            failed_count += 1
-            continue
-            
-        # 如果没有提供省份名称，则尝试从数据库获取
-        if not province_name:
-            province_info = region_manager.get_region_by_code(province_code)
-            if province_info:
-                province_name = province_info.get('name')
-        
-        result = region_manager.update_city_province(city_code, province_code, province_name)
-        
-        if result:
-            success_count += 1
-        else:
-            failed_count += 1
+    total, success_count, failed_count = region_manager.batch_update_city_province(cities)
     
     return jsonify(ResponseFormatter.success({
-        'total': len(cities),
+        'total': total,
         'success_count': success_count,
         'failed_count': failed_count
     }, f"批量更新城市所属省份信息完成，成功: {success_count}，失败: {failed_count}"))

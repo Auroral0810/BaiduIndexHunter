@@ -7,7 +7,7 @@ from flasgger import swag_from
 
 from src.core.logger import log
 from src.core.constants.respond import ResponseCode, ResponseFormatter
-from src.engine.spider.word_check_spider import word_check_spider
+from src.services.word_check_service import word_check_service
 from src.api.schemas.word_check import (
     CheckWordsRequest, 
     CheckSingleWordRequest,
@@ -53,21 +53,10 @@ def check_words(validated_data: CheckWordsRequest):
         # 从校验后的 Schema 对象获取参数
         words = validated_data.words
         
-        # 检查关键词
-        log.info(f"开始检查 {len(words)} 个关键词")
-        results = word_check_spider.check_words_batch(words)
-        
-        # 处理结果，移除response字段
-        clean_results = {}
-        for word, result in results.items():
-            clean_results[word] = {
-                'exists': result.get('exists', False),
-            }
-            if 'error' in result:
-                clean_results[word]['error'] = result['error']
+        results = word_check_service.check_words(words)
         
         return jsonify(ResponseFormatter.success({
-            'results': clean_results
+            'results': results
         }, "关键词检查完成"))
         
     except Exception as e:
@@ -84,19 +73,9 @@ def check_single_word(validated_data: CheckSingleWordRequest):
         # 从校验后的 Schema 对象获取参数
         word = validated_data.word
         
-        # 检查关键词
-        log.info(f"检查关键词: {word}")
-        result = word_check_spider.check_word(word)
+        result = word_check_service.check_single_word(word)
         
-        # 处理结果，移除response字段
-        clean_result = {
-            'word': word,
-            'exists': result.get('exists', False)
-        }
-        if 'error' in result:
-            clean_result['error'] = result['error']
-        
-        return jsonify(ResponseFormatter.success(clean_result, "关键词检查完成"))
+        return jsonify(ResponseFormatter.success(result, "关键词检查完成"))
         
     except Exception as e:
         log.error(f"检查关键词失败: {e}")

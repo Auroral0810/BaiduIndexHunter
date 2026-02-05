@@ -443,6 +443,35 @@ class RegionManager:
         except Exception as e:
             log.error(f"更新城市所属省份失败: {e}")
             return False
+
+    def batch_update_city_province(self, cities: List[Dict]) -> Tuple[int, int, int]:
+        """
+        批量更新城市的所属省份信息
+        Returns:
+            Tuple[int, int, int]: (总数, 成功数, 失败数)
+        """
+        success_count = 0
+        failed_count = 0
+        total = len(cities)
+        
+        for city_data in cities:
+            city_code = city_data.get('city_code')
+            province_code = city_data.get('province_code')
+            province_name = city_data.get('province_name')
+            
+            if not city_code or not province_code:
+                failed_count += 1
+                continue
+            
+            # 这里的 update_city_province 内部已经包含了如果没有province_name则自动查找的逻辑
+            result = self.update_city_province(city_code, province_code, province_name)
+            
+            if result:
+                success_count += 1
+            else:
+                failed_count += 1
+                
+        return total, success_count, failed_count
     
     def sync_city_province(self) -> Optional[Tuple[int, int, int]]:
         """
