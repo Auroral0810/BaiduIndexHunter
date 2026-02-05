@@ -8,6 +8,11 @@ from pydantic import BaseModel, Field
 
 # ============== 请求 Schema ==============
 
+class ListConfigsRequest(BaseModel):
+    """获取配置列表请求"""
+    prefix: Optional[str] = Field(None, description="配置键前缀过滤")
+
+
 class SetConfigRequest(BaseModel):
     """设置配置项请求"""
     key: str = Field(..., min_length=1, max_length=50, description="配置键")
@@ -16,8 +21,8 @@ class SetConfigRequest(BaseModel):
 
 
 class BatchSetConfigRequest(BaseModel):
-    """批量设置配置项请求"""
-    configs: List[SetConfigRequest] = Field(..., min_length=1, description="配置项列表")
+    """批量设置配置项请求（字典形式）"""
+    configs: Dict[str, Any] = Field(..., description="配置项字典 {key: value}")
 
 
 # ============== 响应 Schema ==============
@@ -32,5 +37,4 @@ class ConfigItemResponse(BaseModel):
 
 class ConfigListResponse(BaseModel):
     """配置列表响应"""
-    configs: List[ConfigItemResponse] = Field([], description="配置项列表")
-    total: int = Field(0, description="总数量")
+    configs: Dict[str, Any] = Field({}, description="配置项字典")

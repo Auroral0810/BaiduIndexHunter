@@ -1,9 +1,20 @@
 """
 区域数据 Schema 模块
 """
-from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, Field
+
+
+# ============== 请求 Schema ==============
+
+class GetCityByNameRequest(BaseModel):
+    """根据城市名称获取城市代码请求"""
+    name: str = Field(..., min_length=1, description="城市名称")
+
+
+class GetProvinceByNameRequest(BaseModel):
+    """根据省份名称获取省份代码请求"""
+    name: str = Field(..., min_length=1, description="省份名称")
 
 
 # ============== 响应 Schema ==============
