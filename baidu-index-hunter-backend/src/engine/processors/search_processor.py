@@ -100,17 +100,44 @@ class SearchProcessor:
             start_dt = datetime.strptime(start_date, '%Y-%m-%d')
             end_dt = datetime.strptime(end_date, '%Y-%m-%d')
             delta = end_dt - start_dt
+            expected_days = delta.days + 1
+            
+            # 自动探测数据频率 (日度 vs 周度)
+            actual_count = len(all_list)
+            
+            # 默认为日度
+            interval_days = 1
+            data_type = '日度'
+            
+            # 如果期望天数远大于实际数据点数（例如 > 2倍），且实际数据点数合理，则判定为周度
+            # 百度指数跨度超过一年通常返回周度数据
+            if actual_count > 0 and expected_days > actual_count * 2:
+                interval_days = 7
+                data_type = '周度'
+                log.info(f"Detect weekly data for {keyword}. Range: {expected_days} days, Points: {actual_count}")
             
             daily_data = []
-            for i in range(delta.days + 1):
-                curr_date = (start_dt + timedelta(days=i)).strftime('%Y-%m-%d')
+            
+            # 根据实际数据点数进行循环
+            for i in range(actual_count):
+                # 计算当前点的日期
+                # 如果是周度，日期通常是每周的开始或结束，这里简单按间隔推算
+                # 百度指数周度数据通常从 start_date 开始，每7天一个点
+                curr_date_obj = start_dt + timedelta(days=i * interval_days)
+                
+                # 如果推算的日期超过了结束日期，则停止（理论上不应该，除非数据有问题）
+                if curr_date_obj > end_dt + timedelta(days=interval_days): # 允许一点误差
+                    break
+                    
+                curr_date = curr_date_obj.strftime('%Y-%m-%d')
+                
                 daily_data.append({
                     '关键词': keyword,
                     '城市代码': city_code,
                     '城市': city_name,
                     '日期': curr_date,
-                    '数据类型': '日度',
-                    '数据间隔(天)': 1,
+                    '数据类型': data_type,
+                    '数据间隔(天)': interval_days,
                     '所属年份': curr_date[:4],
                     'PC+移动指数': all_list[i] if i < len(all_list) else '0',
                     '移动指数': wise_list[i] if i < len(wise_list) else '0',
@@ -126,6 +153,11 @@ class SearchProcessor:
                 val = ratio_data.get(terminal, {}).get(key, 0)
                 return val if val is not None else 0
 
+            # 统计值计算需注意：如果是周度，总值计算可能需要调整？
+            # 百度指数的avg通常是日均值。
+            # 总值 = 日均值 * 天数。
+            # 这里保持原逻辑：Total = avg * total_days_in_range
+            
             stats_record = {
                 '关键词': keyword,
                 '城市代码': city_code,
@@ -140,9 +172,9 @@ class SearchProcessor:
                 'PC日均值': get_val('pc', 'avg'),
                 'PC同比': ratio_data.get('pc', {}).get('yoy', '-'),
                 'PC环比': ratio_data.get('pc', {}).get('qoq', '-'),
-                '整体总值': get_val('all', 'avg') * (delta.days + 1),
-                '移动总值': get_val('wise', 'avg') * (delta.days + 1),
-                'PC总值': get_val('pc', 'avg') * (delta.days + 1),
+                '整体总值': get_val('all', 'avg') * expected_days,
+                '移动总值': get_val('wise', 'avg') * expected_days,
+                'PC总值': get_val('pc', 'avg') * expected_days,
                 '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             }
             
@@ -241,10 +273,15 @@ class SearchProcessor:
                     wise_data = user_idx['wise']['data'] if 'wise' in user_idx and 'data' in user_idx['wise'] else ''
                     pc_data = user_idx['pc']['data'] if 'pc' in user_idx and 'data' in user_idx['pc'] else ''
                     
+                    log.info(f"Decrypting data for word: {keyword}. Key: {key}")
+                    log.debug(f"Raw encrypted data - All: {all_data[:50]}...")
+                    
                     # 解密数据
                     decrypted_all = self._decrypt(key, all_data)
                     decrypted_wise = self._decrypt(key, wise_data)
                     decrypted_pc = self._decrypt(key, pc_data)
+                    
+                    log.debug(f"Decrypted data - All: {decrypted_all[:50]}...")
                     
                     # 创建单个关键词的临时数据结构
                     single_data = {

@@ -726,17 +726,19 @@ class FeedIndexCrawler(BaseCrawler):
                 log.warning(f"year_range 为空或格式错误: {year_range}")
                 date_ranges = None
         elif days:
-            # 使用预定义的天数
-            end_date = datetime.now().strftime('%Y-%m-%d')
-            start_date = (datetime.now() - timedelta(days=days-1)).strftime('%Y-%m-%d')
+            # 使用预定义的天数，百度指数数据通常延迟2天
+            end_date_obj = datetime.now() - timedelta(days=2)
+            end_date = end_date_obj.strftime('%Y-%m-%d')
+            start_date = (datetime.now() - timedelta(days=days+2)).strftime('%Y-%m-%d')
             date_ranges = [(start_date, end_date)]
             
         # 如果经过上述处理后 date_ranges 仍为空（包括传入为None的情况，或者year_range解析失败），使用默认值
         if not date_ranges:
-            # 默认使用最近30天
+            # 默认使用最近30天，同样延迟2天
             log.info("未检测到有效的日期范围，使用默认最近30天")
-            end_date = datetime.now().strftime('%Y-%m-%d')
-            start_date = (datetime.now() - timedelta(days=29)).strftime('%Y-%m-%d')
+            end_date_obj = datetime.now() - timedelta(days=2)
+            end_date = end_date_obj.strftime('%Y-%m-%d')
+            start_date = (datetime.now() - timedelta(days=32)).strftime('%Y-%m-%d')
             date_ranges = [(start_date, end_date)]
         
         log.info(f"最终使用的 date_ranges 长度: {len(date_ranges)}")

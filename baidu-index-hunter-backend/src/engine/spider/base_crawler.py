@@ -160,7 +160,9 @@ class BaseCrawler:
             if year < current_year:
                 ranges.append((f"{year}-01-01", f"{year}-12-31"))
             else:
-                ranges.append((f"{year}-01-01", datetime.now().strftime('%Y-%m-%d')))
+                # 百度指数数据通常延迟2天，所以结束日期设为前天
+                end_date = (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d')
+                ranges.append((f"{year}-01-01", end_date))
         return ranges
 
     # --- HTTP & Cookie Utils ---

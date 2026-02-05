@@ -28,10 +28,6 @@ class TestSearchIndexCrawlerInterface(unittest.TestCase):
         self.crawler._load_keywords_from_file = MagicMock(return_value=['手机'])
         self.crawler._load_cities_from_file = MagicMock(return_value={0: '全国'})
         
-        # Mock storage related
-        self.os_makedirs_patcher = patch('os.makedirs')
-        self.mock_makedirs = self.os_makedirs_patcher.start()
-        
         # Mock logging
         self.log_patcher = patch('src.core.logger.log')
         self.mock_log = self.log_patcher.start()
@@ -40,10 +36,9 @@ class TestSearchIndexCrawlerInterface(unittest.TestCase):
         self.crawler._update_task_db_status = MagicMock()
         self.crawler._save_global_checkpoint = MagicMock()
         self.crawler._update_spider_statistics = MagicMock()
-
+        
     def tearDown(self):
         self.mock_config_patcher.stop()
-        self.os_makedirs_patcher.stop()
         self.log_patcher.stop()
 
     def test_crawl_output_format(self):
@@ -55,10 +50,17 @@ class TestSearchIndexCrawlerInterface(unittest.TestCase):
         kind = "all"
         days = 30
         
-        # 1. Mock _get_search_index response
+        # 1. Mock _get_search_index response with correct structure
         mock_response_data = {
             "status": 0,
             "data": {
+                "uniqid": "test_uniqid",
+                "userIndexes": [{
+                    "word": "手机",
+                    "all": {"data": "encrypted_string"},
+                    "pc": {"data": "encrypted_string"},
+                    "wise": {"data": "encrypted_string"}
+                }],
                 "generalRatio": [{
                     "all": {"avg": 100, "yoy": 10, "qoq": 10},
                     "wise": {"avg": 50, "yoy": 5, "qoq": 5},
@@ -68,31 +70,39 @@ class TestSearchIndexCrawlerInterface(unittest.TestCase):
         }
         self.crawler._get_search_index = MagicMock(return_value=(mock_response_data, {}))
         
-        # 2. Mock _decrypt to return valid comma-separated string
-        # Assuming 30 days, we need ~31 values (start to end inclusive)
-        dummy_vals = ",".join(["100"] * 31)
-        self.crawler._decrypt = MagicMock(return_value=dummy_vals)
-        
-        # 3. Setup temporary output directory
-        self.test_dir = tempfile.mkdtemp()
-        
-        # We need to make sure os.makedirs uses the real one for our test dir, but mocked generally?
-        # Actually providing a real temp dir is better.
-        # But we mocked os.makedirs in setUp. We should unmock it or side_effect it.
-        self.os_makedirs_patcher.stop() 
-        
-        # Patch OUTPUT_DIR
-        with patch('src.engine.spider.search_index_crawler.OUTPUT_DIR', self.test_dir):
-            try:
-                self.crawler.crawl(
-                    keywords=keywords,
-                    cities=cities,
-                    resume=resume,
-                    days=days,
-                    kind=kind
-                )
-            except Exception as e:
-                self.fail(f"crawl() raised exception: {e}")
+        # 2. Patch SearchProcessor methods
+        with patch('src.engine.processors.search_processor.SearchProcessor._get_key', return_value="dummy_key"), \
+             patch('src.engine.processors.search_processor.SearchProcessor._decrypt', return_value=",".join(["100"] * 31)):
+             
+            # 3. Setup temporary output directory
+            self.test_dir = tempfile.mkdtemp()
+            
+            # Patch pandas.DataFrame to inspect what's being passed
+            original_dataframe = pd.DataFrame
+            def side_effect(data, **kwargs):
+                print(f"\n[DEBUG] pd.DataFrame called with type: {type(data)}")
+                if isinstance(data, list) and len(data) > 0:
+                    print(f"[DEBUG] First item type: {type(data[0])}")
+                    print(f"[DEBUG] First item: {data[0]}")
+                elif isinstance(data, list):
+                    print("[DEBUG] Empty list passed")
+                else:
+                    print(f"[DEBUG] Data: {data}")
+                return original_dataframe(data, **kwargs)
+
+            # Patch OUTPUT_DIR and DataFrame
+            with patch('src.engine.spider.search_index_crawler.OUTPUT_DIR', self.test_dir), \
+                 patch('pandas.DataFrame', side_effect=side_effect):
+                try:
+                    self.crawler.crawl(
+                        keywords=keywords,
+                        cities=cities,
+                        resume=resume,
+                        days=days,
+                        kind=kind
+                    )
+                except Exception as e:
+                    self.fail(f"crawl() raised exception: {e}")
         
         # 4. Verify CSV Output
         print(f"Completed Tasks: {self.crawler.completed_tasks}")
@@ -100,7 +110,6 @@ class TestSearchIndexCrawlerInterface(unittest.TestCase):
         
         expected_dir = os.path.join(self.test_dir, 'search_index', 'test_task_id_123')
         if not os.path.exists(expected_dir):
-             # Try to list test_dir content recursively to see where it went
             print(f"Expected dir {expected_dir} not found. Listings:")
             for root, dirs, files in os.walk(self.test_dir):
                 print(f"{root}: {files}")
@@ -109,16 +118,20 @@ class TestSearchIndexCrawlerInterface(unittest.TestCase):
         csv_files = glob.glob(csv_pattern)
         
         if not csv_files:
-            # Print mock log calls to see errors
             print("Log calls:")
             for call in self.mock_log.error.call_args_list:
                 print(f"ERROR: {call}")
             for call in self.mock_log.warning.call_args_list:
                 print(f"WARN: {call}")
-                
-            self.fail(f"No CSV file generated in {expected_dir}. Files found: {os.listdir(self.test_dir) if os.path.exists(self.test_dir) else 'Dir not found'}")
+            self.fail(f"No CSV file generated in {expected_dir}")
             
         csv_path = csv_files[0]
+        
+        # Read raw content
+        with open(csv_path, 'r', encoding='utf-8-sig') as f:
+            content = f.read()
+            print(f"\nRaw CSV Content:\n{content}\n")
+            
         df = pd.read_csv(csv_path)
         
         print(f"\nCSV File: {csv_path}")

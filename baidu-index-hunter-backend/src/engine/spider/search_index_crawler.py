@@ -142,7 +142,9 @@ class SearchIndexCrawler(BaseCrawler):
         daily_list, stats_list = data_processor.process_multi_search_index_data(
             data, cookie, [keyword], city_code, city_name, start_date, end_date
         )
-        return (daily_list[0] if daily_list else None), (stats_list[0] if stats_list else None)
+        log.debug(f"Processed single keyword data. Daily items: {len(daily_list) if daily_list else 0}")
+        # Return the full list for daily_data, but stats is one record per keyword range
+        return daily_list, (stats_list[0] if stats_list else None)
 
     def _process_multi_search_index_data(self, data, cookie, keywords, city_code, city_name, start_date, end_date):
         """处理多关键词搜索指数数据"""
@@ -354,14 +356,17 @@ class SearchIndexCrawler(BaseCrawler):
         elif year_range:
             date_ranges = self._process_year_range(year_range[0][0], year_range[0][1])
         elif days:
-            # 使用预定义的天数
-            end_date = datetime.now().strftime('%Y-%m-%d')
-            start_date = (datetime.now() - timedelta(days=days-1)).strftime('%Y-%m-%d')
+            # 使用预定义的天数，百度指数数据通常延迟2天
+            end_date_obj = datetime.now() - timedelta(days=2)
+            end_date = end_date_obj.strftime('%Y-%m-%d')
+            # 按照用户要求：从 (今天-2-days) 到 (今天-2)
+            start_date = (datetime.now() - timedelta(days=days+2)).strftime('%Y-%m-%d')
             date_ranges = [(start_date, end_date)]
         elif not date_ranges:
-            # 默认使用最近30天
-            end_date = datetime.now().strftime('%Y-%m-%d')
-            start_date = (datetime.now() - timedelta(days=29)).strftime('%Y-%m-%d')
+            # 默认使用最近30天，同样延迟2天
+            end_date_obj = datetime.now() - timedelta(days=2)
+            end_date = end_date_obj.strftime('%Y-%m-%d')
+            start_date = (datetime.now() - timedelta(days=32)).strftime('%Y-%m-%d')
             date_ranges = [(start_date, end_date)]
         
         log.info(f"最终使用的 date_ranges 长度: {len(date_ranges)}")
