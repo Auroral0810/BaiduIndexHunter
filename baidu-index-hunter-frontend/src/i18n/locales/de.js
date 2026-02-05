@@ -576,8 +576,7 @@ export default {
   "views.settings.t8dliz": "Maximale Anzahl von Anwendungen pro Tag",
   "views.settings.9ue5fu": "Mindestanzahl verfügbarer Cookies",
   "views.settings.j56utr": "Cookie-Rotationsrichtlinie",
-  "dashboard.dashboard.2dwsg6":
-    "Baidu-Index-Crawler-Daten auf großem Bildschirm",
+  "dashboard.dashboard.2dwsg6": "Daten auf großem Bildschirm",
   "dashboard.dashboard.327577": "Daten aktualisieren",
   "dashboard.dashboard.7iv3g2": "Gesamtzahl der Aufgaben",
   "dashboard.dashboard.u3rve9": "Schließe die Aufgabe ab",

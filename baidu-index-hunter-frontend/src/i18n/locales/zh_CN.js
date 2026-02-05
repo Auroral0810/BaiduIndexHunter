@@ -479,7 +479,7 @@ export default {
   "views.settings.t8dliz": "每日最大使用次数",
   "views.settings.9ue5fu": "最小可用Cookie数量",
   "views.settings.j56utr": "Cookie轮换策略",
-  "dashboard.dashboard.2dwsg6": "百度指数爬虫数据大屏",
+  "dashboard.dashboard.2dwsg6": "数据大屏",
   "dashboard.dashboard.327577": "刷新数据",
   "dashboard.dashboard.7iv3g2": "总任务数",
   "dashboard.dashboard.u3rve9": "完成任务",

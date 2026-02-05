@@ -651,107 +651,119 @@ class CookieManager:
         log.info("开始测试Cookie可用性")
         account_ids = self.repo.get_available_account_ids()
         log.info(f"获取到 {len(account_ids)} 个可用账号")
-        
-        valid_accounts = []
-        banned_accounts = []
-        not_login_accounts = []
-        
-        valid_lock = threading.Lock()
-        banned_lock = threading.Lock()
-        not_login_lock = threading.Lock()
-        
-        def test_single_account(account_id):
-            try:
-                cookies = self.get_cookie_by_account_id(account_id)
-                if not cookies:
-                    with not_login_lock: not_login_accounts.append(account_id)
-                    self.ban_account_permanently(account_id)
-                    return
-                
-                # ... same testing logic as before ...
-                # Simplified for brevity in rewriting: I will reuse the core logic but need to include it fully
-                # copying logic from previous view...
-                
-                # (Test implementation details omitted for brevity, will paste fully in tool call)
-                pass # Implementation below
-            except Exception as e:
-                log.error(f"Testing error: {e}")
-
-        # ... threading logic ...
-        # Since the file write needs FULL content, I will include the full test method below.
-        
-        # NOTE: I am writing the logic into the `CodeContent` below, skipping the placeholder.
         return self._execute_cookie_test(account_ids)
 
-    def _execute_cookie_test(self, account_ids):
-        # ... Full implementation of test logic ...
+    def _test_single_cookie_logic(self, account_id) -> Dict[str, Any]:
+        """测试单个账号Cookie可用性的底层逻辑"""
+        try:
+            cookies = self.get_cookie_by_account_id(account_id)
+            if not cookies:
+                self.ban_account_permanently(account_id)
+                return {
+                    "account_id": account_id,
+                    "status": 10000,
+                    "message": "未登录或Cookie已失效",
+                    "is_valid": False,
+                    "action_taken": "永久封禁"
+                }
+
+            city_number = "911"
+            word = "电脑"
+            end_date = datetime.now()
+            start_date = end_date - timedelta(days=30)
+            startDate = start_date.strftime("%Y-%m-%d")
+            endDate = end_date.strftime("%Y-%m-%d")
+            
+            ua = UserAgent()
+            cookie_str = "; ".join([f"{k}={v}" for k, v in cookies.items()])
+            url_cipher = f'https://index.baidu.com/v2/main/index.html#/trend/{word}?words={word}'
+            
+            try:
+                cipher_js_path = self._get_cipher_js_path()
+                if not os.path.exists(cipher_js_path):
+                    raise FileNotFoundError(f"Cipher-Text.js not found at {cipher_js_path}")
+                with open(cipher_js_path, 'r', encoding='utf-8') as f: js = f.read()
+                ctx = execjs.compile(js)
+                cipyer_text = ctx.call('ascToken', url_cipher, ua.random)
+            except Exception as e:
+                log.error(f"Generate cipher failed for {account_id}: {e}")
+                cipyer_text = ""
+            
+            headers = {
+                'Accept': 'application/json, text/plain, */*',
+                'Cipher-Text': cipyer_text,
+                'User-Agent': ua.random,
+                "Cookie": cookie_str,
+                "Referer": "https://index.baidu.com/v2/main/index.html"
+            }
+            url = f'https://index.baidu.com/api/SearchApi/index?area={city_number}&word=[[{{"name":"{word}","wordType":1}}]]&startDate={startDate}&endDate={endDate}'
+            
+            response = requests.get(url, headers=headers, timeout=10)
+            data = response.json()
+            status = data.get("status", -1)
+            
+            res = {
+                "account_id": account_id,
+                "status": status,
+                "message": data.get("msg", "未知结果"),
+                "is_valid": False,
+                "action_taken": "无"
+            }
+
+            if status == 0:
+                res["is_valid"] = True
+                res["message"] = "Cookie正常"
+                self._resync_account_to_redis(account_id)
+            elif status == 10000:
+                res["message"] = "未登录"
+                res["action_taken"] = "永久封禁"
+                self.ban_account_permanently(account_id)
+            elif status == 10001:
+                res["message"] = "临时封禁"
+                res["action_taken"] = "临时封禁（30分钟）"
+                self.ban_account_temporarily(account_id, 1800)
+            elif status == 10002:
+                res["is_valid"] = True
+                res["message"] = "请求频繁"
+            else:
+                res["message"] = f"异常状态: {status}"
+                res["action_taken"] = "永久封禁"
+                self.ban_account_permanently(account_id)
+            
+            return res
+        except Exception as e:
+            log.error(f"Test error {account_id}: {e}")
+            return {
+                "account_id": account_id,
+                "status": -1,
+                "message": f"测试异常: {str(e)}",
+                "is_valid": False,
+                "action_taken": "永久封禁"
+            }
+
+    def _execute_cookie_test(self, account_ids) -> Dict[str, Any]:
+        """批量执行Cookie测试逻辑"""
         valid_accounts = []
         banned_accounts = []
         not_login_accounts = []
+        
         valid_lock = threading.Lock()
         banned_lock = threading.Lock()
         not_login_lock = threading.Lock()
 
-        def test_impl(account_id):
-             try:
-                cookies = self.get_cookie_by_account_id(account_id)
-                if not cookies:
-                    with not_login_lock: not_login_accounts.append(account_id)
-                    self.ban_account_permanently(account_id)
-                    return
-
-                city_number = "911"
-                word = "电脑"
-                end_date = datetime.now()
-                start_date = end_date - timedelta(days=30)
-                startDate = start_date.strftime("%Y-%m-%d")
-                endDate = end_date.strftime("%Y-%m-%d")
-                
-                ua = UserAgent()
-                cookie_str = "; ".join([f"{k}={v}" for k, v in cookies.items()])
-                url_cipyter = f'https://index.baidu.com/v2/main/index.html#/trend/{word}?words={word}'
-                
-                try:
-                    cipher_js_path = self._get_cipher_js_path()
-                    with open(cipher_js_path, 'r', encoding='utf-8') as f: js = f.read()
-                    ctx = execjs.compile(js)
-                    cipyer_text = ctx.call('ascToken', url_cipyter, ua.random)
-                except Exception: cipyer_text = ""
-                
-                headers = {
-                    'Accept': 'application/json, text/plain, */*',
-                    'Cipher-Text': cipyer_text,
-                    'User-Agent': ua.random,
-                    "Cookie": cookie_str
-                }
-                url = f'https://index.baidu.com/api/SearchApi/index?area={city_number}&word=[[{{"name":"{word}","wordType":1}}]]&startDate={startDate}&endDate={endDate}'
-                
-                response = requests.get(url, headers=headers, timeout=10)
-                data = response.json()
-                status = data.get("status", -1)
-                
-                if status == 0:
-                    with valid_lock: valid_accounts.append(account_id)
-                    self._resync_account_to_redis(account_id)
-                elif status == 10000:
-                    self.ban_account_permanently(account_id)
-                    with not_login_lock: not_login_accounts.append(account_id)
-                elif status == 10001:
-                    self.ban_account_temporarily(account_id, 1800)
-                    with banned_lock: banned_accounts.append(account_id)
-                elif status == 10002:
-                    with valid_lock: valid_accounts.append(account_id)
-                else:
-                    self.ban_account_permanently(account_id)
-                    with banned_lock: banned_accounts.append(account_id)
-             except Exception as e:
-                log.error(f"Test error {account_id}: {e}")
+        def test_wrapped(account_id):
+            res = self._test_single_cookie_logic(account_id)
+            if res["is_valid"]:
+                with valid_lock: valid_accounts.append(account_id)
+            elif res["status"] == 10001:
+                with banned_lock: banned_accounts.append(account_id)
+            else:
                 with not_login_lock: not_login_accounts.append(account_id)
 
         max_workers = min(8, len(account_ids))
         if max_workers > 0:
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
-                futures = [executor.submit(test_impl, aid) for aid in account_ids]
+                futures = [executor.submit(test_wrapped, aid) for aid in account_ids]
                 for future in as_completed(futures):
                     try: future.result()
                     except: pass
@@ -760,14 +772,18 @@ class CookieManager:
              self.redis_client.set(self.REDIS_COOKIE_COUNT_KEY, len(valid_accounts))
         
         return {
-            "valid_accounts": valid_accounts, "banned_accounts": banned_accounts, "not_login_accounts": not_login_accounts,
-            "total_tested": len(account_ids), "valid_count": len(valid_accounts),
-            "banned_count": len(banned_accounts), "not_login_count": len(not_login_accounts)
+            "valid_accounts": valid_accounts, 
+            "banned_accounts": banned_accounts, 
+            "not_login_accounts": not_login_accounts,
+            "total_tested": len(account_ids), 
+            "valid_count": len(valid_accounts),
+            "banned_count": len(banned_accounts), 
+            "not_login_count": len(not_login_accounts)
         }
 
     def test_account_cookie_availability(self, account_id):
         """测试单个账号Cookie"""
-        return self._execute_cookie_test([account_id])
+        return self._test_single_cookie_logic(account_id)
 
     def get_cookie_usage(self, account_id=None, start_date=None, end_date=None):
         """获取Cookie使用量统计 (代理到 cookie_rotator)"""

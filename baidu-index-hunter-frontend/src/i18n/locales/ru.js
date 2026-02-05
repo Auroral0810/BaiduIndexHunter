@@ -572,7 +572,7 @@ export default {
   "views.settings.t8dliz": "Максимальное количество использований в день",
   "views.settings.9ue5fu": "Минимальное количество доступных файлов cookie",
   "views.settings.j56utr": "Политика ротации файлов cookie",
-  "dashboard.dashboard.2dwsg6": "Большой экран данных индексного сканера Baidu",
+  "dashboard.dashboard.2dwsg6": "Большой экран данных",
   "dashboard.dashboard.327577": "Обновить данные",
   "dashboard.dashboard.7iv3g2": "Общее количество задач",
   "dashboard.dashboard.u3rve9": "Завершить задачу",

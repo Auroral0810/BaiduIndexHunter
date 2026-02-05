@@ -576,8 +576,7 @@ export default {
   "views.settings.t8dliz": "Número máximo de usos por día",
   "views.settings.9ue5fu": "Número mínimo de cookies disponibles",
   "views.settings.j56utr": "Política de rotación de cookies",
-  "dashboard.dashboard.2dwsg6":
-    "Pantalla grande de datos del rastreador de índice Baidu",
+  "dashboard.dashboard.2dwsg6": "Pantalla grande de datos",
   "dashboard.dashboard.327577": "Actualizar datos",
   "dashboard.dashboard.7iv3g2": "Número total de tareas",
   "dashboard.dashboard.u3rve9": "Completa la tarea",

@@ -558,7 +558,7 @@ export default {
   "views.settings.t8dliz": "1日あたりの最大使用回数",
   "views.settings.9ue5fu": "使用可能な Cookie の最小数",
   "views.settings.j56utr": "Cookie ローテーション ポリシー",
-  "dashboard.dashboard.2dwsg6": "Baidu インデックス クローラー データの大画面",
+  "dashboard.dashboard.2dwsg6": "データの大画面",
   "dashboard.dashboard.327577": "データを更新する",
   "dashboard.dashboard.7iv3g2": "タスクの総数",
   "dashboard.dashboard.u3rve9": "タスクを完了する",

@@ -98,12 +98,24 @@ class SyncResultResponse(BaseModel):
     message: str = Field("", description="结果消息")
 
 
+class SingleCookieTestResult(BaseModel):
+    """单账号测试结果项"""
+    account_id: str = Field(..., description="测试的账号ID")
+    status: int = Field(..., description="测试状态码")
+    message: str = Field(..., description="测试结果消息")
+    is_valid: bool = Field(..., description="是否有效")
+    action_taken: str = Field(..., description="执行的操作")
+
+
 class TestResultResponse(BaseModel):
-    """测试结果响应"""
-    total: int = Field(0, description="总数")
-    success: int = Field(0, description="成功数")
-    failed: int = Field(0, description="失败数")
-    results: List[Dict[str, Any]] = Field([], description="详细结果")
+    """测试结果响应 (批量)"""
+    valid_accounts: List[str] = Field([], description="可用的账号ID列表")
+    banned_accounts: List[str] = Field([], description="被封禁的账号ID列表")
+    not_login_accounts: List[str] = Field([], description="未登录的账号ID列表")
+    total_tested: int = Field(0, description="测试的总账号数")
+    valid_count: int = Field(0, description="可用的账号数")
+    banned_count: int = Field(0, description="被封禁的账号数")
+    not_login_count: int = Field(0, description="未登录的账号数")
 
 
 class BannedAccountResponse(BaseModel):

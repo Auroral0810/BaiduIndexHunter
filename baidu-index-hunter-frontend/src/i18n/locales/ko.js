@@ -547,7 +547,7 @@ export default {
   "views.settings.t8dliz": "일일 최대 사용 횟수",
   "views.settings.9ue5fu": "사용 가능한 최소 쿠키 수",
   "views.settings.j56utr": "쿠키 순환 정책",
-  "dashboard.dashboard.2dwsg6": "Baidu 인덱스 크롤러 데이터 큰 화면",
+  "dashboard.dashboard.2dwsg6": "데이터 큰 화면",
   "dashboard.dashboard.327577": "데이터 새로 고침",
   "dashboard.dashboard.7iv3g2": "총 작업 수",
   "dashboard.dashboard.u3rve9": "작업을 완료하세요",

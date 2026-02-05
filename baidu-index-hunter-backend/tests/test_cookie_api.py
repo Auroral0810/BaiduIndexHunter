@@ -107,11 +107,27 @@ class TestCookieAPI(unittest.TestCase):
     @patch('src.api.v1.cookie_controller.cookie_service')
     def test_test_availability(self, mock_service):
         """测试全量可用性测试"""
-        mock_service.test_cookies_availability.return_value = {'success': 5, 'failed': 2}
+        mock_service.test_cookies_availability.return_value = {
+            "valid_accounts": ["acc1"], "banned_accounts": [], "not_login_accounts": [],
+            "total_tested": 1, "valid_count": 1, "banned_count": 0, "not_login_count": 0
+        }
         response = self.client.post('/api/admin/cookie/test-availability')
         data = response.get_json()
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(data['code'], 10000)
-        self.assertEqual(data['data']['success'], 5)
+        self.assertEqual(data['data']['valid_count'], 1)
+
+    @patch('src.api.v1.cookie_controller.cookie_service')
+    def test_test_account_availability(self, mock_service):
+        mock_service.test_account_cookie_availability.return_value = {
+            "account_id": "test_acc", "status": 0, "message": "Cookie正常", "is_valid": True, "action_taken": "无"
+        }
+        response = self.client.post('/api/admin/cookie/test-account-availability/test_acc')
+        data = response.get_json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['code'], 10000)
+        self.assertEqual(data['data']['account_id'], "test_acc")
+        self.assertTrue(data['data']['is_valid'])
 
     @patch('src.api.v1.cookie_controller.cookie_service')
     def test_update_ab_sr(self, mock_service):

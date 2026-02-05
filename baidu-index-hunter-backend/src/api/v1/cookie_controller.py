@@ -18,6 +18,7 @@ from src.api.schemas.cookie import (
     CookieListResponse,
     CookiePoolStatusResponse,
     SyncResultResponse,
+    SingleCookieTestResult,
     TestResultResponse,
     TodayCookieUsageResponse,
     BannedAccountResponse
@@ -124,6 +125,7 @@ TEST_COOKIE_AVAILABILITY_SPEC = create_swagger_spec(
 )
 
 TEST_ACCOUNT_COOKIE_SPEC = create_swagger_spec(
+    response_schema=SingleCookieTestResult,
     summary="测试单个账号的Cookie可用性",
     tags=["Cookie管理"],
     parameters=[{'name': 'account_id', 'in': 'path', 'type': 'string', 'required': True}]
@@ -467,6 +469,7 @@ def update_ab_sr():
         updated_count = cookie_service.update_ab_sr_for_all_accounts()
         return jsonify(ResponseFormatter.success({"updated_count": updated_count}, f"成功为{updated_count}个账号更新ab_sr"))
     except Exception as e:
+
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"更新ab_sr失败: {str(e)}"))
 
 @admin_cookie_bp.route('/usage', methods=['GET'])

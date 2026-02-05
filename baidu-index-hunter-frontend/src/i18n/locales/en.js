@@ -548,7 +548,7 @@ export default {
   "views.settings.t8dliz": "Maximum number of uses per day",
   "views.settings.9ue5fu": "Minimum number of cookies available",
   "views.settings.j56utr": "Cookie rotation policy",
-  "dashboard.dashboard.2dwsg6": "Baidu index crawler data big screen",
+  "dashboard.dashboard.2dwsg6": "Data big screen",
   "dashboard.dashboard.327577": "Refresh data",
   "dashboard.dashboard.7iv3g2": "Total number of tasks",
   "dashboard.dashboard.u3rve9": "Complete the task",
