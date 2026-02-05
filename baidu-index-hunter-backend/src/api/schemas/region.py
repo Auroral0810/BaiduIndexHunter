@@ -27,11 +27,22 @@ class UpdateCityProvinceRequest(BaseModel):
     """更新城市省份归属请求"""
     city_code: str = Field(..., description="城市代码")
     province_code: str = Field(..., description="省份代码")
+    province_name: Optional[str] = Field(None, description="省份名称(可选)")
 
 
 class BatchUpdateCityProvinceRequest(BaseModel):
     """批量更新城市省份归属请求"""
-    mappings: List[Dict[str, str]] = Field(..., description="城市-省份映射列表")
+    cities: List[UpdateCityProvinceRequest] = Field(..., description="城市更新列表")
+
+
+class GetRegionProvincesRequest(BaseModel):
+    """获取大区下属省份请求"""
+    region: str = Field(..., min_length=1, description="大区名称")
+
+
+class GetProvinceCitiesRequest(BaseModel):
+    """获取省份下属城市请求"""
+    province_code: Optional[str] = Field(None, description="省份代码（可选）")
 
 
 # ============== 响应 Schema ==============

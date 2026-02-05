@@ -13,6 +13,8 @@ from src.core.logger import log
 from src.api.schemas.region import (
     GetCityByNameRequest,
     GetRegionByNameRequest,
+    GetRegionProvincesRequest,
+    GetProvinceCitiesRequest,
     UpdateCityProvinceRequest,
     BatchUpdateCityProvinceRequest,
     CityItemResponse,
@@ -95,15 +97,10 @@ GET_PROVINCE_REGION_SPEC = create_swagger_spec(
 )
 
 GET_REGION_PROVINCES_SPEC = create_swagger_spec(
+    request_schema=GetRegionProvincesRequest,
     summary="获取大区下属的所有省份",
     tags=["区域数据"],
-    parameters=[{
-        'name': 'name',
-        'in': 'query',
-        'type': 'string',
-        'required': True,
-        'description': '大区名称'
-    }]
+    request_in="query"
 )
 
 GET_REGION_CHILDREN_SPEC = create_swagger_spec(
@@ -168,15 +165,10 @@ GET_ALL_REGIONS_SPEC = create_swagger_spec(
 )
 
 GET_PROVINCE_CITIES_SPEC = create_swagger_spec(
+    request_schema=GetProvinceCitiesRequest,
     summary="获取各省份下属的城市列表",
     tags=["区域数据"],
-    parameters=[{
-        'name': 'province_code',
-        'in': 'query',
-        'type': 'string',
-        'required': False,
-        'description': '省份代码（可选，不传则返回全部）'
-    }]
+    request_in="query"
 )
 
 SYNC_PROVINCE_CITIES_SPEC = create_swagger_spec(
@@ -307,16 +299,11 @@ def get_province_region(province_code):
 
 @region_blueprint.route('/region/provinces', methods=['GET'])
 @swag_from(GET_REGION_PROVINCES_SPEC)
-def get_region_provinces():
+@validate_args(GetRegionProvincesRequest)
+def get_region_provinces(validated_data: GetRegionProvincesRequest):
     """获取大区下属的所有省份（查询参数版本）"""
-    region_name = request.args.get('region')
-    
-    if not region_name:
-        return jsonify(ResponseFormatter.error(
-            ResponseCode.PARAM_ERROR,
-            "缺少必要参数: region"
-        )), 400
-    
+    # 自动校验参数
+    region_name = validated_data.region
     return get_region_provinces_impl(region_name)
 
 def get_region_provinces_impl(region_name):
@@ -432,9 +419,11 @@ def get_all_regions():
 
 @region_blueprint.route('/province/cities', methods=['GET'])
 @swag_from(GET_PROVINCE_CITIES_SPEC)
-def get_province_cities():
+@validate_args(GetProvinceCitiesRequest)
+def get_province_cities(validated_data: GetProvinceCitiesRequest):
     """获取各省份下属的城市列表"""
-    province_code = request.args.get('province_code')
+    # 自动校验
+    province_code = validated_data.province_code
     
     # 获取省份城市数据
     province_cities = region_manager.get_province_cities(province_code)
@@ -461,27 +450,15 @@ def sync_province_cities():
 
 @region_blueprint.route('/update_city_province', methods=['POST'])
 @swag_from(UPDATE_CITY_PROVINCE_SPEC)
-def update_city_province():
+@validate_json(UpdateCityProvinceRequest)
+def update_city_province(validated_data: UpdateCityProvinceRequest):
     """更新城市的所属省份信息"""
-    data = request.get_json()
     
-    if not data:
-        return jsonify(ResponseFormatter.error(
-            ResponseCode.PARAM_ERROR,
-            "请求体为空"
-        )), 400
+    city_code = validated_data.city_code
+    province_code = validated_data.province_code
+    province_name = validated_data.province_name
     
-    city_code = data.get('city_code')
-    province_code = data.get('province_code')
-    province_name = data.get('province_name')
-    
-    if not city_code or not province_code:
-        return jsonify(ResponseFormatter.error(
-            ResponseCode.PARAM_ERROR,
-            "缺少必要参数: city_code 或 province_code"
-        )), 400
-    
-    # Service内部已经处理了province_name为空时的自动查找逻辑
+    # Service内部处理
     result = region_manager.update_city_province(city_code, province_code, province_name)
     
     if not result:
@@ -493,31 +470,30 @@ def update_city_province():
     return jsonify(ResponseFormatter.success({
         'city_code': city_code,
         'province_code': province_code,
-        'province_name': province_name, # Note: if service autocompleted name, we don't return it here unless we fetch again or change service to return name. But existing API just returns success.
+        'province_name': province_name, 
         'success': True
     }, "更新城市所属省份信息成功"))
 
 
 @region_blueprint.route('/batch_update_city_province', methods=['POST'])
 @swag_from(BATCH_UPDATE_CITY_PROVINCE_SPEC)
-def batch_update_city_province():
+@validate_json(BatchUpdateCityProvinceRequest)
+def batch_update_city_province(validated_data: BatchUpdateCityProvinceRequest):
     """批量更新城市的所属省份信息"""
-    data = request.get_json()
     
-    if not data or 'cities' not in data:
-        return jsonify(ResponseFormatter.error(
-            ResponseCode.PARAM_ERROR,
-            "缺少必要参数: cities"
-        )), 400
+    # 自动校验后的数据 (List[UpdateCityProvinceRequest])
+    city_requests = validated_data.cities
     
-    cities = data.get('cities', [])
-    if not isinstance(cities, list) or len(cities) == 0:
-        return jsonify(ResponseFormatter.error(
-            ResponseCode.PARAM_ERROR,
-            "cities 必须是非空数组"
-        )), 400
+    # 转换为 Service 需要的 List[Dict] 格式
+    cities_data = []
+    for cd in city_requests:
+        cities_data.append({
+            'city_code': cd.city_code,
+            'province_code': cd.province_code,
+            'province_name': cd.province_name
+        })
     
-    total, success_count, failed_count = region_manager.batch_update_city_province(cities)
+    total, success_count, failed_count = region_manager.batch_update_city_province(cities_data)
     
     return jsonify(ResponseFormatter.success({
         'total': total,

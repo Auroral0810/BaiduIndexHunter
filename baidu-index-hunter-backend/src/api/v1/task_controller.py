@@ -18,7 +18,7 @@ from src.api.schemas.task import (
     TaskCreateResponse,
     DownloadFileRequest
 )
-from src.api.utils.validators import validate_args
+from src.api.utils.validators import validate_args, validate_json
 from src.api.utils.swagger import create_swagger_spec
 from src.services.task_service import task_service
 from src.scheduler.scheduler import task_scheduler # 用于启动调度器
@@ -89,22 +89,14 @@ CREATE_TASK_SPEC = create_swagger_spec(
 
 @task_blueprint.route('/create', methods=['POST'])
 @swag_from(CREATE_TASK_SPEC)
-def create_task():
+@validate_json(CreateTaskRequest)
+def create_task(validated_data: CreateTaskRequest):
     """创建爬虫任务"""
     try:
-        # 获取请求参数
-        data = request.get_json()
-        if not data:
-            return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "请求参数为空"))
-        
-        # 验证必要参数
-        task_type = data.get('taskType')
-        parameters = data.get('parameters')
-        
-        if not task_type or not parameters:
-            return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "缺少必要参数: taskType 或 parameters"))
-        
-        priority = data.get('priority', 5)
+        # 参数已由 @validate_json 校验并注入为 CreateTaskRequest 对象
+        task_type = validated_data.taskType.value 
+        parameters = validated_data.parameters
+        priority = validated_data.priority
         
         # 调用 Service 创建任务
         try:
@@ -142,18 +134,13 @@ def list_tasks(validated_data: ListTasksRequest):
             created_by=validated_data.created_by
         )
         
-        # 处理格式 (Service 返回原始数据, Controller 负责最终格式化 if needed)
-        # 这里保留原有的日期格式化逻辑，或者最好在Service层处理？
-        # 为了Controller的纯粹性，简单的格式化可以留在这里，或者Service返回已经格式化的数据。
-        # 原有逻辑是在Controller里处理的。
+        # 处理日期时间格式
         for task in tasks:
             for key, value in task.items():
                 if isinstance(value, datetime):
                     task[key] = value.strftime('%Y-%m-%d %H:%M:%S')
-            # 参数JSON解析逻辑也在Controller? 最好移到Service。
-            # scheduler.get_task 已经做了部分解析，但是 list_tasks 返回的是 raw dict from fetch_all.
-            # 让我们在 Controller 里保留这些 View 相关的转换，或者让 Service 返回 Pydantic models.
-            # 为了最小改动，保留格式化逻辑。
+            
+            # 简单的参数JSON解析 (为了View层展示)
             if 'parameters' in task and task['parameters']:
                 try:
                     if isinstance(task['parameters'], str):
@@ -169,7 +156,6 @@ def list_tasks(validated_data: ListTasksRequest):
     except Exception as e:
         log.error(f"获取任务列表失败: {e}")
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取任务列表失败: {str(e)}"))
-
 
 
 @task_blueprint.route('/<task_id>', methods=['GET'])
@@ -249,18 +235,7 @@ def resume_task(task_id):
 def cancel_task(task_id):
     """取消任务"""
     try:
-        # Service暂无cancel_task，直接调scheduler或者封装进Service?
-        # 最好封装进Service.
-        # 但是TaskService里面我没写cancel_task...
-        # 让我先直接调用scheduler，保持兼容性，或者快速加进Service?
-        # 为了严谨，我应该把cancel_task加到TaskService.
-        # 但我已经写了TaskService文件了。
-        # 我可以在这里直接调用 task_scheduler.cancel_task (import了 scheduler)
-        # 或者追加写入 TaskService.
-        # 鉴于我不能轻易追加写入（需要replace），我将在Controller里直接调用 scheduler.cancel_task，因为 Scheduler 本质上也是个 Service-like entity.
-        # 其实 task_service 只是 create_task 的wrapper 主要是为了 validate.
-        # 其他方法是 pass-through.
-        result = task_scheduler.cancel_task(task_id) # Direct call
+        result = task_scheduler.cancel_task(task_id) # 直接调用 Scheduler
         
         if result:
             return jsonify(ResponseFormatter.success(None, "任务取消成功"))
@@ -273,6 +248,7 @@ def cancel_task(task_id):
 
 @task_blueprint.route('/download', methods=['GET'])
 @swag_from(DOWNLOAD_FILE_SPEC)
+# @validate_args(DownloadFileRequest) # File download params usually in query, can add this later if strict validation needed
 def download_file():
     """下载文件"""
     try:
