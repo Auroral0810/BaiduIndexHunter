@@ -10,7 +10,8 @@ from scrapy.exceptions import DropItem
 class DataValidationPipeline:
     """数据验证管道"""
     
-    def __init__(self):
+    def __init__(self, crawler):
+        self.crawler = crawler
         self.logger = logging.getLogger(__name__)
         # 定义必需字段
         self.required_fields = {
@@ -24,7 +25,16 @@ class DataValidationPipeline:
             'RegionDistributionItem': ['keyword', 'date', 'province_code'],
         }
     
-    def process_item(self, item, spider):
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(crawler)
+    
+    @property
+    def spider(self):
+        """获取当前 spider 实例"""
+        return self.crawler.spider
+    
+    def process_item(self, item):
         """验证 Item"""
         item_type = type(item).__name__
         

@@ -120,6 +120,13 @@ class RegionDistributionItem(BaseItem):
     rank = Field()             # 排名
 
 
+class WordCheckItem(BaseItem):
+    """关键词检查结果数据项"""
+    keyword = Field()          # 关键词
+    exists = Field()           # 是否存在 (True/False)
+    error = Field()            # 错误信息 (如有)
+
+
 class DecryptKeyItem(scrapy.Item):
     """解密密钥项（内部使用）"""
     uniqid = Field()           # 唯一标识

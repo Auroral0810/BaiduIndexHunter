@@ -31,6 +31,7 @@ class ScrapyRunner:
         'demographic_attributes': 'demographic',
         'interest_profile': 'interest',
         'region_distribution': 'region',
+        'word_check': 'word_check',  # 关键词检查
     }
     
     def __init__(self):

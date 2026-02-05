@@ -26,8 +26,8 @@ class SearchIndexSpider(BaseBaiduIndexSpider):
         self.batch_size = int(kwargs.get('batch_size', 5))
         self._setup_jobdir()
     
-    def start_requests(self):
-        """生成所有请求"""
+    async def start(self):
+        """生成所有请求（Scrapy 2.13+ 新 API）"""
         base_url = self.settings.get('BAIDU_INDEX_API', {}).get(
             'search_url', 
             'https://index.baidu.com/api/SearchApi/index'

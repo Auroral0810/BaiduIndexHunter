@@ -11,16 +11,22 @@ from urllib.parse import unquote
 class CipherTextMiddleware:
     """Cipher-Text 生成中间件"""
     
-    def __init__(self, settings):
+    def __init__(self, crawler):
+        self.crawler = crawler
         self.logger = logging.getLogger(__name__)
         self.cipher_generator = None
-        self.baidu_api = settings.get('BAIDU_INDEX_API', {})
+        self.baidu_api = crawler.settings.get('BAIDU_INDEX_API', {})
     
     @classmethod
     def from_crawler(cls, crawler):
-        middleware = cls(crawler.settings)
+        middleware = cls(crawler)
         crawler.signals.connect(middleware.spider_opened, signal=signals.spider_opened)
         return middleware
+    
+    @property
+    def spider(self):
+        """获取当前 spider 实例"""
+        return self.crawler.spider
     
     def spider_opened(self, spider):
         """爬虫启动时初始化"""
@@ -32,8 +38,10 @@ class CipherTextMiddleware:
             self.logger.error(f'Failed to initialize cipher generator: {e}')
             raise
     
-    def process_request(self, request, spider):
+    def process_request(self, request):
         """为请求添加 Cipher-Text 头"""
+        spider = self.spider
+        
         # 跳过不需要 Cipher-Text 的请求
         if request.meta.get('skip_cipher', False):
             return None

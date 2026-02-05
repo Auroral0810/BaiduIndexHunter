@@ -12,7 +12,8 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from utils.logger import log
-from config.settings import SPIDER_CONFIG
+from core.config import config
+SPIDER_CONFIG = config.spider_config
 
 class RateLimiter:
     """

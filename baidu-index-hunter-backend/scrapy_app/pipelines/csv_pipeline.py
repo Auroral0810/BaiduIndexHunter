@@ -13,7 +13,8 @@ from collections import defaultdict
 class CSVExportPipeline:
     """CSV 导出管道"""
     
-    def __init__(self, output_dir, csv_encoding):
+    def __init__(self, crawler, output_dir, csv_encoding):
+        self.crawler = crawler
         self.logger = logging.getLogger(__name__)
         self.output_dir = output_dir
         self.csv_encoding = csv_encoding
@@ -26,12 +27,19 @@ class CSVExportPipeline:
     def from_crawler(cls, crawler):
         settings = crawler.settings
         return cls(
+            crawler=crawler,
             output_dir=settings.get('OUTPUT_DIR', 'output'),
             csv_encoding=settings.get('OUTPUT_CONFIG', {}).get('csv_encoding', 'utf-8-sig'),
         )
     
-    def open_spider(self, spider):
+    @property
+    def spider(self):
+        """获取当前 spider 实例"""
+        return self.crawler.spider
+    
+    def open_spider(self):
         """爬虫启动时创建输出目录"""
+        spider = self.spider
         task_id = getattr(spider, 'task_id', 'default')
         spider_name = spider.name
         
@@ -41,8 +49,10 @@ class CSVExportPipeline:
         
         self.logger.info(f"CSV output directory: {self.spider_output_dir}")
     
-    def close_spider(self, spider):
+    def close_spider(self):
         """爬虫关闭时关闭所有文件"""
+        spider = self.spider
+        
         for file in self.files.values():
             file.close()
         
@@ -53,8 +63,9 @@ class CSVExportPipeline:
         if hasattr(spider, 'output_files'):
             spider.output_files = list(self.files.keys())
     
-    def process_item(self, item, spider):
+    def process_item(self, item):
         """将 Item 写入 CSV"""
+        spider = self.spider
         item_type = type(item).__name__
         
         # 跳过内部使用的 Item
@@ -62,10 +73,10 @@ class CSVExportPipeline:
             return item
         
         # 获取文件路径
-        file_path = self._get_file_path(item_type, spider)
+        file_path = self._get_file_path(item_type)
         
         if file_path not in self.files:
-            self._create_csv_file(file_path, item, spider)
+            self._create_csv_file(file_path, item)
         
         # 写入数据
         writer = self.writers[file_path]
@@ -79,8 +90,9 @@ class CSVExportPipeline:
         
         return item
     
-    def _get_file_path(self, item_type, spider):
+    def _get_file_path(self, item_type):
         """获取文件路径"""
+        spider = self.spider
         task_id = getattr(spider, 'task_id', 'default')
         
         # 根据 Item 类型确定文件名
@@ -100,7 +112,7 @@ class CSVExportPipeline:
         
         return os.path.join(self.spider_output_dir, filename)
     
-    def _create_csv_file(self, file_path, item, spider):
+    def _create_csv_file(self, file_path, item):
         """创建 CSV 文件"""
         # 检查文件是否已存在
         file_exists = os.path.isfile(file_path)

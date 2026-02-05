@@ -10,7 +10,11 @@ import redis
 import logging
 from typing import Dict, List, Any, Optional, Tuple, Union
 import pymysql
-from config.settings import MYSQL_CONFIG, REDIS_CONFIG
+from core.config import config
+
+# 从 config 获取配置
+MYSQL_CONFIG = config.mysql_config
+REDIS_CONFIG = config.redis_config
 from utils.logger import log
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

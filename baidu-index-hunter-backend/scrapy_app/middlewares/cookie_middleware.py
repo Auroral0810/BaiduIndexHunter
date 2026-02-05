@@ -17,17 +17,23 @@ class NoCookieAvailableError(Exception):
 class CookieRotationMiddleware:
     """Cookie 轮换中间件"""
     
-    def __init__(self, settings):
+    def __init__(self, crawler):
+        self.crawler = crawler
         self.logger = logging.getLogger(__name__)
         self.cookie_rotator = None
-        self.cookie_config = settings.get('COOKIE_CONFIG', {})
+        self.cookie_config = crawler.settings.get('COOKIE_CONFIG', {})
     
     @classmethod
     def from_crawler(cls, crawler):
-        middleware = cls(crawler.settings)
+        middleware = cls(crawler)
         crawler.signals.connect(middleware.spider_opened, signal=signals.spider_opened)
         crawler.signals.connect(middleware.spider_closed, signal=signals.spider_closed)
         return middleware
+    
+    @property
+    def spider(self):
+        """获取当前 spider 实例"""
+        return self.crawler.spider
     
     def spider_opened(self, spider):
         """爬虫启动时初始化 Cookie 轮换器"""
@@ -43,8 +49,10 @@ class CookieRotationMiddleware:
         """爬虫关闭时清理资源"""
         self.logger.info('Cookie rotation middleware closed')
     
-    def process_request(self, request, spider):
+    def process_request(self, request):
         """为请求添加 Cookie"""
+        spider = self.spider
+        
         # 跳过不需要 Cookie 的请求
         if request.meta.get('skip_cookie', False):
             return None
@@ -80,8 +88,10 @@ class CookieRotationMiddleware:
         
         return None
     
-    def process_response(self, request, response, spider):
+    def process_response(self, request, response):
         """处理响应，检查 Cookie 状态"""
+        spider = self.spider
+        
         # 跳过获取解密密钥的请求
         if 'Interface/ptbk' in request.url:
             return response
@@ -99,7 +109,7 @@ class CookieRotationMiddleware:
                     self.cookie_rotator.report_cookie_status(account_id, False)
                 # 标记需要重试
                 request.meta['cookie_locked'] = True
-                return self._retry_with_new_cookie(request, spider, 'Cookie locked')
+                return self._retry_with_new_cookie(request, 'Cookie locked', response)
             
             elif status == 10000:
                 # Cookie 无效或过期
@@ -107,7 +117,7 @@ class CookieRotationMiddleware:
                 if account_id and self.cookie_rotator:
                     self.cookie_rotator.report_cookie_status(account_id, False, permanent=True)
                 request.meta['cookie_invalid'] = True
-                return self._retry_with_new_cookie(request, spider, 'Cookie invalid')
+                return self._retry_with_new_cookie(request, 'Cookie invalid', response)
             
         except json.JSONDecodeError:
             pass
@@ -116,18 +126,21 @@ class CookieRotationMiddleware:
         
         return response
     
-    def process_exception(self, request, exception, spider):
+    def process_exception(self, request, exception):
         """处理请求异常"""
+        spider = self.spider
+        
         if isinstance(exception, NoCookieAvailableError):
             spider.logger.error("No cookie available, stopping spider")
             # 触发爬虫暂停
-            spider.crawler.engine.close_spider(spider, 'no_cookie_available')
+            self.crawler.engine.close_spider(spider, 'no_cookie_available')
             raise IgnoreRequest("No cookie available")
         
         return None
     
-    def _retry_with_new_cookie(self, request, spider, reason):
+    def _retry_with_new_cookie(self, request, reason, response=None):
         """使用新 Cookie 重试请求"""
+        spider = self.spider
         retry_times = request.meta.get('cookie_retry_times', 0) + 1
         max_retry = 3
         
@@ -143,4 +156,5 @@ class CookieRotationMiddleware:
             return new_request
         
         spider.logger.error(f"Max cookie retries reached for: {request.url}")
-        return None
+        # 返回原始响应而不是 None（Scrapy 要求 process_response 必须返回 Response 或 Request）
+        return response

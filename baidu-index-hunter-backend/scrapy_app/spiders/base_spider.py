@@ -309,10 +309,18 @@ class BaseBaiduIndexSpider(scrapy.Spider):
         meta = meta or {}
         meta.setdefault('dont_redirect', True)
         
+        # 设置必要的请求头（百度 API 需要这些头来验证请求来源）
+        headers = kwargs.pop('headers', {})
+        headers.setdefault('Referer', 'https://index.baidu.com/v2/main/index.html')
+        headers.setdefault('Accept', 'application/json, text/plain, */*')
+        headers.setdefault('Accept-Language', 'zh-CN,zh;q=0.9')
+        
         return scrapy.Request(
             url=url,
             callback=callback,
             meta=meta,
+            headers=headers,
             dont_filter=kwargs.pop('dont_filter', True),
             **kwargs
         )
+

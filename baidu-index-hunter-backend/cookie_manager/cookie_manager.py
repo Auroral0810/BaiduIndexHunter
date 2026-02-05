@@ -21,7 +21,11 @@ import traceback
 
 # 添加项目根目录到路径，以便导入项目模块
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config.settings import MYSQL_CONFIG, REDIS_CONFIG
+from core.config import config
+
+# 从 config 获取配置
+MYSQL_CONFIG = config.mysql_config
+REDIS_CONFIG = config.redis_config
 
 
 

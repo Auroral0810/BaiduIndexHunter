@@ -1082,7 +1082,6 @@ const testAllCookiesAvailability = async () => {
     testingAll.value = false
   }
 }
-
 // 更新Cookie状态
 const updateCookieStatus = async () => {
   try {
@@ -1090,7 +1089,9 @@ const updateCookieStatus = async () => {
     
     const response = await axios.post(`${API_BASE_URL}/admin/cookie/update-status`)
     if (response.data.code === 10000) {
-      ElMessage.success($t('views.cookiemanager.511q7l', [response.data.data.updated_count]))
+      const result = response.data.data?.updated_count
+      const updatedCount = result?.updated_count ?? 0
+      ElMessage.success($t('views.cookiemanager.511q7l', [updatedCount]))
       refreshCookieStatus()
       loadCookies()
     } else {

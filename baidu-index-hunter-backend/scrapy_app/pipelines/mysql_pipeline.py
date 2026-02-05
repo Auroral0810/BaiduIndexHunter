@@ -10,7 +10,8 @@ from datetime import datetime
 class MySQLStatsPipeline:
     """MySQL 统计管道"""
     
-    def __init__(self, mysql_config):
+    def __init__(self, crawler, mysql_config):
+        self.crawler = crawler
         self.logger = logging.getLogger(__name__)
         self.mysql_config = mysql_config
         self.mysql = None
@@ -22,10 +23,16 @@ class MySQLStatsPipeline:
     def from_crawler(cls, crawler):
         settings = crawler.settings
         return cls(
+            crawler=crawler,
             mysql_config=settings.get('MYSQL_CONFIG', {}),
         )
     
-    def open_spider(self, spider):
+    @property
+    def spider(self):
+        """获取当前 spider 实例"""
+        return self.crawler.spider
+    
+    def open_spider(self):
         """爬虫启动时初始化数据库连接"""
         try:
             from db.mysql_manager import MySQLManager
@@ -34,29 +41,30 @@ class MySQLStatsPipeline:
         except Exception as e:
             self.logger.error(f'Failed to initialize MySQL: {e}')
     
-    def close_spider(self, spider):
+    def close_spider(self):
         """爬虫关闭时更新最终统计数据"""
         try:
-            self._update_final_statistics(spider)
+            self._update_final_statistics()
         except Exception as e:
             self.logger.error(f"Failed to update final statistics: {e}")
     
-    def process_item(self, item, spider):
+    def process_item(self, item):
         """统计处理的 Item 数量"""
         self.item_count += 1
         
         # 定期更新进度
         if self.item_count - self.last_update_count >= self.update_interval:
-            self._update_task_progress(spider)
+            self._update_task_progress()
             self.last_update_count = self.item_count
         
         return item
     
-    def _update_task_progress(self, spider):
+    def _update_task_progress(self):
         """更新任务进度"""
         if not self.mysql:
             return
         
+        spider = self.spider
         task_id = getattr(spider, 'task_id', None)
         if not task_id:
             return
@@ -85,12 +93,12 @@ class MySQLStatsPipeline:
         except Exception as e:
             self.logger.error(f"Failed to update task progress: {e}")
     
-    def _update_final_statistics(self, spider):
+    def _update_final_statistics(self):
         """更新最终统计数据"""
         if not self.mysql:
             return
         
-        task_id = getattr(spider, 'task_id', None)
+        spider = self.spider
         spider_name = spider.name
         
         try:

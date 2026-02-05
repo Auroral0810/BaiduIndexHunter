@@ -11,7 +11,8 @@ from scrapy import signals
 class RequestStatsMiddleware:
     """请求统计中间件"""
     
-    def __init__(self):
+    def __init__(self, crawler):
+        self.crawler = crawler
         self.logger = logging.getLogger(__name__)
         self.request_count = 0
         self.response_count = 0
@@ -20,10 +21,15 @@ class RequestStatsMiddleware:
     
     @classmethod
     def from_crawler(cls, crawler):
-        middleware = cls()
+        middleware = cls(crawler)
         crawler.signals.connect(middleware.spider_opened, signal=signals.spider_opened)
         crawler.signals.connect(middleware.spider_closed, signal=signals.spider_closed)
         return middleware
+    
+    @property
+    def spider(self):
+        """获取当前 spider 实例"""
+        return self.crawler.spider
     
     def spider_opened(self, spider):
         """爬虫启动"""
@@ -42,14 +48,15 @@ class RequestStatsMiddleware:
             f"Avg speed: {self.response_count / elapsed:.2f} req/s" if elapsed > 0 else ""
         )
     
-    def process_request(self, request, spider):
+    def process_request(self, request):
         """统计请求"""
         self.request_count += 1
         request.meta['request_start_time'] = time.time()
         return None
     
-    def process_response(self, request, response, spider):
+    def process_response(self, request, response):
         """统计响应"""
+        spider = self.spider
         self.response_count += 1
         
         # 计算请求耗时
@@ -61,8 +68,9 @@ class RequestStatsMiddleware:
         
         return response
     
-    def process_exception(self, request, exception, spider):
+    def process_exception(self, request, exception):
         """统计异常"""
+        spider = self.spider
         self.error_count += 1
         spider.logger.debug(f"Request exception: {exception}")
         return None
