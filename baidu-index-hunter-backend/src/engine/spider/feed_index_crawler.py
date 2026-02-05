@@ -5,15 +5,6 @@ import pandas as pd
 import requests
 import json
 import time
-import signal
-import os
-import sys
-import threading
-import pickle
-from datetime import datetime, timedelta
-from pathlib import Path
-import traceback
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import urllib.parse
 
 # 添加项目根目录到Python路径
@@ -21,360 +12,75 @@ from src.core.logger import log
 from src.utils.rate_limiter import rate_limiter
 from src.utils.decorators import retry
 from src.engine.crypto.cipher_generator import cipher_text_generator
-from src.services.processor_service import data_processor
 from src.services.cookie_rotator import cookie_rotator
 from src.core.config import BAIDU_INDEX_API, OUTPUT_DIR
 from fake_useragent import UserAgent
+from src.engine.spider.base_crawler import BaseCrawler
+from datetime import datetime
+from src.utils import storage_service
 
 # 自定义异常类
 class NoCookieAvailableError(Exception):
     """当没有可用Cookie时抛出的异常"""
     pass
 
-class FeedIndexCrawler:
+class FeedIndexCrawler(BaseCrawler):
     """百度资讯指数爬虫类"""
     
     def __init__(self):
         """初始化爬虫"""
-        self.cookie_rotator = cookie_rotator
-        self.task_id = None
-        self.data_cache = []  # 全局缓存，仅用于初始化和调试
-        self.stats_cache = []  # 全局缓存，仅用于初始化和调试
-        self.cache_limit = 1000
-        self.checkpoint_path = None
-        self.output_path = None
-        # 添加线程同步锁
-        self.task_lock = threading.Lock()  # 保护任务状态
-        self.save_lock = threading.Lock()  # 保护文件写入
-        self.setup_signal_handlers()
-        # 初始化任务计数器和状态变量
-        self.total_tasks = 0
-        self.completed_tasks = 0
-        self.failed_tasks = 0  # 新增：追踪失败的任务数
-        self.completed_keywords = set()  # 使用集合以加速查找
-        self.failed_keywords = set()  # 新增：追踪失败的任务键
+        super().__init__(task_type="feed_index")
+        
+        # FeedIndexCrawler特有的初始化
         self.current_keyword_index = 0
         self.current_city_index = 0
         self.current_date_range_index = 0
         self.city_dict = {}  # 城市代码到名称的映射
         self.ua = UserAgent()
-        # 设置线程池最大工作线程数
+        
+        # 设置线程池最大工作线程数 (从配置服务加载，如果基类未提供)
         from src.services.config_service import config_manager
         self.max_workers = int(config_manager.get('spider.max_workers', 5))
         self.timeout = int(config_manager.get('spider.timeout', 15))
         self.retry_times = int(config_manager.get('spider.retry_times', 2))
         log.info(f"爬虫配置已加载: max_workers={self.max_workers}, timeout={self.timeout}, retry_times={self.retry_times}")
         
-    def setup_signal_handlers(self):
-        """设置信号处理器以捕获中断"""
-        signal.signal(signal.SIGINT, self.handle_exit)
-        signal.signal(signal.SIGTERM, self.handle_exit)
-        
-    def handle_exit(self, signum, frame):
-        """处理退出信号，保存数据和检查点"""
-        log.info("接收到退出信号，正在保存数据和检查点...")
-        self._save_data_cache(force=True)
-        self._save_global_checkpoint()
-        log.info(f"数据和检查点已保存。任务ID: {self.task_id}")
-        sys.exit(0)
-        
-    def _generate_task_id(self):
-        """生成唯一的任务ID"""
-        return datetime.now().strftime('%Y%m%d%H%M%S')
-        
-    def _save_data_cache(self, status=None, force=False):
-        """保存数据缓存到CSV文件"""
-        with self.save_lock:
-            data_count = 0
-            stats_count = 0
-            
-            try:
-                if (len(self.data_cache) >= self.cache_limit or force) and self.data_cache:
-                    # 保存日度/周度数据
-                    daily_df = pd.DataFrame(self.data_cache)
-                    daily_path = os.path.join(self.output_path, f"feed_index_{self.task_id}_daily_data.csv")
-                    
-                    # 记录实际保存的数据条数
-                    data_count = len(daily_df)
-                    
-                    # 判断文件是否存在，决定是否写入表头
-                    file_exists = os.path.isfile(daily_path)
-                    daily_df.to_csv(daily_path, mode='a', header=not file_exists, index=False, encoding='utf-8-sig')
-                    
-                    # 清空缓存
-                    self.data_cache = []
-                    
-                    # 显示进度信息
-                    progress = 100.0 * self.completed_tasks / self.total_tasks if self.total_tasks > 0 else 0
-                    log.info(f"进度: [{self.completed_tasks}/{self.total_tasks}] {progress:.2f}% - 已保存{data_count}条数据记录")
-                    
-                if (len(self.stats_cache) >= self.cache_limit or force) and self.stats_cache:
-                    # 保存统计数据
-                    stats_df = pd.DataFrame(self.stats_cache)
-                    stats_path = os.path.join(self.output_path, f"feed_index_{self.task_id}_stats_data.csv")
-                    
-                    # 记录实际保存的数据条数
-                    stats_count = len(stats_df)
-                    
-                    # 判断文件是否存在，决定是否写入表头
-                    file_exists = os.path.isfile(stats_path)
-                    stats_df.to_csv(stats_path, mode='a', header=not file_exists, index=False, encoding='utf-8-sig')
-                    
-                    # 清空缓存
-                    self.stats_cache = []
-                
-                # 如果是任务完成时的保存，更新统计数据
-                if status == "completed":
-                    try:
-                        # 计算该任务的总爬取数据条数
-                        total_crawled = 0
-                        
-                        # 计算日度数据文件的行数
-                        daily_path = os.path.join(self.output_path, f"feed_index_{self.task_id}_daily_data.csv")
-                        if os.path.exists(daily_path):
-                            with open(daily_path, 'r', encoding='utf-8-sig') as f:
-                                total_crawled += sum(1 for _ in f) - 1  # 减去表头行
-                        
-                        # 获取当前日期
-                        stat_date = datetime.now().date()
-                        
-                        # 连接数据库
-                        from src.data.repositories.mysql_manager import MySQLManager
-                        mysql = MySQLManager()
-                        
-                        # 查询当前任务信息
-                        task_query = """
-                            SELECT task_type FROM spider_tasks WHERE task_id = %s
-                        """
-                        task = mysql.fetch_one(task_query, (self.task_id,))
-                        
-                        if not task:
-                            log.error(f"更新统计数据失败：任务 {self.task_id} 不存在")
-                            return
-                        
-                        task_type = task['task_type']
-                        
-                        # 检查该日期是否已有统计记录
-                        check_query = """
-                            SELECT id, total_crawled_items FROM spider_statistics 
-                            WHERE stat_date = %s AND task_type = %s
-                        """
-                        stats = mysql.fetch_one(check_query, (stat_date, task_type))
-                        
-                        if stats:
-                            # 当前累计爬取数据条数
-                            current_total_crawled = stats.get('total_crawled_items', 0) or 0
-                            # 更新后的累计爬取数据条数
-                            new_total_crawled = current_total_crawled + total_crawled
-                            
-                            # 更新统计记录
-                            update_query = """
-                                UPDATE spider_statistics
-                                SET total_crawled_items = %s,
-                                    update_time = %s
-                                WHERE id = %s
-                            """
-                            mysql.execute_query(update_query, (new_total_crawled, datetime.now(), stats['id']))
-                            
-                            # log.info(f"更新累计爬取数据条数: {current_total_crawled} -> {new_total_crawled} (新增: {total_crawled})")
-                        else:
-                            # 未找到当日统计记录，创建一条新记录
-                            insert_query = """
-                                INSERT INTO spider_statistics 
-                                (stat_date, task_type, total_tasks, completed_tasks, failed_tasks, total_crawled_items, update_time) 
-                                VALUES (%s, %s, 1, 1, 0, %s, %s)
-                            """
-                            now = datetime.now()
-                            mysql.execute_query(insert_query, (stat_date, task_type, total_crawled, now))
-                            
-                            log.info(f"创建新的统计记录，初始累计爬取数据条数: {total_crawled}")
-                    
-                    except Exception as e:
-                        log.error(f"在_save_data_cache中更新统计数据失败: {e}")
-                        log.error(traceback.format_exc())
-            except Exception as e:
-                log.error(f"保存数据缓存时出现错误: {e}")
-                log.error(traceback.format_exc())
+    # setup_signal_handlers, handle_exit, _generate_task_id, _save_data_cache, _update_task_db_status, _update_spider_statistics, _flush_buffer 均由 BaseCrawler 提供
     
+    # _get_feed_index, _process_feed_index_data, _process_multi_feed_index_data 保持现状，因为它们包含特定的解析逻辑
+
     def _save_global_checkpoint(self):
-        """保存全局检查点"""
-        # 将集合转换为列表，以避免序列化大型集合时的问题
-        completed_keywords_list = list(self.completed_keywords) if isinstance(self.completed_keywords, set) else self.completed_keywords
-        failed_keywords_list = list(self.failed_keywords) if isinstance(self.failed_keywords, set) else self.failed_keywords
-        
-        # 如果列表过大，分批保存
-        if len(completed_keywords_list) > 2500:
-            # 将列表分成多个块
-            chunk_size = 2500
-            chunks = [completed_keywords_list[i:i + chunk_size] for i in range(0, len(completed_keywords_list), chunk_size)]
-            
-            # 保存主检查点
-            checkpoint = {
-                'task_id': self.task_id,
+        """保存全局检查点 (覆盖基类以包含 city_dict)"""
+        if not self.checkpoint_path: return
+        try:
+            checkpoint_data = {
+                'completed_keywords': list(self.completed_keywords),
+                'failed_keywords': list(self.failed_keywords),
                 'completed_tasks': self.completed_tasks,
-                'failed_tasks': self.failed_tasks,  # 新增：保存失败任务数
+                'failed_tasks': self.failed_tasks,
                 'total_tasks': self.total_tasks,
-                # 只保存一个标志，表明关键词被分块了
-                'completed_keywords_chunked': True,
-                'chunks_count': len(chunks),
-                # 保存失败的关键词（通常不会太多，直接保存）
-                'failed_keywords': failed_keywords_list,
-                # 保存当前处理进度的详细信息
+                'task_id': self.task_id,
+                'output_path': self.output_path,
+                'update_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'city_dict': self.city_dict,
                 'current_keyword_index': self.current_keyword_index,
                 'current_city_index': self.current_city_index,
                 'current_date_range_index': self.current_date_range_index,
-                # 保存任务配置信息，用于恢复时重建任务上下文
-                'city_dict': self.city_dict,
-                'output_path': self.output_path,
-                'save_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             }
+            storage_service.save_pickle(checkpoint_data, self.checkpoint_path)
+            log.info(f"检查点已更新: {self.completed_tasks}/{self.total_tasks}")
+        except Exception as e:
+            log.error(f"Save Checkpoint Error: {e}")
             
-            # 保存主检查点
-            with open(self.checkpoint_path, 'wb') as f:
-                pickle.dump(checkpoint, f)
-            
-            # 保存分块数据
-            for i, chunk in enumerate(chunks):
-                chunk_path = f"{self.checkpoint_path}.chunk{i}"
-                with open(chunk_path, 'wb') as f:
-                    pickle.dump(chunk, f)
-                log.debug(f"保存分块文件: {chunk_path}, 包含 {len(chunk)} 个关键词")
-            
-            # log.info(f"检查点已分块保存: {self.checkpoint_path}, 共{len(chunks)}个块, 每块大小约{chunk_size}个关键词, 已完成任务: {self.completed_tasks}/{self.total_tasks}")
-        else:
-            # 如果数据量不大，正常保存
-            checkpoint = {
-                'task_id': self.task_id,
-                'completed_tasks': self.completed_tasks,
-                'failed_tasks': self.failed_tasks,  # 新增：保存失败任务数
-                'total_tasks': self.total_tasks,
-                # 保存当前处理进度的详细信息
-                'completed_keywords': completed_keywords_list,
-                'failed_keywords': failed_keywords_list,  # 新增：保存失败的关键词
-                'completed_keywords_chunked': False,
-                'current_keyword_index': self.current_keyword_index,
-                'current_city_index': self.current_city_index,
-                'current_date_range_index': self.current_date_range_index,
-                # 保存任务配置信息，用于恢复时重建任务上下文
-                'city_dict': self.city_dict,
-                'output_path': self.output_path,
-                'save_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            }
-            
-            with open(self.checkpoint_path, 'wb') as f:
-                pickle.dump(checkpoint, f)
-            
-            # log.info(f"检查点已保存: {self.checkpoint_path}, 包含 {len(completed_keywords_list)} 个关键词, 已完成任务: {self.completed_tasks}/{self.total_tasks}")
-        
     def _load_global_checkpoint(self, task_id):
-        """加载全局检查点"""
-        self.task_id = task_id
-        self.checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/feed_index_{self.task_id}_checkpoint.pkl")
-        
-        # 确保检查点目录存在
-        os.makedirs(os.path.dirname(self.checkpoint_path), exist_ok=True)
-        
-        if os.path.exists(self.checkpoint_path):
-            try:
-                with open(self.checkpoint_path, 'rb') as f:
-                    checkpoint = pickle.load(f)
-                    
-                # 显式设置完成任务数和总任务数
-                self.completed_tasks = checkpoint.get('completed_tasks', 0)
-                self.total_tasks = checkpoint.get('total_tasks', 0)
-                
-                # 检查是否使用了分块存储
-                if checkpoint.get('completed_keywords_chunked', False):
-                    # 从分块文件中加载关键词
-                    completed_keywords_list = []
-                    
-                    # 获取检查点目录中所有的分块文件
-                    checkpoint_dir = os.path.dirname(self.checkpoint_path)
-                    chunk_prefix = f"{os.path.basename(self.checkpoint_path)}.chunk"
-                    chunk_files = [f for f in os.listdir(checkpoint_dir) if f.startswith(chunk_prefix)]
-                    
-                    if not chunk_files:
-                        # 如果没有找到分块文件，尝试使用chunks_count
-                        chunks_count = checkpoint.get('chunks_count', 0)
-                        log.warning(f"未找到分块文件，尝试使用chunks_count={chunks_count}加载")
-                        
-                        for i in range(chunks_count):
-                            chunk_path = f"{self.checkpoint_path}.chunk{i}"
-                            if os.path.exists(chunk_path):
-                                try:
-                                    with open(chunk_path, 'rb') as f:
-                                        chunk = pickle.load(f)
-                                        completed_keywords_list.extend(chunk)
-                                        log.info(f"加载分块文件: {chunk_path}, 包含 {len(chunk)} 个关键词")
-                                except Exception as e:
-                                    log.error(f"加载关键词分块文件失败: {chunk_path}, 错误: {e}")
-                    else:
-                        # 按照分块文件名排序并加载
-                        chunk_files.sort()
-                        log.info(f"发现 {len(chunk_files)} 个分块文件")
-                        
-                        for chunk_file in chunk_files:
-                            chunk_path = os.path.join(checkpoint_dir, chunk_file)
-                            try:
-                                with open(chunk_path, 'rb') as f:
-                                    chunk = pickle.load(f)
-                                    completed_keywords_list.extend(chunk)
-                                    log.info(f"加载分块文件: {chunk_file}, 包含 {len(chunk)} 个关键词")
-                            except Exception as e:
-                                log.error(f"加载关键词分块文件失败: {chunk_path}, 错误: {e}")
-                    
-                    # 转换为集合
-                    self.completed_keywords = set(completed_keywords_list)
-                    
-                    # 更新主检查点中的chunks_count
-                    actual_chunks_count = len(chunk_files) if chunk_files else checkpoint.get('chunks_count', 0)
-                    if actual_chunks_count != checkpoint.get('chunks_count', 0):
-                        log.warning(f"检查点中的chunks_count({checkpoint.get('chunks_count', 0)})与实际找到的分块文件数量({actual_chunks_count})不一致")
-                        checkpoint['chunks_count'] = actual_chunks_count
-                        
-                        # 保存更新后的主检查点
-                        with open(self.checkpoint_path, 'wb') as f:
-                            pickle.dump(checkpoint, f)
-                        log.info(f"已更新主检查点的chunks_count为: {actual_chunks_count}")
-                else:
-                    # 直接从检查点加载
-                    completed_keywords = checkpoint.get('completed_keywords', [])
-                    self.completed_keywords = set(completed_keywords) if isinstance(completed_keywords, list) else completed_keywords
-                
-                # 加载失败任务信息
-                self.failed_tasks = checkpoint.get('failed_tasks', 0)
-                failed_keywords = checkpoint.get('failed_keywords', [])
-                self.failed_keywords = set(failed_keywords) if isinstance(failed_keywords, list) else failed_keywords
-                
-                # 加载其他索引信息
-                self.current_keyword_index = checkpoint.get('current_keyword_index', 0)
-                self.current_city_index = checkpoint.get('current_city_index', 0)
-                self.current_date_range_index = checkpoint.get('current_date_range_index', 0)
-                
-                # 加载任务配置信息
-                self.city_dict = checkpoint.get('city_dict', {})
-                self.output_path = checkpoint.get('output_path', os.path.join(OUTPUT_DIR, 'feed_index', self.task_id))
-                
-                log.info(f"已加载检查点: {self.checkpoint_path}, 已完成任务: {self.completed_tasks}/{self.total_tasks}, 失败任务: {self.failed_tasks}")
-                log.info(f"已完成的任务项: {len(self.completed_keywords)}, 失败的任务项: {len(self.failed_keywords)}, 恢复时将跳过已完成任务并重试失败任务")
-                return True
-            except Exception as e:
-                log.error(f"加载检查点文件失败: {e}")
-                log.error(traceback.format_exc())
-                # 加载失败时重置计数器
-                self.completed_tasks = 0
-                self.failed_tasks = 0
-                self.total_tasks = 0
-                self.completed_keywords = set()
-                self.failed_keywords = set()
-                return False
-        
-        # 如果检查点不存在，确保计数器为0
-        self.completed_tasks = 0
-        self.failed_tasks = 0
-        self.total_tasks = 0
-        self.completed_keywords = set()
-        self.failed_keywords = set()
+        """加载全局检查点 (覆盖基类以处理 city_dict)"""
+        checkpoint = super()._load_global_checkpoint(task_id)
+        if checkpoint:
+            self.city_dict = checkpoint.get('city_dict', {})
+            self.current_keyword_index = checkpoint.get('current_keyword_index', 0)
+            self.current_city_index = checkpoint.get('current_city_index', 0)
+            self.current_date_range_index = checkpoint.get('current_date_range_index', 0)
+            return True
         return False
     
     def _decrypt(self, key, data):
@@ -952,247 +658,7 @@ class FeedIndexCrawler:
             # 成功获取数据
             return [f"{kw}_{city_code}_{start_date}_{end_date}" for kw in keywords], daily_data_list, stats_records_list, True
     
-    def _process_year_range(self, start_year, end_year):
-        """处理年份范围，生成年度请求参数列表"""
-        current_year = datetime.now().year
-        current_month = datetime.now().month
-        current_day = datetime.now().day
-        
-        date_ranges = []
-        
-        for year in range(start_year, end_year + 1):
-            if year < current_year:
-                # 完整年份
-                start_date = f"{year}-01-01"
-                end_date = f"{year}-12-31"
-            else:
-                # 当年截止到今天
-                start_date = f"{year}-01-01"
-                end_date = datetime.now().strftime('%Y-%m-%d')
-                
-            date_ranges.append((start_date, end_date))
-            
-        return date_ranges
-    
-    def _load_keywords_from_file(self, file_path):
-        """从文件加载关键词列表"""
-        ext = os.path.splitext(file_path)[1].lower()
-        
-        if ext == '.xlsx':
-            df = pd.read_excel(file_path)
-            # 假设关键词在第一列
-            return df.iloc[:, 0].tolist()
-        elif ext == '.csv':
-            df = pd.read_csv(file_path)
-            # 假设关键词在第一列
-            return df.iloc[:, 0].tolist()
-        elif ext == '.txt':
-            with open(file_path, 'r', encoding='utf-8') as f:
-                return [line.strip() for line in f if line.strip()]
-        else:
-            log.error(f"不支持的文件格式: {ext}")
-            return []
-    
-    def _load_cities_from_file(self, file_path):
-        """从文件加载城市代码列表"""
-        ext = os.path.splitext(file_path)[1].lower()
-        
-        if ext == '.xlsx':
-            df = pd.read_excel(file_path)
-            # 假设城市代码和城市名在前两列
-            return dict(zip(df.iloc[:, 0].astype(int).tolist(), df.iloc[:, 1].tolist()))
-        elif ext == '.csv':
-            df = pd.read_csv(file_path)
-            # 假设城市代码和城市名在前两列
-            return dict(zip(df.iloc[:, 0].astype(int).tolist(), df.iloc[:, 1].tolist()))
-        else:
-            log.error(f"不支持的文件格式: {ext}")
-            return {}
-    
-    def _load_date_ranges_from_file(self, file_path):
-        """从文件加载日期范围列表"""
-        ext = os.path.splitext(file_path)[1].lower()
-        
-        if ext == '.xlsx':
-            df = pd.read_excel(file_path)
-            # 假设起始日期和结束日期在名为'start_date'和'end_date'的列
-            return list(zip(df['start_date'].tolist(), df['end_date'].tolist()))
-        elif ext == '.csv':
-            df = pd.read_csv(file_path)
-            # 假设起始日期和结束日期在名为'start_date'和'end_date'的列
-            return list(zip(df['start_date'].tolist(), df['end_date'].tolist()))
-        elif ext == '.txt':
-            date_ranges = []
-            with open(file_path, 'r', encoding='utf-8') as f:
-                for line in f:
-                    parts = line.strip().split(',')
-                    if len(parts) == 2:
-                        date_ranges.append((parts[0], parts[1]))
-            return date_ranges
-        else:
-            log.error(f"不支持的文件格式: {ext}")
-            return []
-    
-    def _save_data_to_file(self, data_cache, stats_cache, status=None):
-        """保存本地缓存数据到文件并更新数据库统计"""
-        try:
-            data_count = 0
-            stats_count = 0
-            
-            if data_cache:
-                # 保存日度/周度数据
-                daily_df = pd.DataFrame(data_cache)
-                daily_path = os.path.join(self.output_path, f"feed_index_{self.task_id}_daily_data.csv")
-                
-                # 记录实际保存的数据条数
-                data_count = len(daily_df)
-                
-                # 判断文件是否存在，决定是否写入表头
-                file_exists = os.path.isfile(daily_path)
-                daily_df.to_csv(daily_path, mode='a', header=not file_exists, index=False, encoding='utf-8-sig')
-                
-                # 维护总保存计数器（推荐方式）
-                if not hasattr(self, '_total_saved_count'):
-                    self._total_saved_count = 0
-                self._total_saved_count += data_count
-                
-                # 显示进度信息
-                progress = 100.0 * self.completed_tasks / self.total_tasks if self.total_tasks > 0 else 0
-                log.info(f"进度: [{self.completed_tasks}/{self.total_tasks}] {progress:.2f}% - 已保存{data_count}条数据记录")
-                
-            if stats_cache:
-                # 保存统计数据
-                stats_df = pd.DataFrame(stats_cache)
-                stats_path = os.path.join(self.output_path, f"feed_index_{self.task_id}_stats_data.csv")
-                
-                # 记录实际保存的数据条数
-                stats_count = len(stats_df)
-                
-                # 判断文件是否存在，决定是否写入表头
-                file_exists = os.path.isfile(stats_path)
-                stats_df.to_csv(stats_path, mode='a', header=not file_exists, index=False, encoding='utf-8-sig')
-            
-            # 同时保存检查点，确保数据一致性
-            if data_cache or stats_cache:
-                self._save_global_checkpoint()
-            
-            # 更新数据库统计数据 - 如果是任务完成时的保存或者有数据保存时
-            if (status == "completed" or data_count > 0) and hasattr(self, 'task_id'):
-                try:
-                    # 计算该任务的总爬取数据条数
-                    total_crawled = 0
-                    
-                    if status == "completed":
-                        # 任务完成时，使用更快的方式统计总行数
-                        daily_path = os.path.join(self.output_path, f"feed_index_{self.task_id}_daily_data.csv")
-                        if os.path.exists(daily_path):
-                            # 方式1：使用缓存的计数器（推荐）
-                            if hasattr(self, '_total_saved_count'):
-                                total_crawled = self._total_saved_count
-                            else:
-                                # 方式2：使用更快的行数统计方法
-                                total_crawled = self._fast_count_csv_rows(daily_path)
-                    else:
-                        # 定期保存时，只使用本次新增的数据量
-                        total_crawled = data_count
-                    
-                    # 获取当前日期
-                    stat_date = datetime.now().date()
-                    
-                    # 连接数据库
-                    from src.data.repositories.mysql_manager import MySQLManager
-                    mysql = MySQLManager()
-                    
-                    # 查询当前任务信息
-                    task_query = """
-                        SELECT task_type FROM spider_tasks WHERE task_id = %s
-                    """
-                    task = mysql.fetch_one(task_query, (self.task_id,))
-                    
-                    if not task:
-                        log.error(f"更新统计数据失败：任务 {self.task_id} 不存在")
-                        return
-                    
-                    task_type = task['task_type']
-                    
-                    # 检查该日期是否已有统计记录
-                    check_query = """
-                        SELECT id, total_crawled_items FROM spider_statistics 
-                        WHERE stat_date = %s AND task_type = %s
-                    """
-                    stats = mysql.fetch_one(check_query, (stat_date, task_type))
-                    
-                    if stats:
-                        # 当前累计爬取数据条数
-                        current_total_crawled = stats.get('total_crawled_items', 0) or 0
-                        
-                        # 计算新的累计爬取数据条数
-                        if status == "completed":
-                            # 任务完成时，需要重新计算总数据量
-                            new_total_crawled = current_total_crawled + total_crawled
-                        else:
-                            # 定期保存时，只累加新增数据量
-                            new_total_crawled = current_total_crawled + total_crawled
-                        
-                        # 更新统计记录
-                        update_query = """
-                            UPDATE spider_statistics
-                            SET total_crawled_items = %s,
-                                update_time = %s
-                            WHERE id = %s
-                        """
-                        mysql.execute_query(update_query, (new_total_crawled, datetime.now(), stats['id']))
-                        
-                        # log.info(f"更新累计爬取数据条数: {current_total_crawled} -> {new_total_crawled} (新增: {total_crawled})")
-                    else:
-                        # 未找到当日统计记录，创建一条新记录
-                        insert_query = """
-                            INSERT INTO spider_statistics 
-                            (stat_date, task_type, total_tasks, completed_tasks, failed_tasks, total_crawled_items, update_time) 
-                            VALUES (%s, %s, 1, 1, 0, %s, %s)
-                        """
-                        now = datetime.now()
-                        mysql.execute_query(insert_query, (stat_date, task_type, total_crawled, now))
-                        
-                        log.info(f"创建新的统计记录，初始累计爬取数据条数: {total_crawled}")
-                
-                except Exception as e:
-                    log.error(f"在_save_data_to_file中更新统计数据失败: {e}")
-                    log.error(traceback.format_exc())
-                    
-        except Exception as e:
-            log.error(f"保存数据到文件时出错: {e}")
-            log.error(traceback.format_exc())
-    
-    def _fast_count_csv_rows(self, filepath):
-        """快速统计CSV文件行数（不包含表头）"""
-        try:
-            # 方式1：使用缓冲区读取，适合大文件
-            with open(filepath, 'rb') as f:
-                # 跳过可能的BOM
-                if f.read(3) != b'\xef\xbb\xbf':
-                    f.seek(0)
-                
-                # 统计换行符数量
-                lines = 0
-                buffer_size = 8192
-                while True:
-                    buffer = f.read(buffer_size)
-                    if not buffer:
-                        break
-                    lines += buffer.count(b'\n')
-                
-                # 减去表头行
-                return max(0, lines - 1) if lines > 0 else 0
-                
-        except Exception as e:
-            log.error(f"快速统计CSV行数失败: {e}")
-            # 降级到传统方式
-            try:
-                with open(filepath, 'r', encoding='utf-8-sig') as f:
-                    return sum(1 for _ in f) - 1
-            except Exception:
-                return 0
+    # _process_year_range, _load_keywords_from_file, _load_cities_from_file, _load_date_ranges_from_file, _save_data_to_file(_flush_buffer), _fast_count_csv_rows 均由 BaseCrawler 提供
     
     def crawl(self, task_id=None, keywords=None, cities=None, date_ranges=None, days=None, 
               keywords_file=None, cities_file=None, date_ranges_file=None,

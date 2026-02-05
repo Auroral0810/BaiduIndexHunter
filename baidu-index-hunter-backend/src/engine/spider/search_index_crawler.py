@@ -25,34 +25,26 @@ from src.services.storage_service import storage_service
 from src.services.region_service import get_region_manager
 from src.services.cookie_rotator import cookie_rotator
 from src.core.config import BAIDU_INDEX_API, OUTPUT_DIR
+from src.engine.spider.base_crawler import BaseCrawler
 
 # 自定义异常类
 class NoCookieAvailableError(Exception):
     """当没有可用Cookie时抛出的异常"""
     pass
 
-class SearchIndexCrawler:
+class SearchIndexCrawler(BaseCrawler):
     """百度搜索指数爬虫类（并行版本）"""
     
     def __init__(self):
         """初始化爬虫"""
-        self.cookie_rotator = cookie_rotator
-        self.task_id = None
-        self.data_cache = []  # 全局缓存，仅用于初始化和调试
-        self.stats_cache = []  # 全局缓存，仅用于初始化和调试
-        self.cache_limit = 1000
-        self.checkpoint_path = None
-        self.output_path = None
-        # 添加线程同步锁
-        self.task_lock = threading.Lock()  # 保护任务状态
-        self.save_lock = threading.Lock()  # 保护文件写入
-        self.setup_signal_handlers()
-        # 初始化任务计数器和状态变量
-        self.total_tasks = 0
-        self.completed_tasks = 0
-        self.failed_tasks = 0  # 新增：追踪失败的任务数
-        self.completed_keywords = set()  # 使用集合以加速查找
-        self.failed_keywords = set()  # 新增：追踪失败的任务键
+        super().__init__(task_type="search_index")
+        # 设置线程池最大工作线程数
+        from src.services.config_service import config_manager
+        self.max_workers = int(config_manager.get('spider.max_workers', 5))
+        self.timeout = int(config_manager.get('spider.timeout', 15))
+        self.retry_times = int(config_manager.get('spider.retry_times', 2))
+        log.info(f"爬虫配置已加载: max_workers={self.max_workers}, timeout={self.timeout}, retry_times={self.retry_times}")
+        
         self.current_keyword_index = 0
         self.current_city_index = 0
         self.current_date_range_index = 0
@@ -65,134 +57,36 @@ class SearchIndexCrawler:
         log.info(f"爬虫配置已加载: max_workers={self.max_workers}, timeout={self.timeout}, retry_times={self.retry_times}")
         # 修改为动态配置线程
         
-    def setup_signal_handlers(self):
-        """设置信号处理器以捕获中断"""
-        signal.signal(signal.SIGINT, self.handle_exit)
-        signal.signal(signal.SIGTERM, self.handle_exit)
-        
-    def handle_exit(self, signum, frame):
-        """处理退出信号，保存数据和检查点"""
-        log.info("接收到退出信号，正在保存数据和检查点...")
-        self._flush_buffer(force=True)
-        log.info(f"数据和检查点已保存。任务ID: {self.task_id}")
-        sys.exit(0)
-        
-    def _generate_task_id(self):
-        """生成唯一的任务ID"""
-        return datetime.now().strftime('%Y%m%d%H%M%S')
-    
-    def _update_task_db_status(self, status, progress=None, error_message=None):
-        """更新数据库中的任务状态、进度和错误信息 (含 WebSocket 推送)"""
-        try:
-            from src.data.repositories.task_repository import task_repo
-            success = task_repo.update_task_progress(
-                task_id=self.task_id,
-                status=status,
-                progress=min(float(progress or 0), 100.0) if progress is not None else None,
-                completed_items=self.completed_tasks,
-                failed_items=self.failed_tasks,
-                error_message=error_message
-            )
-            
-            if not success:
-                log.error(f"DB Status Update Error: Task {self.task_id} not found")
-                return
-
-            try:
-                from src.services.websocket_service import emit_task_update
-                emit_task_update(self.task_id, {
-                    'status': status, 'progress': progress or 0,
-                    'completed_items': self.completed_tasks, 'failed_items': self.failed_tasks,
-                    'total_items': self.total_tasks, 'error_message': error_message or ""
-                })
-            except: pass
-        except Exception as e:
-            log.error(f"DB Status Update Error: {e}")
-
-    def _update_spider_statistics(self, data_count):
-        """更新当日爬虫抓取总量统计"""
-        if data_count <= 0: return
-        try:
-            from src.data.repositories.statistics_repository import statistics_repo
-            from src.data.repositories.task_repository import task_repo
-            
-            task = task_repo.get_by_task_id(self.task_id)
-            if not task: return
-            
-            # 直接调用高层方法，内部处理 Upsert 逻辑
-            statistics_repo.increment_crawled_count(task.task_type, data_count)
-            
-        except Exception as e:
-            log.error(f"Stats Update Error: {e}")
-
-    def _flush_buffer(self, force=False):
-        """将缓存数据持久化到文件并同步数据库统计"""
-        with self.save_lock:
-            data_to_save, stats_to_save = [], []
-            with self.task_lock:
-                if (force or len(self.data_cache) >= self.cache_limit) and self.data_cache:
-                    data_to_save, self.data_cache = list(self.data_cache), []
-                if (force or len(self.stats_cache) >= self.cache_limit) and self.stats_cache:
-                    stats_to_save, self.stats_cache = list(self.stats_cache), []
-            
-            if not data_to_save and not stats_to_save: return
-                
-            try:
-                if data_to_save:
-                    path = os.path.join(self.output_path, f"search_index_{self.task_id}_daily_data.csv")
-                    storage_service.append_to_csv(pd.DataFrame(data_to_save), path)
-                    self._update_spider_statistics(len(data_to_save))
-                    if not hasattr(self, '_total_saved_count'): self._total_saved_count = 0
-                    self._total_saved_count += len(data_to_save)
-                    progress = (self.completed_tasks / self.total_tasks * 100) if self.total_tasks > 0 else 0
-                    log.info(f"进度: [{self.completed_tasks}/{self.total_tasks}] {progress:.2f}% - 持久化 {len(data_to_save)} 条记录")
-
-                if stats_to_save:
-                    path = os.path.join(self.output_path, f"search_index_{self.task_id}_stats_data.csv")
-                    storage_service.append_to_csv(pd.DataFrame(stats_to_save), path)
-                
-                self._save_global_checkpoint()
-            except Exception as e:
-                log.error(f"Flush Buffer Error: {e}")
-    
-    def _save_global_checkpoint(self):
-        """保存全局检查点（包含已完成关键词、索引等）"""
-        if not hasattr(self, 'checkpoint_path') or self.checkpoint_path is None:
-            log.warning("Checkpoint path is not set, skipping global checkpoint save.")
-            return
-            
-        checkpoint_data = {
-            'completed_keywords': list(self.completed_keywords), # Convert set to list for pickling
-            'failed_keywords': list(self.failed_keywords), # Convert set to list for pickling
-            'completed_tasks': self.completed_tasks,
-            'failed_tasks': self.failed_tasks,
-            'total_tasks': self.total_tasks,
-            'city_dict': self.city_dict,
-            'task_id': self.task_id,
-            'output_path': self.output_path, # Save output_path
-            'update_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        }
-        
-        storage_service.save_pickle(checkpoint_data, self.checkpoint_path)
-        log.info(f"检查点已保存: {self.checkpoint_path}, 已完成任务: {self.completed_tasks}/{self.total_tasks}")
+    # _update_task_db_status, _update_spider_statistics, _flush_buffer, _save_global_checkpoint 均由 BaseCrawler 提供
     
     def _load_global_checkpoint(self, task_id):
-        """加载全局检查点"""
-        checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/search_index_checkpoint_{task_id}.pkl")
-        checkpoint = storage_service.load_pickle(checkpoint_path)
-        
+        """加载全局检查点 (覆盖基类以处理 city_dict)"""
+        checkpoint = super()._load_global_checkpoint(task_id)
         if checkpoint:
-            self.completed_keywords = set(checkpoint.get('completed_keywords', []))
-            self.failed_keywords = set(checkpoint.get('failed_keywords', []))
-            self.completed_tasks = checkpoint.get('completed_tasks', 0)
-            self.failed_tasks = checkpoint.get('failed_tasks', 0)
-            self.total_tasks = checkpoint.get('total_tasks', 0)
             self.city_dict = checkpoint.get('city_dict', {})
-            self.task_id = checkpoint.get('task_id', task_id)
-            self.checkpoint_path = checkpoint_path
-            self.output_path = checkpoint.get('output_path', os.path.join(OUTPUT_DIR, 'search_index', self.task_id))
             return True
         return False
+
+    def _save_global_checkpoint(self):
+        """保存全局检查点 (覆盖基类以包含 city_dict)"""
+        if not self.checkpoint_path: return
+        try:
+            # 获取基类导出的数据
+            checkpoint_data = {
+                'completed_keywords': list(self.completed_keywords),
+                'failed_keywords': list(self.failed_keywords),
+                'completed_tasks': self.completed_tasks,
+                'failed_tasks': self.failed_tasks,
+                'total_tasks': self.total_tasks,
+                'task_id': self.task_id,
+                'output_path': self.output_path,
+                'update_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'city_dict': self.city_dict # 额外保存 city_dict
+            }
+            storage_service.save_pickle(checkpoint_data, self.checkpoint_path)
+            log.info(f"检查点已更新: {self.completed_tasks}/{self.total_tasks}")
+        except Exception as e:
+            log.error(f"Save Checkpoint Error: {e}")
 
 
     def _update_ab_sr_cookies(self):
@@ -259,32 +153,14 @@ class SearchIndexCrawler:
         encoded_word = urllib.parse.quote(params["word"])
         url = f"{BAIDU_INDEX_API['search_url']}?area={params['area']}&word={encoded_word}&startDate={params['startDate']}&endDate={params['endDate']}"
         
-        # 获取有效的Cookie - cookie_rotator.get_cookie()方法内部会记录使用量，不需要额外记录
-        account_id, cookie_dict = self.cookie_rotator.get_cookie()
+        # 获取有效的Cookie
+        account_id, cookie_dict = self._get_cookie_dict()
         if not cookie_dict:
-            # 修改这里：不再等待，而是抛出特定异常，以便上层处理
-            log.warning("所有Cookie均被锁定，无法继续爬取")
             raise NoCookieAvailableError("所有Cookie均被锁定，无法继续爬取")
             
         # 获取Cipher-Text (使用第一个关键词)
         cipher_text = self._get_cipher_text(keywords[0])
-        
-        headers = {
-            'Accept': 'application/json, text/plain, */*',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
-            'Cache-Control': 'no-cache',
-            'Cipher-Text': cipher_text,
-            'Connection': 'keep-alive',
-            'Pragma': 'no-cache',
-            'Referer': 'https://index.baidu.com/v2/main/index.html',
-            'Sec-Fetch-Dest': 'empty',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'same-origin',
-            'User-Agent': BAIDU_INDEX_API['user_agent'],
-            'sec-ch-ua': '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"macOS"',
-        }
+        headers = self._get_common_headers(cipher_text)
         
         response = requests.get(url, cookies=cookie_dict, headers=headers)
         
@@ -323,93 +199,7 @@ class SearchIndexCrawler:
             data, cookie, keywords, city_code, city_name, start_date, end_date
         )
     
-    def _process_year_range(self, start_year, end_year):
-        """处理年份范围，生成年度请求参数列表"""
-        current_year = datetime.now().year
-        current_month = datetime.now().month
-        current_day = datetime.now().day
-        
-        date_ranges = []
-        # 确保年份是整数类型
-        try:
-            start_year = int(start_year)
-            end_year = int(end_year)
-        except (ValueError, TypeError) as e:
-            log.error(f"年份格式错误: start_year={start_year}, end_year={end_year}, 错误: {e}")
-            return []
-
-        for year in range(start_year, end_year + 1):
-            if year < current_year:
-                # 完整年份
-                start_date = f"{year}-01-01"
-                end_date = f"{year}-12-31"
-            else:
-                # 当年截止到今天
-                start_date = f"{year}-01-01"
-                end_date = datetime.now().strftime('%Y-%m-%d')
-                
-            date_ranges.append((start_date, end_date))
-            
-        return date_ranges
-    
-    def _load_keywords_from_file(self, file_path):
-        """从文件加载关键词列表"""
-        ext = os.path.splitext(file_path)[1].lower()
-        
-        if ext == '.xlsx':
-            df = pd.read_excel(file_path)
-            # 假设关键词在第一列
-            return df.iloc[:, 0].tolist()
-        elif ext == '.csv':
-            df = pd.read_csv(file_path)
-            # 假设关键词在第一列
-            return df.iloc[:, 0].tolist()
-        elif ext == '.txt':
-            with open(file_path, 'r', encoding='utf-8') as f:
-                return [line.strip() for line in f if line.strip()]
-        else:
-            log.error(f"不支持的文件格式: {ext}")
-            return []
-    
-    def _load_cities_from_file(self, file_path):
-        """从文件加载城市代码列表"""
-        ext = os.path.splitext(file_path)[1].lower()
-        
-        if ext == '.xlsx':
-            df = pd.read_excel(file_path)
-            # 假设城市代码和城市名在前两列
-            return dict(zip(df.iloc[:, 0].astype(int).tolist(), df.iloc[:, 1].tolist()))
-        elif ext == '.csv':
-            df = pd.read_csv(file_path)
-            # 假设城市代码和城市名在前两列
-            return dict(zip(df.iloc[:, 0].astype(int).tolist(), df.iloc[:, 1].tolist()))
-        else:
-            log.error(f"不支持的文件格式: {ext}")
-            return {}
-    
-    def _load_date_ranges_from_file(self, file_path):
-        """从文件加载日期范围列表"""
-        ext = os.path.splitext(file_path)[1].lower()
-        
-        if ext == '.xlsx':
-            df = pd.read_excel(file_path)
-            # 假设起始日期和结束日期在名为'start_date'和'end_date'的列
-            return list(zip(df['start_date'].tolist(), df['end_date'].tolist()))
-        elif ext == '.csv':
-            df = pd.read_csv(file_path)
-            # 假设起始日期和结束日期在名为'start_date'和'end_date'的列
-            return list(zip(df['start_date'].tolist(), df['end_date'].tolist()))
-        elif ext == '.txt':
-            date_ranges = []
-            with open(file_path, 'r', encoding='utf-8') as f:
-                for line in f:
-                    parts = line.strip().split(',')
-                    if len(parts) == 2:
-                        date_ranges.append((parts[0], parts[1]))
-            return date_ranges
-        else:
-            log.error(f"不支持的文件格式: {ext}")
-            return []
+    # _process_year_range, _load_keywords_from_file, _load_cities_from_file, _load_date_ranges_from_file 均由 BaseCrawler 统一提供
     
     def _process_task(self, task_data):
         """
