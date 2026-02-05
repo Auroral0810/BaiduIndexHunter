@@ -57,11 +57,18 @@ class RegionDistributionParams(BaseModel):
 
 class ListTasksRequest(BaseModel):
     """获取任务列表请求"""
-    status: Optional[TaskStatus] = Field(None, description="状态过滤")
-    task_type: Optional[TaskType] = Field(None, description="类型过滤")
+    status: Optional[str] = Field(None, description="状态过滤")
+    task_type: Optional[str] = Field(None, description="类型过滤")
     created_by: Optional[str] = Field(None, description="创建者过滤")
+    keyword: Optional[str] = Field(None, description="关键词搜索")
     limit: int = Field(10, ge=1, le=100, description="每页数量")
     offset: int = Field(0, ge=0, description="偏移量")
+
+
+class DownloadFileRequest(BaseModel):
+    """下载文件请求"""
+    task_id: str = Field(..., description="任务ID")
+    file_type: str = Field("csv", description="文件类型")
 
 
 # ============== 响应 Schema ==============
@@ -99,3 +106,5 @@ class TaskDetailResponse(TaskItemResponse):
     error_message: Optional[str] = Field(None, description="错误信息")
     checkpoint_path: Optional[Any] = Field(None, description="检查点数据")
     output_files: Optional[Any] = Field(None, description="输出文件")
+    logs: Optional[List[Dict[str, Any]]] = Field(None, description="任务日志")
+

@@ -1,7 +1,7 @@
 """
 区域数据 Schema 模块
 """
-from typing import Optional, List
+from typing import Optional, List, Any, Dict
 from pydantic import BaseModel, Field
 
 
@@ -15,6 +15,23 @@ class GetCityByNameRequest(BaseModel):
 class GetProvinceByNameRequest(BaseModel):
     """根据省份名称获取省份代码请求"""
     name: str = Field(..., min_length=1, description="省份名称")
+
+
+class GetRegionByNameRequest(BaseModel):
+    """根据区域名称获取区域代码请求"""
+    name: str = Field(..., min_length=1, description="区域名称")
+    level: Optional[int] = Field(None, description="层级过滤")
+
+
+class UpdateCityProvinceRequest(BaseModel):
+    """更新城市省份归属请求"""
+    city_code: str = Field(..., description="城市代码")
+    province_code: str = Field(..., description="省份代码")
+
+
+class BatchUpdateCityProvinceRequest(BaseModel):
+    """批量更新城市省份归属请求"""
+    mappings: List[Dict[str, str]] = Field(..., description="城市-省份映射列表")
 
 
 # ============== 响应 Schema ==============
@@ -70,3 +87,17 @@ class ProvinceCitiesResponse(BaseModel):
     province_code: str = Field(..., description="省份代码")
     province_name: str = Field(..., description="省份名称")
     cities: List[CityItemResponse] = Field([], description="城市列表")
+
+
+class AllRegionsResponse(BaseModel):
+    """所有区域关系响应"""
+    regions: List[Any] = Field([], description="区域关系列表")
+    total: int = Field(0, description="总数量")
+
+
+class SyncResultResponse(BaseModel):
+    """同步操作结果响应"""
+    success: bool = Field(..., description="是否成功")
+    count: int = Field(0, description="同步数量")
+    message: str = Field("", description="结果消息")
+

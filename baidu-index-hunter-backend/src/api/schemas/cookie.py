@@ -44,6 +44,11 @@ class BanAccountRequest(BaseModel):
     ban_hours: int = Field(24, ge=1, description="封禁时长(小时)")
 
 
+class UpdateAccountIdRequest(BaseModel):
+    """更新账号ID请求"""
+    new_account_id: str = Field(..., description="新账号ID")
+
+
 # ============== 响应 Schema ==============
 
 class CookieItemResponse(BaseModel):
@@ -84,3 +89,26 @@ class TodayCookieUsageResponse(BaseModel):
     total_usage: int = Field(0, description="总使用次数")
     account_count: int = Field(0, description="使用账号数")
     details: List[CookieUsageResponse] = Field([], description="详情列表")
+
+
+class SyncResultResponse(BaseModel):
+    """同步操作结果响应"""
+    success: bool = Field(..., description="是否成功")
+    count: int = Field(0, description="同步数量")
+    message: str = Field("", description="结果消息")
+
+
+class TestResultResponse(BaseModel):
+    """测试结果响应"""
+    total: int = Field(0, description="总数")
+    success: int = Field(0, description="成功数")
+    failed: int = Field(0, description="失败数")
+    results: List[Dict[str, Any]] = Field([], description="详细结果")
+
+
+class BannedAccountResponse(BaseModel):
+    """被封禁账号响应"""
+    account_id: str = Field(..., description="账号ID")
+    ban_type: str = Field(..., description="封禁类型")
+    ban_until: Optional[datetime] = Field(None, description="封禁到期时间")
+

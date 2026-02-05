@@ -10,6 +10,21 @@ from flasgger import swag_from
 from src.services.region_service import get_region_manager
 from src.core.constants.respond import ResponseCode, ResponseFormatter
 from src.core.logger import log
+from src.api.schemas.region import (
+    GetCityByNameRequest,
+    GetRegionByNameRequest,
+    UpdateCityProvinceRequest,
+    BatchUpdateCityProvinceRequest,
+    CityItemResponse,
+    RegionItemResponse,
+    ProvinceItemResponse,
+    AllProvincesResponse,
+    AllCitiesResponse,
+    AllRegionsResponse,
+    SyncResultResponse
+)
+from src.api.utils.validators import validate_args, validate_json
+from src.api.utils.swagger import create_swagger_spec
 
 # 创建蓝图
 region_blueprint = Blueprint('region', __name__, url_prefix='/api/region')
@@ -21,50 +36,182 @@ def register_region_blueprint(app):
 # 获取区域管理器实例
 region_manager = get_region_manager()
 
+
+# ============== Swagger 规范定义 ==============
+
+GET_CITY_BY_CODE_SPEC = create_swagger_spec(
+    response_schema=CityItemResponse,
+    summary="根据城市代码获取城市名称",
+    tags=["区域数据"],
+    parameters=[{
+        'name': 'city_code',
+        'in': 'path',
+        'type': 'string',
+        'required': True,
+        'description': '城市代码'
+    }]
+)
+
+GET_CITY_BY_NAME_SPEC = create_swagger_spec(
+    request_schema=GetCityByNameRequest,
+    response_schema=CityItemResponse,
+    summary="根据城市名称获取城市代码",
+    tags=["区域数据"],
+    request_in="query"
+)
+
+GET_REGION_BY_CODE_SPEC = create_swagger_spec(
+    response_schema=RegionItemResponse,
+    summary="根据区域代码获取区域信息",
+    tags=["区域数据"],
+    parameters=[{
+        'name': 'region_code',
+        'in': 'path',
+        'type': 'string',
+        'required': True,
+        'description': '区域代码'
+    }]
+)
+
+GET_REGION_BY_NAME_SPEC = create_swagger_spec(
+    request_schema=GetRegionByNameRequest,
+    response_schema=RegionItemResponse,
+    summary="根据区域名称获取区域代码",
+    tags=["区域数据"],
+    request_in="query"
+)
+
+GET_PROVINCE_REGION_SPEC = create_swagger_spec(
+    response_schema=RegionItemResponse,
+    summary="获取省份所属的大区",
+    tags=["区域数据"],
+    parameters=[{
+        'name': 'province_code',
+        'in': 'path',
+        'type': 'string',
+        'required': True,
+        'description': '省份代码'
+    }]
+)
+
+GET_REGION_PROVINCES_SPEC = create_swagger_spec(
+    summary="获取大区下属的所有省份",
+    tags=["区域数据"],
+    parameters=[{
+        'name': 'name',
+        'in': 'query',
+        'type': 'string',
+        'required': True,
+        'description': '大区名称'
+    }]
+)
+
+GET_REGION_CHILDREN_SPEC = create_swagger_spec(
+    summary="获取区域的直接子区域",
+    tags=["区域数据"],
+    parameters=[{
+        'name': 'parent_code',
+        'in': 'path',
+        'type': 'string',
+        'required': True,
+        'description': '父级区域代码'
+    }]
+)
+
+GET_REGION_ALL_CHILDREN_SPEC = create_swagger_spec(
+    summary="获取区域的所有子区域（递归）",
+    tags=["区域数据"],
+    parameters=[{
+        'name': 'parent_code',
+        'in': 'path',
+        'type': 'string',
+        'required': True,
+        'description': '父级区域代码'
+    }]
+)
+
+GET_REGION_PATH_SPEC = create_swagger_spec(
+    summary="获取区域的完整路径",
+    description="从顶级区域到当前区域的完整路径",
+    tags=["区域数据"],
+    parameters=[{
+        'name': 'region_code',
+        'in': 'path',
+        'type': 'string',
+        'required': True,
+        'description': '区域代码'
+    }]
+)
+
+SYNC_REGION_DATA_SPEC = create_swagger_spec(
+    response_schema=SyncResultResponse,
+    summary="手动触发区域数据同步到Redis",
+    tags=["区域数据"]
+)
+
+GET_ALL_PROVINCES_SPEC = create_swagger_spec(
+    response_schema=AllProvincesResponse,
+    summary="获取所有省份数据",
+    tags=["区域数据"]
+)
+
+GET_ALL_CITIES_SPEC = create_swagger_spec(
+    response_schema=AllCitiesResponse,
+    summary="获取所有城市数据",
+    tags=["区域数据"]
+)
+
+GET_ALL_REGIONS_SPEC = create_swagger_spec(
+    response_schema=AllRegionsResponse,
+    summary="获取所有区域关系数据",
+    tags=["区域数据"]
+)
+
+GET_PROVINCE_CITIES_SPEC = create_swagger_spec(
+    summary="获取各省份下属的城市列表",
+    tags=["区域数据"],
+    parameters=[{
+        'name': 'province_code',
+        'in': 'query',
+        'type': 'string',
+        'required': False,
+        'description': '省份代码（可选，不传则返回全部）'
+    }]
+)
+
+SYNC_PROVINCE_CITIES_SPEC = create_swagger_spec(
+    response_schema=SyncResultResponse,
+    summary="手动触发同步各省份下属城市数据到Redis",
+    tags=["区域数据"]
+)
+
+UPDATE_CITY_PROVINCE_SPEC = create_swagger_spec(
+    request_schema=UpdateCityProvinceRequest,
+    summary="更新城市的所属省份信息",
+    tags=["区域数据"],
+    request_in="body"
+)
+
+BATCH_UPDATE_CITY_PROVINCE_SPEC = create_swagger_spec(
+    request_schema=BatchUpdateCityProvinceRequest,
+    summary="批量更新城市的所属省份信息",
+    tags=["区域数据"],
+    request_in="body"
+)
+
+SYNC_CITY_PROVINCE_SPEC = create_swagger_spec(
+    response_schema=SyncResultResponse,
+    summary="同步城市的所属省份信息",
+    description="根据region_children表同步城市省份归属",
+    tags=["区域数据"]
+)
+
+
+# ============== API 端点 ==============
+
+
 @region_blueprint.route('/city/code/<city_code>', methods=['GET'])
-@swag_from({
-    'tags': ['区域数据'],
-    'summary': '根据城市代码获取城市名称',
-    'parameters': [
-        {
-            'name': 'city_code',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '城市代码'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '成功获取城市名称',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'city_code': {'type': 'string'},
-                            'city_name': {'type': 'string'}
-                        }
-                    }
-                }
-            }
-        },
-        '404': {
-            'description': '城市代码不存在',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10500},
-                    'msg': {'type': 'string', 'example': '数据不存在'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(GET_CITY_BY_CODE_SPEC)
 def get_city_name_by_code(city_code):
     """根据城市代码获取城市名称"""
     city_name = region_manager.get_city_name_by_code(city_code)
@@ -81,70 +228,11 @@ def get_city_name_by_code(city_code):
     }))
 
 @region_blueprint.route('/city/name', methods=['GET'])
-@swag_from({
-    'tags': ['区域数据'],
-    'summary': '根据城市名称获取城市代码',
-    'parameters': [
-        {
-            'name': 'name',
-            'in': 'query',
-            'type': 'string',
-            'required': True,
-            'description': '城市名称'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '成功获取城市代码',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'city_code': {'type': 'string'},
-                            'city_name': {'type': 'string'}
-                        }
-                    }
-                }
-            }
-        },
-        '400': {
-            'description': '参数错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10100},
-                    'msg': {'type': 'string', 'example': '参数错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '404': {
-            'description': '城市名称不存在',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10500},
-                    'msg': {'type': 'string', 'example': '数据不存在'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
-def get_city_code_by_name():
+@swag_from(GET_CITY_BY_NAME_SPEC)
+@validate_args(GetCityByNameRequest)
+def get_city_code_by_name(validated_data: GetCityByNameRequest):
     """根据城市名称获取城市代码（查询参数版本）"""
-    city_name = request.args.get('name')
-    
-    if not city_name:
-        return jsonify(ResponseFormatter.error(
-            ResponseCode.PARAM_ERROR,
-            "缺少必要参数: name"
-        )), 400
-    
+    city_name = validated_data.name
     return get_city_code_by_name_impl(city_name)
 
 def get_city_code_by_name_impl(city_name):
@@ -163,52 +251,9 @@ def get_city_code_by_name_impl(city_name):
         'city_name': city_name
     }))
 
+
 @region_blueprint.route('/code/<region_code>', methods=['GET'])
-@swag_from({
-    'tags': ['区域数据'],
-    'summary': '根据区域代码获取区域信息',
-    'parameters': [
-        {
-            'name': 'region_code',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '区域代码'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '成功获取区域信息',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'code': {'type': 'string'},
-                            'name': {'type': 'string'},
-                            'level': {'type': 'integer'},
-                            'parent_code': {'type': 'string'}
-                        }
-                    }
-                }
-            }
-        },
-        '404': {
-            'description': '区域代码不存在',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10500},
-                    'msg': {'type': 'string', 'example': '数据不存在'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(GET_REGION_BY_CODE_SPEC)
 def get_region_by_code(region_code):
     """根据区域代码获取区域信息"""
     region_info = region_manager.get_region_by_code(region_code)
@@ -222,96 +267,19 @@ def get_region_by_code(region_code):
     return jsonify(ResponseFormatter.success(region_info))
 
 @region_blueprint.route('/name', methods=['GET'])
-@swag_from({
-    'tags': ['区域数据'],
-    'summary': '根据区域名称获取区域代码',
-    'parameters': [
-        {
-            'name': 'name',
-            'in': 'query',
-            'type': 'string',
-            'required': True,
-            'description': '区域名称'
-        },
-        {
-            'name': 'level',
-            'in': 'query',
-            'type': 'integer',
-            'required': False,
-            'description': '区域层级（1-省级，2-地级市，3-区县级，4-更细分级）'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '成功获取区域代码',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'region_code': {'type': 'string'},
-                            'region_name': {'type': 'string'}
-                        }
-                    }
-                }
-            }
-        },
-        '400': {
-            'description': '参数错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10100},
-                    'msg': {'type': 'string', 'example': '参数错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '404': {
-            'description': '区域名称不存在',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10500},
-                    'msg': {'type': 'string', 'example': '数据不存在'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
-def get_region_code_by_name():
+@swag_from(GET_REGION_BY_NAME_SPEC)
+@validate_args(GetRegionByNameRequest)
+def get_region_code_by_name(validated_data: GetRegionByNameRequest):
     """根据区域名称获取区域代码"""
-    region_name = request.args.get('name')
-    level = request.args.get('level')
-    
-    if not region_name:
-        return jsonify(ResponseFormatter.error(
-            ResponseCode.PARAM_ERROR,
-            "缺少必要参数: name"
-        )), 400
-    
-    # 将level转换为整数或None
-    if level and level.strip():
-        try:
-            level = int(level)
-        except ValueError:
-            return jsonify(ResponseFormatter.error(
-                ResponseCode.PARAM_ERROR,
-                "参数 level 必须是整数"
-            )), 400
-    else:
-        level = None
+    region_name = validated_data.name
+    level = validated_data.level
     
     region_code = region_manager.get_region_code_by_name(region_name, level)
     
     if not region_code:
         return jsonify(ResponseFormatter.error(
             ResponseCode.DATA_NOT_FOUND,
-            f"区域名称 {region_name} {'(层级: ' + str(level) + ')' if level else ''} 不存在"
+            f"区域名称 {region_name} {'（层级: ' + str(level) + '）' if level else ''} 不存在"
         )), 404
     
     return jsonify(ResponseFormatter.success({
@@ -320,49 +288,7 @@ def get_region_code_by_name():
     }))
 
 @region_blueprint.route('/province/region/<province_code>', methods=['GET'])
-@swag_from({
-    'tags': ['区域数据'],
-    'summary': '获取省份所属的大区',
-    'parameters': [
-        {
-            'name': 'province_code',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '省份代码'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '成功获取省份所属大区',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'province_code': {'type': 'string'},
-                            'region_name': {'type': 'string'}
-                        }
-                    }
-                }
-            }
-        },
-        '404': {
-            'description': '省份代码不存在或没有所属大区',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10500},
-                    'msg': {'type': 'string', 'example': '数据不存在'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(GET_PROVINCE_REGION_SPEC)
 def get_province_region(province_code):
     """获取省份所属的大区"""
     region_name = region_manager.get_province_region(province_code)
@@ -380,81 +306,7 @@ def get_province_region(province_code):
 
 
 @region_blueprint.route('/region/provinces', methods=['GET'])
-@swag_from({
-    'tags': ['区域数据'],
-    'summary': '获取大区下属的所有省份',
-    'parameters': [
-        {
-            'name': 'region',
-            'in': 'query',
-            'type': 'string',
-            'required': True,
-            'description': '大区名称（华东、华北等）'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '成功获取大区下属省份',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'region_name': {'type': 'string'},
-                            'provinces': {
-                                'type': 'array',
-                                'items': {
-                                    'type': 'object',
-                                    'properties': {
-                                        'code': {'type': 'string'},
-                                        'name': {'type': 'string'},
-                                        'level': {'type': 'integer'}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        '400': {
-            'description': '参数错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10100},
-                    'msg': {'type': 'string', 'example': '参数错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '404': {
-            'description': '大区名称不存在或没有下属省份',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10500},
-                    'msg': {'type': 'string', 'example': '数据不存在'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(GET_REGION_PROVINCES_SPEC)
 def get_region_provinces():
     """获取大区下属的所有省份（查询参数版本）"""
     region_name = request.args.get('region')
@@ -494,48 +346,7 @@ def get_region_provinces_impl(region_name):
         )), 500
 
 @region_blueprint.route('/children/<parent_code>', methods=['GET'])
-@swag_from({
-    'tags': ['区域数据'],
-    'summary': '获取区域的直接子区域',
-    'parameters': [
-        {
-            'name': 'parent_code',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '父区域代码'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '成功获取子区域',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'parent_code': {'type': 'string'},
-                            'children': {
-                                'type': 'array',
-                                'items': {
-                                    'type': 'object',
-                                    'properties': {
-                                        'code': {'type': 'string'},
-                                        'name': {'type': 'string'},
-                                        'level': {'type': 'integer'}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-})
+@swag_from(GET_REGION_CHILDREN_SPEC)
 def get_region_children(parent_code):
     """获取区域的直接子区域"""
     children = region_manager.get_region_children(parent_code)
@@ -546,49 +357,7 @@ def get_region_children(parent_code):
     }))
 
 @region_blueprint.route('/all-children/<parent_code>', methods=['GET'])
-@swag_from({
-    'tags': ['区域数据'],
-    'summary': '获取区域的所有子区域（递归）',
-    'parameters': [
-        {
-            'name': 'parent_code',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '父区域代码'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '成功获取所有子区域',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'parent_code': {'type': 'string'},
-                            'children_count': {'type': 'integer'},
-                            'children': {
-                                'type': 'array',
-                                'items': {
-                                    'type': 'object',
-                                    'properties': {
-                                        'code': {'type': 'string'},
-                                        'name': {'type': 'string'},
-                                        'level': {'type': 'integer'}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-})
+@swag_from(GET_REGION_ALL_CHILDREN_SPEC)
 def get_region_all_children(parent_code):
     """获取区域的所有子区域（递归）"""
     all_children = region_manager.get_region_all_children(parent_code)
@@ -600,59 +369,7 @@ def get_region_all_children(parent_code):
     }))
 
 @region_blueprint.route('/path/<region_code>', methods=['GET'])
-@swag_from({
-    'tags': ['区域数据'],
-    'summary': '获取区域的完整路径（从顶级区域到当前区域）',
-    'parameters': [
-        {
-            'name': 'region_code',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '区域代码'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '成功获取区域路径',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'region_code': {'type': 'string'},
-                            'path': {
-                                'type': 'array',
-                                'items': {
-                                    'type': 'object',
-                                    'properties': {
-                                        'code': {'type': 'string'},
-                                        'name': {'type': 'string'},
-                                        'level': {'type': 'integer'}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        '404': {
-            'description': '区域代码不存在',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10500},
-                    'msg': {'type': 'string', 'example': '数据不存在'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(GET_REGION_PATH_SPEC)
 def get_region_path(region_code):
     """获取区域的完整路径（从顶级区域到当前区域）"""
     region_info = region_manager.get_region_by_code(region_code)
@@ -671,39 +388,7 @@ def get_region_path(region_code):
     }))
 
 @region_blueprint.route('/sync', methods=['POST'])
-@swag_from({
-    'tags': ['区域数据'],
-    'summary': '手动触发区域数据同步到Redis',
-    'responses': {
-        '200': {
-            'description': '同步成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'success': {'type': 'boolean'}
-                        }
-                    }
-                }
-            }
-        },
-        '500': {
-            'description': '同步失败',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(SYNC_REGION_DATA_SPEC)
 def sync_region_data():
     """手动触发区域数据同步到Redis"""
     success = region_manager.sync_to_redis()
@@ -719,38 +404,7 @@ def sync_region_data():
     }, "区域数据同步到Redis成功"))
 
 @region_blueprint.route('/provinces', methods=['GET'])
-@swag_from({
-    'tags': ['区域数据'],
-    'summary': '获取所有省份数据',
-    'responses': {
-        '200': {
-            'description': '成功获取所有省份数据',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'provinces': {
-                                'type': 'object',
-                                'additionalProperties': {
-                                    'type': 'object',
-                                    'properties': {
-                                        'code': {'type': 'string'},
-                                        'name': {'type': 'string'},
-                                        'region': {'type': 'string'}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-})
+@swag_from(GET_ALL_PROVINCES_SPEC)
 def get_all_provinces():
     """获取所有省份数据"""
     provinces = region_manager.get_all_provinces()
@@ -759,39 +413,7 @@ def get_all_provinces():
     }))
 
 @region_blueprint.route('/cities', methods=['GET'])
-@swag_from({
-    'tags': ['区域数据'],
-    'summary': '获取所有城市数据',
-    'responses': {
-        '200': {
-            'description': '成功获取所有城市数据',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'cities': {
-                                'type': 'object',
-                                'additionalProperties': {
-                                    'type': 'object',
-                                    'properties': {
-                                        'code': {'type': 'string'},
-                                        'name': {'type': 'string'},
-                                        'province_code': {'type': 'string'},
-                                        'province_name': {'type': 'string'}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-})
+@swag_from(GET_ALL_CITIES_SPEC)
 def get_all_cities():
     """获取所有城市数据"""
     cities = region_manager.get_all_cities()
@@ -800,44 +422,7 @@ def get_all_cities():
     }))
 
 @region_blueprint.route('/regions', methods=['GET'])
-@swag_from({
-    'tags': ['区域数据'],
-    'summary': '获取所有区域关系数据',
-    'responses': {
-        '200': {
-            'description': '成功获取所有区域关系数据',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'regions': {
-                                'type': 'object',
-                                'additionalProperties': {
-                                    'type': 'object',
-                                    'properties': {
-                                        'code': {'type': 'string'},
-                                        'name': {'type': 'string'},
-                                        'level': {'type': 'integer'},
-                                        'parent_code': {'type': 'string'},
-                                        'parent_name': {'type': 'string'},
-                                        'children': {
-                                            'type': 'array',
-                                            'items': {'type': 'string'}
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-})
+@swag_from(GET_ALL_REGIONS_SPEC)
 def get_all_regions():
     """获取所有区域关系数据"""
     regions = region_manager.get_all_regions()
@@ -846,57 +431,7 @@ def get_all_regions():
     }))
 
 @region_blueprint.route('/province/cities', methods=['GET'])
-@swag_from({
-    'tags': ['区域数据'],
-    'summary': '获取各省份下属的城市列表',
-    'parameters': [
-        {
-            'name': 'province_code',
-            'in': 'query',
-            'type': 'string',
-            'required': False,
-            'description': '省份代码，如不提供则返回所有省份数据'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '成功获取省份城市列表',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'provinces': {
-                                'type': 'object',
-                                'additionalProperties': {
-                                    'type': 'object',
-                                    'properties': {
-                                        'province_code': {'type': 'string'},
-                                        'province_name': {'type': 'string'},
-                                        'city_count': {'type': 'integer'},
-                                        'cities': {
-                                            'type': 'object',
-                                            'additionalProperties': {
-                                                'type': 'object',
-                                                'properties': {
-                                                    'code': {'type': 'string'},
-                                                    'name': {'type': 'string'}
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-})
+@swag_from(GET_PROVINCE_CITIES_SPEC)
 def get_province_cities():
     """获取各省份下属的城市列表"""
     province_code = request.args.get('province_code')
@@ -909,39 +444,7 @@ def get_province_cities():
     }))
 
 @region_blueprint.route('/sync_province_cities', methods=['POST'])
-@swag_from({
-    'tags': ['区域数据'],
-    'summary': '同步各省份下属城市数据到Redis',
-    'responses': {
-        '200': {
-            'description': '同步成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'success': {'type': 'boolean'}
-                        }
-                    }
-                }
-            }
-        },
-        '500': {
-            'description': '同步失败',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(SYNC_PROVINCE_CITIES_SPEC)
 def sync_province_cities():
     """手动触发同步各省份下属城市数据到Redis"""
     success = region_manager.sync_province_cities()
@@ -957,69 +460,7 @@ def sync_province_cities():
     }, "省份城市数据同步到Redis成功"))
 
 @region_blueprint.route('/update_city_province', methods=['POST'])
-@swag_from({
-    'tags': ['区域数据'],
-    'summary': '更新城市的所属省份信息',
-    'parameters': [
-        {
-            'name': 'body',
-            'in': 'body',
-            'required': True,
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'city_code': {'type': 'string', 'description': '城市代码'},
-                    'province_code': {'type': 'string', 'description': '省份代码'},
-                    'province_name': {'type': 'string', 'description': '省份名称'}
-                },
-                'required': ['city_code', 'province_code']
-            }
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '更新成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'city_code': {'type': 'string'},
-                            'province_code': {'type': 'string'},
-                            'province_name': {'type': 'string'},
-                            'success': {'type': 'boolean'}
-                        }
-                    }
-                }
-            }
-        },
-        '400': {
-            'description': '参数错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10100},
-                    'msg': {'type': 'string', 'example': '参数错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '404': {
-            'description': '城市或省份不存在',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10500},
-                    'msg': {'type': 'string', 'example': '数据不存在'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(UPDATE_CITY_PROVINCE_SPEC)
 def update_city_province():
     """更新城市的所属省份信息"""
     data = request.get_json()
@@ -1064,66 +505,7 @@ def update_city_province():
 
 
 @region_blueprint.route('/batch_update_city_province', methods=['POST'])
-@swag_from({
-    'tags': ['区域数据'],
-    'summary': '批量更新城市的所属省份信息',
-    'parameters': [
-        {
-            'name': 'body',
-            'in': 'body',
-            'required': True,
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'cities': {
-                        'type': 'array',
-                        'items': {
-                            'type': 'object',
-                            'properties': {
-                                'city_code': {'type': 'string', 'description': '城市代码'},
-                                'province_code': {'type': 'string', 'description': '省份代码'},
-                                'province_name': {'type': 'string', 'description': '省份名称'}
-                            },
-                            'required': ['city_code', 'province_code']
-                        }
-                    }
-                },
-                'required': ['cities']
-            }
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '批量更新成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'total': {'type': 'integer'},
-                            'success_count': {'type': 'integer'},
-                            'failed_count': {'type': 'integer'}
-                        }
-                    }
-                }
-            }
-        },
-        '400': {
-            'description': '参数错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10100},
-                    'msg': {'type': 'string', 'example': '参数错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(BATCH_UPDATE_CITY_PROVINCE_SPEC)
 def batch_update_city_province():
     """批量更新城市的所属省份信息"""
     data = request.get_json()
@@ -1173,41 +555,7 @@ def batch_update_city_province():
     }, f"批量更新城市所属省份信息完成，成功: {success_count}，失败: {failed_count}"))
 
 @region_blueprint.route('/sync_city_province', methods=['POST'])
-@swag_from({
-    'tags': ['区域数据'],
-    'summary': '同步城市的所属省份信息（根据region_children表）',
-    'responses': {
-        '200': {
-            'description': '同步成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'total': {'type': 'integer'},
-                            'success_count': {'type': 'integer'},
-                            'failed_count': {'type': 'integer'}
-                        }
-                    }
-                }
-            }
-        },
-        '500': {
-            'description': '同步失败',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(SYNC_CITY_PROVINCE_SPEC)
 def sync_city_province():
     """同步城市的所属省份信息（根据region_children表）"""
     try:

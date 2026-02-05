@@ -11,84 +11,83 @@ from flasgger import swag_from
 from src.core.logger import log
 from src.core.constants.respond import ResponseCode, ResponseFormatter
 from src.scheduler.scheduler import task_scheduler
+from src.api.schemas.task import (
+    CreateTaskRequest,
+    ListTasksRequest,
+    TaskListResponse,
+    TaskDetailResponse,
+    TaskCreateResponse,
+    DownloadFileRequest
+)
+from src.api.utils.validators import validate_args
+from src.api.utils.swagger import create_swagger_spec
 
 # 创建蓝图
 task_blueprint = Blueprint('task', __name__, url_prefix='/api/task')
 
 
+# ============== Swagger 规范定义 ==============
+
+LIST_TASKS_SPEC = create_swagger_spec(
+    request_schema=ListTasksRequest,
+    response_schema=TaskListResponse,
+    summary="获取任务列表",
+    description="获取任务列表，支持分页和筛选",
+    tags=["任务管理"],
+    request_in="query"
+)
+
+GET_TASK_SPEC = create_swagger_spec(
+    response_schema=TaskDetailResponse,
+    summary="获取任务详情",
+    description="根据任务ID获取任务详情",
+    tags=["任务管理"],
+    parameters=[{
+        'name': 'task_id',
+        'in': 'path',
+        'type': 'string',
+        'required': True,
+        'description': '任务ID'
+    }]
+)
+
+TASK_ACTION_SPEC = lambda action: create_swagger_spec(
+    summary=f"{action}任务",
+    description=f"{action}指定的任务",
+    tags=["任务管理"],
+    parameters=[{
+        'name': 'task_id',
+        'in': 'path',
+        'type': 'string',
+        'required': True,
+        'description': '任务ID'
+    }]
+)
+
+DOWNLOAD_FILE_SPEC = create_swagger_spec(
+    summary="下载任务结果文件",
+    description="下载指定路径的任务结果文件",
+    tags=["任务管理"],
+    parameters=[{
+        'name': 'filePath',
+        'in': 'query',
+        'type': 'string',
+        'required': True,
+        'description': '文件路径'
+    }]
+)
+
+CREATE_TASK_SPEC = create_swagger_spec(
+    request_schema=CreateTaskRequest,
+    response_schema=TaskCreateResponse,
+    summary="创建爬虫任务",
+    description="创建一个新的爬虫任务",
+    tags=["任务管理"],
+    request_in="body"
+)
+
 @task_blueprint.route('/create', methods=['POST'])
-@swag_from({
-    'tags': ['任务管理'],
-    'summary': '创建爬虫任务',
-    'description': '创建一个新的爬虫任务',
-    'parameters': [
-        {
-            'name': 'body',
-            'in': 'body',
-            'required': True,
-            'schema': {
-                'type': 'object',
-                'required': ['taskType', 'parameters'],
-                'properties': {
-                    'taskType': {
-                        'type': 'string',
-                        'enum': ['search_index', 'feed_index', 'word_graph', 
-                                'demographic_attributes', 'interest_profile', 'region_distribution'],
-                        'description': '任务类型'
-                    },
-                    'parameters': {
-                        'type': 'object',
-                        'description': '任务参数，根据任务类型不同而不同'
-                    },
-                    'priority': {
-                        'type': 'integer',
-                        'description': '任务优先级，范围1-10，数字越大优先级越高'
-                    }
-                }
-            }
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '创建成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'taskId': {'type': 'string', 'example': '20230101120000_abcd1234'}
-                        }
-                    }
-                }
-            }
-        },
-        '400': {
-            'description': '参数错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10100},
-                    'msg': {'type': 'string', 'example': '参数错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(CREATE_TASK_SPEC)
 def create_task():
     """创建爬虫任务"""
     try:
@@ -649,120 +648,18 @@ def create_task():
 
 
 @task_blueprint.route('/list', methods=['GET'])
-@swag_from({
-    'tags': ['任务管理'],
-    'summary': '获取任务列表',
-    'description': '获取任务列表，支持分页和过滤',
-    'parameters': [
-        {
-            'name': 'status',
-            'in': 'query',
-            'type': 'string',
-            'required': False,
-            'description': '任务状态过滤'
-        },
-        {
-            'name': 'task_type',
-            'in': 'query',
-            'type': 'string',
-            'required': False,
-            'description': '任务类型过滤'
-        },
-        {
-            'name': 'created_by',
-            'in': 'query',
-            'type': 'string',
-            'required': False,
-            'description': '创建者过滤'
-        },
-        {
-            'name': 'limit',
-            'in': 'query',
-            'type': 'integer',
-            'required': False,
-            'default': 10,
-            'description': '每页数量'
-        },
-        {
-            'name': 'offset',
-            'in': 'query',
-            'type': 'integer',
-            'required': False,
-            'default': 0,
-            'description': '偏移量'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '获取成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'total': {'type': 'integer', 'example': 100},
-                            'tasks': {
-                                'type': 'array',
-                                'items': {
-                                    'type': 'object',
-                                    'properties': {
-                                        'id': {'type': 'integer'},
-                                        'task_id': {'type': 'string'},
-                                        'task_name': {'type': 'string'},
-                                        'task_type': {'type': 'string'},
-                                        'status': {'type': 'string'},
-                                        'progress': {'type': 'number'},
-                                        'create_time': {'type': 'string', 'format': 'date-time'},
-                                        'created_by': {'type': 'string'}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
-def list_tasks():
+@swag_from(LIST_TASKS_SPEC)
+@validate_args(ListTasksRequest)
+def list_tasks(validated_data: ListTasksRequest):
     """获取任务列表"""
     try:
-        # 获取查询参数
-        status = request.args.get('status')
-        task_type = request.args.get('task_type')
-        created_by = request.args.get('created_by')
-        keyword = request.args.get('keyword')
-        
-        # 安全地转换整数参数，提供默认值
-        try:
-            limit = int(request.args.get('limit', 10))
-            if limit <= 0:
-                limit = 10
-        except (ValueError, TypeError):
-            limit = 10
-            
-        try:
-            offset = int(request.args.get('offset', 0))
-            if offset < 0:
-                offset = 0
-        except (ValueError, TypeError):
-            offset = 0
-        
-        # log.info(f"查询任务列表: status={status}, task_type={task_type}, created_by={created_by}, keyword={keyword}, limit={limit}, offset={offset}")
+        # 从校验后的数据获取参数
+        status = validated_data.status
+        task_type = validated_data.task_type
+        created_by = validated_data.created_by
+        keyword = validated_data.keyword
+        limit = validated_data.limit
+        offset = validated_data.offset
         
         # 获取任务列表
         tasks = task_scheduler.list_tasks(
@@ -780,8 +677,6 @@ def list_tasks():
             created_by=created_by
         )
         
-        # log.info(f"查询到 {len(tasks)} 条任务记录，总计 {total} 条")
-        
         # 处理日期时间格式
         for task in tasks:
             for key, value in task.items():
@@ -791,40 +686,14 @@ def list_tasks():
             if 'parameters' in task and task['parameters']:
                 try:
                     if isinstance(task['parameters'], str):
-                        # 有些数据库字段可能是双重序列化，先尝试反序列化两次
                         try:
                             task['parameters'] = json.loads(task['parameters'])
                             if isinstance(task['parameters'], str):
                                 task['parameters'] = json.loads(task['parameters'])
                         except Exception:
-                            # 如果只反序列化一次就能用，则忽略第二次
                             pass
-                except Exception as e:
-                    log.warning(f"参数解析失败: {e}")
-
-            if 'checkpoint_path' in task and task['checkpoint_path']:
-                try:
-                    if isinstance(task['checkpoint_path'], str):
-                        try:
-                            task['checkpoint_path'] = json.loads(task['checkpoint_path'])
-                            if isinstance(task['checkpoint_path'], str):
-                                task['checkpoint_path'] = json.loads(task['checkpoint_path'])
-                        except Exception:
-                            pass
-                except Exception as e:
-                    log.warning(f"检查点路径解析失败: {e}")
-            if 'output_files' in task and task['output_files']:
-                try:
-                    if isinstance(task['output_files'], str):
-                        output_files = json.loads(task['output_files'])
-                        # 确保输出文件始终是数组格式
-                        if not isinstance(output_files, list):
-                            output_files = [output_files]
-                        task['output_files'] = output_files
-                except Exception as e:
-                    log.warning(f"输出文件解析失败: {e}")
-                    if isinstance(task['output_files'], str):
-                        task['output_files'] = [task['output_files']]
+                except Exception:
+                    pass
         
         return jsonify(ResponseFormatter.success({
             'total': total,
@@ -836,79 +705,9 @@ def list_tasks():
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取任务列表失败: {str(e)}"))
 
 
+
 @task_blueprint.route('/<task_id>', methods=['GET'])
-@swag_from({
-    'tags': ['任务管理'],
-    'summary': '获取任务详情',
-    'description': '获取指定任务的详细信息',
-    'parameters': [
-        {
-            'name': 'task_id',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '任务ID'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '获取成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'id': {'type': 'integer'},
-                            'task_id': {'type': 'string'},
-                            'task_name': {'type': 'string'},
-                            'task_type': {'type': 'string'},
-                            'status': {'type': 'string'},
-                            'parameters': {'type': 'object'},
-                            'progress': {'type': 'number'},
-                            'total_items': {'type': 'integer'},
-                            'completed_items': {'type': 'integer'},
-                            'failed_items': {'type': 'integer'},
-                            'create_time': {'type': 'string', 'format': 'date-time'},
-                            'start_time': {'type': 'string', 'format': 'date-time'},
-                            'update_time': {'type': 'string', 'format': 'date-time'},
-                            'end_time': {'type': 'string', 'format': 'date-time'},
-                            'error_message': {'type': 'string'},
-                            'checkpoint_path': {'type': 'object'},
-                            'output_files': {'type': 'array', 'items': {'type': 'string'}},
-                            'created_by': {'type': 'string'},
-                            'logs': {'type': 'array', 'items': {'type': 'object'}}
-                        }
-                    }
-                }
-            }
-        },
-        '404': {
-            'description': '任务不存在',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10500},
-                    'msg': {'type': 'string', 'example': '数据不存在'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(GET_TASK_SPEC)
 def get_task(task_id):
     """获取任务详情"""
     try:
@@ -942,66 +741,7 @@ def get_task(task_id):
 
 
 @task_blueprint.route('/<task_id>/start', methods=['POST'])
-@swag_from({
-    'tags': ['任务管理'],
-    'summary': '启动任务',
-    'description': '启动指定的任务',
-    'parameters': [
-        {
-            'name': 'task_id',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '任务ID'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '启动成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '400': {
-            'description': '启动失败',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10100},
-                    'msg': {'type': 'string', 'example': '参数错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '404': {
-            'description': '任务不存在',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10500},
-                    'msg': {'type': 'string', 'example': '数据不存在'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(TASK_ACTION_SPEC('启动'))
 def start_task(task_id):
     """启动任务"""
     try:
@@ -1024,66 +764,7 @@ def start_task(task_id):
 
 
 @task_blueprint.route('/<task_id>/pause', methods=['POST'])
-@swag_from({
-    'tags': ['任务管理'],
-    'summary': '暂停任务',
-    'description': '暂停指定的任务',
-    'parameters': [
-        {
-            'name': 'task_id',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '任务ID'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '暂停成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '400': {
-            'description': '暂停失败',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10100},
-                    'msg': {'type': 'string', 'example': '参数错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '404': {
-            'description': '任务不存在',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10500},
-                    'msg': {'type': 'string', 'example': '数据不存在'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(TASK_ACTION_SPEC('暂停'))
 def pause_task(task_id):
     """暂停任务"""
     try:
@@ -1106,66 +787,7 @@ def pause_task(task_id):
 
 
 @task_blueprint.route('/<task_id>/resume', methods=['POST'])
-@swag_from({
-    'tags': ['任务管理'],
-    'summary': '恢复任务',
-    'description': '恢复指定的任务',
-    'parameters': [
-        {
-            'name': 'task_id',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '任务ID'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '恢复成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '400': {
-            'description': '恢复失败',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10100},
-                    'msg': {'type': 'string', 'example': '参数错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '404': {
-            'description': '任务不存在',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10500},
-                    'msg': {'type': 'string', 'example': '数据不存在'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(TASK_ACTION_SPEC('恢复'))
 def resume_task(task_id):
     """恢复任务"""
     try:
@@ -1188,66 +810,7 @@ def resume_task(task_id):
 
 
 @task_blueprint.route('/<task_id>/cancel', methods=['POST'])
-@swag_from({
-    'tags': ['任务管理'],
-    'summary': '取消任务',
-    'description': '取消指定的任务',
-    'parameters': [
-        {
-            'name': 'task_id',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '任务ID'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '取消成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '400': {
-            'description': '取消失败',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10100},
-                    'msg': {'type': 'string', 'example': '参数错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '404': {
-            'description': '任务不存在',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10500},
-                    'msg': {'type': 'string', 'example': '数据不存在'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(TASK_ACTION_SPEC('取消'))
 def cancel_task(task_id):
     """取消任务"""
     try:
@@ -1270,66 +833,7 @@ def cancel_task(task_id):
 
 
 @task_blueprint.route('/download', methods=['GET'])
-@swag_from({
-    'tags': ['任务管理'],
-    'summary': '下载任务结果文件',
-    'description': '下载指定路径的任务结果文件',
-    'parameters': [
-        {
-            'name': 'filePath',
-            'in': 'query',
-            'type': 'string',
-            'required': True,
-            'description': '文件路径'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '文件内容',
-            'content': {
-                'application/octet-stream': {
-                    'schema': {
-                        'type': 'string',
-                        'format': 'binary'
-                    }
-                }
-            }
-        },
-        '400': {
-            'description': '参数错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10100},
-                    'msg': {'type': 'string', 'example': '参数错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '404': {
-            'description': '文件不存在',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10500},
-                    'msg': {'type': 'string', 'example': '文件不存在'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(DOWNLOAD_FILE_SPEC)
 def download_file():
     """下载文件"""
     try:

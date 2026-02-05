@@ -10,86 +10,96 @@ from flasgger import swag_from
 from src.core.logger import log
 from src.core.constants.respond import ResponseCode, ResponseFormatter
 from src.data.repositories.mysql_manager import MySQLManager
+from src.api.schemas.statistics import (
+    TaskSummaryRequest,
+    TaskSummaryResponse,
+    GetSpiderStatisticsRequest,
+    SpiderStatisticsResponse,
+    GetKeywordStatisticsRequest,
+    KeywordStatisticsResponse,
+    GetCityStatisticsRequest,
+    CityStatisticsResponse,
+    DashboardRequest,
+    DashboardDataResponse
+)
+from src.api.utils.validators import validate_args
+from src.api.utils.swagger import create_swagger_spec
 
 # 创建蓝图
 stats_blueprint = Blueprint('statistics', __name__, url_prefix='/api/statistics')
 mysql = MySQLManager()
 
 
+# ============== Swagger 规范定义 ==============
+
+TASK_SUMMARY_SPEC = create_swagger_spec(
+    request_schema=TaskSummaryRequest,
+    response_schema=TaskSummaryResponse,
+    summary="获取任务统计摘要",
+    description="获取系统中任务的统计摘要数据",
+    tags=["统计数据"],
+    request_in="query"
+)
+
+TASK_STATISTICS_SPEC = create_swagger_spec(
+    summary="获取任务统计数据",
+    description="获取指定任务的统计数据",
+    tags=["统计数据"],
+    parameters=[{
+        'name': 'task_id',
+        'in': 'path',
+        'type': 'string',
+        'required': True,
+        'description': '任务ID'
+    }]
+)
+
+SPIDER_STATISTICS_SPEC = create_swagger_spec(
+    request_schema=GetSpiderStatisticsRequest,
+    response_schema=SpiderStatisticsResponse,
+    summary="获取爬虫统计数据",
+    description="获取爬虫执行的统计数据，支持按日期和任务类型筛选",
+    tags=["统计数据"],
+    request_in="query"
+)
+
+KEYWORD_STATISTICS_SPEC = create_swagger_spec(
+    request_schema=GetKeywordStatisticsRequest,
+    response_schema=KeywordStatisticsResponse,
+    summary="获取关键词统计数据",
+    description="获取关键词的统计数据",
+    tags=["统计数据"],
+    request_in="query"
+)
+
+CITY_STATISTICS_SPEC = create_swagger_spec(
+    request_schema=GetCityStatisticsRequest,
+    response_schema=CityStatisticsResponse,
+    summary="获取城市统计数据",
+    description="获取城市维度的统计数据",
+    tags=["统计数据"],
+    request_in="query"
+)
+
+DASHBOARD_SPEC = create_swagger_spec(
+    request_schema=DashboardRequest,
+    response_schema=DashboardDataResponse,
+    summary="获取大屏展示数据",
+    description="获取大屏展示数据，包括任务趋势、成功率、爬取量等",
+    tags=["统计数据"],
+    request_in="query"
+)
+
+
+# ============== API 端点 ==============
+
 @stats_blueprint.route('/task_summary', methods=['GET'])
-@swag_from({
-    'tags': ['统计数据'],
-    'summary': '获取任务统计摘要',
-    'description': '获取系统中任务的统计摘要数据',
-    'parameters': [
-        {
-            'name': 'days',
-            'in': 'query',
-            'type': 'integer',
-            'required': False,
-            'default': 7,
-            'description': '统计最近几天的数据'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '获取成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'total_tasks': {'type': 'integer'},
-                            'completed_tasks': {'type': 'integer'},
-                            'running_tasks': {'type': 'integer'},
-                            'pending_tasks': {'type': 'integer'},
-                            'failed_tasks': {'type': 'integer'},
-                            'task_types': {
-                                'type': 'array',
-                                'items': {
-                                    'type': 'object',
-                                    'properties': {
-                                        'task_type': {'type': 'string'},
-                                        'count': {'type': 'integer'}
-                                    }
-                                }
-                            },
-                            'daily_tasks': {
-                                'type': 'array',
-                                'items': {
-                                    'type': 'object',
-                                    'properties': {
-                                        'date': {'type': 'string', 'format': 'date'},
-                                        'count': {'type': 'integer'}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
-def get_task_summary():
+@swag_from(TASK_SUMMARY_SPEC)
+@validate_args(TaskSummaryRequest)
+def get_task_summary(validated_data: TaskSummaryRequest):
     """获取任务统计摘要"""
     try:
-        # 获取参数
-        days = int(request.args.get('days', 7))
+        days = validated_data.days
         
         # 构建时间筛选条件
         time_condition = ""
@@ -140,13 +150,7 @@ def get_task_summary():
         type_results = mysql.fetch_all(query, params)
         
         # 获取每日任务数量
-        # 如果是全部时间，或者时间跨度较大，可以考虑按月统计，这里暂时保持按日
         daily_condition = time_condition
-        if not daily_condition:
-            # 如果是全部时间，为了图表不过于密集，只取最近365天的数据用于趋势图，或者不做限制
-            # 这里不做限制，但在前端展示时可能需要注意
-            daily_condition = "" 
-        
         query = f"""
             SELECT DATE(create_time) AS date, COUNT(*) AS count 
             FROM spider_tasks 
@@ -180,75 +184,7 @@ def get_task_summary():
 
 
 @stats_blueprint.route('/task_statistics/<task_id>', methods=['GET'])
-@swag_from({
-    'tags': ['统计数据'],
-    'summary': '获取任务统计数据',
-    'description': '获取指定任务的统计数据',
-    'parameters': [
-        {
-            'name': 'task_id',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '任务ID'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '获取成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'array',
-                        'items': {
-                            'type': 'object',
-                            'properties': {
-                                'id': {'type': 'integer'},
-                                'task_id': {'type': 'string'},
-                                'task_type': {'type': 'string'},
-                                'keyword': {'type': 'string'},
-                                'city_code': {'type': 'string'},
-                                'city_name': {'type': 'string'},
-                                'data_type': {'type': 'string'},
-                                'data_date': {'type': 'string'},
-                                'item_count': {'type': 'integer'},
-                                'success_count': {'type': 'integer'},
-                                'fail_count': {'type': 'integer'},
-                                'create_time': {'type': 'string', 'format': 'date-time'},
-                                'update_time': {'type': 'string', 'format': 'date-time'}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        '404': {
-            'description': '任务不存在',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10500},
-                    'msg': {'type': 'string', 'example': '数据不存在'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(TASK_STATISTICS_SPEC)
 def get_task_statistics(task_id):
     """获取任务统计数据"""
     try:
@@ -277,78 +213,13 @@ def get_task_statistics(task_id):
 
 
 @stats_blueprint.route('/spider_statistics', methods=['GET'])
-@swag_from({
-    'tags': ['统计数据'],
-    'summary': '获取爬虫统计数据',
-    'description': '获取爬虫执行的统计数据，支持按日期和任务类型筛选',
-    'parameters': [
-        {
-            'name': 'date',
-            'in': 'query',
-            'type': 'string',
-            'required': False,
-            'description': '日期，格式为YYYY-MM-DD'
-        },
-        {
-            'name': 'task_type',
-            'in': 'query',
-            'type': 'string',
-            'required': False,
-            'description': '任务类型'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '获取成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'statistics': {
-                                'type': 'array',
-                                'items': {
-                                    'type': 'object',
-                                    'properties': {
-                                        'stat_date': {'type': 'string'},
-                                        'task_type': {'type': 'string'},
-                                        'total_tasks': {'type': 'integer'},
-                                        'completed_tasks': {'type': 'integer'},
-                                        'failed_tasks': {'type': 'integer'},
-                                        'total_items': {'type': 'integer'},
-                                        'total_crawled_items': {'type': 'integer'},
-                                        'success_rate': {'type': 'number'},
-                                        'avg_duration': {'type': 'number'}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer'},
-                    'msg': {'type': 'string'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
-def get_spider_statistics():
+@swag_from(SPIDER_STATISTICS_SPEC)
+@validate_args(GetSpiderStatisticsRequest)
+def get_spider_statistics(validated_data: GetSpiderStatisticsRequest):
     """获取爬虫统计数据"""
     try:
-        # 获取查询参数
-        date = request.args.get('date')
-        task_type = request.args.get('task_type')
+        date = validated_data.date
+        task_type = validated_data.task_type
         
         # 构建查询条件
         conditions = []
@@ -382,8 +253,9 @@ def get_spider_statistics():
         
         # 处理日期格式
         for stat in statistics:
-            if 'stat_date' in stat and isinstance(stat['stat_date'], datetime.date):
-                stat['stat_date'] = stat['stat_date'].strftime('%Y-%m-%d')
+            if 'stat_date' in stat and stat['stat_date']:
+                if hasattr(stat['stat_date'], 'strftime'):
+                    stat['stat_date'] = stat['stat_date'].strftime('%Y-%m-%d')
         
         return jsonify(ResponseFormatter.success({'statistics': statistics}, "获取爬虫统计数据成功"))
     
@@ -393,89 +265,32 @@ def get_spider_statistics():
 
 
 @stats_blueprint.route('/keyword_statistics', methods=['GET'])
-@swag_from({
-    'tags': ['统计数据'],
-    'summary': '获取关键词统计数据',
-    'description': '获取关键词的统计数据',
-    'parameters': [
-        {
-            'name': 'keyword',
-            'in': 'query',
-            'type': 'string',
-            'required': False,
-            'description': '关键词过滤'
-        },
-        {
-            'name': 'task_type',
-            'in': 'query',
-            'type': 'string',
-            'required': False,
-            'description': '任务类型过滤'
-        },
-        {
-            'name': 'limit',
-            'in': 'query',
-            'type': 'integer',
-            'required': False,
-            'default': 100,
-            'description': '返回数量限制'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '获取成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '获取关键词统计数据成功'},
-                    'data': {
-                        'type': 'array',
-                        'items': {
-                            'type': 'object',
-                            'properties': {
-                                'keyword': {'type': 'string'},
-                                'item_count': {'type': 'integer'},
-                                'success_count': {'type': 'integer'},
-                                'fail_count': {'type': 'integer'},
-                                'success_rate': {'type': 'number'}
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-})
-def get_keyword_statistics():
+@swag_from(KEYWORD_STATISTICS_SPEC)
+@validate_args(GetKeywordStatisticsRequest)
+def get_keyword_statistics(validated_data: GetKeywordStatisticsRequest):
     """获取关键词统计数据"""
     try:
-        # 获取参数
-        keyword = request.args.get('keyword')
-        task_type = request.args.get('task_type')
-        limit = int(request.args.get('limit', 100))
+        task_id = validated_data.task_id
+        limit = validated_data.limit
         
         # 构建查询条件
-        conditions = ["keyword != ''"]  # 排除空关键词
+        conditions = []
         values = []
         
-        if keyword:
-            conditions.append("keyword LIKE %s")
-            values.append(f"%{keyword}%")
+        if task_id:
+            conditions.append("task_id = %s")
+            values.append(task_id)
         
-        if task_type:
-            conditions.append("task_type = %s")
-            values.append(task_type)
+        where_clause = ""
+        if conditions:
+            where_clause = " WHERE " + " AND ".join(conditions)
         
-        where_clause = " WHERE " + " AND ".join(conditions)
-        
-        # 获取关键词统计数据
+        # 获取关键词统计
         query = f"""
             SELECT 
                 keyword,
                 SUM(item_count) AS item_count,
-                SUM(success_count) AS success_count,
-                SUM(fail_count) AS fail_count
+                AVG(CASE WHEN item_count > 0 THEN success_count * 100.0 / item_count ELSE 0 END) AS avg_success_rate
             FROM task_statistics
             {where_clause}
             GROUP BY keyword
@@ -486,17 +301,10 @@ def get_keyword_statistics():
         values.append(limit)
         keyword_statistics = mysql.fetch_all(query, values)
         
-        # 计算成功率
-        for item in keyword_statistics:
-            total = item['item_count'] if item['item_count'] else 0
-            success = item['success_count'] if item['success_count'] else 0
-            
-            if total > 0:
-                item['success_rate'] = round(success / total * 100, 2)
-            else:
-                item['success_rate'] = 0
-        
-        return jsonify(ResponseFormatter.success(keyword_statistics, "获取关键词统计数据成功"))
+        return jsonify(ResponseFormatter.success({
+            'keywords': keyword_statistics,
+            'total': len(keyword_statistics)
+        }, "获取关键词统计数据成功"))
         
     except Exception as e:
         log.error(f"获取关键词统计数据失败: {e}")
@@ -504,68 +312,14 @@ def get_keyword_statistics():
 
 
 @stats_blueprint.route('/city_statistics', methods=['GET'])
-@swag_from({
-    'tags': ['统计数据'],
-    'summary': '获取城市统计数据',
-    'description': '获取城市的统计数据',
-    'parameters': [
-        {
-            'name': 'city_name',
-            'in': 'query',
-            'type': 'string',
-            'required': False,
-            'description': '城市名称过滤'
-        },
-        {
-            'name': 'task_type',
-            'in': 'query',
-            'type': 'string',
-            'required': False,
-            'description': '任务类型过滤'
-        },
-        {
-            'name': 'limit',
-            'in': 'query',
-            'type': 'integer',
-            'required': False,
-            'default': 100,
-            'description': '返回数量限制'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '获取成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '获取城市统计数据成功'},
-                    'data': {
-                        'type': 'array',
-                        'items': {
-                            'type': 'object',
-                            'properties': {
-                                'city_code': {'type': 'string'},
-                                'city_name': {'type': 'string'},
-                                'item_count': {'type': 'integer'},
-                                'success_count': {'type': 'integer'},
-                                'fail_count': {'type': 'integer'},
-                                'success_rate': {'type': 'number'}
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-})
-def get_city_statistics():
+@swag_from(CITY_STATISTICS_SPEC)
+@validate_args(GetCityStatisticsRequest)
+def get_city_statistics(validated_data: GetCityStatisticsRequest):
     """获取城市统计数据"""
     try:
-        # 获取参数
-        city_name = request.args.get('city_name')
-        task_type = request.args.get('task_type')
-        limit = int(request.args.get('limit', 100))
+        city_name = validated_data.city_name
+        task_type = validated_data.task_type
+        limit = validated_data.limit
         
         # 构建查询条件
         conditions = ["city_code != ''"]  # 排除空城市代码
@@ -616,49 +370,14 @@ def get_city_statistics():
 
 
 @stats_blueprint.route('/dashboard', methods=['GET'])
-@swag_from({
-    'tags': ['统计数据'],
-    'summary': '获取大屏展示数据',
-    'description': '获取大屏展示数据，包括任务趋势、成功率、爬取量等',
-    'parameters': [
-        {
-            'name': 'days',
-            'in': 'query',
-            'type': 'integer',
-            'required': False,
-            'default': 30,
-            'description': '统计最近几天的数据，-1表示全部'
-        },
-        {
-            'name': 'start_date',
-            'in': 'query',
-            'type': 'string',
-            'required': False,
-            'description': '开始日期，格式为YYYY-MM-DD'
-        },
-        {
-            'name': 'end_date',
-            'in': 'query',
-            'type': 'string',
-            'required': False,
-            'description': '结束日期，格式为YYYY-MM-DD'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '获取成功'
-        },
-        '500': {
-            'description': '服务器错误'
-        }
-    }
-})
-def get_dashboard_data():
+@swag_from(DASHBOARD_SPEC)
+@validate_args(DashboardRequest)
+def get_dashboard_data(validated_data: DashboardRequest):
+    """获取大屏展示数据"""
     try:
-        # 获取查询参数
-        days = request.args.get('days', default=30, type=int)
-        start_date_str = request.args.get('start_date')
-        end_date_str = request.args.get('end_date')
+        days = validated_data.days
+        start_date_str = validated_data.start_date
+        end_date_str = validated_data.end_date
         
         # 计算日期范围
         if start_date_str and end_date_str:

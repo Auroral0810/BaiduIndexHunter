@@ -13,11 +13,230 @@ from src.services.cookie_service import CookieManager
 from src.core.constants.respond import ResponseCode, ResponseFormatter
 from src.core.config import MYSQL_CONFIG
 from src.core.logger import log
-from src.api.schemas.cookie import AddCookieRequest, BanAccountRequest
-from src.api.utils.validators import validate_json
+from src.api.schemas.cookie import (
+    AddCookieRequest,
+    BanAccountRequest,
+    UpdateCookieRequest,
+    UpdateAccountIdRequest,
+    ListCookiesRequest,
+    CookieListResponse,
+    CookiePoolStatusResponse,
+    SyncResultResponse,
+    TestResultResponse,
+    TodayCookieUsageResponse
+)
+from src.api.utils.validators import validate_json, validate_args
+from src.api.utils.swagger import create_swagger_spec
 
 # 创建蓝图
 admin_cookie_bp = Blueprint('admin_cookie', __name__, url_prefix='/api/admin/cookie')
+
+
+# ============== Swagger 规范定义 ==============
+
+LIST_COOKIES_SPEC = create_swagger_spec(
+    request_schema=ListCookiesRequest,
+    response_schema=CookieListResponse,
+    summary="获取Cookie列表",
+    description="获取所有Cookie或根据账号ID过滤",
+    tags=["Cookie管理"],
+    request_in="query"
+)
+
+GET_ASSEMBLED_COOKIES_SPEC = create_swagger_spec(
+    summary="获取组装后的完整Cookie字典",
+    tags=["Cookie管理"]
+)
+
+LIST_ACCOUNTS_SPEC = create_swagger_spec(
+    summary="获取所有可用的账号ID",
+    tags=["Cookie管理"]
+)
+
+ADD_COOKIE_SPEC = create_swagger_spec(
+    request_schema=AddCookieRequest,
+    summary="添加Cookie",
+    tags=["Cookie管理"],
+    request_in="body"
+)
+
+DELETE_COOKIE_SPEC = create_swagger_spec(
+    summary="删除指定账号的所有Cookie",
+    tags=["Cookie管理"],
+    parameters=[{
+        'name': 'account_id',
+        'in': 'path',
+        'type': 'string',
+        'required': True,
+        'description': '账号ID'
+    }]
+)
+
+UPDATE_COOKIE_SPEC = create_swagger_spec(
+    request_schema=UpdateCookieRequest,
+    summary="更新指定Cookie",
+    tags=["Cookie管理"],
+    parameters=[{
+        'name': 'account_id',
+        'in': 'path',
+        'type': 'string',
+        'required': True,
+        'description': '账号ID'
+    }],
+    request_in="body"
+)
+
+BAN_ACCOUNT_PERM_SPEC = create_swagger_spec(
+    summary="永久封禁账号",
+    tags=["Cookie管理"],
+    parameters=[{
+        'name': 'account_id',
+        'in': 'path',
+        'type': 'string',
+        'required': True,
+        'description': '账号ID'
+    }]
+)
+
+BAN_ACCOUNT_TEMP_SPEC = create_swagger_spec(
+    request_schema=BanAccountRequest,
+    summary="临时封禁账号",
+    tags=["Cookie管理"],
+    parameters=[{
+        'name': 'account_id',
+        'in': 'path',
+        'type': 'string',
+        'required': True,
+        'description': '账号ID'
+    }],
+    request_in="body"
+)
+
+UNBAN_ACCOUNT_SPEC = create_swagger_spec(
+    summary="解封账号（只解封临时封禁的）",
+    tags=["Cookie管理"],
+    parameters=[{
+        'name': 'account_id',
+        'in': 'path',
+        'type': 'string',
+        'required': True,
+        'description': '账号ID'
+    }]
+)
+
+FORCE_UNBAN_ACCOUNT_SPEC = create_swagger_spec(
+    summary="强制解封账号（包括永久封禁的）",
+    tags=["Cookie管理"],
+    parameters=[{
+        'name': 'account_id',
+        'in': 'path',
+        'type': 'string',
+        'required': True,
+        'description': '账号ID'
+    }]
+)
+
+UPDATE_COOKIE_STATUS_SPEC = create_swagger_spec(
+    summary="检查并更新Cookie状态",
+    description="将临时封禁过期的Cookie恢复可用",
+    tags=["Cookie管理"]
+)
+
+CLEANUP_EXPIRED_COOKIES_SPEC = create_swagger_spec(
+    summary="清理已过期的Cookie",
+    tags=["Cookie管理"]
+)
+
+UPDATE_ACCOUNT_ID_SPEC = create_swagger_spec(
+    request_schema=UpdateAccountIdRequest,
+    summary="更新账号ID",
+    tags=["Cookie管理"],
+    parameters=[{
+        'name': 'old_account_id',
+        'in': 'path',
+        'type': 'string',
+        'required': True,
+        'description': '旧账号ID'
+    }],
+    request_in="body"
+)
+
+TEST_COOKIE_AVAILABILITY_SPEC = create_swagger_spec(
+    response_schema=TestResultResponse,
+    summary="测试所有可用Cookie的可用性",
+    tags=["Cookie管理"]
+)
+
+TEST_ACCOUNT_COOKIE_SPEC = create_swagger_spec(
+    summary="测试单个账号的Cookie可用性",
+    tags=["Cookie管理"],
+    parameters=[{
+        'name': 'account_id',
+        'in': 'path',
+        'type': 'string',
+        'required': True,
+        'description': '账号ID'
+    }]
+)
+
+GET_AVAILABLE_ACCOUNT_IDS_SPEC = create_swagger_spec(
+    summary="获取所有可用的账号ID列表",
+    tags=["Cookie管理"]
+)
+
+GET_ACCOUNT_COOKIE_SPEC = create_swagger_spec(
+    summary="获取指定账号ID的Cookie详细信息",
+    tags=["Cookie管理"],
+    parameters=[{
+        'name': 'account_id',
+        'in': 'path',
+        'type': 'string',
+        'required': True,
+        'description': '账号ID'
+    }]
+)
+
+GET_POOL_STATUS_SPEC = create_swagger_spec(
+    response_schema=CookiePoolStatusResponse,
+    summary="获取Cookie池状态",
+    tags=["Cookie管理"]
+)
+
+GET_BANNED_ACCOUNTS_SPEC = create_swagger_spec(
+    summary="获取被封禁的账号列表",
+    tags=["Cookie管理"]
+)
+
+UPDATE_AB_SR_SPEC = create_swagger_spec(
+    summary="更新所有账号的ab_sr cookie值",
+    tags=["Cookie管理"]
+)
+
+SYNC_TO_REDIS_SPEC = create_swagger_spec(
+    response_schema=SyncResultResponse,
+    summary="将数据库中的Cookie数据同步到Redis",
+    tags=["Cookie管理"]
+)
+
+GET_COOKIE_USAGE_SPEC = create_swagger_spec(
+    summary="获取Cookie使用量统计",
+    tags=["Cookie管理"]
+)
+
+GET_TODAY_COOKIE_USAGE_SPEC = create_swagger_spec(
+    response_schema=TodayCookieUsageResponse,
+    summary="获取今日Cookie使用量",
+    tags=["Cookie管理"]
+)
+
+SYNC_COOKIE_USAGE_SPEC = create_swagger_spec(
+    response_schema=SyncResultResponse,
+    summary="同步Redis和MySQL中的Cookie使用量数据",
+    tags=["Cookie管理"]
+)
+
+
+# ============== 辅助函数 ==============
 
 # 使用函数获取cookie_manager实例，而不是全局变量
 def get_cookie_manager():
@@ -40,91 +259,13 @@ def with_cookie_manager(func):
                 cookie_manager.close()
     return wrapper
 
+
+# ============== API 端点 ==============
+
+
+
 @admin_cookie_bp.route('/list', methods=['GET'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '获取Cookie列表',
-    'description': '获取所有Cookie或根据账号ID过滤',
-    'parameters': [
-        {
-            'name': 'account_id',
-            'in': 'query',
-            'type': 'string',
-            'required': False,
-            'description': '账号ID，用于过滤指定账号的Cookie'
-        },
-        {
-            'name': 'status',
-            'in': 'query',
-            'type': 'string',
-            'required': False,
-            'enum': ['available', 'temp_banned', 'perm_banned', 'expired'],
-            'description': 'Cookie状态筛选'
-        },
-        {
-            'name': 'available_only',
-            'in': 'query',
-            'type': 'boolean',
-            'required': False,
-            'default': True,
-            'description': '是否只返回可用的Cookie'
-        },
-        {
-            'name': 'page',
-            'in': 'query',
-            'type': 'integer',
-            'required': False,
-            'default': 1,
-            'description': '页码，从1开始'
-        },
-        {
-            'name': 'limit',
-            'in': 'query',
-            'type': 'integer',
-            'required': False,
-            'default': 10,
-            'description': '每页记录数'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '请求成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'array',
-                        'items': {
-                            'type': 'object',
-                            'properties': {
-                                'account_id': {'type': 'string'},
-                                'cookies': {'type': 'object'},
-                                'expire_time': {'type': 'string', 'format': 'date-time'},
-                                'is_available': {'type': 'integer'},
-                                'is_permanently_banned': {'type': 'integer'},
-                                'temp_ban_until': {'type': 'string', 'format': 'date-time'}
-                            }
-                        }
-                    },
-                    'total': {'type': 'integer', 'description': '总记录数'}
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(LIST_COOKIES_SPEC)
 @with_cookie_manager
 def list_cookies(cookie_manager):
     """获取所有Cookie，按账号ID组装"""
@@ -267,53 +408,7 @@ def list_cookies(cookie_manager):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取Cookie列表失败: {str(e)}"))
 
 @admin_cookie_bp.route('/assembled', methods=['GET'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '获取组装后的完整Cookie',
-    'description': '获取所有可用账号的完整Cookie字典或根据账号ID列表过滤',
-    'parameters': [
-        {
-            'name': 'account_ids',
-            'in': 'query',
-            'type': 'string',
-            'required': False,
-            'description': '账号ID列表，多个ID用逗号分隔，用于过滤指定账号的Cookie'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '请求成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'array',
-                        'items': {
-                            'type': 'object',
-                            'properties': {
-                                'account_id': {'type': 'string'},
-                                'cookie_dict': {'type': 'object'}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(GET_ASSEMBLED_COOKIES_SPEC)
 @with_cookie_manager
 def get_assembled_cookies(cookie_manager):
     """获取组装后的完整Cookie字典"""
@@ -330,38 +425,7 @@ def get_assembled_cookies(cookie_manager):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取组装Cookie失败: {str(e)}"))
 
 @admin_cookie_bp.route('/accounts', methods=['GET'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '获取所有可用的账号ID',
-    'description': '获取系统中所有可用的账号ID列表',
-    'responses': {
-        '200': {
-            'description': '请求成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'array',
-                        'items': {'type': 'string'}
-                    }
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(LIST_ACCOUNTS_SPEC)
 @with_cookie_manager
 def list_accounts(cookie_manager):
     """获取所有可用的账号ID"""
@@ -372,51 +436,7 @@ def list_accounts(cookie_manager):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取账号列表失败: {str(e)}"))
 
 @admin_cookie_bp.route('/add', methods=['POST'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '添加Cookie',
-    'description': '添加新的Cookie到系统',
-    'parameters': [
-        {
-            'name': 'body',
-            'in': 'body',
-            'required': True,
-            'schema': {
-                'type': 'object',
-                'required': ['account_id', 'cookie_data'],
-                'properties': {
-                    'account_id': {'type': 'string', 'description': '账号ID'},
-                    'cookie_data': {'type': 'object', 'description': 'Cookie数据，可以是字典、JSON字符串或cookie字符串'},
-                    'expire_days': {'type': 'integer', 'description': 'Cookie过期天数', 'default': 365}
-                }
-            }
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '添加成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': 'Cookie添加成功'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '400': {
-            'description': '参数错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10100},
-                    'msg': {'type': 'string', 'example': '参数错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(ADD_COOKIE_SPEC)
 @with_cookie_manager
 @validate_json(AddCookieRequest, inject_as_arg=False)
 def add_cookie(cookie_manager):
