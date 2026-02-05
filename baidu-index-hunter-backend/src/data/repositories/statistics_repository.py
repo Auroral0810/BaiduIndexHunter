@@ -152,6 +152,132 @@ class StatisticsRepository:
                 } for r in results
             ]
             
+    def get_stats_by_task_type(self, start_date: date, end_date: date) -> List[Dict]:
+        """获取按任务类型分组的统计数据"""
+        with session_scope() as session:
+            # Success rate calculation
+            success_rate = case(
+                (func.sum(SpiderStatisticsModel.total_tasks) > 0, func.sum(SpiderStatisticsModel.completed_tasks) * 100.0 / func.sum(SpiderStatisticsModel.total_tasks)),
+                else_=0
+            ).label("success_rate")
+
+            # Avg duration calculation
+            avg_duration = case(
+                (func.sum(SpiderStatisticsModel.completed_tasks) > 0, func.sum(SpiderStatisticsModel.completed_tasks * SpiderStatisticsModel.avg_duration) / func.sum(SpiderStatisticsModel.completed_tasks)),
+                else_=0
+            ).label("avg_duration")
+
+            statement = select(
+                SpiderStatisticsModel.task_type,
+                func.sum(SpiderStatisticsModel.total_tasks),
+                func.sum(SpiderStatisticsModel.completed_tasks),
+                func.sum(SpiderStatisticsModel.failed_tasks),
+                func.sum(SpiderStatisticsModel.total_items),
+                func.sum(SpiderStatisticsModel.total_crawled_items),
+                success_rate,
+                avg_duration
+            ).where(and_(
+                SpiderStatisticsModel.stat_date >= start_date, 
+                SpiderStatisticsModel.stat_date <= end_date
+            )).group_by(SpiderStatisticsModel.task_type).order_by(SpiderStatisticsModel.task_type)
+
+            results = session.exec(statement).all()
+            return [
+                {
+                    "task_type": r[0],
+                    "total_tasks": int(r[1] or 0),
+                    "completed_tasks": int(r[2] or 0),
+                    "failed_tasks": int(r[3] or 0),
+                    "total_items": int(r[4] or 0),
+                    "total_crawled_items": int(r[5] or 0),
+                    "success_rate": float(r[6] or 0),
+                    "avg_duration": float(r[7] or 0)
+                } for r in results
+            ]
+
+    def get_task_type_trends(self, start_date: date, end_date: date, task_types: List[str]) -> Dict[str, List[Dict]]:
+        """获取每种任务类型的每日统计趋势"""
+        trends = {}
+        with session_scope() as session:
+            for task_type in task_types:
+                statement = select(
+                    SpiderStatisticsModel.stat_date,
+                    SpiderStatisticsModel.total_tasks,
+                    SpiderStatisticsModel.completed_tasks,
+                    SpiderStatisticsModel.failed_tasks,
+                    SpiderStatisticsModel.total_items,
+                    SpiderStatisticsModel.total_crawled_items
+                ).where(and_(
+                    SpiderStatisticsModel.stat_date >= start_date,
+                    SpiderStatisticsModel.stat_date <= end_date,
+                    SpiderStatisticsModel.task_type == task_type
+                )).order_by(SpiderStatisticsModel.stat_date)
+                
+                results = session.exec(statement).all()
+                trends[task_type] = [
+                    {
+                        "stat_date": r[0].strftime('%Y-%m-%d'),
+                        "total_tasks": int(r[1]),
+                        "completed_tasks": int(r[2]),
+                        "failed_tasks": int(r[3]),
+                        "total_items": int(r[4]),
+                        "total_crawled_items": int(r[5])
+                    } for r in results
+                ]
+        return trends
+
+    def get_success_rate_comparison(self, start_date: date, end_date: date) -> List[Dict]:
+        """获取任务成功率对比"""
+        with session_scope() as session:
+            success_rate = case(
+                (func.sum(SpiderStatisticsModel.total_tasks) > 0, func.sum(SpiderStatisticsModel.completed_tasks) * 100.0 / func.sum(SpiderStatisticsModel.total_tasks)),
+                else_=0
+            ).label("success_rate")
+
+            statement = select(
+                SpiderStatisticsModel.task_type,
+                success_rate
+            ).where(and_(
+                SpiderStatisticsModel.stat_date >= start_date, 
+                SpiderStatisticsModel.stat_date <= end_date
+            )).group_by(SpiderStatisticsModel.task_type).order_by(SpiderStatisticsModel.task_type)
+            
+            results = session.exec(statement).all()
+            return [{"task_type": r[0], "success_rate": float(r[1] or 0)} for r in results]
+
+    def get_avg_duration_comparison(self, start_date: date, end_date: date) -> List[Dict]:
+        """获取平均执行时间对比"""
+        with session_scope() as session:
+            avg_duration = case(
+                (func.sum(SpiderStatisticsModel.completed_tasks) > 0, func.sum(SpiderStatisticsModel.completed_tasks * SpiderStatisticsModel.avg_duration) / func.sum(SpiderStatisticsModel.completed_tasks)),
+                else_=0
+            ).label("avg_duration")
+
+            statement = select(
+                SpiderStatisticsModel.task_type,
+                avg_duration
+            ).where(and_(
+                SpiderStatisticsModel.stat_date >= start_date, 
+                SpiderStatisticsModel.stat_date <= end_date
+            )).group_by(SpiderStatisticsModel.task_type).order_by(SpiderStatisticsModel.task_type)
+            
+            results = session.exec(statement).all()
+            return [{"task_type": r[0], "avg_duration": float(r[1] or 0)} for r in results]
+
+    def get_data_volume_comparison(self, start_date: date, end_date: date) -> List[Dict]:
+        """获取数据爬取量对比"""
+        with session_scope() as session:
+            statement = select(
+                SpiderStatisticsModel.task_type,
+                func.sum(SpiderStatisticsModel.total_crawled_items)
+            ).where(and_(
+                SpiderStatisticsModel.stat_date >= start_date, 
+                SpiderStatisticsModel.stat_date <= end_date
+            )).group_by(SpiderStatisticsModel.task_type).order_by(SpiderStatisticsModel.task_type)
+            
+            results = session.exec(statement).all()
+            return [{"task_type": r[0], "total_crawled_items": int(r[1] or 0)} for r in results]
+
     def get_task_types(self) -> List[str]:
         """获取所有任务类型"""
         with session_scope() as session:

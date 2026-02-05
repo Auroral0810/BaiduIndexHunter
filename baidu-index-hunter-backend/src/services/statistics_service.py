@@ -93,10 +93,22 @@ class StatisticsService:
         overall_stats = self.stats_repo.get_dashboard_overall(start_date, end_date)
         daily_trend = self.stats_repo.get_dashboard_daily_trend(start_date, end_date)
         
+        # New aggregations
+        by_task_type = self.stats_repo.get_stats_by_task_type(start_date, end_date)
+        task_type_trends = self.stats_repo.get_task_type_trends(start_date, end_date, task_types)
+        success_rate_comparison = self.stats_repo.get_success_rate_comparison(start_date, end_date)
+        avg_duration_comparison = self.stats_repo.get_avg_duration_comparison(start_date, end_date)
+        data_volume_comparison = self.stats_repo.get_data_volume_comparison(start_date, end_date)
+        
         return {
             'task_types': task_types,
             'overall': overall_stats,
-            'daily_trend': daily_trend
+            'daily_trend': daily_trend,
+            'by_task_type': by_task_type,
+            'task_type_trends': task_type_trends,
+            'success_rate_comparison': success_rate_comparison,
+            'avg_duration_comparison': avg_duration_comparison,
+            'data_volume_comparison': data_volume_comparison
         }
 
 # Global Instance

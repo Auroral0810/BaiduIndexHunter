@@ -59,7 +59,7 @@ def update_ab_sr_cookies():
         result = cookie_manager.update_ab_sr_for_all_accounts()
         cookie_manager.close()
 
-        if 'error' in result:
+        if isinstance(result, dict) and 'error' in result:
             log.error(f"更新ab_sr cookie失败: {result['error']}")
             return
 
