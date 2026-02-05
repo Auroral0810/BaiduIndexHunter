@@ -19,6 +19,7 @@ import traceback
 from src.core.logger import log
 from src.core.config import REDIS_CONFIG, CIPHER_TEXT_JS_PATH
 from src.data.repositories.cookie_repository import cookie_repo
+from src.engine.crypto.ab_sr_updater import AbSrUpdater
 
 class CookieManager:
     """Cookie管理器，负责cookie的增删改查和状态管理"""
@@ -40,6 +41,78 @@ class CookieManager:
         self.redis_client = None
         self.redis_config = REDIS_CONFIG
         self._connect_redis()
+        
+        # 初始化 ab_sr 更新器
+        try:
+            self.ab_sr_updater = AbSrUpdater()
+        except Exception as e:
+            log.error(f"初始化 AbSrUpdater 失败: {e}")
+            self.ab_sr_updater = None
+
+    def update_ab_sr_for_all_accounts(self):
+        """
+        为所有可用账号更新 ab_sr cookie
+        """
+        try:
+            if not self.ab_sr_updater:
+                log.warning("AbSrUpdater 未初始化，尝试重新初始化")
+                try:
+                    self.ab_sr_updater = AbSrUpdater()
+                except Exception as e:
+                    log.error(f"重新初始化 AbSrUpdater 失败: {e}")
+                    return 0
+
+            # 获取所有可用账号
+            available_account_ids = self.get_available_account_ids()
+            log.info(f"开始为 {len(available_account_ids)} 个账号更新 ab_sr cookie")
+            
+            updated_count = 0
+            
+            # 使用线程池并发更新
+            with ThreadPoolExecutor(max_workers=5) as executor:
+                futures = {}
+                for account_id in available_account_ids:
+                    # 为每个账号生成一个新的 ab_sr
+                    future = executor.submit(self.ab_sr_updater.update_ab_sr)
+                    futures[future] = account_id
+                
+                for future in as_completed(futures):
+                    account_id = futures[future]
+                    try:
+                        ab_sr_value = future.result()
+                        if ab_sr_value:
+                            # 更新账号的 cookie
+                            update_data = {
+                                "ab_sr": ab_sr_value
+                            }
+                            # 添加或更新这个特定的 cookie
+                            # 注意：这里我们使用 add_cookie 接口，因为它支持 upset
+                            # 但 add_cookie 期望完整的 cookie 字典或 key-value
+                            # 我们可以直接调用 add_cookie，它会合并
+                            
+                            # 或者更稳妥地：
+                            # 1. 获取现有 cookie
+                            # 2. 更新 ab_sr
+                            # 3. 保存回 DB
+                            
+                            # 这里为了简单且利用 repo 的 upset 能力
+                            # 我们构造一个包含单个 cookie 的字典
+                            # repo.upsert_cookies 能够处理增量更新吗？
+                            # 是的，它遍历字典并在 DUPLICATE KEY 时更新。
+                            
+                            self.add_cookie(account_id, update_data)
+                            updated_count += 1
+                        else:
+                            log.warning(f"为账号 {account_id} 生成 ab_sr 失败")
+                    except Exception as e:
+                        log.error(f"更新账号 {account_id} 的 ab_sr 失败: {e}")
+            
+            log.info(f"成功为 {updated_count}/{len(available_account_ids)} 个账号更新 ab_sr cookie")
+            return updated_count
+            
+        except Exception as e:
+            log.error(f"批量更新 ab_sr cookie 失败: {e}")
+            return 0
 
     def _get_cipher_js_path(self):
         """获取Cipher-Text.js文件的绝对路径"""

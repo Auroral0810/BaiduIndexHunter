@@ -2,8 +2,9 @@
 任务仓储类
 处理爬虫任务的数据库操作
 """
-from typing import List, Optional
-from sqlmodel import select, col
+from typing import List, Optional, Dict
+from datetime import datetime
+from sqlmodel import select, col, func
 from src.data.database import session_scope
 from src.data.repositories.base_repository import BaseRepository
 from src.data.models.task import SpiderTaskModel
@@ -25,6 +26,43 @@ class TaskRepository(BaseRepository[SpiderTaskModel]):
         with session_scope() as session:
             statement = select(SpiderTaskModel).where(SpiderTaskModel.task_id == task_id)
             return session.exec(statement).first()
+
+    def count_tasks(self, start_time: Optional[datetime] = None) -> int:
+        """统计任务总数"""
+        with session_scope() as session:
+            statement = select(func.count(SpiderTaskModel.id))
+            if start_time:
+                statement = statement.where(SpiderTaskModel.create_time >= start_time)
+            return session.exec(statement).one() or 0
+
+    def get_task_counts_by_status(self, start_time: Optional[datetime] = None) -> List[Dict]:
+        """按状态统计任务数"""
+        with session_scope() as session:
+            statement = select(SpiderTaskModel.status, func.count(SpiderTaskModel.id)).group_by(SpiderTaskModel.status)
+            if start_time:
+                statement = statement.where(SpiderTaskModel.create_time >= start_time)
+            results = session.exec(statement).all()
+            return [{"status": r[0], "count": r[1]} for r in results]
+
+    def get_task_counts_by_type(self, start_time: Optional[datetime] = None) -> List[Dict]:
+        """按类型统计任务数"""
+        with session_scope() as session:
+            statement = select(SpiderTaskModel.task_type, func.count(SpiderTaskModel.id)).group_by(SpiderTaskModel.task_type)
+            if start_time:
+                statement = statement.where(SpiderTaskModel.create_time >= start_time)
+            results = session.exec(statement).all()
+            return [{"task_type": r[0], "count": r[1]} for r in results]
+
+    def get_daily_task_counts(self, start_time: Optional[datetime] = None) -> List[Dict]:
+        """按日期统计任务数"""
+        with session_scope() as session:
+            # MySQL specific: DATE(create_time)
+            date_col = func.date(SpiderTaskModel.create_time)
+            statement = select(date_col, func.count(SpiderTaskModel.id)).group_by(date_col).order_by(date_col)
+            if start_time:
+                statement = statement.where(SpiderTaskModel.create_time >= start_time)
+            results = session.exec(statement).all()
+            return [{"date": r[0].strftime('%Y-%m-%d') if r[0] else None, "count": r[1]} for r in results]
 
 # 全局单例
 task_repo = TaskRepository()
