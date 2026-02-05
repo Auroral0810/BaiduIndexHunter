@@ -3,7 +3,7 @@
 """
 from datetime import datetime
 from typing import Optional, List, Any, Dict
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, RootModel
 
 
 # ============== 请求 Schema ==============
@@ -20,9 +20,9 @@ class SetConfigRequest(BaseModel):
     description: Optional[str] = Field(None, description="配置描述")
 
 
-class BatchSetConfigRequest(BaseModel):
-    """批量设置配置项请求（字典形式）"""
-    configs: Dict[str, Any] = Field(..., description="配置项字典 {key: value}")
+class BatchSetConfigRequest(RootModel):
+    """批量设置配置项请求（字典形式: {key: value}）"""
+    root: Dict[str, Any]
 
 
 # ============== 响应 Schema ==============

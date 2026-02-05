@@ -43,7 +43,10 @@ def validate_request(schema: Type[BaseModel], source: str = "json", inject_as_ar
                     data = {}
                 
                 # 使用 Pydantic 进行校验
-                validated = schema(**data)
+                if hasattr(schema, 'model_validate'):
+                    validated = schema.model_validate(data)
+                else:
+                    validated = schema(**data)
                 
                 if inject_as_arg:
                     # 将校验后的数据作为第一个参数传递给被装饰的函数

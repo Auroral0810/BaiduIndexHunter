@@ -168,7 +168,7 @@ def delete_config(key):
 def batch_set_config(validated_data: BatchSetConfigRequest):
     """批量设置配置项"""
     try:
-        configs = validated_data.configs
+        configs = validated_data.root
         
         success_count, failed_keys = config_manager.batch_set(configs)
         
@@ -189,7 +189,7 @@ def batch_set_config(validated_data: BatchSetConfigRequest):
 def refresh_config():
     """刷新配置缓存"""
     try:
-        config_manager.refresh()
+        config_manager.refresh_cache()
         return jsonify(ResponseFormatter.success(None, "配置缓存刷新成功"))
     except Exception as e:
         log.error(f"刷新配置缓存失败: {e}")

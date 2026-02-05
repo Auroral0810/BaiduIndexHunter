@@ -7,6 +7,7 @@ from sqlmodel import select
 from src.data.database import session_scope
 from src.data.repositories.base_repository import BaseRepository
 from src.data.models.config import SystemConfigModel
+from sqlalchemy import func
 from sqlalchemy.dialects.mysql import insert as mysql_insert
 
 class ConfigRepository(BaseRepository[SystemConfigModel]):
@@ -58,6 +59,6 @@ class ConfigRepository(BaseRepository[SystemConfigModel]):
             session.commit()
             return True
 
-from sqlalchemy import func
+
 # 全局单例
 config_repo = ConfigRepository()

@@ -589,9 +589,11 @@ class CookieManager:
                     self.redis_client.set(self.REDIS_COOKIE_COUNT_KEY, len(all_ids))
             
             available_ids = self.repo.get_available_account_ids()
+            pool_status = self.repo.get_pool_status_counts()
             return {
                 'updated_count': updated_count,
                 'available_count': len(available_ids),
+                'total_count': pool_status.get('total', 0),
                 'unlocked_accounts': unlocked_accounts
             }
         except Exception as e:
