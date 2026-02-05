@@ -4,32 +4,45 @@
 import json
 from datetime import datetime
 from typing import Optional, Any, Dict
+from sqlmodel import Field
+from pydantic import field_validator
 from src.data.models.base import BaseDataModel
-from pydantic import Field, field_validator
 
-class TaskLogModel(BaseDataModel):
+class TaskLogModel(BaseDataModel, table=True):
     """
     对应数据库中的 task_logs 表
     """
-    id: Optional[int] = Field(None)
+    __tablename__ = "task_logs"
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
     task_id: str = Field(..., max_length=32)
     log_level: str = Field(..., description="日志级别(info/warning/error/debug)")
     message: str = Field(...)
     timestamp: datetime = Field(default_factory=datetime.now)
-    details: Any = Field(None, description="详细信息(JSON)")
+    details: Optional[str] = Field(None, description="详细信息(JSON字符串)")
 
     @field_validator('details', mode='before')
     @classmethod
-    def parse_details(cls, v):
-        if isinstance(v, str):
-            try:
-                return json.loads(v)
-            except:
-                return v
+    def parse_details_on_init(cls, v):
+        """兼容 Pydantic 初始化: dict -> json str"""
+        if isinstance(v, (dict, list)):
+            return json.dumps(v, ensure_ascii=False)
         return v
-
-    def to_db_dict(self, exclude_fields: set = None) -> Dict[str, Any]:
-        data = super().to_db_dict(exclude_fields)
-        if 'details' in data and not isinstance(data['details'], (str, type(None))):
-            data['details'] = json.dumps(data['details'], ensure_ascii=False)
-        return data
+    
+    @property
+    def details_dict(self) -> Dict:
+        """获取详细信息字典"""
+        if not self.details:
+            return {}
+        try:
+            return json.loads(self.details)
+        except:
+            return {}
+    
+    @details_dict.setter
+    def details_dict(self, value: Dict):
+        """设置详细信息字典"""
+        if value is None:
+            self.details = None
+        else:
+            self.details = json.dumps(value, ensure_ascii=False)

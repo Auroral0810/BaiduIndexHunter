@@ -4,11 +4,12 @@
 """
 from datetime import datetime
 from typing import Any, Dict, Type, TypeVar, Optional
-from pydantic import BaseModel, ConfigDict, Field
+from sqlmodel import SQLModel, Field
+from pydantic import ConfigDict
 
 T = TypeVar("T", bound="BaseDataModel")
 
-class BaseDataModel(BaseModel):
+class BaseDataModel(SQLModel):
     """
     所有数据模型的基类
     """
@@ -25,7 +26,7 @@ class BaseDataModel(BaseModel):
         """
         if not row:
             return None
-        return cls(**row)
+        return cls.model_validate(row)
 
     def to_db_dict(self, exclude_fields: set = None) -> Dict[str, Any]:
         """

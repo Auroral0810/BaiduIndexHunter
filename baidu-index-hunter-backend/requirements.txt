@@ -6,6 +6,9 @@ flask-socketio==5.1.1
 
 # 数据库
 pymysql==1.0.2
+sqlmodel>=0.0.14
+sqlalchemy>=2.0.0
+cryptography>=41.0.0
 
 # 缓存
 redis==3.5.3

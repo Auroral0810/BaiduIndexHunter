@@ -4,14 +4,17 @@
 import json
 from datetime import date, datetime
 from typing import Optional, Any, Dict
+from sqlmodel import Field
+from pydantic import field_validator
 from src.data.models.base import BaseDataModel
-from pydantic import Field, field_validator
 
-class SpiderStatisticsModel(BaseDataModel):
+class SpiderStatisticsModel(BaseDataModel, table=True):
     """
     对应数据库中的 spider_statistics 表
     """
-    id: Optional[int] = Field(None)
+    __tablename__ = "spider_statistics"
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
     stat_date: date = Field(...)
     task_type: str = Field(...)
     total_tasks: int = Field(0)
@@ -25,11 +28,13 @@ class SpiderStatisticsModel(BaseDataModel):
     cookie_ban_count: int = Field(0)
     update_time: Optional[datetime] = None
 
-class TaskStatisticsModel(BaseDataModel):
+class TaskStatisticsModel(BaseDataModel, table=True):
     """
     对应数据库中的 task_statistics 表
     """
-    id: Optional[int] = Field(None)
+    __tablename__ = "task_statistics"
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
     task_id: str = Field(..., max_length=32)
     keyword: Optional[str] = None
     city_code: Optional[str] = None
@@ -40,21 +45,31 @@ class TaskStatisticsModel(BaseDataModel):
     max_value: Optional[float] = None
     min_value: Optional[float] = None
     sum_value: Optional[float] = None
-    extra_data: Any = Field(None, description="额外数据(JSON)")
+    extra_data: Optional[str] = Field(None, description="额外数据(JSON字符串)")
     create_time: Optional[datetime] = None
 
     @field_validator('extra_data', mode='before')
     @classmethod
-    def parse_extra_data(cls, v):
-        if isinstance(v, str):
-            try:
-                return json.loads(v)
-            except:
-                return v
+    def parse_extra_data_on_init(cls, v):
+        """兼容 Pydantic 初始化: dict -> json str"""
+        if isinstance(v, (dict, list)):
+            return json.dumps(v, ensure_ascii=False)
         return v
-
-    def to_db_dict(self, exclude_fields: set = None) -> Dict[str, Any]:
-        data = super().to_db_dict(exclude_fields)
-        if 'extra_data' in data and not isinstance(data['extra_data'], (str, type(None))):
-            data['extra_data'] = json.dumps(data['extra_data'], ensure_ascii=False)
-        return data
+    
+    @property
+    def extra_data_dict(self) -> Dict:
+        """获取额外数据字典"""
+        if not self.extra_data:
+            return {}
+        try:
+            return json.loads(self.extra_data)
+        except:
+            return {}
+    
+    @extra_data_dict.setter
+    def extra_data_dict(self, value: Dict):
+        """设置额外数据字典"""
+        if value is None:
+            self.extra_data = None
+        else:
+            self.extra_data = json.dumps(value, ensure_ascii=False)

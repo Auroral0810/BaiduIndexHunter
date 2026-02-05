@@ -3,14 +3,16 @@ Cookie 数据模型
 """
 from datetime import datetime
 from typing import Optional
+from sqlmodel import Field
 from src.data.models.base import BaseDataModel
-from pydantic import Field
 
-class CookieModel(BaseDataModel):
+class CookieModel(BaseDataModel, table=True):
     """
     对应数据库中的 cookies 表
     """
-    id: Optional[int] = Field(None, description="自增ID")
+    __tablename__ = "cookies"
+    
+    id: Optional[int] = Field(default=None, primary_key=True, description="自增ID")
     account_id: str = Field(..., description="账号ID")
     cookie_name: str = Field(..., description="Cookie名称")
     cookie_value: str = Field(..., description="Cookie明文值")
@@ -31,11 +33,13 @@ class CookieModel(BaseDataModel):
             row['is_permanently_banned'] = bool(row['is_permanently_banned'])
         return super().from_db_row(row)
 
-class CookieDailyUsageModel(BaseDataModel):
+class CookieDailyUsageModel(BaseDataModel, table=True):
     """
     对应数据库中的 cookie_daily_usage 表
     """
-    id: Optional[int] = Field(None)
+    __tablename__ = "cookie_daily_usage"
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
     account_id: str = Field(...)
     usage_date: datetime = Field(...)
     usage_count: int = Field(0)
