@@ -83,6 +83,10 @@ class CipherTextMiddleware:
     def _extract_keyword(self, request):
         """从请求中提取关键词"""
         # 优先从 meta 中获取
+        if 'keyword' in request.meta:
+            # word_check_spider 使用 'keyword' 单数
+            return request.meta['keyword']
+        
         if 'keywords' in request.meta:
             keywords = request.meta['keywords']
             if isinstance(keywords, list) and len(keywords) > 0:
@@ -96,15 +100,23 @@ class CipherTextMiddleware:
             params = parse_qs(parsed.query)
             
             if 'word' in params:
-                import json
                 word_param = unquote(params['word'][0])
-                word_list = json.loads(word_param)
-                if word_list and len(word_list) > 0:
-                    if isinstance(word_list[0], list) and len(word_list[0]) > 0:
-                        return word_list[0][0].get('name', '')
-                    elif isinstance(word_list[0], dict):
-                        return word_list[0].get('name', '')
+                
+                # 尝试解析为 JSON（search_index 格式）
+                try:
+                    import json
+                    word_list = json.loads(word_param)
+                    if word_list and len(word_list) > 0:
+                        if isinstance(word_list[0], list) and len(word_list[0]) > 0:
+                            return word_list[0][0].get('name', '')
+                        elif isinstance(word_list[0], dict):
+                            return word_list[0].get('name', '')
+                except (json.JSONDecodeError, TypeError):
+                    # 不是 JSON，直接返回字符串值（word_check 格式）
+                    return word_param
+                    
         except Exception as e:
             self.logger.debug(f"Failed to extract keyword from URL: {e}")
         
         return None
+

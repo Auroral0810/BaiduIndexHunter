@@ -77,7 +77,8 @@ SPIDER_MIDDLEWARES = {
 
 # ==================== 数据管道配置 ====================
 ITEM_PIPELINES = {
-    'scrapy_app.pipelines.validation_pipeline.DataValidationPipeline': 100,
+    'scrapy_app.pipelines.validation_pipeline.DataValidationPipeline': 100, # 100指的是优先级，数字越小优先级越高
+    'scrapy_app.pipelines.word_check_result_pipeline.WordCheckResultPipeline': 150,  # 关键词检查结果保存到 Redis
     'scrapy_app.pipelines.csv_pipeline.CSVExportPipeline': 300,
     'scrapy_app.pipelines.mysql_pipeline.MySQLStatsPipeline': 400,
 }

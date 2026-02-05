@@ -60,8 +60,8 @@ class CookieRotationMiddleware:
         # 跳过获取解密密钥的请求（使用上一个请求的 Cookie）
         if 'Interface/ptbk' in request.url:
             # 从 meta 中获取之前使用的 Cookie
-            if 'cookie_dict' in request.meta:
-                request.cookies = request.meta['cookie_dict']
+            if 'cookie_str' in request.meta:
+                request.headers['Cookie'] = request.meta['cookie_str']
             return None
         
         try:
@@ -73,10 +73,16 @@ class CookieRotationMiddleware:
                 request.meta['no_cookie_available'] = True
                 raise NoCookieAvailableError("No available cookies")
             
-            # 设置 Cookie
-            request.cookies = cookie_dict
+            # 将 cookie_dict 转换为 Cookie 字符串并设置为请求头
+            # 这是关键修复！Scrapy 内置的 CookiesMiddleware 被禁用了，
+            # 所以我们必须手动将 cookie 设置为请求头
+            cookie_str = "; ".join([f"{k}={v}" for k, v in cookie_dict.items()])
+            request.headers['Cookie'] = cookie_str
+            
+            # 保存信息到 meta 中，用于重试和日志
             request.meta['cookie_account_id'] = account_id
             request.meta['cookie_dict'] = cookie_dict
+            request.meta['cookie_str'] = cookie_str
             
             spider.logger.debug(f"Using cookie from account: {account_id}")
             
