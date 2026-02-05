@@ -5,7 +5,7 @@ import os
 import execjs
 from pathlib import Path
 from utils.logger import log
-from core.config import CIPHER_TEXT_JS_PATH
+from config.settings import CIPHER_TEXT_JS_PATH
 from fake_useragent import UserAgent
 
 ua = UserAgent()

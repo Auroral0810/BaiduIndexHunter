@@ -6,26 +6,12 @@ import os
 import logging
 from pathlib import Path
 from loguru import logger
-from dotenv import load_dotenv
+from config.settings import LOG_CONFIG, LOG_DIR
 from collections import deque
 import subprocess
 from flask import Flask, request, g
 import time
 from datetime import datetime
-
-# 加载环境变量
-env_path = Path(__file__).parent.parent / '.env'
-load_dotenv(dotenv_path=env_path)
-
-# 直接从环境变量读取日志配置（避免循环导入）
-LOG_CONFIG = {
-    'level': os.getenv('LOG_LEVEL', 'INFO'),
-    'retention': int(os.getenv('LOG_RETENTION', 7)),
-    'file_size': int(os.getenv('LOG_FILE_SIZE', 10 * 1024 * 1024)),
-    'backup_count': int(os.getenv('LOG_BACKUP_COUNT', 5)),
-}
-LOG_DIR = Path(__file__).parent.parent / 'output' / 'logs'
-LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 class LoggerWithCache:
     """带有消息缓存的日志器"""

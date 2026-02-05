@@ -8,8 +8,7 @@ import threading
 from datetime import datetime, timedelta
 from utils.logger import log
 from db.mysql_manager import mysql_manager
-from core.config import config
-COOKIE_CONFIG = config.cookie_config
+from config.settings import COOKIE_CONFIG
 from cookie_manager.cookie_manager import CookieManager
 
 

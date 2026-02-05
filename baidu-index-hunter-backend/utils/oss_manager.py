@@ -6,8 +6,7 @@ import logging
 import oss2
 from datetime import datetime
 from pathlib import Path
-from core.config import config
-OSS_CONFIG = config.get_group('oss')
+from config.settings import OSS_CONFIG
 
 log = logging.getLogger(__name__)
 

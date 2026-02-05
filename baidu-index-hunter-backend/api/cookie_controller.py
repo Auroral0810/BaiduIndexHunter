@@ -11,8 +11,7 @@ import functools
 
 from cookie_manager.cookie_manager import CookieManager
 from constant.respond import ResponseCode, ResponseFormatter
-from core.config import config
-MYSQL_CONFIG = config.mysql_config
+from config.settings import MYSQL_CONFIG
 from utils.logger import log
 
 # 创建蓝图

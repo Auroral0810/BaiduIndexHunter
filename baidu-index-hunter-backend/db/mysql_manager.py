@@ -7,28 +7,12 @@ import time
 import pymysql
 from pymysql.cursors import DictCursor
 from typing import List, Dict, Any, Optional, Union, Tuple
-from dotenv import load_dotenv
-from pathlib import Path
 
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# 加载环境变量
-env_path = Path(__file__).parent.parent / '.env'
-load_dotenv(dotenv_path=env_path)
-
 from utils.logger import log
-
-
-def _get_mysql_config():
-    """从环境变量获取 MySQL 配置（避免循环导入）"""
-    return {
-        'host': os.getenv('MYSQL_HOST', 'localhost'),
-        'port': int(os.getenv('MYSQL_PORT', 3306)),
-        'user': os.getenv('MYSQL_USER', 'root'),
-        'password': os.getenv('MYSQL_PASSWORD', ''),
-        'db': os.getenv('MYSQL_DB', 'BaiduIndexHunter'),
-    }
+from config.settings import MYSQL_CONFIG
 
 
 import threading
@@ -41,9 +25,9 @@ class MySQLManager:
         初始化MySQL连接管理器
         
         参数:
-            config: MySQL配置，如果为None则从环境变量读取
+            config: MySQL配置，如果为None则使用settings.py中的配置
         """
-        self.config = config if config else _get_mysql_config()
+        self.config = MYSQL_CONFIG
         self.max_retries = 3
         self.retry_delay = 2  # 秒
         
