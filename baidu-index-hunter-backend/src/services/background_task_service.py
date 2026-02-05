@@ -110,10 +110,8 @@ def _run_scheduler():
     
     # 立即执行一次初始化检查
     check_cookie_status()
-    update_ab_sr_cookies()
-
     schedule.every(COOKIE_CHECK_CONFIG['check_interval']).seconds.do(check_cookie_status)
-    schedule.every(COOKIE_CHECK_CONFIG['ab_sr_update_interval']).seconds.do(update_ab_sr_cookies)
+    # schedule.every(COOKIE_CHECK_CONFIG['ab_sr_update_interval']).seconds.do(update_ab_sr_cookies) # Disabled by user request
     schedule.every(COOKIE_CHECK_CONFIG['resume_task_check_interval']).seconds.do(resume_paused_tasks)
 
     while _scheduler_running:

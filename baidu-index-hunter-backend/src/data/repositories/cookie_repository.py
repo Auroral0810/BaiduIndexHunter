@@ -2,10 +2,10 @@
 Cookie数据仓储类
 处理 Cookie 相关的数据库操作
 """
-from typing import List, Optional, Dict, Any, Union
+from typing import List, Optional, Dict, Any, Union, Tuple
 from datetime import datetime
-from sqlmodel import select, col, or_, and_, delete
-from sqlalchemy import func, update
+from sqlmodel import select, col, or_, and_, delete, func
+from sqlalchemy import update
 from sqlalchemy.dialects.mysql import insert as mysql_insert
 
 from src.data.database import session_scope
@@ -55,6 +55,119 @@ class CookieRepository(BaseRepository[CookieModel]):
             )
             return list(session.exec(statement).all())
 
+    def get_account_ids_by_filter(self, 
+                                 status: Optional[str] = None, 
+                                 available_only: bool = False,
+                                 account_id: Optional[str] = None) -> List[str]:
+        """
+        根据条件获取账号ID列表
+        """
+        now = datetime.now()
+        with session_scope() as session:
+            statement = select(CookieModel.account_id).distinct()
+            
+            if account_id:
+                statement = statement.where(CookieModel.account_id == account_id)
+            elif status:
+                if status == 'perm_banned':
+                    statement = statement.where(CookieModel.is_permanently_banned == True)
+                elif status == 'temp_banned':
+                    statement = statement.where(
+                        CookieModel.temp_ban_until != None,
+                        CookieModel.temp_ban_until > now,
+                        CookieModel.is_permanently_banned == False
+                    )
+                elif status == 'expired':
+                    statement = statement.where(
+                        CookieModel.expire_time != None,
+                        CookieModel.expire_time < now
+                    )
+                elif status == 'available':
+                    statement = statement.where(
+                        CookieModel.is_available == True,
+                        or_(CookieModel.expire_time == None, CookieModel.expire_time >= now),
+                        or_(CookieModel.temp_ban_until == None, CookieModel.temp_ban_until <= now),
+                        CookieModel.is_permanently_banned == False
+                    )
+            elif available_only:
+                 statement = statement.where(
+                    CookieModel.is_available == True,
+                    or_(CookieModel.expire_time == None, CookieModel.expire_time > now),
+                    or_(CookieModel.temp_ban_until == None, CookieModel.temp_ban_until < now),
+                    CookieModel.is_permanently_banned == False
+                )
+            
+            return list(session.exec(statement).all())
+
+    def get_pool_status_counts(self) -> Dict[str, int]:
+        """获取Cookie池各项统计数据"""
+        now = datetime.now()
+        with session_scope() as session:
+            # 总账号数
+            total = session.exec(select(func.count(func.distinct(CookieModel.account_id)))).one()
+            
+            # 可用账号数
+            available = session.exec(select(func.count(func.distinct(CookieModel.account_id))).where(
+                CookieModel.is_available == True,
+                or_(CookieModel.expire_time == None, CookieModel.expire_time > now),
+                or_(CookieModel.temp_ban_until == None, CookieModel.temp_ban_until < now),
+                CookieModel.is_permanently_banned == False
+            )).one()
+            
+            # 临时封禁
+            temp_banned = session.exec(select(func.count(func.distinct(CookieModel.account_id))).where(
+                CookieModel.temp_ban_until != None,
+                CookieModel.temp_ban_until > now,
+                CookieModel.is_permanently_banned == False
+            )).one()
+            
+            # 永久封禁
+            perm_banned = session.exec(select(func.count(func.distinct(CookieModel.account_id))).where(
+                CookieModel.is_permanently_banned == True
+            )).one()
+            
+            # 过期账号 (added for completeness with schema)
+            expired = session.exec(select(func.count(func.distinct(CookieModel.account_id))).where(
+                 CookieModel.expire_time != None, 
+                 CookieModel.expire_time < now
+            )).one()
+
+            return {
+                "total": total,
+                "available": available,
+                "temp_banned": temp_banned,
+                "perm_banned": perm_banned,
+                "expired": expired
+            }
+
+    def get_banned_accounts_details(self) -> Tuple[List[Dict], List[str]]:
+        """获取被封禁账号详情 (临时, 永久)"""
+        now = datetime.now()
+        with session_scope() as session:
+            # 临时封禁
+            temp_stmt = select(CookieModel.account_id, func.max(CookieModel.temp_ban_until)).where(
+                CookieModel.temp_ban_until != None,
+                CookieModel.temp_ban_until > now,
+                CookieModel.is_permanently_banned == False
+            ).group_by(CookieModel.account_id)
+            
+            temp_results = session.exec(temp_stmt).all()
+            
+            temp_banned_details = []
+            for acc_id, ban_until in temp_results:
+                temp_banned_details.append({
+                    "account_id": acc_id,
+                    "temp_ban_until": ban_until
+                })
+            
+            # 永久封禁
+            perm_stmt = select(CookieModel.account_id).distinct().where(
+                CookieModel.is_permanently_banned == True
+            )
+            perm_results = list(session.exec(perm_stmt).all())
+            
+            return temp_banned_details, perm_results
+
     def upsert_cookies(self, account_id: str, cookies: Dict[str, str], expire_time: datetime) -> bool:
         """
         批量插入或更新Cookie
@@ -92,40 +205,16 @@ class CookieRepository(BaseRepository[CookieModel]):
             session.commit()
             return result.rowcount
 
-    def update_account_cookies_status(self, account_id: str, 
-                                      is_available: Optional[bool] = None, 
-                                      is_permanently_banned: Optional[bool] = None,
-                                      temp_ban_until: Optional[Union[datetime, None]] = None) -> int:
-        """更新账号下所有Cookie的状态"""
-        updates = {}
-        if is_available is not None:
-            updates['is_available'] = is_available
-        if is_permanently_banned is not None:
-            updates['is_permanently_banned'] = is_permanently_banned
-        # 注意：temp_ban_until 可以是 None，区分 None 和 未传参
-        # 但这里为了简化，我们假设如果调用者想设为 None，必须显式传递
-        # 这里逻辑有点 tricky，因为 Optional[datetime] 默认 None 通常表示不更新
-        # 我们约定：如果不更新，不要传参。如果要清除，传 None? 
-        # Python参数无法区分 "未传" 和 "传了None" 除非用 sentinel object。
-        # 简单起见，我们在 kwarg 中处理。
-        
-        # 重新定义参数处理逻辑：
-        # 这里我们假设 update 字典由调用者构建，或者我们分开写方法。
-        # 鉴于 `ban_account_temporarily` 需要设 temp_ban_until，
-        # `unban_account` 需要设 temp_ban_until = None。
-        
-        with session_scope() as session:
-            statement = update(CookieModel).where(CookieModel.account_id == account_id)
-            
-            if is_available is not None:
-                statement = statement.values(is_available=is_available)
-            if is_permanently_banned is not None:
-                statement = statement.values(is_permanently_banned=is_permanently_banned)
-            
-            # 特殊处理 temp_ban_until
-            # 我们需要一种方式表达 "Set to NULL" vs "Don't Change"
-            # 暂时我们分开写专门的方法比较安全，或者用 **kwargs
-            pass
+    def update_cookie_fields(self, cookie_id: int, fields: Dict[str, Any]) -> bool:
+        """更新单个Cookie字段"""
+        try:
+             with session_scope() as session:
+                statement = update(CookieModel).where(CookieModel.id == cookie_id).values(**fields)
+                result = session.exec(statement)
+                session.commit()
+                return result.rowcount > 0
+        except Exception:
+            return False
 
     def ban_account_permanently(self, account_id: str) -> int:
         """永久封禁账号"""
@@ -221,17 +310,6 @@ class CookieRepository(BaseRepository[CookieModel]):
             result = session.exec(statement)
             session.commit()
             return result.rowcount
-    
-    def update_cookie_fields(self, cookie_id: int, fields: Dict[str, Any]) -> bool:
-        """更新单个Cookie字段"""
-        try:
-             with session_scope() as session:
-                statement = update(CookieModel).where(CookieModel.id == cookie_id).values(**fields)
-                result = session.exec(statement)
-                session.commit()
-                return result.rowcount > 0
-        except Exception:
-            return False
             
     def get_cookie_by_id(self, cookie_id: int) -> Optional[CookieModel]:
         """根据ID获取Cookie"""

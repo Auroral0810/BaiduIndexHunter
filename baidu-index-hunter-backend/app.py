@@ -23,7 +23,7 @@ from src.services.background_task_service import (
 )
 
 # API 蓝图注册器
-from src.api.v1.cookie_controller import register_admin_cookie_blueprint
+from src.api.v1.cookie_controller import register_cookie_blueprint
 from src.api.v1.region_controller import register_region_blueprint
 from src.api.v1.task_controller import register_task_blueprint
 from src.api.v1.statistics_controller import register_statistics_blueprint
@@ -99,7 +99,7 @@ def setup_swagger(app):
 
 def register_blueprints(app):
     """注册所有 API 蓝图"""
-    register_admin_cookie_blueprint(app)
+    register_cookie_blueprint(app)
     register_region_blueprint(app)
     register_task_blueprint(app)
     register_statistics_blueprint(app)
