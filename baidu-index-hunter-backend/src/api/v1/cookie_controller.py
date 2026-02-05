@@ -465,49 +465,7 @@ def add_cookie(cookie_manager):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"添加Cookie失败: {str(e)}"))
 
 @admin_cookie_bp.route('/delete/<account_id>', methods=['DELETE'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '删除指定账号的所有Cookie',
-    'description': '根据账号ID删除所有相关的Cookie记录',
-    'parameters': [
-        {
-            'name': 'account_id',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '要删除Cookie的账号ID'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '删除成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '成功删除5条Cookie记录'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'deleted_count': {'type': 'integer', 'example': 5}
-                        }
-                    }
-                }
-            }
-        },
-        '404': {
-            'description': '未找到记录',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10101},
-                    'msg': {'type': 'string', 'example': '未找到指定账号的Cookie记录'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(DELETE_COOKIE_SPEC)
 @with_cookie_manager
 def delete_cookie(cookie_manager,account_id):
     """删除指定账号的所有Cookie"""
@@ -522,59 +480,7 @@ def delete_cookie(cookie_manager,account_id):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"删除Cookie失败: {str(e)}"))
 
 @admin_cookie_bp.route('/update/<cookie_id>', methods=['PUT'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '更新指定Cookie',
-    'description': '更新指定ID的Cookie记录',
-    'parameters': [
-        {
-            'name': 'cookie_id',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '要更新的Cookie ID'
-        },
-        {
-            'name': 'body',
-            'in': 'body',
-            'required': True,
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'cookie_value': {'type': 'string', 'description': 'Cookie值'},
-                    'expire_time': {'type': 'string', 'format': 'date-time', 'description': '过期时间'},
-                    'is_available': {'type': 'integer', 'description': '是否可用，0-不可用，1-可用'},
-                    'is_permanently_banned': {'type': 'integer', 'description': '是否永久封禁，0-否，1-是'},
-                    'temp_ban_until': {'type': 'string', 'format': 'date-time', 'description': '临时封禁截止时间'}
-                }
-            }
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '更新成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': 'Cookie更新成功'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '404': {
-            'description': '未找到记录',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10101},
-                    'msg': {'type': 'string', 'example': '未找到指定的Cookie或更新失败'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(UPDATE_COOKIE_SPEC)
 @with_cookie_manager
 def update_cookie(cookie_manager,account_id):
     """更新指定Cookie"""
@@ -594,49 +500,7 @@ def update_cookie(cookie_manager,account_id):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"更新Cookie失败: {str(e)}"))
 
 @admin_cookie_bp.route('/ban/permanent/<account_id>', methods=['POST'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '永久封禁账号',
-    'description': '永久封禁指定账号ID的所有Cookie',
-    'parameters': [
-        {
-            'name': 'account_id',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '要永久封禁的账号ID'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '封禁成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '成功永久封禁5条Cookie记录'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'banned_count': {'type': 'integer', 'example': 5}
-                        }
-                    }
-                }
-            }
-        },
-        '404': {
-            'description': '未找到记录',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10101},
-                    'msg': {'type': 'string', 'example': '未找到指定账号的Cookie记录'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(BAN_ACCOUNT_PERM_SPEC)
 @with_cookie_manager
 def ban_account_permanently(cookie_manager,account_id):
     """永久封禁账号"""
@@ -651,50 +515,7 @@ def ban_account_permanently(cookie_manager,account_id):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"永久封禁账号失败: {str(e)}"))
 
 @admin_cookie_bp.route('/ban/temporary/<account_id>', methods=['POST'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '临时封禁账号',
-    'description': '临时封禁指定账号ID的所有Cookie',
-    'parameters': [
-        {
-            'name': 'account_id',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '要临时封禁的账号ID'
-        },
-        {
-            'name': 'body',
-            'in': 'body',
-            'required': False,
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'duration_seconds': {'type': 'integer', 'description': '封禁持续时间(秒)', 'default': 1800}
-                }
-            }
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '封禁成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '成功临时封禁5条Cookie记录，持续1800秒'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'banned_count': {'type': 'integer', 'example': 5},
-                            'duration_seconds': {'type': 'integer', 'example': 1800}
-                        }
-                    }
-                }
-            }
-        }
-    }
-})
+@swag_from(BAN_ACCOUNT_TEMP_SPEC)
 @with_cookie_manager
 def ban_account_temporarily(cookie_manager,account_id):
     """临时封禁账号"""
@@ -715,38 +536,7 @@ def ban_account_temporarily(cookie_manager,account_id):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"临时封禁账号失败: {str(e)}"))
 
 @admin_cookie_bp.route('/unban/<account_id>', methods=['POST'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '解封账号',
-    'description': '解封指定账号ID的所有Cookie（只解封临时封禁的，永久封禁的不解封）',
-    'parameters': [
-        {
-            'name': 'account_id',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '要解封的账号ID'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '解封成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '成功解封5条Cookie记录'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'unbanned_count': {'type': 'integer', 'example': 5}
-                        }
-                    }
-                }
-            }
-        }
-    }
-})
+@swag_from(UNBAN_ACCOUNT_SPEC)
 @with_cookie_manager
 def unban_account(cookie_manager,account_id):
     """解封账号（只解封临时封禁的）"""
@@ -761,38 +551,7 @@ def unban_account(cookie_manager,account_id):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"解封账号失败: {str(e)}"))
 
 @admin_cookie_bp.route('/force-unban/<account_id>', methods=['POST'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '强制解封账号',
-    'description': '强制解封指定账号ID的所有Cookie（包括永久封禁的）',
-    'parameters': [
-        {
-            'name': 'account_id',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '要强制解封的账号ID'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '解封成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '成功强制解封5条Cookie记录'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'unbanned_count': {'type': 'integer', 'example': 5}
-                        }
-                    }
-                }
-            }
-        }
-    }
-})
+@swag_from(FORCE_UNBAN_ACCOUNT_SPEC)
 @with_cookie_manager
 def force_unban_account(cookie_manager,account_id):
     """强制解封账号（包括永久封禁的）"""
@@ -807,29 +566,7 @@ def force_unban_account(cookie_manager,account_id):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"强制解封账号失败: {str(e)}"))
 
 @admin_cookie_bp.route('/update-status', methods=['POST'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '更新Cookie状态',
-    'description': '检查并更新Cookie状态，将临时封禁过期的Cookie恢复可用',
-    'responses': {
-        '200': {
-            'description': '更新成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '成功更新5条Cookie状态'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'updated_count': {'type': 'integer', 'example': 5}
-                        }
-                    }
-                }
-            }
-        }
-    }
-})
+@swag_from(UPDATE_COOKIE_STATUS_SPEC)
 @with_cookie_manager
 def update_cookie_status(cookie_manager):
     """检查并更新Cookie状态，将临时封禁过期的Cookie恢复可用"""
@@ -841,29 +578,7 @@ def update_cookie_status(cookie_manager):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"更新Cookie状态失败: {str(e)}"))
 
 @admin_cookie_bp.route('/cleanup-expired', methods=['POST'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '清理过期Cookie',
-    'description': '清理已过期的Cookie记录',
-    'responses': {
-        '200': {
-            'description': '清理成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '成功清理5条过期Cookie'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'deleted_count': {'type': 'integer', 'example': 5}
-                        }
-                    }
-                }
-            }
-        }
-    }
-})
+@swag_from(CLEANUP_EXPIRED_COOKIES_SPEC)
 @with_cookie_manager
 def cleanup_expired_cookies(cookie_manager):
     """清理已过期的Cookie"""
@@ -875,50 +590,7 @@ def cleanup_expired_cookies(cookie_manager):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"清理过期Cookie失败: {str(e)}"))
 
 @admin_cookie_bp.route('/update-account/<old_account_id>', methods=['PUT'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '更新账号ID',
-    'description': '将指定账号ID的所有Cookie记录更新为新的账号ID',
-    'parameters': [
-        {
-            'name': 'old_account_id',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '原账号ID'
-        },
-        {
-            'name': 'body',
-            'in': 'body',
-            'required': True,
-            'schema': {
-                'type': 'object',
-                'required': ['new_account_id'],
-                'properties': {
-                    'new_account_id': {'type': 'string', 'description': '新账号ID'}
-                }
-            }
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '更新成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '成功更新5条Cookie记录的账号ID'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'updated_count': {'type': 'integer', 'example': 5}
-                        }
-                    }
-                }
-            }
-        }
-    }
-})
+@swag_from(UPDATE_ACCOUNT_ID_SPEC)
 @with_cookie_manager
 def update_account_id(cookie_manager,old_account_id):
     """更新账号ID"""
@@ -1003,64 +675,7 @@ def test_cookie_availability(cookie_manager):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"测试Cookie可用性失败: {str(e)}"))
 
 @admin_cookie_bp.route('/test-account-availability/<account_id>', methods=['POST'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '测试单个账号Cookie可用性',
-    'description': '测试指定账号ID的Cookie可用性',
-    'parameters': [
-        {
-            'name': 'account_id',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '要测试的账号ID'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '测试成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': 'Cookie可用性测试完成'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'account_id': {'type': 'string', 'description': '测试的账号ID'},
-                            'status': {'type': 'integer', 'description': '测试状态码'},
-                            'message': {'type': 'string', 'description': '测试结果消息'},
-                            'is_valid': {'type': 'boolean', 'description': '是否有效'},
-                            'action_taken': {'type': 'string', 'description': '执行的操作'}
-                        }
-                    }
-                }
-            }
-        },
-        '404': {
-            'description': '账号不存在',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10404},
-                    'msg': {'type': 'string', 'example': '账号不存在'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(TEST_ACCOUNT_COOKIE_SPEC)
 @with_cookie_manager
 def test_account_cookie_availability(cookie_manager,account_id):
     """测试单个账号的Cookie可用性"""
@@ -1078,45 +693,7 @@ def test_account_cookie_availability(cookie_manager,account_id):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"测试账号 {account_id} Cookie失败: {str(e)}"))
 
 @admin_cookie_bp.route('/available-accounts', methods=['GET'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '获取所有可用账号ID',
-    'description': '获取所有可用的账号ID列表',
-    'responses': {
-        '200': {
-            'description': '获取成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '获取可用账号ID成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'account_ids': {
-                                'type': 'array',
-                                'items': {'type': 'string'},
-                                'description': '可用的账号ID列表'
-                            },
-                            'count': {'type': 'integer', 'description': '可用账号数量'}
-                        }
-                    }
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(GET_AVAILABLE_ACCOUNT_IDS_SPEC)
 @with_cookie_manager
 def get_available_account_ids(cookie_manager):
     """获取所有可用的账号ID列表"""
@@ -1145,67 +722,7 @@ def get_available_account_ids(cookie_manager):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取可用账号ID失败: {str(e)}"))
 
 @admin_cookie_bp.route('/account-cookie/<account_id>', methods=['GET'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '获取单个账号的Cookie信息',
-    'description': '获取指定账号ID的Cookie详细信息',
-    'parameters': [
-        {
-            'name': 'account_id',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': '要查询的账号ID'
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': '获取成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '获取账号Cookie信息成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'account_id': {'type': 'string', 'description': '账号ID'},
-                            'cookies': {
-                                'type': 'object',
-                                'additionalProperties': {'type': 'string'},
-                                'description': 'Cookie键值对'
-                            },
-                            'cookie_count': {'type': 'integer', 'description': 'Cookie数量'},
-                            'is_available': {'type': 'boolean', 'description': '是否可用'}
-                        }
-                    }
-                }
-            }
-        },
-        '404': {
-            'description': '账号不存在',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10404},
-                    'msg': {'type': 'string', 'example': '账号不存在'},
-                    'data': {'type': 'null'}
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(GET_ACCOUNT_COOKIE_SPEC)
 @with_cookie_manager
 def get_account_cookie(cookie_manager,account_id):
     """获取指定账号ID的Cookie详细信息"""
@@ -1241,43 +758,7 @@ def get_account_cookie(cookie_manager,account_id):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取账号 {account_id} Cookie信息失败: {str(e)}"))
 
 @admin_cookie_bp.route('/pool-status', methods=['GET'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': 'Cookie池状态',
-    'description': '获取Cookie池的总体状态，包括总数、可用数、临时封禁数和永久封禁数',
-    'responses': {
-        '200': {
-            'description': '请求成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'total': {'type': 'integer', 'description': 'Cookie账号总数'},
-                            'available': {'type': 'integer', 'description': '可用Cookie账号数量'},
-                            'temp_banned': {'type': 'integer', 'description': '临时封禁Cookie账号数量'},
-                            'perm_banned': {'type': 'integer', 'description': '永久封禁Cookie账号数量'}
-                        }
-                    }
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(GET_POOL_STATUS_SPEC)
 @with_cookie_manager
 def get_pool_status(cookie_manager):
     """获取Cookie池状态"""
@@ -1323,54 +804,7 @@ def get_pool_status(cookie_manager):
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取Cookie池状态失败: {str(e)}"))
 
 @admin_cookie_bp.route('/banned-accounts', methods=['GET'])
-@swag_from({
-    'tags': ['Cookie管理'],
-    'summary': '获取被封禁的账号',
-    'description': '获取所有被临时封禁和永久封禁的账号列表',
-    'responses': {
-        '200': {
-            'description': '请求成功',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10000},
-                    'msg': {'type': 'string', 'example': '请求成功'},
-                    'data': {
-                        'type': 'object',
-                        'properties': {
-                            'temp_banned': {
-                                'type': 'array',
-                                'items': {
-                                    'type': 'object',
-                                    'properties': {
-                                        'account_id': {'type': 'string'},
-                                        'temp_ban_until': {'type': 'string', 'format': 'date-time'},
-                                        'remaining_seconds': {'type': 'integer'}
-                                    }
-                                }
-                            },
-                            'perm_banned': {
-                                'type': 'array',
-                                'items': {'type': 'string'}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        '500': {
-            'description': '服务器错误',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'code': {'type': 'integer', 'example': 10102},
-                    'msg': {'type': 'string', 'example': '服务器内部错误'},
-                    'data': {'type': 'null'}
-                }
-            }
-        }
-    }
-})
+@swag_from(GET_BANNED_ACCOUNTS_SPEC)
 @with_cookie_manager
 def get_banned_accounts(cookie_manager):
     """获取被封禁的账号列表"""
