@@ -103,33 +103,30 @@ class SearchProcessor:
             expected_days = delta.days + 1
             
             # 自动探测数据频率 (日度 vs 周度)
-            actual_count = len(all_list)
-            
-            # 默认为日度
-            interval_days = 1
-            data_type = '日度'
-            
-            # 如果期望天数远大于实际数据点数（例如 > 2倍），且实际数据点数合理，则判定为周度
-            # 百度指数跨度超过一年通常返回周度数据
-            if actual_count > 0 and expected_days > actual_count * 2:
+            # 规则: 跨度超过365天，强制认为周度；否则认为日度
+            if expected_days > 365:
                 interval_days = 7
                 data_type = '周度'
-                log.info(f"Detect weekly data for {keyword}. Range: {expected_days} days, Points: {actual_count}")
+                log.info(f"Detect weekly data for {keyword} (Duration > 365 days). Range: {expected_days} days")
+            else:
+                # 即使数据点少，只要是一年内，也强制认为是日度（根据用户要求，可能是缺失数据需要补0）
+                interval_days = 1
+                data_type = '日度'
+                log.info(f"Detect daily data for {keyword} (Duration <= 365 days). Range: {expected_days} days")
             
             daily_data = []
             
-            # 根据实际数据点数进行循环
-            for i in range(actual_count):
-                # 计算当前点的日期
-                # 如果是周度，日期通常是每周的开始或结束，这里简单按间隔推算
-                # 百度指数周度数据通常从 start_date 开始，每7天一个点
-                curr_date_obj = start_dt + timedelta(days=i * interval_days)
-                
-                # 如果推算的日期超过了结束日期，则停止（理论上不应该，除非数据有问题）
-                if curr_date_obj > end_dt + timedelta(days=interval_days): # 允许一点误差
-                    break
-                    
+            # 使用 while 循环严格按照日期范围生成数据
+            curr_date_obj = start_dt
+            idx = 0
+            
+            while curr_date_obj <= end_dt:
                 curr_date = curr_date_obj.strftime('%Y-%m-%d')
+                
+                # 获取数据值，如果超出范围则补0
+                val_all = all_list[idx] if idx < len(all_list) else '0'
+                val_wise = wise_list[idx] if idx < len(wise_list) else '0'
+                val_pc = pc_list[idx] if idx < len(pc_list) else '0'
                 
                 daily_data.append({
                     '关键词': keyword,
@@ -139,11 +136,15 @@ class SearchProcessor:
                     '数据类型': data_type,
                     '数据间隔(天)': interval_days,
                     '所属年份': curr_date[:4],
-                    'PC+移动指数': all_list[i] if i < len(all_list) else '0',
-                    '移动指数': wise_list[i] if i < len(wise_list) else '0',
-                    'PC指数': pc_list[i] if i < len(pc_list) else '0',
+                    'PC+移动指数': val_all,
+                    '移动指数': val_wise,
+                    'PC指数': val_pc,
                     '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 })
+                
+                # 更新日期和索引
+                curr_date_obj += timedelta(days=interval_days)
+                idx += 1
             
             # 2. 处理统计摘要 (从 generalRatio 获取)
             # 注意: 如果 data 为空，我们可能需要根据 daily_data 手动计算摘要

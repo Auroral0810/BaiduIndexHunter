@@ -57,27 +57,36 @@ class FeedProcessor:
             values = [v if v.strip() else '0' for v in raw_values]
             data_length = len(values)
             
-            if data_type == 'week':
-                interval, data_frequency = 7, '周度'
-                expected_points = (total_days + 6) // 7
+            if total_days > 365:
+                 # Auto-detect weekly for long duration
+                 interval, data_frequency = 7, '周度'
+                 log.info(f"FeedProcessor: Auto-detect weekly data for {keyword} (Duration > 365 days)")
             else:
                 interval, data_frequency = 1, '日度'
-                expected_points = total_days
-
-            if data_length < expected_points:
-                values.extend(['0'] * (expected_points - data_length))
-                data_length = expected_points
+                log.info(f"FeedProcessor: Detect daily data for {keyword} (Duration <= 365 days)")
 
             daily_data = []
-            for i in range(expected_points):
-                current_date = (start + timedelta(days=i*interval)).strftime('%Y-%m-%d')
+            
+            # 使用 while 循环严格按照日期范围生成数据
+            curr_date_obj = start
+            idx = 0
+            
+            while curr_date_obj <= end:
+                current_date = curr_date_obj.strftime('%Y-%m-%d')
                 if current_date > api_end_date: break
+                
+                # 获取值，不够补0
+                val = values[idx] if idx < len(values) else '0'
+                
                 daily_data.append({
                     '关键词': keyword, '城市代码': city_code, '城市': city_name,
                     '日期': current_date, '数据类型': data_frequency, '数据间隔(天)': interval,
-                    '所属年份': current_date[:4], '资讯指数': values[i] if i < len(values) else '0',
+                    '所属年份': current_date[:4], '资讯指数': val,
                     '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 })
+                
+                curr_date_obj += timedelta(days=interval)
+                idx += 1
 
             total_value = sum(int(v) for v in values if v.isdigit())
             stats_record = {
