@@ -559,31 +559,24 @@
                 }}</span
               >
               <div class="overview-tags">
-                <template v-if="nationwideSelected"
-                  ><el-tag size="small" class="overview-tag">{{
-                    $t("tasks-RegionDistributionTask-19c298e201890d5db-106")
-                  }}</el-tag></template
+                <el-tag
+                  v-for="(code, index) in selectedRegions.slice(0, 10)"
+                  :key="index"
+                  size="small"
+                  class="overview-tag"
+                  >{{ getRegionName(code) }}</el-tag
                 >
-                <template v-else
-                  ><el-tag
-                    v-for="(code, index) in selectedRegions.slice(0, 10)"
-                    :key="index"
-                    size="small"
-                    class="overview-tag"
-                    >{{ getRegionName(code) }}</el-tag
-                  >
-                  <el-tag
-                    v-if="selectedRegions.length > 10"
-                    type="info"
-                    size="small"
-                    >{{
-                      $t("tasks-RegionDistributionTask-19c298e201890d5db-107")
-                    }}
-                    {{ selectedRegions.length - 10 }}
-                    {{
-                      $t("tasks-RegionDistributionTask-19c298e201890d5db-108")
-                    }}</el-tag
-                  ></template
+                <el-tag
+                  v-if="selectedRegions.length > 10"
+                  type="info"
+                  size="small"
+                  >{{
+                    $t("tasks-RegionDistributionTask-19c298e201890d5db-107")
+                  }}
+                  {{ selectedRegions.length - 10 }}
+                  {{
+                    $t("tasks-RegionDistributionTask-19c298e201890d5db-108")
+                  }}</el-tag
                 >
               </div>
             </div></el-descriptions-item
@@ -1336,6 +1329,10 @@ const confirmSubmitTask = async () => {
 
 // 获取地区名称
 const getRegionName = (code: string) => {
+  // 处理全国代码
+  if (code === "0") {
+    return t("tasks-RegionDistributionTask-19c298e201890d5db-106"); // 全国
+  }
   const region = regionStore.getRegionByCode(code);
   return region ? region.name : code;
 };
