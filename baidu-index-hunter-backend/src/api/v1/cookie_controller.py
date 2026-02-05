@@ -468,3 +468,27 @@ def update_ab_sr():
         return jsonify(ResponseFormatter.success({"updated_count": updated_count}, f"成功为{updated_count}个账号更新ab_sr"))
     except Exception as e:
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"更新ab_sr失败: {str(e)}"))
+
+@admin_cookie_bp.route('/usage', methods=['GET'])
+def get_cookie_usage():
+    """获取Cookie使用量统计"""
+    try:
+        account_id = request.args.get('account_id')
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        
+        result = cookie_service.get_cookie_usage(account_id, start_date, end_date)
+        return jsonify(ResponseFormatter.success(result))
+    except Exception as e:
+        log.error(f"获取Cookie使用量统计失败: {e}")
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"获取统计失败: {str(e)}"))
+
+@admin_cookie_bp.route('/usage/sync', methods=['POST'])
+def sync_usage_data():
+    """手动同步Cookie使用量数据"""
+    try:
+        cookie_service.sync_usage_data()
+        return jsonify(ResponseFormatter.success(None, "使用量数据同步成功"))
+    except Exception as e:
+        log.error(f"同步Cookie使用量数据失败: {e}")
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"同步失败: {str(e)}"))

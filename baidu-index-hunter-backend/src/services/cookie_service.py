@@ -769,6 +769,16 @@ class CookieManager:
         """测试单个账号Cookie"""
         return self._execute_cookie_test([account_id])
 
+    def get_cookie_usage(self, account_id=None, start_date=None, end_date=None):
+        """获取Cookie使用量统计 (代理到 cookie_rotator)"""
+        from src.services.cookie_rotator import cookie_rotator
+        return cookie_rotator.get_cookie_usage(account_id, start_date, end_date)
+
+    def sync_usage_data(self):
+        """手动同步使用量数据 (代理到 cookie_rotator)"""
+        from src.services.cookie_rotator import cookie_rotator
+        return cookie_rotator._sync_usage_data()
+
 
 # 全局单例
 cookie_service = CookieManager()

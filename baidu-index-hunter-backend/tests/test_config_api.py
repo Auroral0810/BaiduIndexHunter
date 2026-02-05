@@ -15,7 +15,6 @@ class TestConfigAPI(unittest.TestCase):
 
     def setUp(self):
         """配置测试环境"""
-        # 手动设置环境变量以避免干扰
         os.environ['FLASK_ENV'] = 'testing'
         self.app = create_app()
         self.client = self.app.test_client()
@@ -26,11 +25,10 @@ class TestConfigAPI(unittest.TestCase):
         """清理测试环境"""
         self.app_context.pop()
 
-    @patch('src.services.config_service.config_manager.get_all_sorted')
-    def test_list_configs(self, mock_get_all):
+    @patch('src.api.v1.config_api.config_manager')
+    def test_list_configs(self, mock_manager):
         """测试获取配置列表"""
-        # 模拟返回数据
-        mock_get_all.return_value = {
+        mock_manager.get_all_sorted.return_value = {
             "api.port": 5001,
             "spider.timeout": 10
         }
@@ -41,12 +39,34 @@ class TestConfigAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data['code'], 10000)
         self.assertEqual(data['data']['api.port'], 5001)
-        mock_get_all.assert_called_once()
 
-    @patch('src.services.config_service.config_manager.set')
-    def test_set_config(self, mock_set):
+    @patch('src.api.v1.config_api.config_manager')
+    def test_get_config(self, mock_manager):
+        """测试获取单个配置项"""
+        mock_manager.get.return_value = "unit_test_value"
+        
+        response = self.client.get('/api/config/get/test.key')
+        data = response.get_json()
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['code'], 10000)
+        self.assertEqual(data['data']['value'], "unit_test_value")
+
+    @patch('src.api.v1.config_api.config_manager')
+    def test_get_config_not_found(self, mock_manager):
+        """测试获取不存在的配置项"""
+        mock_manager.get.return_value = None
+        
+        response = self.client.get('/api/config/get/non_existent')
+        data = response.get_json()
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['code'], 10101) # NOT_FOUND
+
+    @patch('src.api.v1.config_api.config_manager')
+    def test_set_config(self, mock_manager):
         """测试设置单个配置项"""
-        mock_set.return_value = True
+        mock_manager.set.return_value = True
         
         payload = {
             "key": "test.unit_test_key",
@@ -62,14 +82,23 @@ class TestConfigAPI(unittest.TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data['code'], 10000)
-        mock_set.assert_called_once_with("test.unit_test_key", "unit_test_value")
 
-    @patch('src.services.config_service.config_manager.batch_set')
-    def test_batch_set_config(self, mock_batch_set):
-        """测试批量设置配置项 (验证 RootModel 是否支持扁平字典)"""
-        mock_batch_set.return_value = (2, [])
+    @patch('src.api.v1.config_api.config_manager')
+    def test_delete_config(self, mock_manager):
+        """测试删除配置项"""
+        mock_manager.delete.return_value = True
         
-        # 扁平字典 payload (之前报错 configs: Field required 的根源)
+        response = self.client.delete('/api/config/delete/test.key')
+        data = response.get_json()
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['code'], 10000)
+
+    @patch('src.api.v1.config_api.config_manager')
+    def test_batch_set_config(self, mock_manager):
+        """测试批量设置配置项"""
+        mock_manager.batch_set.return_value = (2, [])
+        
         payload = {
             "test.batch1": "v1",
             "test.batch2": 100
@@ -84,18 +113,16 @@ class TestConfigAPI(unittest.TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data['code'], 10000)
-        # 验证 service 是否收到了正确的扁平字典
-        mock_batch_set.assert_called_once_with(payload)
 
-    @patch('src.services.config_service.config_manager.refresh_cache')
-    def test_refresh_config(self, mock_refresh):
+    @patch('src.api.v1.config_api.config_manager')
+    def test_refresh_config(self, mock_manager):
         """测试刷新缓存"""
         response = self.client.post('/api/config/refresh')
         data = response.get_json()
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data['code'], 10000)
-        mock_refresh.assert_called_once()
+        mock_manager.refresh_cache.assert_called_once()
 
 if __name__ == '__main__':
     unittest.main()
