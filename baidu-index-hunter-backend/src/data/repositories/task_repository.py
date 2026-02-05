@@ -64,5 +64,33 @@ class TaskRepository(BaseRepository[SpiderTaskModel]):
             results = session.exec(statement).all()
             return [{"date": r[0].strftime('%Y-%m-%d') if r[0] else None, "count": r[1]} for r in results]
 
+    def update_task_progress(self, task_id: str, status: str, progress: Optional[float] = None, 
+                             completed_items: Optional[int] = None, failed_items: Optional[int] = None,
+                             error_message: Optional[str] = None):
+        """更新任务进度和状态 (业务逻辑封装)"""
+        with session_scope() as session:
+            statement = select(SpiderTaskModel).where(SpiderTaskModel.task_id == task_id)
+            task = session.exec(statement).first()
+            if not task:
+                return False
+            
+            task.status = status
+            task.update_time = datetime.now()
+            if progress is not None:
+                task.progress = progress
+            if completed_items is not None:
+                task.completed_items = completed_items
+            if failed_items is not None:
+                task.failed_items = failed_items
+            if error_message:
+                task.error_message = error_message
+            
+            if status in ('completed', 'failed'):
+                task.end_time = datetime.now()
+                
+            session.add(task)
+            session.commit()
+            return True
+
 # 全局单例
 task_repo = TaskRepository()

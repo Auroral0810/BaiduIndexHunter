@@ -88,5 +88,31 @@ class StorageService:
             log.error(f"加载 Pickle 失败: {e}")
             return None
 
+    def count_csv_rows(self, filepath):
+        """快速统计CSV文件行数（不包含表头）"""
+        try:
+            if not os.path.exists(filepath):
+                return 0
+            # 方式：使用缓冲区读取，适合大文件
+            with open(filepath, 'rb') as f:
+                # 跳过可能的BOM
+                if f.read(3) != b'\xef\xbb\xbf':
+                    f.seek(0)
+                
+                # 统计换行符数量
+                lines = 0
+                buffer_size = 8192
+                while True:
+                    buffer = f.read(buffer_size)
+                    if not buffer:
+                        break
+                    lines += buffer.count(b'\n')
+                
+                # 减去表头行
+                return max(0, lines - 1) if lines > 0 else 0
+        except Exception as e:
+            log.error(f"统计CSV行数失败: {e}")
+            return 0
+
 # 全局单例
 storage_service = StorageService()

@@ -23,6 +23,7 @@ class WordCheckResultItem(BaseModel):
     """单个关键词检查结果"""
     exists: bool = Field(..., description="是否存在")
     error: Optional[str] = Field(None, description="错误信息")
+    from_cache: bool = Field(False, description="是否来自缓存")
 
 
 class CheckWordsResponse(BaseModel):
@@ -35,3 +36,4 @@ class CheckSingleWordResponse(BaseModel):
     word: str = Field(..., description="关键词")
     exists: bool = Field(..., description="是否存在")
     error: Optional[str] = Field(None, description="错误信息")
+    from_cache: bool = Field(False, description="是否来自缓存")

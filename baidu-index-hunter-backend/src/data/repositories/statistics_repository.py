@@ -284,4 +284,30 @@ class StatisticsRepository:
             statement = select(SpiderStatisticsModel.task_type).distinct().order_by(SpiderStatisticsModel.task_type)
             return session.exec(statement).all()
 
+    def increment_crawled_count(self, task_type: str, count: int):
+        """递增当日抓取数量统计 (Upsert)"""
+        stat_date = date.today()
+        with session_scope() as session:
+            statement = select(SpiderStatisticsModel).where(
+                and_(SpiderStatisticsModel.stat_date == stat_date, SpiderStatisticsModel.task_type == task_type)
+            )
+            stats = session.exec(statement).first()
+            
+            if stats:
+                stats.total_crawled_items = (stats.total_crawled_items or 0) + count
+                stats.update_time = datetime.now()
+                session.add(stats)
+            else:
+                new_stats = SpiderStatisticsModel(
+                    stat_date=stat_date,
+                    task_type=task_type,
+                    total_tasks=1,
+                    completed_tasks=1,
+                    failed_tasks=0,
+                    total_crawled_items=count,
+                    update_time=datetime.now()
+                )
+                session.add(new_stats)
+            session.commit()
+
 statistics_repo = StatisticsRepository()

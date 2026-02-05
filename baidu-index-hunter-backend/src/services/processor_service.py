@@ -29,14 +29,12 @@ class BaiduIndexDataProcessor:
         return search_processor.process_trend_index_data(*args, **kwargs)
 
     def process_search_index_daily_data(self, *args, **kwargs):
-        # 搜索指数日度数据比较特殊，由于逻辑较长，我们暂时直接调用老的逻辑入口（如果需要迁移可以进一步拆分）
-        # 这里为了演示彻底解耦，我们认为日度数据处理也属于 search_processor 的职责
-        from src.engine.processors.search_processor import SearchProcessor
-        if not hasattr(search_processor, 'process_search_index_daily_data'):
-            # 补齐 SearchProcessor 的日度处理方法 (实际上刚才没写，这里我们动态补齐或者下次重构)
-            # 为了保证演示完整，目前先直接使用 search_processor 代理
-            pass
-        return search_processor.process_search_index_daily_data(*args, **kwargs) if hasattr(search_processor, 'process_search_index_daily_data') else (None, None)
+        """代理到 SearchProcessor 处理日度数据"""
+        return search_processor.process_search_index_daily_data(*args, **kwargs)
+
+    def process_multi_search_index_data(self, *args, **kwargs):
+        """代理到 SearchProcessor 处理批量数据"""
+        return search_processor.process_multi_search_index_data(*args, **kwargs)
 
     # --- 代理到 DemographicProcessor ---
     def process_demographic_data(self, *args, **kwargs):
