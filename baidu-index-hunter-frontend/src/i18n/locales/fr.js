@@ -1236,6 +1236,8 @@ export default {
     "Échec de la soumission de la tâche, veuillez vérifier la connexion réseau",
   "tasks-FeedIndexTask-19c298e1d0a206148-156":
     "Erreur lors de la soumission de la tâche :",
+  "tasks-FeedIndexTask-19c298e1d0a206148-157": "Toutes les données d'indice d'actualités de 2011 à aujourd'hui seront collectées",
+  "tasks-FeedIndexTask-19c298e1d0a206148-158": "Toutes les données (2011 à aujourd'hui)",
   "tasks-InterestProfileTask-19c298e1e7a81a799-1":
     "Collecte d'analyses d'intérêts",
   "tasks-InterestProfileTask-19c298e1e7a81a799-2":

@@ -1222,6 +1222,8 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-155":
     "Error al enviar la tarea, verifique la conexión de red",
   "tasks-FeedIndexTask-19c298e1d0a206148-156": "Error al enviar la tarea:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-157": "Se rastrearán todos los datos del índice de noticias desde 2011 hasta el presente",
+  "tasks-FeedIndexTask-19c298e1d0a206148-158": "Todos los datos (2011 hasta el presente)",
   "tasks-InterestProfileTask-19c298e1e7a81a799-1":
     "Colección de análisis de intereses.",
   "tasks-InterestProfileTask-19c298e1e7a81a799-2":

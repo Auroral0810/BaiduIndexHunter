@@ -152,17 +152,6 @@
         <el-divider content-position="left">{{
           $t("tasks-FeedIndexTask-19c298e1d0a206148-26")
         }}</el-divider>
-        <el-form-item :label="$t('tasks-FeedIndexTask-19c298e1d0a206148-27')"
-          ><el-radio-group v-model="formData.kind"
-            ><el-radio-button label="all">{{
-              $t("tasks-FeedIndexTask-19c298e1d0a206148-28")
-            }}</el-radio-button>
-            <el-radio-button label="pc">PC</el-radio-button>
-            <el-radio-button label="wise">{{
-              $t("tasks-FeedIndexTask-19c298e1d0a206148-29")
-            }}</el-radio-button></el-radio-group
-          ></el-form-item
-        >
         <el-form-item :label="$t('tasks-FeedIndexTask-19c298e1d0a206148-30')"
           ><el-radio-group v-model="timeType"
             ><el-radio-button label="all">{{
@@ -242,7 +231,7 @@
           :label="$t('tasks-FeedIndexTask-19c298e1d0a206148-49')"
           ><div class="time-info">
             <el-alert
-              :title="`${$t('tasks-FeedIndexTask-19c298e1d0a206148-50')}${formData.kind === 'pc' ? $t('tasks-FeedIndexTask-19c298e1d0a206148-52') : $t('tasks-FeedIndexTask-19c298e1d0a206148-53')}${$t('tasks-FeedIndexTask-19c298e1d0a206148-51')}`"
+              :title="$t('tasks-FeedIndexTask-19c298e1d0a206148-157')"
               type="info"
               :closable="false"
               show-icon
@@ -504,13 +493,7 @@
             :label="$t('tasks-FeedIndexTask-19c298e1d0a206148-104')"
             ><div class="overview-time">
               <template v-if="timeType === 'all'"
-                >{{ $t("tasks-FeedIndexTask-19c298e1d0a206148-105") }}
-                {{
-                  formData.kind === "pc"
-                    ? $t("tasks-FeedIndexTask-19c298e1d0a206148-106")
-                    : $t("tasks-FeedIndexTask-19c298e1d0a206148-107")
-                }}
-                {{ $t("tasks-FeedIndexTask-19c298e1d0a206148-108") }}</template
+                >{{ $t("tasks-FeedIndexTask-19c298e1d0a206148-158") }}</template
               >
               <template v-else-if="timeType === 'preset'"
                 >{{ $t("tasks-FeedIndexTask-19c298e1d0a206148-109") }}
@@ -538,16 +521,6 @@
           <el-descriptions-item
             :label="$t('tasks-FeedIndexTask-19c298e1d0a206148-114')"
             ><div>
-              {{ $t("tasks-FeedIndexTask-19c298e1d0a206148-115") }}
-              {{
-                formData.kind === "all"
-                  ? $t("tasks-FeedIndexTask-19c298e1d0a206148-116")
-                  : formData.kind === "pc"
-                    ? "PC"
-                    : $t("tasks-FeedIndexTask-19c298e1d0a206148-117")
-              }}
-            </div>
-            <div>
               {{ $t("tasks-FeedIndexTask-19c298e1d0a206148-118") }}
               {{ formData.priority }}
             </div>
@@ -608,7 +581,6 @@ const formData = reactive({
   resume: false,
   taskId: "",
   priority: 5,
-  kind: "all",
 });
 
 // 城市数据
@@ -631,20 +603,18 @@ TODAY.setHours(0, 0, 0, 0);
 const YESTERDAY = new Date(TODAY);
 YESTERDAY.setDate(YESTERDAY.getDate() - 1);
 
-// 禁用日期函数
+// 禁用日期函数（资讯指数从2011年开始）
 const disabledDate = (date: Date) => {
-  const minDate =
-    formData.kind === "pc" ? new Date(2006, 0, 1) : new Date(2011, 0, 1);
+  const minDate = new Date(2011, 0, 1);
   return (
     date.getTime() < minDate.getTime() || date.getTime() > YESTERDAY.getTime()
   );
 };
 
-// 禁用年份开始函数
+// 禁用年份开始函数（资讯指数从2011年开始）
 const disabledYearStart = (date: Date) => {
   const year = date.getFullYear();
-  const minYear = formData.kind === "pc" ? 2006 : 2011;
-  return year < minYear || year > new Date().getFullYear();
+  return year < 2011 || year > new Date().getFullYear();
 };
 
 // 禁用年份结束函数
@@ -652,9 +622,7 @@ const disabledYearEnd = (date: Date) => {
   const year = date.getFullYear();
   const startYear = formData.yearRange[0]
     ? parseInt(formData.yearRange[0])
-    : formData.kind === "pc"
-      ? 2006
-      : 2011;
+    : 2011;
   return year < startYear || year > new Date().getFullYear();
 };
 
@@ -1119,7 +1087,6 @@ const submitTask = async () => {
         keywords: formData.keywords.map((k) => k.value),
         cities: citiesParam,
         resume: formData.resume,
-        kind: formData.kind,
       },
       priority: formData.priority,
     };
@@ -1144,26 +1111,15 @@ const submitTask = async () => {
       // 全部数据类型：生成按年份分割的日期范围数组
       const currentYear = new Date().getFullYear();
       const currentDate = new Date();
-      let startYear;
-
-      if (formData.kind === "pc") {
-        startYear = 2006; // PC端从2006年开始
-      } else {
-        startYear = 2011; // 移动端和PC+移动从2011年开始
-      }
+      const startYear = 2011; // 资讯指数从2011年开始
 
       // 生成年度日期范围数组
       const dateRanges = [];
       for (let year = startYear; year <= currentYear; year++) {
         let startDate, endDate;
 
-        if (year === startYear && formData.kind === "pc") {
-          // PC端第一年从6月1日开始
-          startDate = `${year}-06-01`;
-        } else {
-          // 其他情况从1月1日开始
-          startDate = `${year}-01-01`;
-        }
+        // 从1月1日开始
+        startDate = `${year}-01-01`;
 
         if (year === currentYear) {
           // 当前年份到今天
@@ -1219,7 +1175,6 @@ const resetForm = () => {
   formData.resume = false;
   formData.taskId = "";
   formData.priority = 5;
-  formData.kind = "all";
 };
 
 // 前往任务列表页面

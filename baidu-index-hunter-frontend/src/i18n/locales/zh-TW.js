@@ -1054,6 +1054,8 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-154": "任務提交失敗:",
   "tasks-FeedIndexTask-19c298e1d0a206148-155": "任務提交失敗，請檢查網絡連接",
   "tasks-FeedIndexTask-19c298e1d0a206148-156": "提交任務錯誤:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-157": "將爬取2011年至今的全部資訊指數資料",
+  "tasks-FeedIndexTask-19c298e1d0a206148-158": "全部資料（2011年至今）",
   "tasks-InterestProfileTask-19c298e1e7a81a799-1": "興趣分析採集",
   "tasks-InterestProfileTask-19c298e1e7a81a799-2":
     "獲取百度指數人群興趣畫像數據，包含興趣類別及其比例",

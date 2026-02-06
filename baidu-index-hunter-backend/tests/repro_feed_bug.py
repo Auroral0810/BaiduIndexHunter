@@ -29,24 +29,14 @@ class TestFeedCrawlerRepro(unittest.TestCase):
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
-            "status": 0,
-            "data": {
-                "index": [{
-                    "key": "哈尔滨华德学院",
-                    "type": "feed",
-                    "startDate": "2026-01-08",
-                    "endDate": "2026-02-06",
-                    "data": "encrypted_content",
-                    "generalRatio": {"avg": 100, "yoy": 10, "qoq": 5}
-                }],
-                "uniqid": "test_uniqid"
-            }
+            "status": 1,
+            "data": "",
+            "message": "no data"
         }
         mock_get.return_value = mock_response
         
-        # Mock processor to return dummy data
-        with patch('src.services.processor_service.BaiduIndexDataProcessor.process_multi_feed_index_data') as mock_proc:
-            mock_proc.return_value = ([{'test': 'data'}], [{'stats': 'data'}])
+        # No longer mocking processor, to test real logic with status 1
+        if True:
             
             # Prepare parameters
             params = {
@@ -63,9 +53,44 @@ class TestFeedCrawlerRepro(unittest.TestCase):
             
             # Execute crawl
             try:
-                success = self.crawler.crawl(**params)
-                print(f"Crawl success: {success}")
+                # Patch _get_feed_index to capture arguments
+                with patch.object(self.crawler, '_get_feed_index') as mock_get_feed:
+                    mock_get_feed.return_value = (mock_response.json(), {})
+                    
+                    success = self.crawler.crawl(**params)
+                    
+                    # Get the dates used in the call
+                    args, kwargs = mock_get_feed.call_args
+                    # _get_feed_index signature: (area, keywords, start_date=None, end_date=None, days=None)
+                    captured_start = args[2]
+                    captured_end = args[3]
+                    
+                    print(f"Captured start: {captured_start}, end: {captured_end}")
+                    
+                    from datetime import datetime, timedelta
+                    expected_end = (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d')
+                    expected_start = (datetime.now() - timedelta(days=31)).strftime('%Y-%m-%d')
+                    
+                    self.assertEqual(captured_end, expected_end, f"End date mismatch: {captured_end} != {expected_end}")
+                    self.assertEqual(captured_start, expected_start, f"Start date mismatch: {captured_start} != {expected_start}")
+                    print("Date window verification passed (30 days total).")
+
                 print(f"Generated Task ID: {self.crawler.task_id}")
+                
+                # Check CSV output
+                csv_dir = os.path.join("output", "feed_index", self.crawler.task_id)
+                csv_path = os.path.join(csv_dir, f"feed_index_{self.crawler.task_id}_data.csv")
+                
+                if os.path.exists(csv_path):
+                    import pandas as pd
+                    df = pd.read_csv(csv_path)
+                    print(f"CSV Row Count: {len(df)}")
+                    # Expected: 3 cities * 30 days = 90 rows
+                    self.assertEqual(len(df), 90, f"Expected 90 rows (3 cities * 30 days), got {len(df)}")
+                    self.assertTrue((df['资讯指数'] == 0).all(), "Expect all values to be 0 for status 1")
+                    print("CSV content verification passed.")
+                else:
+                    self.fail(f"CSV file not found at {csv_path}")
                 
                 # Verify Task ID format (YYYYMMDDHHMMSS_random8)
                 import re

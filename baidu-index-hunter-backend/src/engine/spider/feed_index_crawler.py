@@ -160,6 +160,9 @@ class FeedIndexCrawler(BaseCrawler):
             log.warning(f"Cookie无效或已过期: {account_id}")
             self.cookie_rotator.report_cookie_status(account_id, False, permanent=True)
             return None
+        elif status == 1:  # 无数据 (正常情况，如日期太早)
+            log.info(f"关键词 {keywords} 在城市 {area} 无数据 (status: 1)")
+            return data, cookie_dict
         elif status != 0:
             log.error(f"请求失败: {data}")
             return None
@@ -349,6 +352,8 @@ class FeedIndexCrawler(BaseCrawler):
                     self.city_dict = {"0": "全国"}
 
             # 处理日期范围
+            log.info(f"爬虫接收到的 date_ranges 参数: {date_ranges}, 类型: {type(date_ranges)}, 长度: {len(date_ranges) if date_ranges else 0}")
+            
             if date_ranges_file: date_ranges = self._load_date_ranges_from_file(date_ranges_file)
             elif year_range: 
                 start_y = year_range[0][0] if isinstance(year_range[0], (list, tuple)) else year_range[0]
@@ -357,15 +362,17 @@ class FeedIndexCrawler(BaseCrawler):
             elif days:
                 end_date_obj = datetime.now() - timedelta(days=2)
                 end_date = end_date_obj.strftime('%Y-%m-%d')
-                start_date = (datetime.now() - timedelta(days=days+2)).strftime('%Y-%m-%d')
+                start_date = (datetime.now() - timedelta(days=days+1)).strftime('%Y-%m-%d')
                 date_ranges = [(start_date, end_date)]
             
             if not date_ranges:
                 log.info("Using default 30 days")
                 end_date_obj = datetime.now() - timedelta(days=2)
                 end_date = end_date_obj.strftime('%Y-%m-%d')
-                start_date = (datetime.now() - timedelta(days=32)).strftime('%Y-%m-%d')
+                start_date = (datetime.now() - timedelta(days=31)).strftime('%Y-%m-%d')
                 date_ranges = [(start_date, end_date)]
+            
+            log.info(f"最终使用的 date_ranges 长度: {len(date_ranges)}")
 
             self.total_tasks = len(keywords) * len(self.city_dict) * len(date_ranges)
             log.info(f"Task ID: {self.task_id}, Total: {self.total_tasks}")

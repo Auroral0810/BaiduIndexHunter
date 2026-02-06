@@ -1136,6 +1136,8 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-155":
     "작업 제출에 실패했습니다. 네트워크 연결을 확인하세요.",
   "tasks-FeedIndexTask-19c298e1d0a206148-156": "작업 제출 중 오류 발생:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-157": "2011년부터 현재까지의 모든 피드 지수 데이터를 수집합니다",
+  "tasks-FeedIndexTask-19c298e1d0a206148-158": "전체 데이터 (2011년부터 현재까지)",
   "tasks-InterestProfileTask-19c298e1e7a81a799-1": "관심도 분석 수집",
   "tasks-InterestProfileTask-19c298e1e7a81a799-2":
     "관심 카테고리 및 비율을 포함한 Baidu Index 군중 관심도 데이터를 얻습니다.",

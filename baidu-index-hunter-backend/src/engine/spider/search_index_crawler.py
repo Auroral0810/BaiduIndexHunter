@@ -360,13 +360,13 @@ class SearchIndexCrawler(BaseCrawler):
             end_date_obj = datetime.now() - timedelta(days=2)
             end_date = end_date_obj.strftime('%Y-%m-%d')
             # 按照用户要求：从 (今天-2-days) 到 (今天-2)
-            start_date = (datetime.now() - timedelta(days=days+2)).strftime('%Y-%m-%d')
+            start_date = (datetime.now() - timedelta(days=days+1)).strftime('%Y-%m-%d')
             date_ranges = [(start_date, end_date)]
         elif not date_ranges:
             # 默认使用最近30天，同样延迟2天
             end_date_obj = datetime.now() - timedelta(days=2)
             end_date = end_date_obj.strftime('%Y-%m-%d')
-            start_date = (datetime.now() - timedelta(days=32)).strftime('%Y-%m-%d')
+            start_date = (datetime.now() - timedelta(days=31)).strftime('%Y-%m-%d')
             date_ranges = [(start_date, end_date)]
         
         log.info(f"最终使用的 date_ranges 长度: {len(date_ranges)}")

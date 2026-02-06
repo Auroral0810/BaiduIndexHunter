@@ -1143,6 +1143,8 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-155":
     "Task submission failed, please check the network connection",
   "tasks-FeedIndexTask-19c298e1d0a206148-156": "Error submitting task:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-157": "Will crawl all feed index data from 2011 to present",
+  "tasks-FeedIndexTask-19c298e1d0a206148-158": "All data (2011 to present)",
   "tasks-InterestProfileTask-19c298e1e7a81a799-1":
     "Interest analysis collection",
   "tasks-InterestProfileTask-19c298e1e7a81a799-2":

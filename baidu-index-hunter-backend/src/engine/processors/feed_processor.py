@@ -64,18 +64,25 @@ class FeedProcessor:
     def process_feed_index_data(self, data, cookie, keyword, city_code, city_name, start_date, end_date, decrypted_data, data_type='day'):
         """处理资讯指数数据"""
         try:
+            # data.get('data') could be a string '' if status is 1
             res_data = data.get('data', {})
-            index_list = res_data.get('index', [])
+            if isinstance(res_data, dict):
+                index_list = res_data.get('index', [])
+            else:
+                index_list = []
+            
+            # If index_list is empty, we create a dummy index_item to trigger zero-fill logic
             if not index_list:
-                return None, None
-            index_data = index_list[0]
-            general_ratio = index_data.get('generalRatio', {})
+                index_item = {}
+            else:
+                index_item = index_list[0]
+            general_ratio = index_item.get('generalRatio', {})
             avg_value = general_ratio.get('avg', 0)
             yoy_value = general_ratio.get('yoy', '-')
             qoq_value = general_ratio.get('qoq', '-')
             
-            api_start_date = index_data.get('startDate', start_date)
-            api_end_date = index_data.get('endDate', end_date)
+            api_start_date = index_item.get('startDate', start_date)
+            api_end_date = index_item.get('endDate', end_date)
             
             start = datetime.strptime(api_start_date, '%Y-%m-%d')
             end = datetime.strptime(api_end_date, '%Y-%m-%d')
@@ -139,6 +146,10 @@ class FeedProcessor:
                     '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 })
                 
+                # Debug log for the first processed point
+                if idx == 0:
+                    log.debug(f"关键词 '{keyword}' (城市 {city_code}) 第一个处理点: 日期={current_date}, 值={val}")
+                
                 curr_date_obj += timedelta(days=interval)
                 idx += 1
 
@@ -156,16 +167,28 @@ class FeedProcessor:
 
     def process_multi_feed_index_data(self, data, cookie, keywords, city_code, city_name, start_date, end_date):
         """处理多个关键词的资讯指数数据"""
-        if not data or not data.get('data') or not data['data'].get('index'):
+        if not data or (not data.get('data') and data.get('status') != 1):
             log.warning(f"数据为空或格式不正确: {data}")
             return [], []
             
         try:
             res_data = data.get('data', {})
-            uniqid = res_data.get('uniqid')
-            if not uniqid:
-                log.error("API响应中缺少uniqid")
-                return [], []
+            # If res_data is a string (e.g., status 1 results in data: ''), treat it as no uniqid
+            uniqid = res_data.get('uniqid') if isinstance(res_data, dict) else None
+            
+            # Handle status 1 (no data) or missing uniqid
+            if data.get('status') == 1 or not uniqid:
+                log.info("API returned status 1 or no uniqid, generating zero-filled records.")
+                all_daily_data = []
+                all_stats_records = []
+                for keyword in keywords:
+                    daily, stats = self.process_feed_index_data(
+                        data, cookie, keyword, city_code, city_name, 
+                        start_date, end_date, "", 'day'
+                    )
+                    if daily: all_daily_data.extend(daily)
+                    if stats: all_stats_records.append(stats)
+                return all_daily_data, all_stats_records
                 
             # 获取解密密钥
             key = self._get_key(uniqid, cookie)
@@ -192,7 +215,7 @@ class FeedProcessor:
                     
                     # 解密数据
                     decrypted_data = self._decrypt(key, raw_data)
-                    log.info(f"解密后的数据: {decrypted_data[:100]}...")
+                    log.info(f"关键词 '{keyword}' (城市 {city_code}) 解密后的数据: {decrypted_data[:100]}...")
                     
                     # 验证解密结果
                     if decrypted_data and ',' not in decrypted_data and len(decrypted_data) > 0:

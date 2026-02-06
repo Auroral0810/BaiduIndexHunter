@@ -1224,6 +1224,8 @@ export default {
     "Das Senden der Aufgabe ist fehlgeschlagen. Bitte überprüfen Sie die Netzwerkverbindung",
   "tasks-FeedIndexTask-19c298e1d0a206148-156":
     "Fehler beim Senden der Aufgabe:",
+  "tasks-FeedIndexTask-19c298e1d0a206148-157": "Es werden alle Feed-Index-Daten von 2011 bis heute gecrawlt",
+  "tasks-FeedIndexTask-19c298e1d0a206148-158": "Alle Daten (2011 bis heute)",
   "tasks-InterestProfileTask-19c298e1e7a81a799-1":
     "Sammlung von Interessenanalysen",
   "tasks-InterestProfileTask-19c298e1e7a81a799-2":
