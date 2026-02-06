@@ -539,6 +539,7 @@ const unselectCity = (cityCode) => {
 // 组件挂载时获取数据
 onMounted(async () => {
   loading.value = true;
+  isUpdating.value = true; // 开启更新状态保护
 
   try {
     // 设置API基础URL
@@ -565,8 +566,6 @@ onMounted(async () => {
 
     // 如果有初始选中的值，设置选中状态
     if (props.modelValue && props.modelValue.length > 0) {
-      isUpdating.value = true;
-
       props.modelValue.forEach((code) => {
         if (code === "0") {
           nationwideSelected.value = true;
@@ -577,8 +576,6 @@ onMounted(async () => {
           cityChecked[code] = true;
         }
       });
-
-      isUpdating.value = false;
     }
 
     // 默认选中第一个省份
@@ -595,6 +592,12 @@ onMounted(async () => {
     );
   } finally {
     loading.value = false;
+    isUpdating.value = false; // 关闭保护
+    
+    // 初始化完成后，手动生成一次最终选择
+    nextTick(() => {
+      generateFinalSelection();
+    });
   }
 });
 </script>

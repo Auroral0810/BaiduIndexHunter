@@ -102,8 +102,8 @@ class StatisticsRepository:
             results = session.exec(statement).all()
             return [
                 {
-                    "city_code": r[0],
-                    "city_name": r[1] or "未知",
+                    "city_code": r[0] or "0",
+                    "city_name": r[1] or "全国",
                     "item_count": int(r[2] or 0),
                     "success_count": int(r[3] or 0),
                     "fail_count": int(r[4] or 0),
@@ -351,26 +351,26 @@ class StatisticsRepository:
                 # 检查是否存在 (同 task_id + keyword + city_code)
                 statement = select(TaskStatisticsModel).where(and_(
                     TaskStatisticsModel.task_id == stats_data.get('task_id'),
-                    TaskStatisticsModel.keyword == stats_data.get('关键词'),
+                    TaskStatisticsModel.keyword == stats_data.get('keyword'),
                     TaskStatisticsModel.city_code == stats_data.get('city_code', '')
                 ))
                 existing = session.exec(statement).first()
                 
-                # 转换字段名
+                # 转换字段名 (从处理器返回的中文键或标准化后的英文键)
                 model_data = {
                     'task_id': stats_data.get('task_id'),
-                    'keyword': stats_data.get('关键词'),
-                    'city_code': stats_data.get('city_code'),
-                    'city_name': stats_data.get('城市'),
-                    'date_range': stats_data.get('数据周期'),
-                    'data_type': stats_data.get('数据类型'),
-                    'item_count': stats_data.get('数据项数量', 0),
-                    'success_count': stats_data.get('成功数量', 0),
-                    'fail_count': stats_data.get('失败数量', 0),
-                    'avg_value': stats_data.get('平均值'),
-                    'max_value': stats_data.get('最大值'),
-                    'min_value': stats_data.get('最小值'),
-                    'sum_value': stats_data.get('总和'),
+                    'keyword': stats_data.get('关键词') or stats_data.get('keyword'),
+                    'city_code': stats_data.get('城市代码') or stats_data.get('city_code'),
+                    'city_name': stats_data.get('城市') or stats_data.get('city_name'),
+                    'date_range': stats_data.get('时间范围') or stats_data.get('date_range'),
+                    'data_type': stats_data.get('数据类型') or stats_data.get('data_type'),
+                    'item_count': stats_data.get('数据项数量') or stats_data.get('item_count', 0),
+                    'success_count': stats_data.get('成功数量') or stats_data.get('success_count', 0),
+                    'fail_count': stats_data.get('失败数量') or stats_data.get('fail_count', 0),
+                    'avg_value': stats_data.get('平均值') or stats_data.get('avg_value'),
+                    'max_value': stats_data.get('最大值') or stats_data.get('max_value'),
+                    'min_value': stats_data.get('最小值') or stats_data.get('min_value'),
+                    'sum_value': stats_data.get('总和') or stats_data.get('sum_value'),
                     'extra_data': stats_data.get('extra_data'),
                     'create_time': datetime.now()
                 }

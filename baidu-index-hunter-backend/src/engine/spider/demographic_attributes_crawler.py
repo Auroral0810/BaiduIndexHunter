@@ -158,19 +158,11 @@ class DemographicAttributesCrawler(BaseCrawler):
                                 self.data_cache.extend(df.to_dict('records'))
                                 
                                 # 生成统计信息并存入 stats_cache
+                                from src.engine.processors.demographic_processor import demographic_processor
                                 for kw in batch:
-                                    kw_df = df[df['关键词'] == kw]
-                                    if not kw_df.empty:
-                                        self.stats_cache.append({
-                                            'task_id': self.task_id,
-                                            '关键词': kw,
-                                            '数据类型': self.task_type,
-                                            '数据周期': kw_df.iloc[0]['数据周期'],
-                                            '数据项数量': len(kw_df),
-                                            '成功数量': 1,
-                                            '失败数量': 0,
-                                            # 这里可以计算更多聚合指标，目前先存基础项
-                                        })
+                                    stats = demographic_processor.process_demographic_stats(df, kw)
+                                    if stats:
+                                        self.stats_cache.append(stats)
                                 
                         self.completed_tasks += 1
                         for kw in batch:

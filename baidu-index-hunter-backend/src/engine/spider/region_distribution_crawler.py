@@ -61,7 +61,17 @@ class RegionDistributionCrawler(BaseCrawler):
             task_item['end_date']
         )
         
-        return df
+        # 记录统计数据
+        from src.engine.processors.region_processor import region_processor
+        stats = region_processor.process_region_stats(
+            df, 
+            task_item['keyword'], 
+            task_item['region'], 
+            task_item['start_date'], 
+            task_item['end_date']
+        )
+        
+        return df, stats
 
     @retry(max_retries=2)
     def get_region_distribution(self, keywords: List[str], region: int = 0, days: Optional[int] = None, start_date: Optional[str] = None, end_date: Optional[str] = None) -> Optional[Dict]:
@@ -215,11 +225,14 @@ class RegionDistributionCrawler(BaseCrawler):
                 self.check_running()
                 task_item = tasks[i]
                 try:
-                    df = self._process_task(task_item)
+                    df, stats = self._process_task(task_item)
                     
                     with self.task_lock:
                         if df is not None and not df.empty:
                             self.data_cache.extend(df.to_dict('records'))
+                        
+                        if stats:
+                            self.stats_cache.append(stats)
                         
                         self.completed_tasks += 1
                         self.completed_keywords.add(f"{task_item['keyword']}_{task_item['region']}_{task_item['start_date']}")

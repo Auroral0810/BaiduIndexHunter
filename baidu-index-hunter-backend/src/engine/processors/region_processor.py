@@ -313,5 +313,47 @@ class RegionProcessor:
                 return self._create_empty_region_data(keyword, query_region_code, self._get_region_name(query_region_code), default_period or "", 'none')
             return pd.DataFrame()
 
+    def process_region_stats(self, results_df, keyword, query_region_code, start_date, end_date):
+        """
+        根据处理后的 DataFrame 生成统计记录
+        """
+        if results_df.empty:
+            return None
+            
+        # 过滤出地级市数据进行统计
+        cities_df = results_df[results_df['数据级别'] == '地级市']
+        if cities_df.empty:
+            # 如果没有城市数据，尝试用省份数据
+            cities_df = results_df[results_df['数据级别'] == '省份']
+            
+        if cities_df.empty:
+            return None
+            
+        item_count = len(cities_df)
+        avg_val = cities_df['指数'].mean() if not cities_df.empty else 0
+        max_val = cities_df['指数'].max() if not cities_df.empty else 0
+        min_val = cities_df['指数'].min() if not cities_df.empty else 0
+        sum_val = cities_df['指数'].sum() if not cities_df.empty else 0
+        
+        region_name = self._get_region_name(query_region_code)
+        
+        return {
+            '关键词': keyword,
+            '城市代码': str(query_region_code),
+            '城市': region_name,
+            '时间范围': f"{start_date} 至 {end_date}",
+            '数据类型': 'region',
+            '数据项数量': item_count,
+            '成功数量': item_count,
+            '失败数量': 0,
+            '平均值': float(avg_val),
+            '最大值': float(max_val),
+            '最小值': float(min_val),
+            '总和': float(sum_val),
+            'extra_data': None,
+            '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+
 # 单例
 region_processor = RegionProcessor()
+

@@ -137,6 +137,37 @@ class DemographicProcessor:
             log.error(f"InterestProfile processing error: {e}")
             return pd.DataFrame()
 
+    def process_demographic_stats(self, results_df, keyword, start_date=None, end_date=None):
+        """
+        根据处理后的 DataFrame 生成统计记录
+        """
+        if results_df.empty:
+            return None
+            
+        kw_df = results_df[results_df['关键词'] == keyword]
+        if kw_df.empty:
+            return None
+            
+        item_count = len(kw_df)
+        period = kw_df.iloc[0]['数据周期'] if '数据周期' in kw_df.columns else f"{start_date} 至 {end_date}"
+        
+        return {
+            '关键词': keyword,
+            '城市代码': '0', # 人群属性通常是全国
+            '城市': '全国',
+            '时间范围': period,
+            '数据类型': 'demographic',
+            '数据项数量': item_count,
+            '成功数量': 1, # 一次 API 请求成功
+            '失败数量': 0,
+            '平均值': 0,
+            '最大值': 0,
+            '最小值': 0,
+            '总和': 0,
+            'extra_data': None,
+            '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+
 # 单例
 demographic_processor = DemographicProcessor()
 
