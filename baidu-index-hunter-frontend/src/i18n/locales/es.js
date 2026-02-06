@@ -248,7 +248,7 @@ export default {
   "views.cookiemanager.2hu57i": "normales",
   "views.cookiemanager.1psc3j": "Prohibido temporalmente",
   "views.cookiemanager.bwoi8t": "Seleccione fecha y hora",
-  "views.cookiemanager.og231w": "bien",
+  "views.cookiemanager.og231w": "OK",
   "views.cookiemanager.mj7whc": "Prohibir cuenta temporalmente",
   "views.cookiemanager.8sthw8": "Duración de la prohibición (minutos)",
   "views.cookiemanager.8585f1":
@@ -340,7 +340,7 @@ export default {
   "views.cookiemanager.gyo861":
     "¿Está seguro de que desea borrar todos los campos ingresados?",
   "views.cookiemanager.lwo521": "Consejos",
-  "views.cookiemanager.86icn7": "bien",
+  "views.cookiemanager.86icn7": "OK",
   "views.cookiemanager.fl98bx": "Cancelar",
   "views.cookiemanager.62h3wn": "Borrado",
   "views.cookiemanager.te3wwq": "Generado exitosamente",
@@ -1019,12 +1019,12 @@ export default {
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-88":
     "¿Está seguro de que desea borrar todas las palabras clave?",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-89": "Consejos",
-  "tasks-DemographicAttributesTask-19c298e1c74d5b997-90": "bien",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-90": "OK",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-91": "Cancelar",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-92":
     "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-93": "Consejos",
-  "tasks-DemographicAttributesTask-19c298e1c74d5b997-94": "bien",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-94": "OK",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-95": "Cancelar",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-96": "despejado",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-97":
@@ -1132,7 +1132,7 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-69": "existen palabras clave",
   "tasks-FeedIndexTask-19c298e1d0a206148-70": "las palabras clave no existen",
   "tasks-FeedIndexTask-19c298e1d0a206148-71": "Palabras clave que no existen:",
-  "tasks-FeedIndexTask-19c298e1d0a206148-72": "cerrar",
+  "tasks-FeedIndexTask-19c298e1d0a206148-72": "Cerrar",
   "tasks-FeedIndexTask-19c298e1d0a206148-73":
     "Borrar palabras clave inexistentes",
   "tasks-FeedIndexTask-19c298e1d0a206148-74": "Importado exitosamente",
@@ -1152,7 +1152,7 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-85": "ciudad",
   "tasks-FeedIndexTask-19c298e1d0a206148-86": "...etc.",
   "tasks-FeedIndexTask-19c298e1d0a206148-87": "un",
-  "tasks-FeedIndexTask-19c298e1d0a206148-88": "cerrar",
+  "tasks-FeedIndexTask-19c298e1d0a206148-88": "Cerrar",
   "tasks-FeedIndexTask-19c298e1d0a206148-89": "Resumen de la misión",
   "tasks-FeedIndexTask-19c298e1d0a206148-90":
     "Confirmación de parámetros de tarea",
@@ -1208,12 +1208,12 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-133":
     "¿Está seguro de que desea borrar todas las palabras clave?",
   "tasks-FeedIndexTask-19c298e1d0a206148-134": "Consejos",
-  "tasks-FeedIndexTask-19c298e1d0a206148-135": "bien",
+  "tasks-FeedIndexTask-19c298e1d0a206148-135": "OK",
   "tasks-FeedIndexTask-19c298e1d0a206148-136": "Cancelar",
   "tasks-FeedIndexTask-19c298e1d0a206148-137":
     "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
   "tasks-FeedIndexTask-19c298e1d0a206148-138": "Consejos",
-  "tasks-FeedIndexTask-19c298e1d0a206148-139": "bien",
+  "tasks-FeedIndexTask-19c298e1d0a206148-139": "OK",
   "tasks-FeedIndexTask-19c298e1d0a206148-140": "Cancelar",
   "tasks-FeedIndexTask-19c298e1d0a206148-141": "despejado",
   "tasks-FeedIndexTask-19c298e1d0a206148-142": "palabras clave que no existen",
@@ -1304,7 +1304,7 @@ export default {
     "las palabras clave no existen",
   "tasks-InterestProfileTask-19c298e1e7a81a799-46":
     "Palabras clave que no existen:",
-  "tasks-InterestProfileTask-19c298e1e7a81a799-47": "cerrar",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-47": "Cerrar",
   "tasks-InterestProfileTask-19c298e1e7a81a799-48":
     "Borrar palabras clave inexistentes",
   "tasks-InterestProfileTask-19c298e1e7a81a799-49": "Importado exitosamente",
@@ -1315,7 +1315,7 @@ export default {
     "Palabras clave no válidas o duplicadas:",
   "tasks-InterestProfileTask-19c298e1e7a81a799-53": "...etc.",
   "tasks-InterestProfileTask-19c298e1e7a81a799-54": "un",
-  "tasks-InterestProfileTask-19c298e1e7a81a799-55": "cerrar",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-55": "Cerrar",
   "tasks-InterestProfileTask-19c298e1e7a81a799-56": "Resumen de la misión",
   "tasks-InterestProfileTask-19c298e1e7a81a799-57":
     "Confirmación de parámetros de tarea",
@@ -1358,12 +1358,12 @@ export default {
   "tasks-InterestProfileTask-19c298e1e7a81a799-88":
     "¿Está seguro de que desea borrar todas las palabras clave?",
   "tasks-InterestProfileTask-19c298e1e7a81a799-89": "Consejos",
-  "tasks-InterestProfileTask-19c298e1e7a81a799-90": "OK",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-90": "bien",
   "tasks-InterestProfileTask-19c298e1e7a81a799-91": "Cancelar",
   "tasks-InterestProfileTask-19c298e1e7a81a799-92":
     "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
   "tasks-InterestProfileTask-19c298e1e7a81a799-93": "Consejos",
-  "tasks-InterestProfileTask-19c298e1e7a81a799-94": "OK",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-94": "bien",
   "tasks-InterestProfileTask-19c298e1e7a81a799-95": "Cancelar",
   "tasks-InterestProfileTask-19c298e1e7a81a799-96": "despejado",
   "tasks-InterestProfileTask-19c298e1e7a81a799-97":
@@ -1489,7 +1489,7 @@ export default {
     "las palabras clave no existen",
   "tasks-RegionDistributionTask-19c298e201890d5db-76":
     "Palabras clave que no existen:",
-  "tasks-RegionDistributionTask-19c298e201890d5db-77": "Cerrar",
+  "tasks-RegionDistributionTask-19c298e201890d5db-77": "cerrar",
   "tasks-RegionDistributionTask-19c298e201890d5db-78":
     "Borrar palabras clave inexistentes",
   "tasks-RegionDistributionTask-19c298e201890d5db-79": "Importado exitosamente",
@@ -1509,7 +1509,7 @@ export default {
   "tasks-RegionDistributionTask-19c298e201890d5db-90": "área",
   "tasks-RegionDistributionTask-19c298e201890d5db-91": "...etc.",
   "tasks-RegionDistributionTask-19c298e201890d5db-92": "un",
-  "tasks-RegionDistributionTask-19c298e201890d5db-93": "Cerrar",
+  "tasks-RegionDistributionTask-19c298e201890d5db-93": "cerrar",
   "tasks-RegionDistributionTask-19c298e201890d5db-94": "Resumen de la misión",
   "tasks-RegionDistributionTask-19c298e201890d5db-95":
     "Confirmación de parámetros de tarea",
@@ -1567,7 +1567,7 @@ export default {
   "tasks-RegionDistributionTask-19c298e201890d5db-140":
     "¿Está seguro de que desea borrar todas las palabras clave?",
   "tasks-RegionDistributionTask-19c298e201890d5db-141": "Consejos",
-  "tasks-RegionDistributionTask-19c298e201890d5db-142": "OK",
+  "tasks-RegionDistributionTask-19c298e201890d5db-142": "bien",
   "tasks-RegionDistributionTask-19c298e201890d5db-143": "Cancelar",
   "tasks-RegionDistributionTask-19c298e201890d5db-144":
     "No se encontraron palabras clave válidas en el archivo.",
@@ -1590,7 +1590,7 @@ export default {
   "tasks-RegionDistributionTask-19c298e201890d5db-153":
     "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
   "tasks-RegionDistributionTask-19c298e201890d5db-154": "Consejos",
-  "tasks-RegionDistributionTask-19c298e201890d5db-155": "OK",
+  "tasks-RegionDistributionTask-19c298e201890d5db-155": "bien",
   "tasks-RegionDistributionTask-19c298e201890d5db-156": "Cancelar",
   "tasks-RegionDistributionTask-19c298e201890d5db-157": "despejado",
   "tasks-RegionDistributionTask-19c298e201890d5db-158":
@@ -2036,4 +2036,21 @@ export default {
   "dashboard.region.search_placeholder": "Buscar ciudad...",
   "dashboard.region.table_title": "Clasificación de áreas activas",
   "dashboard.region.stat_total": "Estadísticas totales",
+  "views.logs.title": "Registro del sistema en tiempo real",
+  "views.logs.subtitle":
+    "Monitoreo en tiempo real de la producción en ejecución de motores de rastreo y servicios de back-end",
+  "views.logs.terminal_title": "Salida terminal",
+  "views.logs.clear_btn": "Borrar registro",
+  "views.logs.auto_scroll": "desplazamiento automático",
+  "views.logs.pause": "Pausar recepción",
+  "views.logs.resume": "seguir recibiendo",
+  "views.logs.search_placeholder": "Buscar contenido...",
+  "views.logs.filter_level": "Nivel de registro",
+  "views.logs.copy_log": "Copiar seleccionado",
+  "views.logs.all_levels": "Todos los niveles",
+  "views.logs.status_connected": "Se establece comunicación en tiempo real.",
+  "views.logs.status_disconnected":
+    "La comunicación en tiempo real se ha desconectado y se está reconectando...",
+  "views.logs.download_log": "Exportar registro actual",
+  "src-App-19c2993710803cda7-logs": "registro en tiempo real",
 };

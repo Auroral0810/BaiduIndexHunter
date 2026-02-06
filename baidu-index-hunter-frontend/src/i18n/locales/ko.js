@@ -707,7 +707,7 @@ export default {
   "tasks-TaskList-19c298d949224c78d-118":
     "작업 세부정보를 로드하는 중에 오류가 발생했습니다.",
   "tasks-TaskList-19c298d949224c78d-119": "작업이 다시 제출되었습니다.",
-  "tasks-TaskList-19c298d949224c78d-120": "작업이 다시 제출되었습니다.",
+  "tasks-TaskList-19c298d949224c78d-120": "Task has been resubmitted",
   "tasks-TaskList-19c298d949224c78d-121": "재시도 작업 실패:",
   "tasks-TaskList-19c298d949224c78d-122":
     "재시도 작업이 실패했습니다. 네트워크 연결을 확인하세요.",
@@ -1871,4 +1871,21 @@ export default {
   "dashboard.region.search_placeholder": "도시 검색...",
   "dashboard.region.table_title": "활동 지역 순위",
   "dashboard.region.stat_total": "총 통계",
+  "views.logs.title": "실시간 시스템 로그",
+  "views.logs.subtitle":
+    "크롤러 엔진 및 백엔드 서비스의 실행 출력을 실시간으로 모니터링합니다.",
+  "views.logs.terminal_title": "터미널 출력",
+  "views.logs.clear_btn": "로그 지우기",
+  "views.logs.auto_scroll": "자동 스크롤",
+  "views.logs.pause": "수신 일시 중지",
+  "views.logs.resume": "계속해서 받다",
+  "views.logs.search_placeholder": "콘텐츠 검색...",
+  "views.logs.filter_level": "로그 수준",
+  "views.logs.copy_log": "선택 항목 복사",
+  "views.logs.all_levels": "모든 레벨",
+  "views.logs.status_connected": "실시간 소통이 이루어집니다",
+  "views.logs.status_disconnected":
+    "실시간 통신이 끊겼다가 다시 연결되는 중입니다...",
+  "views.logs.download_log": "현재 로그 내보내기",
+  "src-App-19c2993710803cda7-logs": "실시간 로그",
 };

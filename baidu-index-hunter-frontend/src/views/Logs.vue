@@ -1,118 +1,161 @@
 <template>
-  <div class="logs-container">
-    <div class="page-header">
-      <div class="header-info">
-        <h2 class="title">{{ $t('views.logs.title') }}</h2>
-        <p class="subtitle">{{ $t('views.logs.subtitle') }}</p>
-      </div>
-      <div class="header-actions">
-        <el-tag 
-          :type="connected ? 'success' : 'danger'" 
-          class="status-tag" 
-          effect="dark"
-        >
-          <div class="status-dot" :class="{ 'pulse': connected }"></div>
-          {{ connected ? $t('views.logs.status_connected') : $t('views.logs.status_disconnected') }}
-        </el-tag>
-      </div>
-    </div>
+  <div class="logs-viewport">
+    <!-- Atmospheric Background Layers -->
+    <div class="glow-layer"></div>
+    <div class="grid-overlay"></div>
 
-    <!-- Terminal Section -->
-    <div class="terminal-card glass-panel">
-      <div class="terminal-header">
-        <div class="terminal-title">
-          <el-icon class="terminal-icon"><Monitor /></el-icon>
-          <span>{{ $t('views.logs.terminal_title') }}</span>
+    <div class="main-container">
+      <!-- High-Density Unified Header -->
+      <header class="integrated-header">
+        <div class="branding">
+          <div class="system-tag">SYSTEM</div>
+          <div class="nav-sep">/</div>
+          <h1 class="title-primary">{{ $t('views.logs.title') }}</h1>
         </div>
-        <div class="terminal-controls">
-          <div class="control-group">
-            <el-input
-              v-model="searchQuery"
-              :placeholder="$t('views.logs.search_placeholder')"
-              prefix-icon="Search"
-              clearable
-              class="terminal-search"
-              size="small"
-            />
-            <el-select 
-              v-model="filterLevel" 
-              size="small" 
-              class="level-select"
-              :placeholder="$t('views.logs.filter_level')"
-            >
-              <el-option :label="$t('views.logs.all_levels')" value="ALL" />
-              <el-option label="INFO" value="INFO" />
-              <el-option label="WARNING" value="WARNING" />
-              <el-option label="ERROR" value="ERROR" />
-              <el-option label="DEBUG" value="DEBUG" />
-            </el-select>
+
+        <div class="header-center">
+          <div class="stream-badge" :class="{ 'is-live': connected }">
+            <div class="badge-inner">
+              <span class="pulse-ring"></span>
+              <span class="status-dot"></span>
+              <span class="status-text">{{ connected ? 'LIVE STREAM' : 'OFFLINE' }}</span>
+            </div>
           </div>
-          
-          <div class="control-group">
-            <el-button-group>
+        </div>
+
+        <div class="header-right">
+          <div class="engine-info">
+            <span class="label">ENGINE:</span>
+            <span class="value">HUNTER CORE v2.0</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- The Log Console -->
+      <main class="console-box shadow-2xl">
+        <!-- Pixel-Perfect Aligned Toolbar -->
+        <div class="console-controls glass-blur">
+          <div class="primary-controls">
+            <div class="control-unit search-unit">
+              <el-input
+                v-model="searchQuery"
+                :placeholder="$t('views.logs.search_placeholder')"
+                prefix-icon="Search"
+                clearable
+                class="saas-input"
+              />
+            </div>
+            <div class="control-unit level-unit">
+              <el-select 
+                v-model="filterLevel" 
+                class="saas-select"
+                popper-class="saas-popper"
+              >
+                <template #prefix>
+                  <el-icon><Filter /></el-icon>
+                </template>
+                <el-option :label="$t('views.logs.all_levels')" value="ALL" />
+                <el-option label="INFO" value="INFO" />
+                <el-option label="WARNING" value="WARNING" />
+                <el-option label="ERROR" value="ERROR" />
+                <el-option label="DEBUG" value="DEBUG" />
+              </el-select>
+            </div>
+            
+            <div class="control-unit toggle-unit">
               <el-tooltip :content="isPaused ? $t('views.logs.resume') : $t('views.logs.pause')" placement="top">
-                <el-button 
-                  :type="isPaused ? 'warning' : 'default'" 
-                  size="small" 
+                <button 
+                  class="saas-tool-btn" 
+                  :class="{ 'is-warning': isPaused }"
                   @click="isPaused = !isPaused"
                 >
                   <el-icon><VideoPause v-if="!isPaused" /><VideoPlay v-else /></el-icon>
-                </el-button>
+                </button>
               </el-tooltip>
               <el-tooltip :content="$t('views.logs.auto_scroll')" placement="top">
-                <el-button 
-                  :type="autoScroll ? 'primary' : 'default'" 
-                  size="small" 
+                <button 
+                  class="saas-tool-btn" 
+                  :class="{ 'is-active': autoScroll }"
                   @click="autoScroll = !autoScroll"
                 >
                   <el-icon><Bottom /></el-icon>
-                </el-button>
+                </button>
               </el-tooltip>
-            </el-button-group>
-            
-            <el-button type="danger" size="small" plain @click="clearLogs">
+            </div>
+          </div>
+
+          <div class="secondary-actions">
+            <el-button 
+              type="danger" 
+              plain 
+              class="saas-action-btn clear-btn"
+              @click="clearLogs"
+            >
               <el-icon><Delete /></el-icon>
+              <span>{{ $t('views.logs.clear_btn') }}</span>
             </el-button>
-            <el-button size="small" @click="downloadLogs">
+            <el-button 
+              type="primary" 
+              class="saas-action-btn download-btn"
+              @click="downloadLogs"
+            >
               <el-icon><Download /></el-icon>
+              <span>{{ $t('views.logs.download_log') }}</span>
             </el-button>
           </div>
         </div>
-      </div>
 
-      <div class="terminal-body" ref="terminalBody" @scroll="handleScroll">
-        <div v-if="filteredLogs.length === 0" class="empty-terminal">
-          <el-icon class="empty-icon"><Monitor /></el-icon>
-          <p>{{ $t('dashboard.charts.no_data') }}</p>
+        <!-- High-Performance Log Area -->
+        <div class="console-body" ref="terminalBody" @scroll="handleScroll">
+          <div v-if="filteredLogs.length === 0" class="console-empty">
+            <div class="empty-vector">
+              <el-icon><Monitor /></el-icon>
+              <div class="radar-ping"></div>
+            </div>
+            <p class="empty-text">Tracing active. Listening for system broadcasts...</p>
+          </div>
+          
+          <div 
+            v-for="(log, index) in filteredLogs" 
+            :key="index" 
+            class="log-row"
+            :class="log.level.toLowerCase()"
+          >
+            <!-- Decorative track -->
+            <div class="row-indicator"></div>
+            <div class="row-content">
+              <span class="meta-time">{{ log.time }}</span>
+              <span class="meta-lvl">{{ log.level }}</span>
+              <div class="meta-path">
+                <span class="path-name">{{ log.name }}</span>
+                <span class="path-loc">{{ log.function }}:{{ log.line }}</span>
+              </div>
+              <span class="row-msg" v-html="highlightMessage(log.message, searchQuery)"></span>
+            </div>
+          </div>
         </div>
-        <div 
-          v-for="(log, index) in filteredLogs" 
-          :key="index" 
-          class="log-line"
-          :class="log.level.toLowerCase()"
-        >
-          <span class="log-time">{{ log.time }}</span>
-          <span class="log-level-badge">[{{ log.level }}]</span>
-          <span class="log-source">{{ log.name }}:{{ log.function }}:{{ log.line }}</span>
-          <span class="log-sep">-</span>
-          <span class="log-message">{{ log.message }}</span>
-        </div>
-      </div>
-      
-      <div class="terminal-footer">
-        <div class="stat-item">
-          <span class="label">LINES:</span>
-          <span class="value">{{ logs.length }}</span>
-        </div>
-        <div class="stat-item">
-          <span class="label">FILTERED:</span>
-          <span class="value">{{ filteredLogs.length }}</span>
-        </div>
-        <div class="stat-item">
-          <span class="label">SPEED:</span>
-          <span class="value">{{ logSpeed }} msg/s</span>
-        </div>
-      </div>
+
+        <!-- Compact Footer Info Bar -->
+        <footer class="console-info-bar">
+          <div class="info-group">
+            <div class="info-item">
+              <span class="i-label">LIVE FLOW:</span>
+              <span class="i-val highlight">{{ logSpeed }} tps</span>
+            </div>
+            <div class="info-item">
+              <span class="i-label">BUFFER:</span>
+              <span class="i-val">{{ logs.length }}</span>
+            </div>
+            <div class="info-item">
+              <span class="i-label">VISIBLE:</span>
+              <span class="i-val">{{ filteredLogs.length }}</span>
+            </div>
+          </div>
+          <div class="info-timestamp">
+            {{ new Date().toLocaleTimeString() }}
+          </div>
+        </footer>
+      </main>
     </div>
   </div>
 </template>
@@ -123,7 +166,7 @@ import { io } from 'socket.io-client'
 import { useI18n } from 'vue-i18n'
 import { 
   Search, Delete, Download, VideoPause, VideoPlay, 
-  Bottom, Monitor 
+  Bottom, Monitor, Filter, ArrowRight 
 } from '@element-plus/icons-vue'
 import { saveAs } from 'file-saver'
 
@@ -148,25 +191,16 @@ let speedTimer = null
 // Filtering logic
 const filteredLogs = computed(() => {
   return logs.value.filter(log => {
-    const matchesSearch = !searchQuery.value || 
-      log.message.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      log.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-    
-    const matchesLevel = filterLevel.value === 'ALL' || log.level === filterLevel.value
-    
-    return matchesSearch && matchesLevel
+    const q = searchQuery.value.toLowerCase()
+    return (!q || log.message.toLowerCase().includes(q) || log.name.toLowerCase().includes(q)) &&
+           (filterLevel.value === 'ALL' || log.level === filterLevel.value)
   })
 })
 
 const handleScroll = () => {
   if (!terminalBody.value) return
   const { scrollTop, scrollHeight, clientHeight } = terminalBody.value
-  // If user scrolls up, disable autoScroll
-  if (scrollHeight - scrollTop - clientHeight > 50) {
-    autoScroll.value = false
-  } else {
-    autoScroll.value = true
-  }
+  autoScroll.value = scrollHeight - scrollTop - clientHeight < 50
 }
 
 const scrollToBottom = async () => {
@@ -176,8 +210,19 @@ const scrollToBottom = async () => {
   }
 }
 
-const clearLogs = () => {
-  logs.value = []
+const clearLogs = () => logs.value = []
+
+// Escape regex special characters
+const escapeRegExp = (string) => {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+// Highlight search query tokens
+const highlightMessage = (text, query) => {
+  if (!query || !text) return text
+  const escapedQuery = escapeRegExp(query)
+  const regex = new RegExp(`(${escapedQuery})`, 'gi')
+  return text.replace(regex, '<span class="hl-token">$1</span>')
 }
 
 const downloadLogs = () => {
@@ -185,266 +230,297 @@ const downloadLogs = () => {
     `${l.time} | ${l.level.padEnd(8)} | ${l.name}:${l.function}:${l.line} - ${l.message}`
   ).join('\n')
   const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
-  saveAs(blob, `system_logs_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '_')}.log`)
+  saveAs(blob, `hunter_logs_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '_')}.log`)
 }
 
 const initSocket = () => {
-  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001'
+  const API_BASE = import.meta.env.VITE_API_URL || window.location.origin.replace(':5173', ':5001')
   socket.value = io(API_BASE)
-
-  socket.value.on('connect', () => {
-    connected.value = true
-    console.log('Logs WebSocket connected')
-  })
-
-  socket.value.on('disconnect', () => {
-    connected.value = false
-  })
-
+  socket.value.on('connect', () => connected.value = true)
+  socket.value.on('disconnect', () => connected.value = false)
   socket.value.on('system_log', (data) => {
     if (isPaused.value) return
-    
     messageCount++
     logs.value.push(data)
-    
-    // Maintain buffer size
-    if (logs.value.length > maxLogs) {
-      logs.value.shift()
-    }
-    
-    if (autoScroll.value) {
-      scrollToBottom()
-    }
+    if (logs.value.length > maxLogs) logs.value.shift()
+    if (autoScroll.value) scrollToBottom()
   })
 }
 
 onMounted(() => {
   initSocket()
-  speedTimer = setInterval(() => {
-    logSpeed.value = messageCount
-    messageCount = 0
-  }, 1000)
+  speedTimer = setInterval(() => { logSpeed.value = messageCount; messageCount = 0 }, 1000)
 })
 
 onUnmounted(() => {
-  if (socket.value) {
-    socket.value.disconnect()
-  }
+  if (socket.value) socket.value.disconnect()
   if (speedTimer) clearInterval(speedTimer)
 })
 
-watch(filteredLogs, () => {
-  if (autoScroll.value) {
-    scrollToBottom()
-  }
-})
+watch(filteredLogs, () => { if (autoScroll.value) scrollToBottom() })
 </script>
 
 <style scoped>
-.logs-container {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  height: calc(100vh - 160px);
+/* Atmospheric Layers */
+.logs-viewport {
+  position: relative;
+  min-height: calc(100vh - 120px);
+  padding: 12px 24px;
+  overflow: hidden;
+  background-color: var(--color-bg-base);
 }
 
-/* 顶部 Header 区域 */
-.page-header {
+.glow-layer {
+  position: absolute;
+  top: -10%;
+  left: 50%;
+  width: 100vw;
+  height: 60vh;
+  transform: translateX(-50%);
+  background: radial-gradient(circle at 50% 0%, var(--color-primary-light), transparent 70%);
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(var(--color-border) 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.12;
+  mask-image: linear-gradient(to bottom, black, transparent);
+  pointer-events: none;
+}
+
+.main-container {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 144px);
+  gap: 12px;
+}
+
+/* Integrated Grand Header */
+.integrated-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 4px;
+  height: 48px;
+  padding: 0 8px;
 }
 
-.title {
+.branding {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.system-tag {
+  background: var(--color-bg-subtle);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--color-text-tertiary);
+  letter-spacing: 0.1em;
+}
+
+.nav-sep { color: var(--color-border); font-size: 0.9rem; }
+
+.title-primary {
   margin: 0;
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 800;
   color: var(--color-text-main);
   letter-spacing: -0.01em;
 }
 
-.subtitle {
-  margin: 4px 0 0;
-  color: var(--color-text-secondary);
-  font-size: 0.95rem;
-}
-
-/* 状态标签 */
-.status-tag {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 12px;
-  height: 32px;
-  font-weight: 500;
-  border-radius: 6px;
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: #94a3b8;
-}
-
-.status-dot.pulse {
-  background-color: var(--color-success);
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
-  animation: pulse-green 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
-}
-
-@keyframes pulse-green {
-  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}
-
-/* 终端卡片主体 - 适配 Light/Dark */
-.terminal-card {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
+.stream-badge {
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-md);
-  transition: all 0.3s ease;
+  padding: 4px 14px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.terminal-header {
-  height: 56px;
+.badge-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #94a3b8; }
+.status-text { font-size: 0.75rem; font-weight: 700; color: var(--color-text-secondary); letter-spacing: 0.05em; }
+
+.is-live { border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05); }
+.is-live .status-dot { background: #10b981; box-shadow: 0 0 10px #10b981; }
+.is-live .status-text { color: #059669; }
+
+.pulse-ring {
+  position: absolute; width: 8px; height: 8px; border-radius: 50%; opacity: 0; background: #10b981;
+}
+.is-live .pulse-ring { animation: ripple 2s infinite; }
+
+@keyframes ripple { from { transform: scale(1); opacity: 0.5; } to { transform: scale(3); opacity: 0; } }
+
+.engine-info { font-size: 0.7rem; color: var(--color-text-tertiary); display: flex; gap: 8px; }
+.engine-info .value { color: var(--color-primary); font-weight: 700; }
+
+/* The Console Prism */
+.console-box {
+  flex: 1;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.console-controls {
+  height: 60px;
+  padding: 0 16px;
   background: var(--color-bg-subtle);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
   border-bottom: 1px solid var(--color-border);
-}
-
-.terminal-title {
-  font-weight: 600;
-  color: var(--color-text-main);
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
 }
 
-.terminal-icon {
+.primary-controls { display: flex; align-items: center; gap: 12px; }
+
+/* Unified Unit Sizing */
+.control-unit { height: 38px; display: flex; align-items: center; }
+
+.search-unit { width: 280px; }
+.level-unit { width: 140px; }
+
+.saas-tool-btn {
+  height: 38px;
+  width: 38px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+  margin-left: 8px;
+}
+
+.saas-tool-btn:hover { background: var(--color-bg-subtle); border-color: var(--color-primary); color: var(--color-primary); }
+.saas-tool-btn.is-active { background: var(--color-primary); border-color: var(--color-primary); color: white; }
+.saas-tool-btn.is-warning { background: #fff7ed; border-color: #fb923c; color: #ea580c; }
+
+.secondary-actions { display: flex; gap: 12px; }
+
+.saas-action-btn { height: 38px; font-weight: 700; font-size: 0.85rem; border-radius: 10px; }
+
+/* Terminal Content */
+.console-body {
+  flex: 1;
+  background: #0d1117; /* High contrast but eye-friendly */
+  overflow-y: auto;
+  padding: 16px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.console-body::-webkit-scrollbar { width: 8px; }
+.console-body::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
+
+.log-row {
+  display: flex;
+  position: relative;
+  padding: 4px 12px;
+  border-radius: 6px;
+  margin-bottom: 2px;
+  transition: background 0.15s;
+}
+
+.log-row:hover { background: rgba(255, 255, 255, 0.04); }
+
+.row-indicator {
+  position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; border-radius: 0 4px 4px 0;
+}
+
+.row-content { display: flex; gap: 16px; color: #c9d1d9; }
+
+.meta-time { color: #8b949e; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+.meta-lvl {
+  width: 50px; text-align: center; font-weight: 800; font-size: 10px; border-radius: 4px; padding: 1px 4px; flex-shrink: 0;
+}
+
+.meta-path { display: flex; gap: 8px; font-size: 12px; color: #58a6ff; opacity: 0.8; flex-shrink: 0; }
+.path-loc { color: #8b949e; opacity: 0.6; }
+
+.row-msg { flex: 1; word-break: break-all; }
+
+/* Themes for Rows */
+.info .row-indicator { background: #4ade80; }
+.info .meta-lvl { color: #4ade80; background: rgba(74, 222, 128, 0.15); }
+
+/* Highlight Token Styling */
+:deep(.hl-token) {
+  background: rgba(234, 179, 8, 0.4); /* Amber highlight */
+  color: #fffbdf;
+  border-radius: 2px;
+  padding: 0 2px;
+  font-weight: 700;
+  box-shadow: 0 0 4px rgba(234, 179, 8, 0.5);
+}
+
+.warning .row-indicator { background: #fbbf24; }
+.warning .meta-lvl { color: #fbbf24; background: rgba(251, 191, 36, 0.15); }
+.warning .row-msg { color: #fde68a; }
+
+.error .row-indicator { background: #f87171; }
+.error .meta-lvl { color: #f87171; background: rgba(248, 113, 113, 0.15); }
+.error .row-msg { color: #fecaca; font-weight: 600; }
+
+.debug .meta-lvl { color: #94a3b8; background: rgba(148, 163, 184, 0.1); }
+
+/* Empty View */
+.console-empty { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #484f58; }
+.empty-vector { font-size: 64px; margin-bottom: 24px; position: relative; }
+.radar-ping { position: absolute; inset: 0; border: 2px solid var(--color-primary); border-radius: 50%; animation: radialPulse 3s infinite; }
+@keyframes radialPulse { from { transform: scale(1); opacity: 0.6; } to { transform: scale(2.5); opacity: 0; } }
+
+/* Footer */
+.console-info-bar {
+  height: 40px;
+  background: var(--color-bg-subtle);
+  border-top: 1px solid var(--color-border);
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 600;
   color: var(--color-text-tertiary);
 }
 
-/* 终端控制栏 */
-.terminal-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.info-group { display: flex; gap: 24px; }
+.info-item { display: flex; gap: 6px; }
+.i-val.highlight { color: var(--color-primary); }
+
+/* Fixes for Contrast & Visibility */
+:deep(.saas-input .el-input__wrapper) {
+  background: var(--color-bg-surface) !important;
+  border: 1px solid var(--color-border);
+  box-shadow: none !important;
+  border-radius: 10px;
 }
-
-.level-select {
-  width: 120px;
+:deep(.saas-input .el-input__inner) {
+  color: var(--color-text-main) !important;
+  font-weight: 500;
 }
-
-/* 终端内容区域 - 保持代码风格但适配主题 */
-.terminal-body {
-  flex: 1;
-  padding: 16px;
-  font-family: 'JetBrains Mono', 'Fira Code', 'Menlo', 'Monaco', 'Consolas', monospace;
-  font-size: 13px;
-  line-height: 1.6;
-  overflow-y: auto;
-  overflow-x: auto;
-  background: #1e1e1e; /* 保持深色背景以获得最佳代码高亮效果，或者根据主题切换 */
-  color: #e5e5e5;
-  scroll-behavior: auto;
-}
-
-/* 如果需要在浅色模式下也使用深色终端（通常更好看），则保持 #1e1e1e。
-   如果用户觉得“不适配”，可能是指外框。现在外框已经是 var(--color-bg-surface)。
-   主要内容区域通常终端都是黑底白字。 */
-
-/* Custom Scrollbar */
-.terminal-body::-webkit-scrollbar {
-  width: 10px;
-}
-.terminal-body::-webkit-scrollbar-thumb {
-  background: #424242;
-  border-radius: 5px;
-}
-.terminal-body::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* Log Lines Styling */
-.log-line {
-  white-space: pre-wrap;
-  word-break: break-all;
-  padding: 2px 8px;
-  border-radius: 4px;
-  display: flex;
-  gap: 10px;
-  color: #d4d4d4;
-  border-left: 2px solid transparent; /* 增加左侧标记 */
-}
-
-.log-line:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.log-time { color: #858585; min-width: 140px; }
-.log-level-badge { font-weight: 700; min-width: 60px; text-align: center; border-radius: 4px; font-size: 12px; padding: 0 4px; height: 18px; line-height: 18px; align-self: center; }
-.log-source { color: #569cd6; } /* VS Code Blue */
-.log-sep { color: #555; }
-.log-message { flex: 1; }
-
-/* Level Specific Colors */
-.info .log-level-badge { background: rgba(74, 222, 128, 0.2); color: #4ade80; } 
-.warning .log-level-badge { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
-.warning .log-line { border-left-color: #fbbf24; background: rgba(251, 191, 36, 0.05); }
-.error .log-level-badge { background: rgba(248, 113, 113, 0.2); color: #f87171; }
-.error .log-message { color: #fca5a5; } 
-.error .log-line { border-left-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
-.debug .log-level-badge { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
-
-.empty-terminal {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #666;
-  gap: 16px;
-}
-
-.empty-icon {
-  font-size: 48px;
-  opacity: 0.5;
-}
-
-.terminal-footer {
-  height: 36px;
-  background: var(--color-bg-subtle); /* Footer match header */
-  border-top: 1px solid var(--color-border);
-  display: flex;
-  align-items: center;
-  justify-content: flex-end; /* Align right */
-  padding: 0 20px;
-  gap: 20px;
-  font-size: 12px;
-  color: var(--color-text-secondary);
-}
-
-.stat-item {
-  display: flex;
-  gap: 8px;
-}
-
-.stat-item .label { font-weight: 600; }
-.stat-item .value { font-family: var(--font-family-mono); }
-
-.glass-panel {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+:deep(.saas-select .el-input__wrapper) {
+  background: var(--color-bg-surface) !important;
+  border-radius: 10px;
 }
 </style>

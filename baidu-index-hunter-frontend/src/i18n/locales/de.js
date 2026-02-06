@@ -492,7 +492,7 @@ export default {
   "views.datacollection.j887qn": "API-Dienststatus",
   "views.datacollection.h2894t": "Aufgabentyp",
   "views.datacollection.14ux91": "Aktualisierungsstatus",
-  "views.datacollection.u24u75": "Schließen",
+  "views.datacollection.u24u75": "schließen",
   "views.datacollection.wt72k3": "Aktuelle Aufgaben:",
   "views.datacollection.6k50e9": "Fortschritt",
   "views.datacollection.qww0ij": "Läuft normal",
@@ -561,7 +561,7 @@ export default {
   "views.settings.00sc35": "Maximale Anzahl von Sekunden zwischen Anfragen",
   "views.settings.o37987":
     "Anzahl der fehlgeschlagenen Anforderungswiederholungen",
-  "views.settings.q621z9": "Anforderungszeitüberschreitung (Sekunden)",
+  "views.settings.q621z9": "Anforderungszeitlimit (Sekunden)",
   "views.settings.vb1k63": "Maximale Anzahl von Arbeitsthreads",
   "views.settings.2x1gk7": "Ob der User-Agent rotiert werden soll",
   "views.settings.r3739f": "Ob Proxy aktiviert werden soll",
@@ -575,7 +575,7 @@ export default {
   "views.settings.42533h": "Abkühlzeit des Cookie-Verbots (Sekunden)",
   "views.settings.t8dliz": "Maximale Anzahl von Anwendungen pro Tag",
   "views.settings.9ue5fu": "Mindestanzahl verfügbarer Cookies",
-  "views.settings.j56utr": "Cookie-Rotationsrichtlinie",
+  "views.settings.j56utr": "Cookie-Rotationsstrategie",
   "dashboard.dashboard.2dwsg6": "Big-Data-Bildschirm",
   "dashboard.dashboard.327577": "Daten aktualisieren",
   "dashboard.dashboard.7iv3g2": "Gesamtzahl der Aufgaben",
@@ -599,7 +599,7 @@ export default {
   "dashboard.dashboard.2a174n": "Letzte 7 Tage",
   "dashboard.dashboard.zk61g6": "Letzte 30 Tage",
   "dashboard.dashboard.5o84wx": "Letzte 90 Tage",
-  "dashboard.dashboard.096ld1": "letzten sechs Monate",
+  "dashboard.dashboard.096ld1": "letzten sechs Monaten",
   "dashboard.dashboard.rvgg9y": "letztes Jahr",
   "dashboard.dashboard.o64878": "alle Zeit",
   "dashboard.dashboard.tt8075": "Benutzerdefinierter Zeitbereich",
@@ -1135,7 +1135,7 @@ export default {
     "Schlüsselwörter existieren nicht",
   "tasks-FeedIndexTask-19c298e1d0a206148-71":
     "Schlüsselwörter, die nicht existieren:",
-  "tasks-FeedIndexTask-19c298e1d0a206148-72": "Schließen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-72": "schließen",
   "tasks-FeedIndexTask-19c298e1d0a206148-73":
     "Löschen Sie nicht vorhandene Schlüsselwörter",
   "tasks-FeedIndexTask-19c298e1d0a206148-74": "Erfolgreich importiert",
@@ -1152,7 +1152,7 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-85": "Stadt",
   "tasks-FeedIndexTask-19c298e1d0a206148-86": "...usw.",
   "tasks-FeedIndexTask-19c298e1d0a206148-87": "a",
-  "tasks-FeedIndexTask-19c298e1d0a206148-88": "Schließen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-88": "schließen",
   "tasks-FeedIndexTask-19c298e1d0a206148-89": "Missionsübersicht",
   "tasks-FeedIndexTask-19c298e1d0a206148-90":
     "Bestätigung der Aufgabenparameter",
@@ -1309,7 +1309,7 @@ export default {
     "Schlüsselwörter existieren nicht",
   "tasks-InterestProfileTask-19c298e1e7a81a799-46":
     "Schlüsselwörter, die nicht existieren:",
-  "tasks-InterestProfileTask-19c298e1e7a81a799-47": "Schließen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-47": "schließen",
   "tasks-InterestProfileTask-19c298e1e7a81a799-48":
     "Löschen Sie nicht vorhandene Schlüsselwörter",
   "tasks-InterestProfileTask-19c298e1e7a81a799-49": "Erfolgreich importiert",
@@ -1320,7 +1320,7 @@ export default {
     "Ungültige oder doppelte Schlüsselwörter:",
   "tasks-InterestProfileTask-19c298e1e7a81a799-53": "...usw.",
   "tasks-InterestProfileTask-19c298e1e7a81a799-54": "a",
-  "tasks-InterestProfileTask-19c298e1e7a81a799-55": "Schließen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-55": "schließen",
   "tasks-InterestProfileTask-19c298e1e7a81a799-56": "Missionsübersicht",
   "tasks-InterestProfileTask-19c298e1e7a81a799-57":
     "Bestätigung der Aufgabenparameter",
@@ -2059,4 +2059,22 @@ export default {
   "dashboard.region.search_placeholder": "Stadt suchen...",
   "dashboard.region.table_title": "Ranking der aktiven Gebiete",
   "dashboard.region.stat_total": "Gesamtstatistik",
+  "views.logs.title": "Echtzeit-Systemprotokoll",
+  "views.logs.subtitle":
+    "Echtzeitüberwachung der laufenden Ausgabe von Crawler-Engines und Back-End-Diensten",
+  "views.logs.terminal_title": "Terminalausgang",
+  "views.logs.clear_btn": "Protokoll löschen",
+  "views.logs.auto_scroll": "Autoscroll",
+  "views.logs.pause": "Empfang unterbrechen",
+  "views.logs.resume": "weiterhin erhalten",
+  "views.logs.search_placeholder": "Inhalt durchsuchen...",
+  "views.logs.filter_level": "Protokollebene",
+  "views.logs.copy_log": "Ausgewählte Kopie",
+  "views.logs.all_levels": "Alle Ebenen",
+  "views.logs.status_connected":
+    "Es wird eine Echtzeitkommunikation hergestellt",
+  "views.logs.status_disconnected":
+    "Die Echtzeitkommunikation wurde unterbrochen und wird wiederhergestellt...",
+  "views.logs.download_log": "Aktuelles Protokoll exportieren",
+  "src-App-19c2993710803cda7-logs": "Echtzeitprotokoll",
 };
