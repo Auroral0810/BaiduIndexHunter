@@ -145,6 +145,8 @@ const dataDefinitions = [
     color: '#6366f1'
   }
 ]
+
+const activeTab = ref(0)
 </script>
 
 <template>
@@ -247,22 +249,49 @@ const dataDefinitions = [
         <p class="section-desc">{{$t('views.home.data_definitions_subtitle')}}</p>
       </div>
       
-      <div class="definitions-grid">
-        <div v-for="(item, index) in dataDefinitions" :key="index" class="definition-card">
-          <div class="def-header">
-            <div class="def-icon" :style="{ backgroundColor: item.color }">
+      <div class="feature-showcase">
+        <div class="feature-tabs">
+          <div 
+            v-for="(item, index) in dataDefinitions" 
+            :key="index" 
+            class="feature-tab"
+            :class="{ active: activeTab === index }"
+            @click="activeTab = index"
+            :style="{ '--tab-color': item.color }"
+          >
+            <div class="tab-icon">
               <el-icon><component :is="item.icon" /></el-icon>
             </div>
-            <h3 class="def-title">{{ item.title }}</h3>
+            <span class="tab-label">{{ item.title }}</span>
+            <div class="tab-indicator" v-if="activeTab === index"></div>
           </div>
-          <p class="def-desc">{{ item.desc }}</p>
-          <div class="def-algo" v-if="item.algo">
-            <div class="algo-label">
-              <el-icon><DataAnalysis /></el-icon>
-              <span>Algorithm</span>
-            </div>
-            <p>{{ item.algo }}</p>
-          </div>
+        </div>
+
+        <div class="feature-content-wrapper">
+           <transition name="fade-slide" mode="out-in">
+             <div :key="activeTab" class="feature-detail-card" :style="{ borderColor: dataDefinitions[activeTab].color }">
+               <div class="detail-header">
+                 <div class="detail-icon" :style="{ backgroundColor: dataDefinitions[activeTab].color }">
+                   <el-icon><component :is="dataDefinitions[activeTab].icon" /></el-icon>
+                 </div>
+                 <h3 class="detail-title">{{ dataDefinitions[activeTab].title }}</h3>
+               </div>
+               
+               <div class="detail-body">
+                 <p class="detail-desc">{{ dataDefinitions[activeTab].desc }}</p>
+                 
+                 <div class="detail-algo" v-if="dataDefinitions[activeTab].algo">
+                   <div class="algo-badge" :style="{ color: dataDefinitions[activeTab].color, backgroundColor: dataDefinitions[activeTab].color + '15' }">
+                     <el-icon><DataAnalysis /></el-icon>
+                     <span>Algorithm</span>
+                   </div>
+                   <p>{{ dataDefinitions[activeTab].algo }}</p>
+                 </div>
+               </div>
+               
+               <div class="detail-bg-decoration" :style="{ background: dataDefinitions[activeTab].color }"></div>
+             </div>
+           </transition>
         </div>
       </div>
     </section>
@@ -294,7 +323,11 @@ const dataDefinitions = [
 <style scoped>
 .home-wrapper {
   overflow-x: hidden;
+  background-image: radial-gradient(var(--color-border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-attachment: fixed;
 }
+
 
 /* 通用按钮样式 */
 .btn {
@@ -950,79 +983,247 @@ const dataDefinitions = [
   background-color: var(--color-bg-body);
 }
 
-.definitions-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 32px;
+.feature-showcase {
+  display: flex;
+  gap: 40px;
   max-width: var(--max-width);
   margin: 0 auto;
+  min-height: 500px;
 }
 
-.definition-card {
-  background: var(--color-bg-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: 24px;
-  transition: all 0.3s;
+.feature-tabs {
+  flex: 0 0 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.definition-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--color-primary);
-}
-
-.def-header {
+.feature-tab {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 16px;
+  padding: 20px 24px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
-.def-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+.feature-tab:hover {
+  transform: translateX(8px);
+  border-color: var(--tab-color);
+  background: var(--color-bg-subtle);
+}
+
+.feature-tab.active {
+  background: var(--color-bg-surface);
+  border-color: var(--tab-color);
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+
+.feature-tab.active .tab-icon {
+  background-color: var(--tab-color);
+  color: white;
+}
+
+.feature-tab.active .tab-label {
+  color: var(--color-text-main);
+  font-weight: 700;
+}
+
+.tab-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: var(--color-bg-subtle);
+  color: var(--tab-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  transition: all 0.3s;
+}
+
+.tab-label {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  transition: all 0.3s;
+}
+
+.tab-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: var(--tab-color);
+  border-radius: 4px 0 0 4px;
+}
+
+.feature-content-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+.feature-detail-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid;
+  border-radius: 24px;
+  padding: 48px;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+}
+
+:root[class~="dark"] .feature-detail-card {
+  background: rgba(30, 30, 30, 0.6);
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+  position: relative;
+  z-index: 2;
+}
+
+.detail-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 2rem;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
-.def-title {
-  font-size: 1.25rem;
+.detail-title {
+  font-size: 2rem;
   font-weight: 700;
   color: var(--color-text-main);
 }
 
-.def-desc {
-  font-size: 1rem;
-  color: var(--color-text-secondary);
+.detail-body {
+  position: relative;
+  z-index: 2;
+}
+
+.detail-desc {
+  font-size: 1.25rem;
   line-height: 1.6;
-  margin-bottom: 24px;
-}
-
-.def-algo {
-  background-color: var(--color-bg-subtle);
-  border-radius: 8px;
-  padding: 16px;
-  font-size: 0.9rem;
   color: var(--color-text-secondary);
+  margin-bottom: 40px;
+  max-width: 80%;
 }
 
-.algo-label {
-  display: flex;
+.detail-algo {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 24px;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.algo-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 100px;
   font-weight: 600;
-  color: var(--color-text-main);
-  margin-bottom: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 16px;
 }
 
-@media (max-width: 768px) {
-  .definitions-grid {
-    grid-template-columns: 1fr;
+.detail-bg-decoration {
+  position: absolute;
+  top: -20%;
+  right: -20%;
+  width: 60%;
+  height: 60%;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.1;
+  z-index: 1;
+}
+
+/* Animations */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.4s ease;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+@media (max-width: 1024px) {
+  .feature-showcase {
+    flex-direction: column;
+    min-height: auto;
+  }
+  
+  .feature-tabs {
+    flex: none;
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 16px;
+  }
+  
+  .feature-tab {
+    flex: 0 0 auto;
+    width: 200px;
+  }
+  
+  .detail-desc {
+    max-width: 100%;
+  }
+}
+
+/* Global Entry Animations */
+.hero-section,
+.features-section,
+.workflow-section,
+.definitions-section,
+.cta-section-new {
+  animation: fade-in-up 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  opacity: 0;
+}
+
+.hero-section { animation-delay: 0.1s; }
+.features-section { animation-delay: 0.2s; }
+.workflow-section { animation-delay: 0.3s; }
+.definitions-section { animation-delay: 0.4s; }
+.cta-section-new { animation-delay: 0.5s; }
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
   }
 }
 </style> 
