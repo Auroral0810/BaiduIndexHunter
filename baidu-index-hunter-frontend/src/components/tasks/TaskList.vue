@@ -1069,7 +1069,17 @@ const loadTaskDetail = async (taskId: string) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/task/${taskId}`);
     if (response.data.code === 10000 && selectedTask.value) {
-      Object.assign(selectedTask.value, response.data.data);
+      const taskData = response.data.data;
+      // 确保 output_files 是数组
+      if (typeof taskData.output_files === 'string') {
+        try {
+          taskData.output_files = JSON.parse(taskData.output_files);
+        } catch (e) {
+          taskData.output_files = [taskData.output_files];
+        }
+      }
+      
+      Object.assign(selectedTask.value, taskData);
     } else {
       console.error(
         t("tasks-TaskList-19c298d949224c78d-117"),
@@ -1215,9 +1225,10 @@ const downloadSingleFile = async (filePath: string) => {
 
   try {
     const fileName = filePath.split("/").pop();
-    // 直接使用文件URL进行下载，不再调用API
+    // 使用后端下载接口
+    const downloadUrl = `${API_BASE_URL}/task/download?filePath=${encodeURIComponent(filePath)}`;
     const link = document.createElement("a");
-    link.href = filePath;
+    link.href = downloadUrl;
     link.setAttribute("download", fileName || "output.csv");
     link.setAttribute("target", "_blank");
     document.body.appendChild(link);
@@ -1236,19 +1247,20 @@ const downloadSingleFile = async (filePath: string) => {
 const downloadCheckpointFile = (checkpointPath: string) => {
   if (!checkpointPath) return;
 
-  // 直接使用文件URL进行下载，不再调用API
+  // 使用后端下载接口
   try {
     const fileName = checkpointPath.split("/").pop();
+    const downloadUrl = `${API_BASE_URL}/task/download?filePath=${encodeURIComponent(checkpointPath)}`;
     const link = document.createElement("a");
-    link.href = checkpointPath;
+    link.href = downloadUrl;
     link.setAttribute("download", fileName || "checkpoint.json");
     link.setAttribute("target", "_blank");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   } catch (error) {
-    ElMessage.error(t("tasks-TaskList-19c298d949224c78d-135"));
-    console.error(t("tasks-TaskList-19c298d949224c78d-136"), error);
+    ElMessage.error(t("tasks-TaskList-1135"));
+    console.error(t("tasks-TaskList-1136"), error);
   }
 };
 

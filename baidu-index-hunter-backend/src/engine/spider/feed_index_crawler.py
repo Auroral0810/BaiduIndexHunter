@@ -2,6 +2,7 @@
 资讯指数爬虫（趋势数据）
 """
 import urllib.parse
+from typing import List, Dict, Any, Optional, Union, Tuple
 import os
 import json
 import requests

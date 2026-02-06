@@ -141,12 +141,13 @@ def list_tasks(validated_data: ListTasksRequest):
                     task[key] = value.strftime('%Y-%m-%d %H:%M:%S')
             
             # 简单的参数JSON解析 (为了View层展示)
-            if 'parameters' in task and task['parameters']:
-                try:
-                    if isinstance(task['parameters'], str):
-                         task['parameters'] = json.loads(task['parameters'])
-                except Exception:
-                    pass
+            for json_field in ['parameters', 'output_files', 'checkpoint_path']:
+                if json_field in task and task[json_field]:
+                    try:
+                        if isinstance(task[json_field], str):
+                             task[json_field] = json.loads(task[json_field])
+                    except Exception:
+                        pass
 
         return jsonify(ResponseFormatter.success({
             'total': total,
@@ -172,6 +173,14 @@ def get_task(task_id):
             if isinstance(value, datetime):
                 task[key] = value.strftime('%Y-%m-%d %H:%M:%S')
         
+        for json_field in ['parameters', 'output_files', 'checkpoint_path']:
+            if json_field in task and task[json_field]:
+                try:
+                    if isinstance(task[json_field], str):
+                         task[json_field] = json.loads(task[json_field])
+                except Exception:
+                    pass
+
         logs = task_service.get_task_logs(task_id, limit=100)
         for lg in logs:
             if 'timestamp' in lg and isinstance(lg['timestamp'], datetime):

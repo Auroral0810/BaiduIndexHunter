@@ -2,7 +2,8 @@
 任务仓储类
 处理爬虫任务的数据库操作
 """
-from typing import List, Optional, Dict
+import json
+from typing import List, Optional, Dict, Union
 from datetime import datetime
 from sqlmodel import select, col, func
 from src.data.database import session_scope
@@ -19,6 +20,7 @@ class TaskRepository(BaseRepository[SpiderTaskModel]):
             statement = select(SpiderTaskModel).where(
                 SpiderTaskModel.status == 'paused'
             ).order_by(col(SpiderTaskModel.update_time).desc()).limit(limit)
+
             return session.exec(statement).all()
 
     def get_by_task_id(self, task_id: str) -> Optional[SpiderTaskModel]:

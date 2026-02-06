@@ -281,6 +281,7 @@ class BaseCrawler:
             'task_id': self.task_id,
             'output_path': self.output_path,
             'output_files': self.output_files,
+            'start_time': self.start_time.strftime('%Y-%m-%d %H:%M:%S') if self.start_time else None,
             'update_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
 
@@ -325,6 +326,21 @@ class BaseCrawler:
                 self.total_tasks = data.get('total_tasks', 0)
                 self.task_id = data.get('task_id')
                 self.output_path = data.get('output_path')
+                self.output_files = data.get('output_files', [])
+                
+                # 恢复开始时间
+                start_time_str = data.get('start_time')
+                if start_time_str:
+                    try:
+                        self.start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M:%S')
+                    except:
+                        pass
+                elif data.get('update_time'): # 兼容旧版或兜底
+                    try:
+                        self.start_time = datetime.strptime(data.get('update_time'), '%Y-%m-%d %H:%M:%S')
+                    except:
+                        pass
+                
                 self.checkpoint_path = path # 记录当前使用的检查点路径
             return data
         except Exception as e:
