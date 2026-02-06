@@ -151,13 +151,21 @@ class RegionProcessor:
                     item.get('prov_real', {})
                 )
                 
+                # 获取省份映射表，用于名称和所属大区查询
+                all_provinces = region_manager.get_all_provinces()
+                
                 # 处理省份级别数据
                 region_stats = {}
                 if prov_data or prov_real_merged:
                     all_prov_codes = set(prov_data.keys()) | set(prov_real_merged.keys())
                     for code in all_prov_codes:
-                        index_value = prov_data.get(code, 0) or 0
-                        real_value = prov_real_merged.get(code, 0) or 0
+                        code_str = str(code)
+                        # 获取省份信息
+                        prov_info = all_provinces.get(code_str)
+                        prov_name = prov_info['name'] if prov_info else f"未知省份({code})"
+                        
+                        index_value = prov_data.get(code_str, 0) or 0
+                        real_value = prov_real_merged.get(code_str, 0) or 0
                         
                         # 确保数值类型
                         try:
@@ -165,6 +173,8 @@ class RegionProcessor:
                         except (ValueError, TypeError):
                             index_value = 0
                         try:
+                            # 百度指数的 provReal 通常是百分比字符串或者小数，这里尝试转换
+                            # 如果是百分比字符串 '30%' -> 0.3? 用户说 provReal 是 "真实指数", 暂按 float 处理
                             real_value = float(real_value) if real_value else 0.0
                         except (ValueError, TypeError):
                             real_value = 0.0
@@ -175,15 +185,16 @@ class RegionProcessor:
                             '查询地区名称': area_name,
                             '时间范围': period,
                             '数据级别': '省份',
-                            '代码': str(code),
-                            '名称': self._get_province_name(code),
+                            '代码': code_str,
+                            '名称': prov_name,
                             '指数': index_value,
                             '真实占比': real_value,
                             '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                         })
                         
                         # 统计大区数据
-                        prov_region = region_manager.get_province_region(str(code))
+                        # 从省份信息中获取所属大区
+                        prov_region = prov_info.get('region') if prov_info else None
                         if prov_region:
                             if prov_region not in region_stats:
                                 region_stats[prov_region] = {'index': 0, 'real': 0.0}
@@ -217,8 +228,9 @@ class RegionProcessor:
                 if city_data or city_real_merged:
                     all_city_codes = set(city_data.keys()) | set(city_real_merged.keys())
                     for code in all_city_codes:
-                        index_value = city_data.get(code, 0) or 0
-                        real_value = city_real_merged.get(code, 0) or 0
+                        code_str = str(code)
+                        index_value = city_data.get(code_str, 0) or 0
+                        real_value = city_real_merged.get(code_str, 0) or 0
                         
                         # 确保数值类型
                         try:
@@ -236,8 +248,8 @@ class RegionProcessor:
                             '查询地区名称': area_name,
                             '时间范围': period,
                             '数据级别': '地级市',
-                            '代码': str(code),
-                            '名称': self._get_city_name(code),
+                            '代码': code_str,
+                            '名称': self._get_city_name(code_str),
                             '指数': index_value,
                             '真实占比': real_value,
                             '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
