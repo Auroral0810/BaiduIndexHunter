@@ -32,7 +32,7 @@ from src.api.v1.word_check_controller import register_word_check_blueprint
 from src.api.v1.word_graph_controller import register_word_graph_blueprint
 
 # WebSocket 服务
-from src.services.websocket_service import init_socketio
+from src.services.websocket_service import init_socketio, socketio
 
 # 将项目根目录添加到 Python 路径 (兼容性支持)
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
@@ -160,4 +160,4 @@ if __name__ == '__main__':
     app = create_app()
     log.info(f"启动应用，地址: http://{host}:{port}，调试模式: {'开启' if debug else '关闭'}")
     log.info(f"API文档地址: http://{host}:{port}/api/docs/")
-    app.run(host=host, port=port, debug=debug)
+    socketio.run(app, host=host, port=port, debug=debug, allow_unsafe_werkzeug=True)
