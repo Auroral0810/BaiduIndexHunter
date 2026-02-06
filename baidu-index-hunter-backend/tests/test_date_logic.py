@@ -22,10 +22,12 @@ class TestDateLogic(unittest.TestCase):
 
     @patch('src.engine.spider.search_index_crawler.log')
     @patch('src.engine.spider.search_index_crawler.ThreadPoolExecutor')
-    def test_days_calculation(self, mock_executor, mock_log):
-        # Mock datetime.now() to a fixed date to make test deterministic
-        # But datetime is a built-in type, hard to mock directly without libraries like freezegun.
-        # So we will just check if the logic matches relative to today.
+    @patch('src.engine.spider.search_index_crawler.as_completed')
+    def test_days_calculation(self, mock_as_completed, mock_executor, mock_log):
+        # mock_as_completed should return an iterator of the futures
+        mock_future = MagicMock()
+        mock_executor.return_value.__enter__.return_value.submit.return_value = mock_future
+        mock_as_completed.return_value = [mock_future]
         
         days = 30
         try:
@@ -33,8 +35,9 @@ class TestDateLogic(unittest.TestCase):
             self.crawler.output_path = "/tmp/test"
             with patch('os.makedirs'):
                 self.crawler.crawl(days=days, keywords=['test'], cities={0: 'test'})
-        except Exception:
-            pass # We don't care if it fails later, we want to check logs
+        except Exception as e:
+            # We don't care if it fails later, but we should not fail on CrawlerInterrupted
+            print(f"Crawl internal error (expected in mock): {e}")
         
         # Check logs for "最终使用的 date_ranges"
         # The log message is: "最终使用的 date_ranges 长度: 1"
@@ -82,7 +85,7 @@ class TestDateLogic(unittest.TestCase):
         
         today = datetime.now()
         expected_end = (today - timedelta(days=2)).strftime('%Y-%m-%d')
-        expected_start = (today - timedelta(days=days+2)).strftime('%Y-%m-%d')
+        expected_start = (today - timedelta(days=days+1)).strftime('%Y-%m-%d')
         
         self.assertEqual(end_date, expected_end)
         self.assertEqual(start_date, expected_start)

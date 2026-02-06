@@ -67,8 +67,20 @@ class BaseCrawler:
 
     def setup_signal_handlers(self):
         """设置信号处理器以捕获中断"""
-        signal.signal(signal.SIGINT, self.handle_exit)
-        signal.signal(signal.SIGTERM, self.handle_exit)
+        # 仅在主线程中设置信号处理器
+        if threading.current_thread() is not threading.main_thread():
+            return
+            
+        # 在测试环境下跳过信号处理器设置，避免干扰测试框架
+        if 'pytest' in sys.modules or os.environ.get('PYTEST_CURRENT_TEST'):
+            return
+
+        try:
+            signal.signal(signal.SIGINT, self.handle_exit)
+            signal.signal(signal.SIGTERM, self.handle_exit)
+        except (ValueError, RuntimeError):
+            # 在某些非主线程或受限环境下可能无法设置信号
+            pass
 
     def handle_exit(self, signum, frame):
         """处理退出信号，保存数据和检查点"""

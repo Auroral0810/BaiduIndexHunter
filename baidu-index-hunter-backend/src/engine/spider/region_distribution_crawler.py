@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from src.core.logger import log
 from src.utils.decorators import retry
 from src.engine.spider.base_crawler import BaseCrawler, CrawlerInterrupted
-from src.engine.processors.region_processor import region_processor
+from src.services.processor_service import data_processor
 
 class RegionDistributionCrawler(BaseCrawler):
     """地域分布爬虫，负责获取百度指数的地域分布数据"""
@@ -53,7 +53,7 @@ class RegionDistributionCrawler(BaseCrawler):
              raise Exception(f"Failed to get region distribution for {task_item['keyword']}")
              
         # 使用地域分布数据处理器处理
-        df = region_processor.process_region_distribution_data(
+        df = data_processor.process_region_distribution_data(
             result, 
             task_item['region'], 
             task_item['keyword'], 
