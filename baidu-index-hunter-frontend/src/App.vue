@@ -427,7 +427,8 @@ html.dark .app-header {
   flex: 1;
   display: flex;
   justify-content: center;
-  margin: 0 40px;
+  margin: 0 20px; /* Reduced from 40px */
+  overflow: hidden; /* Prevent overflow */
 }
 
 .nav-menu {
@@ -436,12 +437,21 @@ html.dark .app-header {
   height: var(--header-height);
   display: flex;
   align-items: center;
+  width: 100%;
+  justify-content: center;
+  overflow-x: auto; /* Allow scroll if needed on very small screens */
+  scrollbar-width: none; /* Firefox */
+}
+
+.nav-menu::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
 }
 
 .nav-item {
   height: 40px !important;
   line-height: 40px !important;
-  margin: 0 4px !important;
+  margin: 0 2px !important; /* Reduced from 4px */
+  padding: 0 12px !important; /* Defined padding instead of default */
   border-radius: 6px !important;
   border: none !important;
   color: var(--color-text-secondary) !important;
@@ -449,6 +459,8 @@ html.dark .app-header {
   font-size: 0.95rem !important;
   transition: all 0.2s ease !important;
   background: transparent !important;
+  white-space: nowrap; /* Prevent wrapping */
+  flex-shrink: 0; /* Prevent shrinking below content width */
 }
 
 .nav-item:hover {

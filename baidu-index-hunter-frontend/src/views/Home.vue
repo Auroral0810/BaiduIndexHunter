@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { 
@@ -30,7 +30,7 @@ const goToDataCollection = () => {
   router.push('/data-collection')
 }
 
-const features = ref([
+const features = computed(() => [
   {
     title: $t('views.home.1uq3y8'),
     description: $t('views.home.6441b1'),
@@ -63,7 +63,7 @@ const features = ref([
   }
 ])
 
-const workflowSteps = [
+const workflowSteps = computed(() => [
   {
     title: $t('views.home.165t48'),
     description: $t('views.home.j5akxa'),
@@ -99,9 +99,9 @@ const workflowSteps = [
     description: $t('views.home.o99urw'),
     icon: VideoPlay
   }
-]
+])
 
-const dataDefinitions = [
+const dataDefinitions = computed(() => [
   {
     title: $t('views.home.data_region_title'),
     desc: $t('views.home.data_region_desc'),
@@ -144,7 +144,7 @@ const dataDefinitions = [
     icon: DocumentCopy,
     color: '#6366f1'
   }
-]
+])
 
 const activeTab = ref(0)
 </script>
