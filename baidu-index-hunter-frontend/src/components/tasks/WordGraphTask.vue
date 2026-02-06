@@ -120,40 +120,34 @@
         <el-divider content-position="left">{{
           $t("tasks-WordGraphTask-19c298e227e044aa6-20")
         }}</el-divider>
-        <el-form-item :label="$t('tasks-WordGraphTask-19c298e227e044aa6-21')"
-          ><el-radio-group v-model="formData.kind"
-            ><el-radio-button label="all">{{
-              $t("tasks-WordGraphTask-19c298e227e044aa6-22")
-            }}</el-radio-button>
-            <el-radio-button label="pc">PC</el-radio-button>
-            <el-radio-button label="wise">{{
-              $t("tasks-WordGraphTask-19c298e227e044aa6-23")
-            }}</el-radio-button></el-radio-group
-          ></el-form-item
-        >
-        <el-form-item :label="$t('tasks-WordGraphTask-19c298e227e044aa6-24')"
-          ><div class="date-selection">
-            <el-date-picker
-              v-model="dateRange"
-              type="daterange"
-              :range-separator="$t('tasks-WordGraphTask-19c298e227e044aa6-25')"
-              :start-placeholder="
-                $t('tasks-WordGraphTask-19c298e227e044aa6-26')
-              "
-              :end-placeholder="$t('tasks-WordGraphTask-19c298e227e044aa6-27')"
-              format="YYYY-MM-DD"
-              value-format="YYYYMMDD"
-              :disabled-date="disabledDate"
-              unlink-panels
-            />
-            <div class="date-tip">
-              {{ $t("tasks-WordGraphTask-19c298e227e044aa6-28") }}
-              {{ oneYearAgoStr }}
-              {{ $t("tasks-WordGraphTask-19c298e227e044aa6-29") }}
-              {{ todayStr }} ）
+        <el-form-item :label="$t('tasks-WordGraphTask-19c298e227e044aa6-24')">
+          <div class="date-selection" v-loading="loadingTimeRange">
+            <el-select
+              v-model="selectedWeeks"
+              multiple
+              filterable
+              :placeholder="timeRangeError ? '获取时间范围失败' : '请选择周开始日期'"
+              style="width: 100%"
+              :disabled="!weeklyDates.length"
+            >
+              <el-option
+                v-for="item in weeklyDates"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+            <div class="date-tip" v-if="timeRangeStore.startDate && timeRangeStore.endDate">
+              可选范围：{{ timeRangeStore.startDate }} 至 {{ timeRangeStore.endDate }}
+              <el-button link type="primary" @click="selectAllWeeks" style="margin-left: 10px">全选</el-button>
+              <el-button link type="warning" @click="clearWeeks">清空</el-button>
             </div>
-          </div></el-form-item
-        >
+            <div class="date-tip" v-else-if="timeRangeError">
+              <el-text type="danger">{{ timeRangeError }}</el-text>
+              <el-button link type="primary" @click="fetchTimeRange">重试</el-button>
+            </div>
+          </div>
+        </el-form-item>
         <!-- 输出设置 -->
         <el-divider content-position="left">{{
           $t("tasks-WordGraphTask-19c298e227e044aa6-30")
@@ -384,11 +378,10 @@
           >
           <el-descriptions-item
             :label="$t('tasks-WordGraphTask-19c298e227e044aa6-71')"
-            >{{
-              dateRange && dateRange.length === 2
-                ? `${formatDisplayDate(dateRange[0])}${$t("tasks-WordGraphTask-19c298e227e044aa6-72")}${formatDisplayDate(dateRange[1])}`
-                : $t("tasks-WordGraphTask-19c298e227e044aa6-73")
-            }}</el-descriptions-item
+            >已选择 {{ selectedWeeks.length }} 周
+            <span v-if="selectedWeeks.length > 0" style="color: #909399; margin-left: 8px;">
+              ({{ formatDisplayDate(selectedWeeks[0]) }} 至 {{ formatDisplayDate(selectedWeeks[selectedWeeks.length - 1]) }})
+            </span></el-descriptions-item
           >
           <el-descriptions-item
             :label="$t('tasks-WordGraphTask-19c298e227e044aa6-74')"
@@ -401,16 +394,6 @@
           <el-descriptions-item
             :label="$t('tasks-WordGraphTask-19c298e227e044aa6-77')"
             ><div>
-              {{ $t("tasks-WordGraphTask-19c298e227e044aa6-78") }}
-              {{
-                formData.kind === "all"
-                  ? $t("tasks-WordGraphTask-19c298e227e044aa6-79")
-                  : formData.kind === "pc"
-                    ? "PC"
-                    : $t("tasks-WordGraphTask-19c298e227e044aa6-80")
-              }}
-            </div>
-            <div>
               {{ $t("tasks-WordGraphTask-19c298e227e044aa6-81") }}
               {{ formData.priority }}
             </div>
@@ -440,7 +423,8 @@
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
+import { useWordGraphStore } from "@/store/wordGraph";
 
 const { t } = useI18n();
 import { useRouter } from "vue-router";
@@ -460,6 +444,9 @@ import * as XLSX from "xlsx";
 const API_BASE_URL = "http://127.0.0.1:5001/api";
 const router = useRouter();
 
+// Pinia store 用于缓存时间范围
+const timeRangeStore = useWordGraphStore();
+
 // 表单数据
 const formData = reactive({
   keywords: [] as { value: string }[],
@@ -468,15 +455,20 @@ const formData = reactive({
   resume: false,
   task_id: "",
   priority: 5,
-  kind: "all",
 });
 
 // 关键词输入
 const batchKeywords = ref("");
 const skipFirstLine = ref(true);
 
-// 日期选择
-const dateRange = ref([]);
+// 周日期选择
+const selectedWeeks = ref<string[]>([]);
+const loadingTimeRange = ref(false);
+const timeRangeError = ref("");
+
+// 可选的周日期列表
+const weeklyDates = computed(() => timeRangeStore.getWeeklyDates);
+
 
 // 状态
 const submitting = ref(false);
@@ -515,6 +507,36 @@ const importResults = reactive({
   invalidItems: [] as string[],
 });
 
+// 获取时间范围
+const fetchTimeRange = async () => {
+  loadingTimeRange.value = true;
+  timeRangeError.value = "";
+  try {
+    await timeRangeStore.fetchTimeRange();
+  } catch (error: any) {
+    timeRangeError.value = error.message || "获取时间范围失败";
+  } finally {
+    loadingTimeRange.value = false;
+  }
+};
+
+// 全选所有周
+const selectAllWeeks = () => {
+  selectedWeeks.value = weeklyDates.value.map(d => d.value);
+};
+
+// 清空选中的周
+const clearWeeks = () => {
+  selectedWeeks.value = [];
+};
+
+// 组件挂载时获取时间范围
+onMounted(() => {
+  fetchTimeRange();
+});
+
+
+
 // 任务概览对话框
 const taskOverviewDialogVisible = ref(false);
 
@@ -540,8 +562,8 @@ const canSubmit = computed(() => {
   // 必须有关键词
   if (formData.keywords.length === 0) return false;
 
-  // 必须有日期范围
-  if (!dateRange.value || dateRange.value.length !== 2) return false;
+  // 必须有选中的周日期
+  if (selectedWeeks.value.length === 0) return false;
 
   // 恢复任务时需要任务ID
   if (formData.resume && !formData.task_id.trim()) return false;
@@ -804,11 +826,9 @@ const submitTask = async () => {
       taskType: "word_graph",
       parameters: {
         keywords: formData.keywords.map((k) => k.value),
-        start_date: dateRange.value[0],
-        end_date: dateRange.value[1],
+        datelists: selectedWeeks.value,  // 发送选中的周日期数组
         output_format: formData.output_format,
         resume: formData.resume,
-        kind: formData.kind,
       },
       priority: formData.priority,
     };
@@ -842,14 +862,12 @@ const submitTask = async () => {
 // 重置表单
 const resetForm = () => {
   formData.keywords = [];
-  dateRange.value = [];
+  selectedWeeks.value = [];
   batchKeywords.value = "";
-  selectedDate.value = "";
   formData.output_format = "csv";
   formData.resume = false;
   formData.task_id = "";
   formData.priority = 5;
-  formData.kind = "all";
 };
 
 // 前往任务列表页面

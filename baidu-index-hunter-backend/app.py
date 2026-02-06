@@ -29,6 +29,7 @@ from src.api.v1.task_controller import register_task_blueprint
 from src.api.v1.statistics_controller import register_statistics_blueprint
 from src.api.v1.config_api import config_bp
 from src.api.v1.word_check_controller import register_word_check_blueprint
+from src.api.v1.word_graph_controller import register_word_graph_blueprint
 
 # WebSocket 服务
 from src.services.websocket_service import init_socketio
@@ -104,6 +105,7 @@ def register_blueprints(app):
     register_task_blueprint(app)
     register_statistics_blueprint(app)
     register_word_check_blueprint(app)
+    register_word_graph_blueprint(app)
     app.register_blueprint(config_bp)
 
 def register_base_routes(app):
