@@ -547,7 +547,7 @@ export default {
   "views.settings.vb1k63": "ワーカースレッドの最大数",
   "views.settings.2x1gk7": "ユーザーエージェントをローテーションするかどうか",
   "views.settings.r3739f": "プロキシを有効にするかどうか",
-  "views.settings.78hr7f": "プロキシURL",
+  "views.settings.78hr7f": "プロキシ URL",
   "views.settings.2732fq": "失敗後の間隔倍数",
   "views.settings.5pe522": "デフォルトの出力形式: csv、excel",
   "views.settings.813612": "CSVファイルのエンコード",
@@ -1915,4 +1915,8 @@ export default {
   "components-RegionProvinceSelector-10": "全国",
   "tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint":
     "2011 年から現在までのすべてのデータがクロールされます",
+  "views.notfound.h1": "ページが見つかりません",
+  "views.notfound.desc":
+    "ごめんなさい！ あなたが訪れたページはデジタル空間に消えました。",
+  "views.notfound.btn": "ホームページに戻る",
 };

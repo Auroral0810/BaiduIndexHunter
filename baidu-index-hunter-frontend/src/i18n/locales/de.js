@@ -419,7 +419,7 @@ export default {
   "views.cookiemanager.188w8t": "Bestätigung der erzwungenen Entsperrung",
   "views.cookiemanager.e6tc1n": "Konto {0} wurde zwangsweise entsperrt",
   "views.cookiemanager.0frwfn":
-    "Die erzwungene Entsperrung ist fehlgeschlagen: {0}",
+    "Das erzwungene Entsperren ist fehlgeschlagen: {0}",
   "views.cookiemanager.ig1iw4": "Fehler beim erzwungenen Entsperren:",
   "views.cookiemanager.68b827":
     "Die Konto-ID wurde von {0} auf {1} aktualisiert.",
@@ -561,7 +561,7 @@ export default {
   "views.settings.00sc35": "Maximale Anzahl von Sekunden zwischen Anfragen",
   "views.settings.o37987":
     "Anzahl der fehlgeschlagenen Anforderungswiederholungen",
-  "views.settings.q621z9": "Anforderungszeitlimit (Sekunden)",
+  "views.settings.q621z9": "Anforderungszeitüberschreitung (Sekunden)",
   "views.settings.vb1k63": "Maximale Anzahl von Arbeitsthreads",
   "views.settings.2x1gk7": "Ob der User-Agent rotiert werden soll",
   "views.settings.r3739f": "Ob Proxy aktiviert werden soll",
@@ -1706,7 +1706,7 @@ export default {
     "Schlüsselwörter existieren nicht",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-71":
     "Schlüsselwörter, die nicht existieren:",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-72": "Schließen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-72": "schließen",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-73":
     "Löschen Sie nicht vorhandene Schlüsselwörter",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-74": "Erfolgreich importiert",
@@ -1728,7 +1728,7 @@ export default {
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-85": "Stadt",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-86": "...usw.",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-87": "a",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-88": "Schließen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-88": "schließen",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-89": "Missionsübersicht",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-90":
     "Bestätigung der Aufgabenparameter",
@@ -1878,7 +1878,7 @@ export default {
     "Schlüsselwörter existieren nicht",
   "tasks-WordGraphTask-19c298e227e044aa6-51":
     "Schlüsselwörter, die nicht existieren:",
-  "tasks-WordGraphTask-19c298e227e044aa6-52": "Schließen",
+  "tasks-WordGraphTask-19c298e227e044aa6-52": "schließen",
   "tasks-WordGraphTask-19c298e227e044aa6-53":
     "Löschen Sie nicht vorhandene Schlüsselwörter",
   "tasks-WordGraphTask-19c298e227e044aa6-54": "Ergebnisse des Keyword-Imports",
@@ -1890,7 +1890,7 @@ export default {
     "Ungültige oder doppelte Schlüsselwörter:",
   "tasks-WordGraphTask-19c298e227e044aa6-59": "...usw.",
   "tasks-WordGraphTask-19c298e227e044aa6-60": "a",
-  "tasks-WordGraphTask-19c298e227e044aa6-61": "Schließen",
+  "tasks-WordGraphTask-19c298e227e044aa6-61": "schließen",
   "tasks-WordGraphTask-19c298e227e044aa6-62": "Missionsübersicht",
   "tasks-WordGraphTask-19c298e227e044aa6-63":
     "Bestätigung der Aufgabenparameter",
@@ -2028,4 +2028,8 @@ export default {
   "dashboard.dashboard.volume": "Ausführungsvolumen",
   "dashboard.dashboard.waiting_data":
     "Warten darauf, dass das Paket an das Terminal weitergeleitet wird ...",
+  "views.notfound.h1": "Seite nicht gefunden",
+  "views.notfound.desc":
+    "Entschuldigung! Die von Ihnen besuchte Seite ist im digitalen Nichts verschwunden.",
+  "views.notfound.btn": "Zurück zur Startseite",
 };

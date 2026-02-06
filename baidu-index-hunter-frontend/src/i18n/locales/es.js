@@ -682,7 +682,7 @@ export default {
   "tasks-TaskList-19c298d949224c78d-64": "(fallido:",
   "tasks-TaskList-19c298d949224c78d-65": "Parámetros de la tarea",
   "tasks-TaskList-19c298d949224c78d-66": "palabras clave",
-  "tasks-TaskList-19c298d949224c78d-67": "zona",
+  "tasks-TaskList-19c298d949224c78d-67": "área",
   "tasks-TaskList-19c298d949224c78d-68": "área",
   "tasks-TaskList-19c298d949224c78d-69": "rango de tiempo",
   "tasks-TaskList-19c298d949224c78d-70": "rango de tiempo",
@@ -713,7 +713,7 @@ export default {
     "Aún no hay datos de puntos de control",
   "tasks-TaskList-19c298d949224c78d-95": "Registro de misión",
   "tasks-TaskList-19c298d949224c78d-96": "tiempo",
-  "tasks-TaskList-19c298d949224c78d-97": "Nivel",
+  "tasks-TaskList-19c298d949224c78d-97": "nivel",
   "tasks-TaskList-19c298d949224c78d-98": "noticias",
   "tasks-TaskList-19c298d949224c78d-99": "Aún no hay registro de tareas",
   "tasks-TaskList-19c298d949224c78d-100": "Cerrar",
@@ -1019,12 +1019,12 @@ export default {
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-88":
     "¿Está seguro de que desea borrar todas las palabras clave?",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-89": "Consejos",
-  "tasks-DemographicAttributesTask-19c298e1c74d5b997-90": "OK",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-90": "bien",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-91": "Cancelar",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-92":
     "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-93": "Consejos",
-  "tasks-DemographicAttributesTask-19c298e1c74d5b997-94": "OK",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-94": "bien",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-95": "Cancelar",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-96": "despejado",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-97":
@@ -1132,7 +1132,7 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-69": "existen palabras clave",
   "tasks-FeedIndexTask-19c298e1d0a206148-70": "las palabras clave no existen",
   "tasks-FeedIndexTask-19c298e1d0a206148-71": "Palabras clave que no existen:",
-  "tasks-FeedIndexTask-19c298e1d0a206148-72": "Cerrar",
+  "tasks-FeedIndexTask-19c298e1d0a206148-72": "cerrar",
   "tasks-FeedIndexTask-19c298e1d0a206148-73":
     "Borrar palabras clave inexistentes",
   "tasks-FeedIndexTask-19c298e1d0a206148-74": "Importado exitosamente",
@@ -1152,7 +1152,7 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-85": "ciudad",
   "tasks-FeedIndexTask-19c298e1d0a206148-86": "...etc.",
   "tasks-FeedIndexTask-19c298e1d0a206148-87": "un",
-  "tasks-FeedIndexTask-19c298e1d0a206148-88": "Cerrar",
+  "tasks-FeedIndexTask-19c298e1d0a206148-88": "cerrar",
   "tasks-FeedIndexTask-19c298e1d0a206148-89": "Resumen de la misión",
   "tasks-FeedIndexTask-19c298e1d0a206148-90":
     "Confirmación de parámetros de tarea",
@@ -1208,12 +1208,12 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-133":
     "¿Está seguro de que desea borrar todas las palabras clave?",
   "tasks-FeedIndexTask-19c298e1d0a206148-134": "Consejos",
-  "tasks-FeedIndexTask-19c298e1d0a206148-135": "OK",
+  "tasks-FeedIndexTask-19c298e1d0a206148-135": "bien",
   "tasks-FeedIndexTask-19c298e1d0a206148-136": "Cancelar",
   "tasks-FeedIndexTask-19c298e1d0a206148-137":
     "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
   "tasks-FeedIndexTask-19c298e1d0a206148-138": "Consejos",
-  "tasks-FeedIndexTask-19c298e1d0a206148-139": "OK",
+  "tasks-FeedIndexTask-19c298e1d0a206148-139": "bien",
   "tasks-FeedIndexTask-19c298e1d0a206148-140": "Cancelar",
   "tasks-FeedIndexTask-19c298e1d0a206148-141": "despejado",
   "tasks-FeedIndexTask-19c298e1d0a206148-142": "palabras clave que no existen",
@@ -1304,7 +1304,7 @@ export default {
     "las palabras clave no existen",
   "tasks-InterestProfileTask-19c298e1e7a81a799-46":
     "Palabras clave que no existen:",
-  "tasks-InterestProfileTask-19c298e1e7a81a799-47": "Cerrar",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-47": "cerrar",
   "tasks-InterestProfileTask-19c298e1e7a81a799-48":
     "Borrar palabras clave inexistentes",
   "tasks-InterestProfileTask-19c298e1e7a81a799-49": "Importado exitosamente",
@@ -1315,7 +1315,7 @@ export default {
     "Palabras clave no válidas o duplicadas:",
   "tasks-InterestProfileTask-19c298e1e7a81a799-53": "...etc.",
   "tasks-InterestProfileTask-19c298e1e7a81a799-54": "un",
-  "tasks-InterestProfileTask-19c298e1e7a81a799-55": "Cerrar",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-55": "cerrar",
   "tasks-InterestProfileTask-19c298e1e7a81a799-56": "Resumen de la misión",
   "tasks-InterestProfileTask-19c298e1e7a81a799-57":
     "Confirmación de parámetros de tarea",
@@ -2005,4 +2005,8 @@ export default {
   "dashboard.dashboard.volume": "Volumen de ejecución",
   "dashboard.dashboard.waiting_data":
     "Esperando que el paquete sea enviado a la terminal...",
+  "views.notfound.h1": "Página no encontrada",
+  "views.notfound.desc":
+    "¡Lo siento! La página que visitaste ha desaparecido en el vacío digital.",
+  "views.notfound.btn": "Volver a la página de inicio",
 };

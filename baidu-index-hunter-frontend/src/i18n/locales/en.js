@@ -689,7 +689,7 @@ export default {
   "tasks-TaskList-19c298d949224c78d-94": "No checkpoint data yet",
   "tasks-TaskList-19c298d949224c78d-95": "Mission log",
   "tasks-TaskList-19c298d949224c78d-96": "time",
-  "tasks-TaskList-19c298d949224c78d-97": "Level",
+  "tasks-TaskList-19c298d949224c78d-97": "level",
   "tasks-TaskList-19c298d949224c78d-98": "news",
   "tasks-TaskList-19c298d949224c78d-99": "No task log yet",
   "tasks-TaskList-19c298d949224c78d-100": "Close",
@@ -1066,7 +1066,7 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-69": "keywords exist",
   "tasks-FeedIndexTask-19c298e1d0a206148-70": "keywords do not exist",
   "tasks-FeedIndexTask-19c298e1d0a206148-71": "Keywords that do not exist:",
-  "tasks-FeedIndexTask-19c298e1d0a206148-72": "Close",
+  "tasks-FeedIndexTask-19c298e1d0a206148-72": "close",
   "tasks-FeedIndexTask-19c298e1d0a206148-73": "Clear non-existent keywords",
   "tasks-FeedIndexTask-19c298e1d0a206148-74": "Imported successfully",
   "tasks-FeedIndexTask-19c298e1d0a206148-75": "Keyword import results",
@@ -1082,7 +1082,7 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-85": "city",
   "tasks-FeedIndexTask-19c298e1d0a206148-86": "...etc.",
   "tasks-FeedIndexTask-19c298e1d0a206148-87": "a",
-  "tasks-FeedIndexTask-19c298e1d0a206148-88": "Close",
+  "tasks-FeedIndexTask-19c298e1d0a206148-88": "close",
   "tasks-FeedIndexTask-19c298e1d0a206148-89": "Mission overview",
   "tasks-FeedIndexTask-19c298e1d0a206148-90": "Task parameter confirmation",
   "tasks-FeedIndexTask-19c298e1d0a206148-91": "Task type",
@@ -1222,7 +1222,7 @@ export default {
   "tasks-InterestProfileTask-19c298e1e7a81a799-45": "keywords do not exist",
   "tasks-InterestProfileTask-19c298e1e7a81a799-46":
     "Keywords that do not exist:",
-  "tasks-InterestProfileTask-19c298e1e7a81a799-47": "Close",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-47": "close",
   "tasks-InterestProfileTask-19c298e1e7a81a799-48":
     "Clear non-existent keywords",
   "tasks-InterestProfileTask-19c298e1e7a81a799-49": "Imported successfully",
@@ -1233,7 +1233,7 @@ export default {
     "Invalid or duplicate keywords:",
   "tasks-InterestProfileTask-19c298e1e7a81a799-53": "...etc.",
   "tasks-InterestProfileTask-19c298e1e7a81a799-54": "a",
-  "tasks-InterestProfileTask-19c298e1e7a81a799-55": "Close",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-55": "close",
   "tasks-InterestProfileTask-19c298e1e7a81a799-56": "Mission overview",
   "tasks-InterestProfileTask-19c298e1e7a81a799-57":
     "Task parameter confirmation",
@@ -1853,4 +1853,8 @@ export default {
   "dashboard.dashboard.duration_comparison":
     "Average execution time comparison",
   "dashboard.dashboard.volume_comparison": "Data crawl volume comparison",
+  "views.notfound.h1": "Page not found",
+  "views.notfound.desc":
+    "Sorry! The page you visited has disappeared into the digital void.",
+  "views.notfound.btn": "Return to homepage",
 };

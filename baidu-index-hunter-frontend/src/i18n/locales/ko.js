@@ -1840,4 +1840,8 @@ export default {
   "components-RegionProvinceSelector-10": "전국",
   "tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint":
     "2011년부터 현재까지의 모든 데이터가 크롤링됩니다.",
+  "views.notfound.h1": "페이지를 찾을 수 없습니다",
+  "views.notfound.desc":
+    "죄송해요! 귀하가 방문한 페이지가 디지털 공백 속으로 사라졌습니다.",
+  "views.notfound.btn": "홈페이지로 돌아가기",
 };

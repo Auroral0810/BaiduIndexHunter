@@ -73,7 +73,7 @@ LOG_CONFIG = {
     'backup_count': int(os.getenv('LOG_BACKUP_COUNT', 5)),  # 日志文件备份数量
 }
 
-LOG_DIR = Path(__file__).parent.parent.parent / 'output/logs'
+LOG_DIR = Path(__file__).parent.parent.parent / 'logs'
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 # Cookie相关配置

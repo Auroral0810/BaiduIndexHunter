@@ -1701,4 +1701,7 @@ export default {
   "components-RegionProvinceSelector-10": "全國",
   "tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint":
     "將爬取 2011 年至今的全部數據",
+  "views.notfound.h1": "頁面未找到",
+  "views.notfound.desc": "抱歉！ 您訪問的頁面已消失在數字虛空中。",
+  "views.notfound.btn": "返回主頁",
 };

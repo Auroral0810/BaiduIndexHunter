@@ -66,9 +66,46 @@ const handleSelect = (key) => {
 };
 
 // 主题切换
+import { nextTick } from "vue";
+
 const isDark = computed(() => appStore.theme === "dark");
-const toggleTheme = () => {
-  appStore.setTheme(isDark.value ? "light" : "dark");
+const toggleTheme = (event) => {
+  const isAppearanceTransition = document.startViewTransition
+    && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!isAppearanceTransition) {
+    appStore.setTheme(isDark.value ? "light" : "dark");
+    return;
+  }
+
+  const x = event?.clientX ?? 0;
+  const y = event?.clientY ?? 0;
+  const endRadius = Math.hypot(
+    Math.max(x, innerWidth - x),
+    Math.max(y, innerHeight - y)
+  );
+
+  const transition = document.startViewTransition(async () => {
+    appStore.setTheme(isDark.value ? "light" : "dark");
+    await nextTick();
+  });
+
+  transition.ready.then(() => {
+    const clipPath = [
+      `circle(0px at ${x}px ${y}px)`,
+      `circle(${endRadius}px at ${x}px ${y}px)`
+    ];
+    document.documentElement.animate(
+      {
+        clipPath: clipPath,
+      },
+      {
+        duration: 400,
+        easing: 'ease-in',
+        pseudoElement: '::view-transition-new(root)',
+      }
+    );
+  });
 };
 
 // 语言切换
@@ -84,11 +121,33 @@ onMounted(() => {
   // 从 localStorage 恢复语言设置
   const savedLanguage = localStorage.getItem("language") || "zh-CN";
   locale.value = savedLanguage;
+
+  // 模拟加载动画（或者等待资源加载）
+  setTimeout(() => {
+    isLoading.value = false;
+  }, 1200);
 });
+
+const isLoading = ref(true);
 </script>
 
 <template>
   <div class="app-wrapper">
+    <!-- 全局加载动画 -->
+    <transition name="fade-overlay">
+      <div v-if="isLoading" class="loading-overlay">
+        <div class="loading-content">
+          <img src="@/assets/logo.svg" alt="Logo" class="loading-logo" />
+          <div class="loading-spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+          </div>
+          <div class="loading-text">BaiduIndex<span class="highlight">Hunter</span></div>
+        </div>
+      </div>
+    </transition>
+
     <header class="app-header">
       <div class="header-container">
         <div class="logo-area" @click="router.push('/')">
@@ -174,7 +233,7 @@ onMounted(() => {
         </div>
       </div>
     </header>
-    <main class="app-main">
+    <main class="app-main" :class="{ 'full-width-main': route.path === '/' }">
       <router-view v-slot="{ Component }"
         ><transition name="fade-slide" mode="out-in"
           ><component :is="Component" /></transition
@@ -299,6 +358,19 @@ body {
     color 0.3s ease;
   -webkit-font-smoothing: antialiased;
 }
+
+/* View Transition Styles */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Ensure the new view is on top during dark->light transition */
+::view-transition-new(root) {
+  z-index: 2147483646;
+}
+
 
 /* 覆盖 Element Plus 默认样式以匹配新主题 */
 :root {
@@ -602,6 +674,11 @@ html.dark .nav-item.is-active {
   padding: 32px 24px;
 }
 
+.app-main.full-width-main {
+  max-width: 100%;
+  padding: 0;
+}
+
 /* 页面过渡动画 */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
@@ -692,5 +769,96 @@ html.dark .nav-item.is-active {
     align-items: center;
     text-align: center;
   }
+}
+/* Loading Overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--color-bg-body);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.loading-logo {
+  width: 64px;
+  height: 64px;
+  animation: bounce 2s infinite ease-in-out;
+}
+
+.loading-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  letter-spacing: -0.5px;
+}
+
+.loading-text .highlight {
+  color: var(--color-primary);
+}
+
+.loading-spinner {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.spinner-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: var(--color-primary);
+  animation: spin 1.5s linear infinite;
+}
+
+.spinner-ring:nth-child(2) {
+  width: 40px;
+  height: 40px;
+  top: 10px;
+  left: 10px;
+  border-top-color: #a855f7;
+  animation: spin 2s linear infinite reverse;
+}
+
+.spinner-ring:nth-child(3) {
+  width: 20px;
+  height: 20px;
+  top: 20px;
+  left: 20px;
+  border-top-color: #22c55e;
+  animation: spin 2.5s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.fade-overlay-enter-active,
+.fade-overlay-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-overlay-enter-from,
+.fade-overlay-leave-to {
+  opacity: 0;
 }
 </style>

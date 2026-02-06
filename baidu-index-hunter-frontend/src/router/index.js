@@ -56,7 +56,15 @@ const routes = [
     meta: {
       title: '隐私政策 - BaiduIndexHunter'
     }
+  },
+  {
+  path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+      component: () => import('../views/NotFound.vue'),
+        meta: {
+    title: '404 Not Found - BaiduIndexHunter'
   }
+ }
 ]
 
 const router = createRouter({

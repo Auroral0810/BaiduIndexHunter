@@ -705,7 +705,7 @@ export default {
   "tasks-TaskList-19c298d949224c78d-94": "Данных о КПП пока нет",
   "tasks-TaskList-19c298d949224c78d-95": "Журнал миссии",
   "tasks-TaskList-19c298d949224c78d-96": "время",
-  "tasks-TaskList-19c298d949224c78d-97": "Уровень",
+  "tasks-TaskList-19c298d949224c78d-97": "уровень",
   "tasks-TaskList-19c298d949224c78d-98": "новости",
   "tasks-TaskList-19c298d949224c78d-99": "Журнала задач пока нет",
   "tasks-TaskList-19c298d949224c78d-100": "Закрыть",
@@ -1659,7 +1659,7 @@ export default {
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-70": "ключевые слова не существуют",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-71":
     "Ключевые слова, которых не существует:",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-72": "Закрыть",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-72": "закрыть",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-73":
     "Удалить несуществующие ключевые слова",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-74": "Импортирован успешно.",
@@ -1681,7 +1681,7 @@ export default {
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-85": "город",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-86": "...и т.д.",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-87": "а",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-88": "Закрыть",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-88": "закрыть",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-89": "Обзор миссии",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-90":
     "Подтверждение параметра задачи",
@@ -1769,7 +1769,7 @@ export default {
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-156": "Ошибка отправки задачи:",
   "tasks-WordGraphTask-19c298e227e044aa6-1": "Коллекция карт требований",
   "tasks-WordGraphTask-19c298e227e044aa6-2":
-    "Получите данные карты спроса Baidu, поддерживая несколько ключевых слов и несколько вариантов выбора дат.",
+    "Получите данные карты спроса Baidu с поддержкой нескольких ключевых слов и выбора нескольких дат.",
   "tasks-WordGraphTask-19c298e227e044aa6-3": "Установить параметры",
   "tasks-WordGraphTask-19c298e227e044aa6-4": "Настройки ключевых слов",
   "tasks-WordGraphTask-19c298e227e044aa6-5": "Ввод ключевого слова",
@@ -1828,7 +1828,7 @@ export default {
   "tasks-WordGraphTask-19c298e227e044aa6-50": "ключевые слова не существуют",
   "tasks-WordGraphTask-19c298e227e044aa6-51":
     "Ключевые слова, которых не существует:",
-  "tasks-WordGraphTask-19c298e227e044aa6-52": "Закрыть",
+  "tasks-WordGraphTask-19c298e227e044aa6-52": "закрыть",
   "tasks-WordGraphTask-19c298e227e044aa6-53":
     "Удалить несуществующие ключевые слова",
   "tasks-WordGraphTask-19c298e227e044aa6-54":
@@ -1841,7 +1841,7 @@ export default {
     "Недопустимые или повторяющиеся ключевые слова:",
   "tasks-WordGraphTask-19c298e227e044aa6-59": "...и т.д.",
   "tasks-WordGraphTask-19c298e227e044aa6-60": "а",
-  "tasks-WordGraphTask-19c298e227e044aa6-61": "Закрыть",
+  "tasks-WordGraphTask-19c298e227e044aa6-61": "закрыть",
   "tasks-WordGraphTask-19c298e227e044aa6-62": "Обзор миссии",
   "tasks-WordGraphTask-19c298e227e044aa6-63": "Подтверждение параметра задачи",
   "tasks-WordGraphTask-19c298e227e044aa6-64": "Тип задачи",
@@ -1989,4 +1989,8 @@ export default {
   "components-RegionProvinceSelector-10": "По всей стране",
   "tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint":
     "Будут сканироваться все данные с 2011 года по настоящее время.",
+  "views.notfound.h1": "Страница не найдена",
+  "views.notfound.desc":
+    "Извините! Страница, которую вы посетили, исчезла в цифровой пустоте.",
+  "views.notfound.btn": "Вернуться на домашнюю страницу",
 };

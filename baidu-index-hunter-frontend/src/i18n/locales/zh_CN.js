@@ -1598,5 +1598,8 @@ export default {
   "src-App-19c2993710803cda7-10": "仅供个人学习研究使用的非商业项目",
   "src-App-19c2993710803cda7-11": "关于项目",
   "src-App-19c2993710803cda7-12": "使用条款",
-  "src-App-19c2993710803cda7-13": "开始采集"
+  "src-App-19c2993710803cda7-13": "开始采集",
+  "views.notfound.h1": "页面未找到",
+  "views.notfound.desc": "抱歉！您访问的页面已消失在数字虚空中。",
+  "views.notfound.btn": "返回主页"
 }

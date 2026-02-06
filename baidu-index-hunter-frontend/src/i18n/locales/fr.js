@@ -2031,4 +2031,8 @@ export default {
   "components-RegionProvinceSelector-10": "Dans tout le pays",
   "tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint":
     "Toutes les données de 2011 à aujourd'hui seront explorées",
+  "views.notfound.h1": "Page introuvable",
+  "views.notfound.desc":
+    "Désolé ! La page que vous avez visitée a disparu dans le vide numérique.",
+  "views.notfound.btn": "Retour à la page d'accueil",
 };
