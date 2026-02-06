@@ -121,7 +121,7 @@ class RegionProcessor:
                 return pd.DataFrame()
             
             region_data = data['data'].get('region', [])
-            log.info(f"DEBUG_REGION: region_data={region_data}")
+            # log.info(f"DEBUG_REGION: region_data={region_data}")
             if not region_data:
                 if keyword:
                     return self._create_empty_region_data(keyword, query_region_code, query_region_name, default_period, 'none')
@@ -147,7 +147,7 @@ class RegionProcessor:
                 # 处理省份数据（仅当查询全国时有数据）
                 # 合并 prov/provReal/prov_real
                 prov_data = item.get('prov', {}) or {}
-                log.info(f"DEBUG_REGION: prov_data={prov_data}")
+                # log.info(f"DEBUG_REGION: prov_data={prov_data}")
                 prov_real_merged = self._merge_real_data(
                     item.get('provReal', {}),
                     item.get('prov_real', {})
@@ -159,7 +159,7 @@ class RegionProcessor:
                 # 处理省份级别数据
                 # 重命名变量以避免混淆
                 prov_index_map = item.get('prov', {}) or {}
-                log.info(f"DEBUG_REGION: prov_index_map={prov_index_map}")
+                # log.info(f"DEBUG_REGION: prov_index_map={prov_index_map}")
                 prov_real_map = self._merge_real_data(
                     item.get('provReal', {}),
                     item.get('prov_real', {})
@@ -183,7 +183,7 @@ class RegionProcessor:
                         # 显式使用 str key 获取值
                         # 注意：如果 user JSON 是正确的，那么 prov_index_map[code_str] 应该是 51 (上海)
                         idx_val = prov_index_map.get(code_str)
-                        log.info(f"DEBUG_REGION: Code {code_str} Name={prov_name} Key={code_str} IndexRaw={idx_val} InIndexMap={code_str in prov_index_map}")
+                        # log.info(f"DEBUG_REGION: Code {code_str} Name={prov_name} Key={code_str} IndexRaw={idx_val} InIndexMap={code_str in prov_index_map}")
                         # 尝试 int conversion, 只有 explicit None 或者 missing 才会 default 0
                         if idx_val is None:
                             # 尝试用 int key 获取 (防备 keys 是 int)
@@ -198,10 +198,6 @@ class RegionProcessor:
                                 real_val = prov_real_map.get(int(code_str), 0)
                              except:
                                 real_val = 0
-
-                        # Debug: 针对 910 打印 (Testing purpose, can be removed)
-                        if code_str == '910':
-                             log.info(f"DEBUG_REGION: Code 910 Name={prov_name} Key={code_str} IndexRaw={idx_val} RealRaw={real_val} InIndexMap={code_str in prov_index_map}")
 
                         # 确保数值类型
                         try:

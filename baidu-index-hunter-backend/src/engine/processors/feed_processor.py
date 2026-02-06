@@ -192,7 +192,7 @@ class FeedProcessor:
                 
             # 获取解密密钥
             key = self._get_key(uniqid, cookie)
-            log.info(f"获取到解密密钥: {key}")
+            # log.info(f"获取到解密密钥: {key}")
             
             if not key:
                 log.error("无法获取解密密钥，停止处理")
@@ -210,12 +210,12 @@ class FeedProcessor:
                     raw_data = index_item.get('data', '')
                     data_type = index_item.get('type', 'day')
                     
-                    log.info(f"正在为关键词 '{keyword}' 解密数据. Key: {key}")
-                    log.info(f"原始加密数据: {raw_data[:100]}...")
-                    
+                    # log.info(f"正在为关键词 '{keyword}' 解密数据. Key: {key}")
+                    # log.info(f"原始加密数据: {raw_data[:100]}...")
+                    # 
                     # 解密数据
                     decrypted_data = self._decrypt(key, raw_data)
-                    log.info(f"关键词 '{keyword}' (城市 {city_code}) 解密后的数据: {decrypted_data[:100]}...")
+                    # log.info(f"关键词 '{keyword}' (城市 {city_code}) 解密后的数据: {decrypted_data[:100]}...")
                     
                     # 验证解密结果
                     if decrypted_data and ',' not in decrypted_data and len(decrypted_data) > 0:
