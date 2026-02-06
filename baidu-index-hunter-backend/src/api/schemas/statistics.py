@@ -15,7 +15,9 @@ class TaskSummaryRequest(BaseModel):
 
 class GetSpiderStatisticsRequest(BaseModel):
     """获取爬虫统计请求"""
-    date: Optional[str] = Field(None, description="日期 YYYY-MM-DD")
+    date: Optional[str] = Field(None, description="日期 YYYY-MM-DD (优先级高于范围)")
+    start_date: Optional[str] = Field(None, description="开始日期 YYYY-MM-DD")
+    end_date: Optional[str] = Field(None, description="结束日期 YYYY-MM-DD")
     task_type: Optional[str] = Field(None, description="任务类型过滤")
 
 

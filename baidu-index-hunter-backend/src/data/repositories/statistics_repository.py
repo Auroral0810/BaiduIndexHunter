@@ -18,12 +18,18 @@ class StatisticsRepository:
             statement = select(TaskStatisticsModel).where(TaskStatisticsModel.task_id == task_id)
             return session.exec(statement).all()
 
-    def get_spider_statistics(self, stat_date: Optional[date] = None, task_type: Optional[str] = None) -> List[SpiderStatisticsModel]:
+    def get_spider_statistics(self, stat_date: Optional[date] = None, task_type: Optional[str] = None, start_date: Optional[date] = None, end_date: Optional[date] = None) -> List[SpiderStatisticsModel]:
         """获取爬虫统计数据"""
         with session_scope() as session:
             statement = select(SpiderStatisticsModel)
             if stat_date:
                 statement = statement.where(SpiderStatisticsModel.stat_date == stat_date)
+            else:
+                if start_date:
+                    statement = statement.where(SpiderStatisticsModel.stat_date >= start_date)
+                if end_date:
+                    statement = statement.where(SpiderStatisticsModel.stat_date <= end_date)
+                    
             if task_type:
                 statement = statement.where(SpiderStatisticsModel.task_type == task_type)
             
@@ -33,18 +39,12 @@ class StatisticsRepository:
     def get_keyword_statistics(self, task_id: Optional[str] = None, limit: int = 100) -> List[Dict]:
         """获取关键词统计数据"""
         with session_scope() as session:
-            # Avg success rate calculation: AVG(CASE WHEN item_count > 0 THEN success_count * 100.0 / item_count ELSE 0 END)
-            avg_success_rate = func.avg(
-                case(
-                    (TaskStatisticsModel.item_count > 0, TaskStatisticsModel.success_count * 100.0 / TaskStatisticsModel.item_count),
-                    else_=0
-                )
-            ).label("avg_success_rate")
-
             statement = select(
                 TaskStatisticsModel.keyword,
                 func.sum(TaskStatisticsModel.item_count).label("item_count"),
-                avg_success_rate
+                func.avg(TaskStatisticsModel.avg_value).label("avg_value"),
+                func.max(TaskStatisticsModel.max_value).label("max_value"),
+                func.min(TaskStatisticsModel.min_value).label("min_value")
             ).group_by(TaskStatisticsModel.keyword).order_by(desc("item_count")).limit(limit)
 
             if task_id:
@@ -55,7 +55,9 @@ class StatisticsRepository:
                 {
                     "keyword": r[0],
                     "item_count": int(r[1]) if r[1] else 0,
-                    "avg_success_rate": float(r[2]) if r[2] else 0.0
+                    "avg_value": float(r[2]) if r[2] else 0.0,
+                    "max_value": float(r[3]) if r[3] else 0.0,
+                    "min_value": float(r[4]) if r[4] else 0.0
                 }
                 for r in results
             ]
@@ -63,21 +65,39 @@ class StatisticsRepository:
     def get_city_statistics(self, city_name: Optional[str] = None, task_type: Optional[str] = None, limit: int = 100) -> List[Dict]:
         """获取城市统计数据"""
         with session_scope() as session:
+            # Note: TaskStatisticsModel doesn't directly have task_type, 
+            # we might need to join with spider_tasks if task_type filter is needed
             statement = select(
                 TaskStatisticsModel.city_code,
-                TaskStatisticsModel.city_name, # Note: Model needs city_name? Check model definition.
+                TaskStatisticsModel.city_name,
                 func.sum(TaskStatisticsModel.item_count).label("item_count"),
                 func.sum(TaskStatisticsModel.success_count).label("success_count"),
                 func.sum(TaskStatisticsModel.fail_count).label("fail_count")
             )
-            # Check if city_name attribute exists in TaskStatisticsModel
-            # Previous view showed field: city_code. Does it have city_name?
-            # src/data/models/statistics.py: `city_code: Optional[str]`. NO city_name!!
-            # Controller SQL: `SELECT city_code, city_name ... GROUP BY city_code, city_name`
-            # This implies city_name IS in the table.
-            # I must update the model AGAIN.
-            pass
-            return []
+            
+            if task_type:
+                from src.data.models.task import SpiderTaskModel
+                statement = statement.join(SpiderTaskModel, TaskStatisticsModel.task_id == SpiderTaskModel.task_id)
+                statement = statement.where(SpiderTaskModel.task_type == task_type)
+                
+            if city_name:
+                statement = statement.where(TaskStatisticsModel.city_name.contains(city_name))
+                
+            statement = statement.group_by(TaskStatisticsModel.city_code, TaskStatisticsModel.city_name)\
+                                 .order_by(desc("item_count")).limit(limit)
+
+            results = session.exec(statement).all()
+            return [
+                {
+                    "city_code": r[0],
+                    "city_name": r[1] or "未知",
+                    "item_count": int(r[2] or 0),
+                    "success_count": int(r[3] or 0),
+                    "fail_count": int(r[4] or 0),
+                    "success_rate": (int(r[3] or 0) / int(r[2] or 1) * 100.0) if r[2] else 0.0
+                }
+                for r in results
+            ]
 
     def get_dashboard_overall(self, start_date: date, end_date: date) -> Dict:
         """获取大屏总体统计数据"""

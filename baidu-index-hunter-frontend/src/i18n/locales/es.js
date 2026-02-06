@@ -1358,12 +1358,12 @@ export default {
   "tasks-InterestProfileTask-19c298e1e7a81a799-88":
     "¿Está seguro de que desea borrar todas las palabras clave?",
   "tasks-InterestProfileTask-19c298e1e7a81a799-89": "Consejos",
-  "tasks-InterestProfileTask-19c298e1e7a81a799-90": "OK",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-90": "bien",
   "tasks-InterestProfileTask-19c298e1e7a81a799-91": "Cancelar",
   "tasks-InterestProfileTask-19c298e1e7a81a799-92":
     "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
   "tasks-InterestProfileTask-19c298e1e7a81a799-93": "Consejos",
-  "tasks-InterestProfileTask-19c298e1e7a81a799-94": "OK",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-94": "bien",
   "tasks-InterestProfileTask-19c298e1e7a81a799-95": "Cancelar",
   "tasks-InterestProfileTask-19c298e1e7a81a799-96": "despejado",
   "tasks-InterestProfileTask-19c298e1e7a81a799-97":
@@ -1489,7 +1489,7 @@ export default {
     "las palabras clave no existen",
   "tasks-RegionDistributionTask-19c298e201890d5db-76":
     "Palabras clave que no existen:",
-  "tasks-RegionDistributionTask-19c298e201890d5db-77": "Cerrar",
+  "tasks-RegionDistributionTask-19c298e201890d5db-77": "cerrar",
   "tasks-RegionDistributionTask-19c298e201890d5db-78":
     "Borrar palabras clave inexistentes",
   "tasks-RegionDistributionTask-19c298e201890d5db-79": "Importado exitosamente",
@@ -1509,7 +1509,7 @@ export default {
   "tasks-RegionDistributionTask-19c298e201890d5db-90": "área",
   "tasks-RegionDistributionTask-19c298e201890d5db-91": "...etc.",
   "tasks-RegionDistributionTask-19c298e201890d5db-92": "un",
-  "tasks-RegionDistributionTask-19c298e201890d5db-93": "Cerrar",
+  "tasks-RegionDistributionTask-19c298e201890d5db-93": "cerrar",
   "tasks-RegionDistributionTask-19c298e201890d5db-94": "Resumen de la misión",
   "tasks-RegionDistributionTask-19c298e201890d5db-95":
     "Confirmación de parámetros de tarea",
@@ -1567,7 +1567,7 @@ export default {
   "tasks-RegionDistributionTask-19c298e201890d5db-140":
     "¿Está seguro de que desea borrar todas las palabras clave?",
   "tasks-RegionDistributionTask-19c298e201890d5db-141": "Consejos",
-  "tasks-RegionDistributionTask-19c298e201890d5db-142": "OK",
+  "tasks-RegionDistributionTask-19c298e201890d5db-142": "bien",
   "tasks-RegionDistributionTask-19c298e201890d5db-143": "Cancelar",
   "tasks-RegionDistributionTask-19c298e201890d5db-144":
     "No se encontraron palabras clave válidas en el archivo.",
@@ -1590,7 +1590,7 @@ export default {
   "tasks-RegionDistributionTask-19c298e201890d5db-153":
     "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
   "tasks-RegionDistributionTask-19c298e201890d5db-154": "Consejos",
-  "tasks-RegionDistributionTask-19c298e201890d5db-155": "OK",
+  "tasks-RegionDistributionTask-19c298e201890d5db-155": "bien",
   "tasks-RegionDistributionTask-19c298e201890d5db-156": "Cancelar",
   "tasks-RegionDistributionTask-19c298e201890d5db-157": "despejado",
   "tasks-RegionDistributionTask-19c298e201890d5db-158":
@@ -1690,7 +1690,7 @@ export default {
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-70": "las palabras clave no existen",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-71":
     "Palabras clave que no existen:",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-72": "Cerrar",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-72": "cerrar",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-73":
     "Borrar palabras clave inexistentes",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-74": "Importado exitosamente",
@@ -1710,7 +1710,7 @@ export default {
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-85": "ciudad",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-86": "...etc.",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-87": "un",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-88": "Cerrar",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-88": "cerrar",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-89": "Resumen de la misión",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-90":
     "Confirmación de parámetros de tarea",
@@ -1766,12 +1766,12 @@ export default {
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-133":
     "¿Está seguro de que desea borrar todas las palabras clave?",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-134": "Consejos",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-135": "OK",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-135": "bien",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-136": "Cancelar",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-137":
     "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-138": "Consejos",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-139": "OK",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-139": "bien",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-140": "Cancelar",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-141": "despejado",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-142":
@@ -1858,7 +1858,7 @@ export default {
   "tasks-WordGraphTask-19c298e227e044aa6-49": "existen palabras clave",
   "tasks-WordGraphTask-19c298e227e044aa6-50": "las palabras clave no existen",
   "tasks-WordGraphTask-19c298e227e044aa6-51": "Palabras clave que no existen:",
-  "tasks-WordGraphTask-19c298e227e044aa6-52": "Cerrar",
+  "tasks-WordGraphTask-19c298e227e044aa6-52": "cerrar",
   "tasks-WordGraphTask-19c298e227e044aa6-53":
     "Borrar palabras clave inexistentes",
   "tasks-WordGraphTask-19c298e227e044aa6-54":
@@ -1871,7 +1871,7 @@ export default {
     "Palabras clave no válidas o duplicadas:",
   "tasks-WordGraphTask-19c298e227e044aa6-59": "...etc.",
   "tasks-WordGraphTask-19c298e227e044aa6-60": "un",
-  "tasks-WordGraphTask-19c298e227e044aa6-61": "Cerrar",
+  "tasks-WordGraphTask-19c298e227e044aa6-61": "cerrar",
   "tasks-WordGraphTask-19c298e227e044aa6-62": "Resumen de la misión",
   "tasks-WordGraphTask-19c298e227e044aa6-63":
     "Confirmación de parámetros de tarea",
@@ -1914,7 +1914,7 @@ export default {
   "tasks-WordGraphTask-19c298e227e044aa6-95":
     "¿Está seguro de que desea borrar todas las palabras clave?",
   "tasks-WordGraphTask-19c298e227e044aa6-96": "Consejos",
-  "tasks-WordGraphTask-19c298e227e044aa6-97": "OK",
+  "tasks-WordGraphTask-19c298e227e044aa6-97": "bien",
   "tasks-WordGraphTask-19c298e227e044aa6-98": "Cancelar",
   "tasks-WordGraphTask-19c298e227e044aa6-99":
     "No se encontraron palabras clave válidas en el archivo.",
@@ -1931,7 +1931,7 @@ export default {
   "tasks-WordGraphTask-19c298e227e044aa6-108":
     "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
   "tasks-WordGraphTask-19c298e227e044aa6-109": "Consejos",
-  "tasks-WordGraphTask-19c298e227e044aa6-110": "OK",
+  "tasks-WordGraphTask-19c298e227e044aa6-110": "bien",
   "tasks-WordGraphTask-19c298e227e044aa6-111": "Cancelar",
   "tasks-WordGraphTask-19c298e227e044aa6-112": "despejado",
   "tasks-WordGraphTask-19c298e227e044aa6-113": "palabras clave que no existen",
@@ -2009,4 +2009,27 @@ export default {
   "views.notfound.desc":
     "¡Lo siento! La página que visitaste ha desaparecido en el vacío digital.",
   "views.notfound.btn": "Volver a la página de inicio",
+  "dashboard.tabs.overview": "Descripción general",
+  "dashboard.tabs.spider_health": "Salud de los reptiles",
+  "dashboard.tabs.keyword_analysis": "Análisis de palabras clave",
+  "dashboard.tabs.region_analysis": "Distribución geográfica",
+  "dashboard.health.cookie_usage": "Uso de cookies",
+  "dashboard.health.cookie_bans": "Número de bloques de cookies",
+  "dashboard.health.error_types": "Distribución de tipos de errores",
+  "dashboard.keywords.top_charts": "Palabras clave populares TOP 10",
+  "dashboard.keywords.word_cloud": "nube de palabras clave",
+  "dashboard.keywords.avg_success_rate": "tasa de éxito promedio",
+  "dashboard.region.top_cities": "Ciudades de colección populares",
+  "dashboard.region.city_map": "Mapa de distribución de la ciudad",
+  "dashboard.charts.loading": "Cargando gráfico...",
+  "dashboard.charts.no_data": "Aún no hay datos",
+  "task.type.search_index": "índice de búsqueda",
+  "task.type.feed_index": "índice de información",
+  "task.type.word_graph": "Mapa de requisitos",
+  "task.type.region_distribution": "Distribución geográfica",
+  "task.type.demographic_attributes": "Atributos de multitud",
+  "task.type.interest_profile": "Distribución de intereses",
+  "task.type.word_check": "Detección de frecuencia de palabras",
+  "task.type.demographic": "Atributos de multitud",
+  "task.type.region": "Distribución geográfica",
 };

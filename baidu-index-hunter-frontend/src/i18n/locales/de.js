@@ -492,7 +492,7 @@ export default {
   "views.datacollection.j887qn": "API-Dienststatus",
   "views.datacollection.h2894t": "Aufgabentyp",
   "views.datacollection.14ux91": "Aktualisierungsstatus",
-  "views.datacollection.u24u75": "Schließen",
+  "views.datacollection.u24u75": "schließen",
   "views.datacollection.wt72k3": "Aktuelle Aufgaben:",
   "views.datacollection.6k50e9": "Fortschritt",
   "views.datacollection.qww0ij": "Läuft normal",
@@ -561,7 +561,7 @@ export default {
   "views.settings.00sc35": "Maximale Anzahl von Sekunden zwischen Anfragen",
   "views.settings.o37987":
     "Anzahl der fehlgeschlagenen Anforderungswiederholungen",
-  "views.settings.q621z9": "Anforderungszeitüberschreitung (Sekunden)",
+  "views.settings.q621z9": "Anforderungszeitlimit (Sekunden)",
   "views.settings.vb1k63": "Maximale Anzahl von Arbeitsthreads",
   "views.settings.2x1gk7": "Ob der User-Agent rotiert werden soll",
   "views.settings.r3739f": "Ob Proxy aktiviert werden soll",
@@ -575,7 +575,7 @@ export default {
   "views.settings.42533h": "Abkühlzeit des Cookie-Verbots (Sekunden)",
   "views.settings.t8dliz": "Maximale Anzahl von Anwendungen pro Tag",
   "views.settings.9ue5fu": "Mindestanzahl verfügbarer Cookies",
-  "views.settings.j56utr": "Cookie-Rotationsrichtlinie",
+  "views.settings.j56utr": "Cookie-Rotationsstrategie",
   "dashboard.dashboard.2dwsg6": "Big-Data-Bildschirm",
   "dashboard.dashboard.327577": "Daten aktualisieren",
   "dashboard.dashboard.7iv3g2": "Gesamtzahl der Aufgaben",
@@ -599,7 +599,7 @@ export default {
   "dashboard.dashboard.2a174n": "Letzte 7 Tage",
   "dashboard.dashboard.zk61g6": "Letzte 30 Tage",
   "dashboard.dashboard.5o84wx": "Letzte 90 Tage",
-  "dashboard.dashboard.096ld1": "letzten sechs Monate",
+  "dashboard.dashboard.096ld1": "letzten sechs Monaten",
   "dashboard.dashboard.rvgg9y": "letztes Jahr",
   "dashboard.dashboard.o64878": "alle Zeit",
   "dashboard.dashboard.tt8075": "Benutzerdefinierter Zeitbereich",
@@ -1396,7 +1396,7 @@ export default {
   "tasks-RegionDistributionTask-19c298e201890d5db-1":
     "Geografisch verteilte Sammlung",
   "tasks-RegionDistributionTask-19c298e201890d5db-2":
-    "Erhalten Sie die geografischen Verteilungsdaten der Massenporträts des Baidu-Index, einschließlich des Anteils des Suchindex in jeder Provinz, Stadt und Region",
+    "Erhalten Sie die geografischen Verteilungsdaten der Crowd-Porträts des Baidu-Index, einschließlich des Anteils des Suchindex in jeder Provinz, Stadt und Region",
   "tasks-RegionDistributionTask-19c298e201890d5db-3": "Parameter einstellen",
   "tasks-RegionDistributionTask-19c298e201890d5db-4":
     "Schlüsselworteinstellungen",
@@ -1497,7 +1497,7 @@ export default {
     "Schlüsselwörter existieren nicht",
   "tasks-RegionDistributionTask-19c298e201890d5db-76":
     "Schlüsselwörter, die nicht existieren:",
-  "tasks-RegionDistributionTask-19c298e201890d5db-77": "Schließen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-77": "schließen",
   "tasks-RegionDistributionTask-19c298e201890d5db-78":
     "Löschen Sie nicht vorhandene Schlüsselwörter",
   "tasks-RegionDistributionTask-19c298e201890d5db-79": "Erfolgreich importiert",
@@ -1519,7 +1519,7 @@ export default {
   "tasks-RegionDistributionTask-19c298e201890d5db-90": "Bereich",
   "tasks-RegionDistributionTask-19c298e201890d5db-91": "...usw.",
   "tasks-RegionDistributionTask-19c298e201890d5db-92": "a",
-  "tasks-RegionDistributionTask-19c298e201890d5db-93": "Schließen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-93": "schließen",
   "tasks-RegionDistributionTask-19c298e201890d5db-94": "Missionsübersicht",
   "tasks-RegionDistributionTask-19c298e201890d5db-95":
     "Bestätigung der Aufgabenparameter",
@@ -1706,7 +1706,7 @@ export default {
     "Schlüsselwörter existieren nicht",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-71":
     "Schlüsselwörter, die nicht existieren:",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-72": "schließen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-72": "Schließen",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-73":
     "Löschen Sie nicht vorhandene Schlüsselwörter",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-74": "Erfolgreich importiert",
@@ -1728,7 +1728,7 @@ export default {
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-85": "Stadt",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-86": "...usw.",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-87": "a",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-88": "schließen",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-88": "Schließen",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-89": "Missionsübersicht",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-90":
     "Bestätigung der Aufgabenparameter",
@@ -1878,7 +1878,7 @@ export default {
     "Schlüsselwörter existieren nicht",
   "tasks-WordGraphTask-19c298e227e044aa6-51":
     "Schlüsselwörter, die nicht existieren:",
-  "tasks-WordGraphTask-19c298e227e044aa6-52": "schließen",
+  "tasks-WordGraphTask-19c298e227e044aa6-52": "Schließen",
   "tasks-WordGraphTask-19c298e227e044aa6-53":
     "Löschen Sie nicht vorhandene Schlüsselwörter",
   "tasks-WordGraphTask-19c298e227e044aa6-54": "Ergebnisse des Keyword-Imports",
@@ -1890,7 +1890,7 @@ export default {
     "Ungültige oder doppelte Schlüsselwörter:",
   "tasks-WordGraphTask-19c298e227e044aa6-59": "...usw.",
   "tasks-WordGraphTask-19c298e227e044aa6-60": "a",
-  "tasks-WordGraphTask-19c298e227e044aa6-61": "schließen",
+  "tasks-WordGraphTask-19c298e227e044aa6-61": "Schließen",
   "tasks-WordGraphTask-19c298e227e044aa6-62": "Missionsübersicht",
   "tasks-WordGraphTask-19c298e227e044aa6-63":
     "Bestätigung der Aufgabenparameter",
@@ -2032,4 +2032,27 @@ export default {
   "views.notfound.desc":
     "Entschuldigung! Die von Ihnen besuchte Seite ist im digitalen Nichts verschwunden.",
   "views.notfound.btn": "Zurück zur Startseite",
+  "dashboard.tabs.overview": "Übersicht",
+  "dashboard.tabs.spider_health": "Reptiliengesundheit",
+  "dashboard.tabs.keyword_analysis": "Keyword-Analyse",
+  "dashboard.tabs.region_analysis": "Geografische Verteilung",
+  "dashboard.health.cookie_usage": "Verwendung von Cookies",
+  "dashboard.health.cookie_bans": "Anzahl der Cookie-Blöcke",
+  "dashboard.health.error_types": "Verteilung der Fehlertypen",
+  "dashboard.keywords.top_charts": "Beliebte Keywords TOP 10",
+  "dashboard.keywords.word_cloud": "Stichwortwolke",
+  "dashboard.keywords.avg_success_rate": "durchschnittliche Erfolgsquote",
+  "dashboard.region.top_cities": "Beliebte Sammelstädte",
+  "dashboard.region.city_map": "Stadtverteilungskarte",
+  "dashboard.charts.loading": "Diagramm wird geladen...",
+  "dashboard.charts.no_data": "Noch keine Daten",
+  "task.type.search_index": "Suchindex",
+  "task.type.feed_index": "Informationsindex",
+  "task.type.word_graph": "Anforderungskarte",
+  "task.type.region_distribution": "Geografische Verteilung",
+  "task.type.demographic_attributes": "Crowd-Attribute",
+  "task.type.interest_profile": "Zinsverteilung",
+  "task.type.word_check": "Erkennung der Worthäufigkeit",
+  "task.type.demographic": "Crowd-Attribute",
+  "task.type.region": "Geografische Verteilung",
 };

@@ -500,7 +500,7 @@ export default {
   "views.datacollection.j887qn": "État du service API",
   "views.datacollection.h2894t": "Type de tâche",
   "views.datacollection.14ux91": "état d'actualisation",
-  "views.datacollection.u24u75": "Fermer",
+  "views.datacollection.u24u75": "fermer",
   "views.datacollection.wt72k3": "Tâches actuelles :",
   "views.datacollection.6k50e9": "Progrès",
   "views.datacollection.qww0ij": "Fonctionne normalement",
@@ -615,7 +615,7 @@ export default {
   "dashboard.dashboard.778577": "date de début",
   "dashboard.dashboard.sq6620": "date de fin",
   "dashboard.dashboard.g1431k": "Statistiques globales",
-  "dashboard.dashboard.2c6u95": "statistiques",
+  "dashboard.dashboard.2c6u95": "Statistiques",
   "dashboard.dashboard.py2bk3": "Répartition des intérêts",
   "dashboard.dashboard.vx7j16":
     "Impossible d'obtenir des données sur grand écran",
@@ -1686,7 +1686,7 @@ export default {
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-70": "les mots-clés n'existent pas",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-71":
     "Mots-clés qui n'existent pas :",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-72": "Fermer",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-72": "fermer",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-73":
     "Effacer les mots-clés inexistants",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-74": "Importé avec succès",
@@ -1706,7 +1706,7 @@ export default {
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-85": "ville",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-86": "...etc",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-87": "un",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-88": "Fermer",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-88": "fermer",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-89": "Aperçu des missions",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-90":
     "Confirmation des paramètres de la tâche",
@@ -1861,7 +1861,7 @@ export default {
   "tasks-WordGraphTask-19c298e227e044aa6-49": "des mots-clés existent",
   "tasks-WordGraphTask-19c298e227e044aa6-50": "les mots-clés n'existent pas",
   "tasks-WordGraphTask-19c298e227e044aa6-51": "Mots-clés qui n'existent pas :",
-  "tasks-WordGraphTask-19c298e227e044aa6-52": "Fermer",
+  "tasks-WordGraphTask-19c298e227e044aa6-52": "fermer",
   "tasks-WordGraphTask-19c298e227e044aa6-53":
     "Effacer les mots-clés inexistants",
   "tasks-WordGraphTask-19c298e227e044aa6-54":
@@ -1874,7 +1874,7 @@ export default {
     "Mots clés invalides ou en double :",
   "tasks-WordGraphTask-19c298e227e044aa6-59": "...etc",
   "tasks-WordGraphTask-19c298e227e044aa6-60": "un",
-  "tasks-WordGraphTask-19c298e227e044aa6-61": "Fermer",
+  "tasks-WordGraphTask-19c298e227e044aa6-61": "fermer",
   "tasks-WordGraphTask-19c298e227e044aa6-62": "Aperçu des missions",
   "tasks-WordGraphTask-19c298e227e044aa6-63":
     "Confirmation des paramètres de la tâche",
@@ -2035,4 +2035,27 @@ export default {
   "views.notfound.desc":
     "Désolé ! La page que vous avez visitée a disparu dans le vide numérique.",
   "views.notfound.btn": "Retour à la page d'accueil",
+  "dashboard.tabs.overview": "Aperçu",
+  "dashboard.tabs.spider_health": "Santé des reptiles",
+  "dashboard.tabs.keyword_analysis": "Analyse des mots clés",
+  "dashboard.tabs.region_analysis": "Répartition géographique",
+  "dashboard.health.cookie_usage": "Utilisation des cookies",
+  "dashboard.health.cookie_bans": "Nombre de blocs de cookies",
+  "dashboard.health.error_types": "Répartition des types d'erreurs",
+  "dashboard.keywords.top_charts": "Mots-clés populaires TOP 10",
+  "dashboard.keywords.word_cloud": "nuage de mots clés",
+  "dashboard.keywords.avg_success_rate": "taux de réussite moyen",
+  "dashboard.region.top_cities": "Villes de collecte populaires",
+  "dashboard.region.city_map": "Plan de répartition de la ville",
+  "dashboard.charts.loading": "Chargement du graphique...",
+  "dashboard.charts.no_data": "Aucune donnée pour l'instant",
+  "task.type.search_index": "index de recherche",
+  "task.type.feed_index": "index d'informations",
+  "task.type.word_graph": "Carte des exigences",
+  "task.type.region_distribution": "Répartition géographique",
+  "task.type.demographic_attributes": "Attributs de la foule",
+  "task.type.interest_profile": "Répartition des intérêts",
+  "task.type.word_check": "Détection de la fréquence des mots",
+  "task.type.demographic": "Attributs de la foule",
+  "task.type.region": "Répartition géographique",
 };

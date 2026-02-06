@@ -3,8 +3,22 @@
     <!-- Filter -->
     <div class="filter-bar glass-panel">
       <div class="filter-item">
+        <span class="filter-label">{{ $t('dashboard.dashboard.dd5kiw') }}</span>
+        <el-date-picker
+          v-model="dateRange"
+          type="daterange"
+          size="small"
+          range-separator="-"
+          :start-placeholder="$t('dashboard.dashboard.start_date')"
+          :end-placeholder="$t('dashboard.dashboard.end_date')"
+          value-format="YYYY-MM-DD"
+          @change="loadData"
+          style="width: 240px"
+        />
+      </div>
+      <div class="filter-item">
         <span class="filter-label">Task ID</span>
-        <el-input v-model="taskId" :placeholder="$t('tasks-TaskList-19c298d949224c78d-19')" size="small" style="width: 200px" @change="loadData">
+        <el-input v-model="taskId" :placeholder="$t('tasks-TaskList-19c298d949224c78d-19')" size="small" style="width: 240px" @change="loadData" clearable>
            <template #append>
             <el-button @click="loadData">
               <el-icon><Search /></el-icon>
@@ -54,6 +68,7 @@ const { t: $t } = useI18n()
 const appStore = useAppStore()
 const isDark = computed(() => appStore.theme === 'dark')
 
+const dateRange = ref([])
 const taskId = ref('')
 const loading = ref(false)
 const tableData = ref([])
@@ -63,7 +78,17 @@ let chartInstance = null
 const loadData = async () => {
   loading.value = true
   try {
-    const res = await getKeywordStatistics({ task_id: taskId.value || undefined, limit: 20 })
+    const params = {
+      task_id: taskId.value || undefined,
+      limit: 20
+    }
+    
+    if (dateRange.value && dateRange.value.length === 2) {
+      params.start_date = dateRange.value[0]
+      params.end_date = dateRange.value[1]
+    }
+    
+    const res = await getKeywordStatistics(params)
     if (res.code === 10000) {
       if (res.data && res.data.keywords) {
         tableData.value = res.data.keywords
@@ -134,8 +159,18 @@ const initChart = () => {
 const handleResize = () => chartInstance?.resize()
 
 onMounted(() => {
+  // Initialize date range to last 30 days
+  const end = new Date()
+  const start = new Date()
+  start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+  dateRange.value = [
+    start.toISOString().split('T')[0],
+    end.toISOString().split('T')[0]
+  ]
+
   initChart()
-  loadData()
+  // Wait for ref to be populated
+  setTimeout(() => loadData(), 50)
   window.addEventListener('resize', handleResize)
 })
 

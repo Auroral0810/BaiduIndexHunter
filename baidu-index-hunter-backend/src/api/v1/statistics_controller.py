@@ -127,7 +127,12 @@ def get_task_statistics(task_id):
 def get_spider_statistics(validated_data: GetSpiderStatisticsRequest):
     """获取爬虫统计数据"""
     try:
-        data = statistics_service.get_spider_statistics(validated_data.date, validated_data.task_type)
+        data = statistics_service.get_spider_statistics(
+            validated_data.date, 
+            validated_data.task_type,
+            validated_data.start_date,
+            validated_data.end_date
+        )
         return jsonify(ResponseFormatter.success({'statistics': data}, "获取爬虫统计数据成功"))
     except Exception as e:
         log.error(f"获取爬虫统计数据失败: {e}")

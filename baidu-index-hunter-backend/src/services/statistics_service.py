@@ -52,12 +52,40 @@ class StatisticsService:
         # Fetch models
         stats = self.stats_repo.get_task_statistics(task_id)
         # Convert to dicts for API response compatibility
-        return [stat.model_dump() for stat in stats]
+        results = []
+        for stat in stats:
+            data = stat.model_dump()
+            if isinstance(data.get('create_time'), (date, datetime)):
+                data['create_time'] = data['create_time'].strftime('%Y-%m-%d %H:%M:%S')
+            results.append(data)
+        return results
 
-    def get_spider_statistics(self, stat_date: Optional[date] = None, task_type: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_spider_statistics(self, stat_date_str: Optional[str] = None, task_type: Optional[str] = None, start_date_str: Optional[str] = None, end_date_str: Optional[str] = None) -> List[Dict[str, Any]]:
         """获取爬虫统计数据"""
-        stats = self.stats_repo.get_spider_statistics(stat_date, task_type)
-        return [stat.model_dump() for stat in stats]
+        stat_date = None
+        start_date = None
+        end_date = None
+        
+        try:
+            if stat_date_str:
+                stat_date = datetime.strptime(stat_date_str, '%Y-%m-%d').date()
+            if start_date_str:
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            if end_date_str:
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        except ValueError as e:
+            log.warning(f"Invalid date format in get_spider_statistics: {e}")
+            
+        stats = self.stats_repo.get_spider_statistics(stat_date, task_type, start_date, end_date)
+        
+        results = []
+        for stat in stats:
+            data = stat.model_dump()
+            # Explicitly format date to avoid GMT strings in JSON
+            if isinstance(data.get('stat_date'), (date, datetime)):
+                data['stat_date'] = data['stat_date'].strftime('%Y-%m-%d')
+            results.append(data)
+        return results
 
     def get_keyword_statistics(self, task_id: Optional[str] = None, limit: int = 100) -> Dict[str, Any]:
         """获取关键词统计"""

@@ -197,9 +197,6 @@ onUnmounted(() => {
   100% { opacity: 1; transform: scale(1); }
 }
 
-.tabs-nav {
-  /* Style for tabs within header */
-}
 
 /* Custom Element Plus Tabs Style Override */
 :deep(.el-tabs__header) {
