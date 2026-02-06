@@ -44,7 +44,8 @@ class StatisticsRepository:
                 func.sum(TaskStatisticsModel.item_count).label("item_count"),
                 func.avg(TaskStatisticsModel.avg_value).label("avg_value"),
                 func.max(TaskStatisticsModel.max_value).label("max_value"),
-                func.min(TaskStatisticsModel.min_value).label("min_value")
+                func.min(TaskStatisticsModel.min_value).label("min_value"),
+                func.sum(TaskStatisticsModel.success_count).label("success_count")
             ).group_by(TaskStatisticsModel.keyword).order_by(desc("item_count")).limit(limit)
 
             if task_id:
@@ -64,7 +65,8 @@ class StatisticsRepository:
                     "item_count": int(r[1]) if r[1] else 0,
                     "avg_value": float(r[2]) if r[2] else 0.0,
                     "max_value": float(r[3]) if r[3] else 0.0,
-                    "min_value": float(r[4]) if r[4] else 0.0
+                    "min_value": float(r[4]) if r[4] else 0.0,
+                    "avg_success_rate": (int(r[5] or 0) / int(r[1] or 1) * 100.0) if r[1] else 0.0
                 }
                 for r in results
             ]

@@ -118,7 +118,11 @@ class StatisticsService:
             log.warning(f"Invalid date format in get_city_statistics: {e}")
 
         # Repo already returns dicts
-        return self.stats_repo.get_city_statistics(city_name, task_type, limit, start_date, end_date)
+        cities = self.stats_repo.get_city_statistics(city_name, task_type, limit, start_date, end_date)
+        return {
+            'cities': cities,
+            'total': len(cities)
+        }
 
     def get_dashboard_data(self, days: int, start_date_str: Optional[str] = None, end_date_str: Optional[str] = None) -> Dict[str, Any]:
         """获取大屏数据"""

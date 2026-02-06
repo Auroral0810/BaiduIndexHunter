@@ -500,7 +500,7 @@ export default {
   "views.datacollection.j887qn": "État du service API",
   "views.datacollection.h2894t": "Type de tâche",
   "views.datacollection.14ux91": "état d'actualisation",
-  "views.datacollection.u24u75": "fermer",
+  "views.datacollection.u24u75": "Fermer",
   "views.datacollection.wt72k3": "Tâches actuelles :",
   "views.datacollection.6k50e9": "Progrès",
   "views.datacollection.qww0ij": "Fonctionne normalement",
@@ -615,7 +615,7 @@ export default {
   "dashboard.dashboard.778577": "date de début",
   "dashboard.dashboard.sq6620": "date de fin",
   "dashboard.dashboard.g1431k": "Statistiques globales",
-  "dashboard.dashboard.2c6u95": "Statistiques",
+  "dashboard.dashboard.2c6u95": "statistiques",
   "dashboard.dashboard.py2bk3": "Répartition des intérêts",
   "dashboard.dashboard.vx7j16":
     "Impossible d'obtenir des données sur grand écran",
@@ -1126,7 +1126,7 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-69": "des mots-clés existent",
   "tasks-FeedIndexTask-19c298e1d0a206148-70": "les mots-clés n'existent pas",
   "tasks-FeedIndexTask-19c298e1d0a206148-71": "Mots-clés qui n'existent pas :",
-  "tasks-FeedIndexTask-19c298e1d0a206148-72": "Fermer",
+  "tasks-FeedIndexTask-19c298e1d0a206148-72": "fermer",
   "tasks-FeedIndexTask-19c298e1d0a206148-73":
     "Effacer les mots-clés inexistants",
   "tasks-FeedIndexTask-19c298e1d0a206148-74": "Importé avec succès",
@@ -1146,7 +1146,7 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-85": "ville",
   "tasks-FeedIndexTask-19c298e1d0a206148-86": "...etc",
   "tasks-FeedIndexTask-19c298e1d0a206148-87": "un",
-  "tasks-FeedIndexTask-19c298e1d0a206148-88": "Fermer",
+  "tasks-FeedIndexTask-19c298e1d0a206148-88": "fermer",
   "tasks-FeedIndexTask-19c298e1d0a206148-89": "Aperçu des missions",
   "tasks-FeedIndexTask-19c298e1d0a206148-90":
     "Confirmation des paramètres de la tâche",
@@ -1299,7 +1299,7 @@ export default {
     "les mots-clés n'existent pas",
   "tasks-InterestProfileTask-19c298e1e7a81a799-46":
     "Mots-clés qui n'existent pas :",
-  "tasks-InterestProfileTask-19c298e1e7a81a799-47": "Fermer",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-47": "fermer",
   "tasks-InterestProfileTask-19c298e1e7a81a799-48":
     "Effacer les mots-clés inexistants",
   "tasks-InterestProfileTask-19c298e1e7a81a799-49": "Importé avec succès",
@@ -1310,7 +1310,7 @@ export default {
     "Mots clés invalides ou en double :",
   "tasks-InterestProfileTask-19c298e1e7a81a799-53": "...etc",
   "tasks-InterestProfileTask-19c298e1e7a81a799-54": "un",
-  "tasks-InterestProfileTask-19c298e1e7a81a799-55": "Fermer",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-55": "fermer",
   "tasks-InterestProfileTask-19c298e1e7a81a799-56": "Aperçu des missions",
   "tasks-InterestProfileTask-19c298e1e7a81a799-57":
     "Confirmation des paramètres de la tâche",
@@ -1484,7 +1484,7 @@ export default {
     "les mots-clés n'existent pas",
   "tasks-RegionDistributionTask-19c298e201890d5db-76":
     "Mots-clés qui n'existent pas :",
-  "tasks-RegionDistributionTask-19c298e201890d5db-77": "Fermer",
+  "tasks-RegionDistributionTask-19c298e201890d5db-77": "fermer",
   "tasks-RegionDistributionTask-19c298e201890d5db-78":
     "Effacer les mots-clés inexistants",
   "tasks-RegionDistributionTask-19c298e201890d5db-79": "Importé avec succès",
@@ -1504,7 +1504,7 @@ export default {
   "tasks-RegionDistributionTask-19c298e201890d5db-90": "zone",
   "tasks-RegionDistributionTask-19c298e201890d5db-91": "...etc",
   "tasks-RegionDistributionTask-19c298e201890d5db-92": "un",
-  "tasks-RegionDistributionTask-19c298e201890d5db-93": "Fermer",
+  "tasks-RegionDistributionTask-19c298e201890d5db-93": "fermer",
   "tasks-RegionDistributionTask-19c298e201890d5db-94": "Aperçu des missions",
   "tasks-RegionDistributionTask-19c298e201890d5db-95":
     "Confirmation des paramètres de la tâche",
@@ -1686,7 +1686,7 @@ export default {
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-70": "les mots-clés n'existent pas",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-71":
     "Mots-clés qui n'existent pas :",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-72": "fermer",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-72": "Fermer",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-73":
     "Effacer les mots-clés inexistants",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-74": "Importé avec succès",
@@ -1706,7 +1706,7 @@ export default {
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-85": "ville",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-86": "...etc",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-87": "un",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-88": "fermer",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-88": "Fermer",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-89": "Aperçu des missions",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-90":
     "Confirmation des paramètres de la tâche",
@@ -1861,7 +1861,7 @@ export default {
   "tasks-WordGraphTask-19c298e227e044aa6-49": "des mots-clés existent",
   "tasks-WordGraphTask-19c298e227e044aa6-50": "les mots-clés n'existent pas",
   "tasks-WordGraphTask-19c298e227e044aa6-51": "Mots-clés qui n'existent pas :",
-  "tasks-WordGraphTask-19c298e227e044aa6-52": "fermer",
+  "tasks-WordGraphTask-19c298e227e044aa6-52": "Fermer",
   "tasks-WordGraphTask-19c298e227e044aa6-53":
     "Effacer les mots-clés inexistants",
   "tasks-WordGraphTask-19c298e227e044aa6-54":
@@ -1874,7 +1874,7 @@ export default {
     "Mots clés invalides ou en double :",
   "tasks-WordGraphTask-19c298e227e044aa6-59": "...etc",
   "tasks-WordGraphTask-19c298e227e044aa6-60": "un",
-  "tasks-WordGraphTask-19c298e227e044aa6-61": "fermer",
+  "tasks-WordGraphTask-19c298e227e044aa6-61": "Fermer",
   "tasks-WordGraphTask-19c298e227e044aa6-62": "Aperçu des missions",
   "tasks-WordGraphTask-19c298e227e044aa6-63":
     "Confirmation des paramètres de la tâche",
@@ -2058,4 +2058,8 @@ export default {
   "task.type.word_check": "Détection de la fréquence des mots",
   "task.type.demographic": "Attributs de la foule",
   "task.type.region": "Répartition géographique",
+  "dashboard.region.city_name": "nom de la ville",
+  "dashboard.region.search_placeholder": "Rechercher une ville...",
+  "dashboard.region.table_title": "Classement des zones actives",
+  "dashboard.region.stat_total": "Statistiques totales",
 };

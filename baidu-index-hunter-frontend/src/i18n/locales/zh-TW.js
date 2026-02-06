@@ -1727,4 +1727,8 @@ export default {
   "task.type.word_check": "詞頻檢測",
   "task.type.demographic": "人群屬性",
   "task.type.region": "地域分佈",
+  "dashboard.region.city_name": "城市名稱",
+  "dashboard.region.search_placeholder": "搜索城市...",
+  "dashboard.region.table_title": "活躍地區排行",
+  "dashboard.region.stat_total": "統計總量",
 };

@@ -419,7 +419,7 @@ export default {
   "views.cookiemanager.188w8t": "Bestätigung der erzwungenen Entsperrung",
   "views.cookiemanager.e6tc1n": "Konto {0} wurde zwangsweise entsperrt",
   "views.cookiemanager.0frwfn":
-    "Das erzwungene Entsperren ist fehlgeschlagen: {0}",
+    "Die erzwungene Entsperrung ist fehlgeschlagen: {0}",
   "views.cookiemanager.ig1iw4": "Fehler beim erzwungenen Entsperren:",
   "views.cookiemanager.68b827":
     "Die Konto-ID wurde von {0} auf {1} aktualisiert.",
@@ -492,7 +492,7 @@ export default {
   "views.datacollection.j887qn": "API-Dienststatus",
   "views.datacollection.h2894t": "Aufgabentyp",
   "views.datacollection.14ux91": "Aktualisierungsstatus",
-  "views.datacollection.u24u75": "schließen",
+  "views.datacollection.u24u75": "Schließen",
   "views.datacollection.wt72k3": "Aktuelle Aufgaben:",
   "views.datacollection.6k50e9": "Fortschritt",
   "views.datacollection.qww0ij": "Läuft normal",
@@ -561,7 +561,7 @@ export default {
   "views.settings.00sc35": "Maximale Anzahl von Sekunden zwischen Anfragen",
   "views.settings.o37987":
     "Anzahl der fehlgeschlagenen Anforderungswiederholungen",
-  "views.settings.q621z9": "Anforderungszeitlimit (Sekunden)",
+  "views.settings.q621z9": "Anforderungszeitüberschreitung (Sekunden)",
   "views.settings.vb1k63": "Maximale Anzahl von Arbeitsthreads",
   "views.settings.2x1gk7": "Ob der User-Agent rotiert werden soll",
   "views.settings.r3739f": "Ob Proxy aktiviert werden soll",
@@ -575,7 +575,7 @@ export default {
   "views.settings.42533h": "Abkühlzeit des Cookie-Verbots (Sekunden)",
   "views.settings.t8dliz": "Maximale Anzahl von Anwendungen pro Tag",
   "views.settings.9ue5fu": "Mindestanzahl verfügbarer Cookies",
-  "views.settings.j56utr": "Cookie-Rotationsstrategie",
+  "views.settings.j56utr": "Cookie-Rotationsrichtlinie",
   "dashboard.dashboard.2dwsg6": "Big-Data-Bildschirm",
   "dashboard.dashboard.327577": "Daten aktualisieren",
   "dashboard.dashboard.7iv3g2": "Gesamtzahl der Aufgaben",
@@ -599,7 +599,7 @@ export default {
   "dashboard.dashboard.2a174n": "Letzte 7 Tage",
   "dashboard.dashboard.zk61g6": "Letzte 30 Tage",
   "dashboard.dashboard.5o84wx": "Letzte 90 Tage",
-  "dashboard.dashboard.096ld1": "letzten sechs Monaten",
+  "dashboard.dashboard.096ld1": "letzten sechs Monate",
   "dashboard.dashboard.rvgg9y": "letztes Jahr",
   "dashboard.dashboard.o64878": "alle Zeit",
   "dashboard.dashboard.tt8075": "Benutzerdefinierter Zeitbereich",
@@ -716,7 +716,7 @@ export default {
   "tasks-TaskList-19c298d949224c78d-97": "Ebene",
   "tasks-TaskList-19c298d949224c78d-98": "Nachrichten",
   "tasks-TaskList-19c298d949224c78d-99": "Noch kein Aufgabenprotokoll",
-  "tasks-TaskList-19c298d949224c78d-100": "Schließen",
+  "tasks-TaskList-19c298d949224c78d-100": "schließen",
   "tasks-TaskList-19c298d949224c78d-101": "Aufgabe erneut versuchen",
   "tasks-TaskList-19c298d949224c78d-102": "Aufgabe abbrechen",
   "tasks-TaskList-19c298d949224c78d-103": "Xiaomi-Handy",
@@ -814,7 +814,7 @@ export default {
   "components-CookieUsageChart-19c298e1b08b4a7ef-21": "Konto-ID",
   "components-CookieUsageChart-19c298e1b08b4a7ef-22": "Anzahl der Verwendungen",
   "components-CookieUsageChart-19c298e1b08b4a7ef-23": "Nutzungsverhältnis",
-  "components-CookieUsageChart-19c298e1b08b4a7ef-24": "Schließen",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-24": "schließen",
   "components-CookieUsageChart-19c298e1b08b4a7ef-25": "Daten exportieren",
   "components-CookieUsageChart-19c298e1b08b4a7ef-26":
     "Tägliche Statistiken zur Cookie-Nutzung",
@@ -963,7 +963,7 @@ export default {
     "Schlüsselwörter existieren nicht",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-46":
     "Schlüsselwörter, die nicht existieren:",
-  "tasks-DemographicAttributesTask-19c298e1c74d5b997-47": "Schließen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-47": "schließen",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-48":
     "Löschen Sie nicht vorhandene Schlüsselwörter",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-49":
@@ -975,7 +975,7 @@ export default {
     "Ungültige oder doppelte Schlüsselwörter:",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-53": "...usw.",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-54": "a",
-  "tasks-DemographicAttributesTask-19c298e1c74d5b997-55": "Schließen",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-55": "schließen",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-56": "Missionsübersicht",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-57":
     "Bestätigung der Aufgabenparameter",
@@ -1396,7 +1396,7 @@ export default {
   "tasks-RegionDistributionTask-19c298e201890d5db-1":
     "Geografisch verteilte Sammlung",
   "tasks-RegionDistributionTask-19c298e201890d5db-2":
-    "Erhalten Sie die geografischen Verteilungsdaten der Crowd-Porträts des Baidu-Index, einschließlich des Anteils des Suchindex in jeder Provinz, Stadt und Region",
+    "Erhalten Sie die geografischen Verteilungsdaten der Massenporträts des Baidu-Index, einschließlich des Anteils des Suchindex in jeder Provinz, Stadt und Region",
   "tasks-RegionDistributionTask-19c298e201890d5db-3": "Parameter einstellen",
   "tasks-RegionDistributionTask-19c298e201890d5db-4":
     "Schlüsselworteinstellungen",
@@ -1497,7 +1497,7 @@ export default {
     "Schlüsselwörter existieren nicht",
   "tasks-RegionDistributionTask-19c298e201890d5db-76":
     "Schlüsselwörter, die nicht existieren:",
-  "tasks-RegionDistributionTask-19c298e201890d5db-77": "schließen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-77": "Schließen",
   "tasks-RegionDistributionTask-19c298e201890d5db-78":
     "Löschen Sie nicht vorhandene Schlüsselwörter",
   "tasks-RegionDistributionTask-19c298e201890d5db-79": "Erfolgreich importiert",
@@ -1519,7 +1519,7 @@ export default {
   "tasks-RegionDistributionTask-19c298e201890d5db-90": "Bereich",
   "tasks-RegionDistributionTask-19c298e201890d5db-91": "...usw.",
   "tasks-RegionDistributionTask-19c298e201890d5db-92": "a",
-  "tasks-RegionDistributionTask-19c298e201890d5db-93": "schließen",
+  "tasks-RegionDistributionTask-19c298e201890d5db-93": "Schließen",
   "tasks-RegionDistributionTask-19c298e201890d5db-94": "Missionsübersicht",
   "tasks-RegionDistributionTask-19c298e201890d5db-95":
     "Bestätigung der Aufgabenparameter",
@@ -2055,4 +2055,8 @@ export default {
   "task.type.word_check": "Erkennung der Worthäufigkeit",
   "task.type.demographic": "Crowd-Attribute",
   "task.type.region": "Geografische Verteilung",
+  "dashboard.region.city_name": "Stadtname",
+  "dashboard.region.search_placeholder": "Stadt suchen...",
+  "dashboard.region.table_title": "Ranking der aktiven Gebiete",
+  "dashboard.region.stat_total": "Gesamtstatistik",
 };

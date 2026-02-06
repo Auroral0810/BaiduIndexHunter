@@ -61,7 +61,7 @@
           <el-table-column prop="avg_success_rate" :label="$t('dashboard.dashboard.success_rate')" sortable>
             <template #default="scope">
               <el-tag :type="scope.row.avg_success_rate > 90 ? 'success' : 'warning'">
-                {{ scope.row.avg_success_rate.toFixed(2) }}%
+                {{ scope.row.avg_success_rate ? scope.row.avg_success_rate.toFixed(2) : '0.00' }}%
               </el-tag>
             </template>
           </el-table-column>

@@ -1842,7 +1842,7 @@ export default {
     "2011년부터 현재까지의 모든 데이터가 크롤링됩니다.",
   "views.notfound.h1": "페이지를 찾을 수 없습니다",
   "views.notfound.desc":
-    "죄송해요! 귀하가 방문한 페이지가 디지털 공허 속으로 사라졌습니다.",
+    "죄송해요! 귀하가 방문한 페이지가 디지털 공백 속으로 사라졌습니다.",
   "views.notfound.btn": "홈페이지로 돌아가기",
   "dashboard.tabs.overview": "개요",
   "dashboard.tabs.spider_health": "파충류 건강",
@@ -1867,4 +1867,8 @@ export default {
   "task.type.word_check": "단어 빈도 감지",
   "task.type.demographic": "군중 속성",
   "task.type.region": "지리적 분포",
+  "dashboard.region.city_name": "도시 이름",
+  "dashboard.region.search_placeholder": "도시 검색...",
+  "dashboard.region.table_title": "활동 지역 순위",
+  "dashboard.region.stat_total": "총 통계",
 };

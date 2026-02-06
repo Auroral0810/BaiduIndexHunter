@@ -248,7 +248,7 @@ export default {
   "views.cookiemanager.2hu57i": "normales",
   "views.cookiemanager.1psc3j": "Prohibido temporalmente",
   "views.cookiemanager.bwoi8t": "Seleccione fecha y hora",
-  "views.cookiemanager.og231w": "OK",
+  "views.cookiemanager.og231w": "bien",
   "views.cookiemanager.mj7whc": "Prohibir cuenta temporalmente",
   "views.cookiemanager.8sthw8": "Duración de la prohibición (minutos)",
   "views.cookiemanager.8585f1":
@@ -340,7 +340,7 @@ export default {
   "views.cookiemanager.gyo861":
     "¿Está seguro de que desea borrar todos los campos ingresados?",
   "views.cookiemanager.lwo521": "Consejos",
-  "views.cookiemanager.86icn7": "OK",
+  "views.cookiemanager.86icn7": "bien",
   "views.cookiemanager.fl98bx": "Cancelar",
   "views.cookiemanager.62h3wn": "Borrado",
   "views.cookiemanager.te3wwq": "Generado exitosamente",
@@ -1358,12 +1358,12 @@ export default {
   "tasks-InterestProfileTask-19c298e1e7a81a799-88":
     "¿Está seguro de que desea borrar todas las palabras clave?",
   "tasks-InterestProfileTask-19c298e1e7a81a799-89": "Consejos",
-  "tasks-InterestProfileTask-19c298e1e7a81a799-90": "bien",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-90": "OK",
   "tasks-InterestProfileTask-19c298e1e7a81a799-91": "Cancelar",
   "tasks-InterestProfileTask-19c298e1e7a81a799-92":
     "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
   "tasks-InterestProfileTask-19c298e1e7a81a799-93": "Consejos",
-  "tasks-InterestProfileTask-19c298e1e7a81a799-94": "bien",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-94": "OK",
   "tasks-InterestProfileTask-19c298e1e7a81a799-95": "Cancelar",
   "tasks-InterestProfileTask-19c298e1e7a81a799-96": "despejado",
   "tasks-InterestProfileTask-19c298e1e7a81a799-97":
@@ -1489,7 +1489,7 @@ export default {
     "las palabras clave no existen",
   "tasks-RegionDistributionTask-19c298e201890d5db-76":
     "Palabras clave que no existen:",
-  "tasks-RegionDistributionTask-19c298e201890d5db-77": "cerrar",
+  "tasks-RegionDistributionTask-19c298e201890d5db-77": "Cerrar",
   "tasks-RegionDistributionTask-19c298e201890d5db-78":
     "Borrar palabras clave inexistentes",
   "tasks-RegionDistributionTask-19c298e201890d5db-79": "Importado exitosamente",
@@ -1509,7 +1509,7 @@ export default {
   "tasks-RegionDistributionTask-19c298e201890d5db-90": "área",
   "tasks-RegionDistributionTask-19c298e201890d5db-91": "...etc.",
   "tasks-RegionDistributionTask-19c298e201890d5db-92": "un",
-  "tasks-RegionDistributionTask-19c298e201890d5db-93": "cerrar",
+  "tasks-RegionDistributionTask-19c298e201890d5db-93": "Cerrar",
   "tasks-RegionDistributionTask-19c298e201890d5db-94": "Resumen de la misión",
   "tasks-RegionDistributionTask-19c298e201890d5db-95":
     "Confirmación de parámetros de tarea",
@@ -1567,7 +1567,7 @@ export default {
   "tasks-RegionDistributionTask-19c298e201890d5db-140":
     "¿Está seguro de que desea borrar todas las palabras clave?",
   "tasks-RegionDistributionTask-19c298e201890d5db-141": "Consejos",
-  "tasks-RegionDistributionTask-19c298e201890d5db-142": "bien",
+  "tasks-RegionDistributionTask-19c298e201890d5db-142": "OK",
   "tasks-RegionDistributionTask-19c298e201890d5db-143": "Cancelar",
   "tasks-RegionDistributionTask-19c298e201890d5db-144":
     "No se encontraron palabras clave válidas en el archivo.",
@@ -1590,7 +1590,7 @@ export default {
   "tasks-RegionDistributionTask-19c298e201890d5db-153":
     "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
   "tasks-RegionDistributionTask-19c298e201890d5db-154": "Consejos",
-  "tasks-RegionDistributionTask-19c298e201890d5db-155": "bien",
+  "tasks-RegionDistributionTask-19c298e201890d5db-155": "OK",
   "tasks-RegionDistributionTask-19c298e201890d5db-156": "Cancelar",
   "tasks-RegionDistributionTask-19c298e201890d5db-157": "despejado",
   "tasks-RegionDistributionTask-19c298e201890d5db-158":
@@ -2032,4 +2032,8 @@ export default {
   "task.type.word_check": "Detección de frecuencia de palabras",
   "task.type.demographic": "Atributos de multitud",
   "task.type.region": "Distribución geográfica",
+  "dashboard.region.city_name": "nombre de la ciudad",
+  "dashboard.region.search_placeholder": "Buscar ciudad...",
+  "dashboard.region.table_title": "Clasificación de áreas activas",
+  "dashboard.region.stat_total": "Estadísticas totales",
 };
