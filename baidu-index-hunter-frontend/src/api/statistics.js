@@ -5,7 +5,7 @@ import request from '@/utils/request'
  * @param {Object} params 查询参数
  * @param {string} params.date 日期（格式：YYYY-MM-DD）
  * @param {string} params.taskType 任务类型
- * @returns {Promise} 请求Promise
+ * @returns {Promise<any>} 请求Promise
  */
 export function getSpiderStatistics(params) {
   return request({
@@ -18,7 +18,7 @@ export function getSpiderStatistics(params) {
 /**
  * 获取任务统计数据
  * @param {Object} params 查询参数
- * @returns {Promise} 请求Promise
+ * @returns {Promise<any>} 请求Promise
  */
 export function getTaskStatistics(params) {
   return request({
@@ -33,7 +33,7 @@ export function getTaskStatistics(params) {
  * @param {Object} params 查询参数
  * @param {string} params.task_id 任务ID (可选)
  * @param {number} params.limit 限制数量，默认20
- * @returns {Promise} 请求Promise
+ * @returns {Promise<any>} 请求Promise
  */
 export function getKeywordStatistics(params) {
   return request({
@@ -49,7 +49,7 @@ export function getKeywordStatistics(params) {
  * @param {string} params.city_name 城市名称 (可选)
  * @param {string} params.task_type 任务类型 (可选)
  * @param {number} params.limit 限制数量，默认100
- * @returns {Promise} 请求Promise
+ * @returns {Promise<any>} 请求Promise
  */
 export function getCityStatistics(params) {
   return request({
@@ -65,7 +65,7 @@ export function getCityStatistics(params) {
  * @param {number} params.days 统计天数，默认30天
  * @param {string} params.start_date 开始日期
  * @param {string} params.end_date 结束日期
- * @returns {Promise} 请求Promise
+ * @returns {Promise<any>} 请求Promise
  */
 export function getDashboardData(params) {
   return request({

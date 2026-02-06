@@ -218,4 +218,69 @@ onUnmounted(() => {
   position: relative;
   z-index: 1;
 }
+
+/* Premium Select Styles */
+.filter-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.premium-select :deep(.el-input__wrapper) {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: none !important;
+  border-radius: 12px;
+  padding-left: 12px;
+  height: 40px;
+  transition: all 0.3s ease;
+}
+
+.premium-select :deep(.el-input__wrapper):hover,
+.premium-select :deep(.el-input__wrapper).is-focus {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.task-select {
+  width: 220px;
+}
+
+.days-select {
+  width: 160px;
+}
+
+.premium-date-picker {
+  width: 280px !important;
+  background: var(--glass-bg) !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--glass-border) !important;
+  height: 40px !important;
+}
+
+.premium-date-picker :deep(.el-range-input) {
+  background: transparent;
+  color: var(--color-text-main);
+}
+
+.refresh-action {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--color-text-main);
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+.refresh-action:hover {
+  background: #6366f1;
+  color: white;
+  border-color: #6366f1;
+  transform: rotate(180deg);
+}
+
+:deep(.el-tabs__header) {
+  margin: 0;
+}
 </style>

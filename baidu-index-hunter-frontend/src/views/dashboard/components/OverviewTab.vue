@@ -1,8 +1,8 @@
 <template>
   <div class="overview-wrapper">
-    <!-- Filters (Original Header Filters) -->
-    <div class="dashboard-header glass-panel">
-       <div class="filter-controls">
+    <!-- Filters (Localized Premium) -->
+    <div class="dashboard-filter-bar glass-panel">
+      <div class="filter-controls">
         <div class="control-item">
           <el-select v-model="selectedTaskType" class="premium-select" @change="handleTaskTypeChange">
             <el-option :label="$t('dashboard.dashboard.o0v3d0')" value="all" />
@@ -25,6 +25,7 @@
           type="daterange"
           class="premium-date-picker"
           @change="loadDashboardData"
+          value-format="YYYY-MM-DD"
         />
         <el-button class="refresh-action" @click="loadDashboardData" :loading="statusLoading" circle>
           <el-icon><Refresh /></el-icon>
@@ -614,7 +615,68 @@ watch(isDark, initCharts)
 .overview-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
+}
+
+.dashboard-filter-bar {
+  padding: 16px 24px;
+  border-radius: 16px;
+  margin-bottom: 4px;
+}
+
+.filter-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Premium UI Scales */
+.premium-select :deep(.el-input__wrapper) {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: none !important;
+  border-radius: 12px;
+  padding-left: 12px;
+  height: 40px;
+  transition: all 0.3s ease;
+}
+
+.days-select {
+  width: 160px;
+}
+
+.premium-select {
+  width: 220px;
+}
+
+.premium-date-picker {
+  width: 280px !important;
+  background: var(--glass-bg) !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--glass-border) !important;
+  height: 40px !important;
+}
+
+.premium-date-picker :deep(.el-range-input) {
+  background: transparent;
+  color: var(--color-text-main);
+}
+
+.refresh-action {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--color-text-main);
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+.refresh-action:hover {
+  background: #6366f1;
+  color: white;
+  border-color: #6366f1;
+  transform: rotate(180deg);
 }
 
 /* Copy relevant styles from Dashboard.vue */
