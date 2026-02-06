@@ -131,7 +131,17 @@ class WordGraphCrawler(BaseCrawler):
             datelists = [datelists]
 
         # 1. 初始化任务
-        self.task_id = kwargs.get('task_id') or kwargs.get('checkpoint_task_id') or self._generate_task_id()
+        if resume and checkpoint_task_id:
+            self.task_id = checkpoint_task_id
+            if not self._load_global_checkpoint(checkpoint_task_id):
+                log.warning(f"Failed to load checkpoint {checkpoint_task_id}, creating new task.")
+                self.task_id = self._generate_task_id()
+                self._prepare_initial_state()
+                resume = False
+        else:
+            self.task_id = kwargs.get('task_id') or self._generate_task_id()
+            self._prepare_initial_state()
+
         import os
         from src.core.config import OUTPUT_DIR
         self.output_path = os.path.join(OUTPUT_DIR, "word_graph", self.task_id)
@@ -143,12 +153,7 @@ class WordGraphCrawler(BaseCrawler):
         self.total_tasks = len(tasks)
         
         # 3. 恢复检查点
-        start_index = 0
-        if kwargs.get('resume'):
-            checkpoint = self._load_global_checkpoint(self.task_id)
-            if checkpoint:
-                self.completed_tasks = checkpoint.get('completed_tasks', 0)
-                start_index = self.completed_tasks
+        start_index = self.completed_tasks
         
         self._update_task_db_status('running', 0)
         

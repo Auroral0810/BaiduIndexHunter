@@ -291,6 +291,7 @@ class SearchIndexCrawler(BaseCrawler):
             if not loaded:
                 log.warning(f"未找到任务ID为 {checkpoint_task_id} 的检查点，将创建新任务")
                 self.task_id = self._generate_task_id()
+                self._prepare_initial_state()
                 resume = False
             else:
                 # 如果成功加载了检查点，使用检查点中的城市字典
@@ -298,15 +299,7 @@ class SearchIndexCrawler(BaseCrawler):
                 log.info(f"从检查点恢复任务: {checkpoint_task_id}, 已完成任务数: {self.completed_tasks}")
         else:
             self.task_id = task_id if task_id else self._generate_task_id()
-            # 初始化进度追踪变量
-            self.completed_keywords = set()  # 改为使用set而不是list
-            self.failed_keywords = set()  # 新增：追踪失败的任务
-            # 重置任务计数器
-            self.completed_tasks = 0
-            self.failed_tasks = 0  # 新增：失败任务计数
-            self.current_keyword_index = 0
-            self.current_city_index = 0
-            self.current_date_range_index = 0
+            self._prepare_initial_state()
             
         # 如果没有从检查点恢复，则需要设置输出路径和检查点路径
         if not resume:
@@ -314,9 +307,6 @@ class SearchIndexCrawler(BaseCrawler):
             os.makedirs(self.output_path, exist_ok=True)
             self.checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/search_index_checkpoint_{self.task_id}.pkl")
             os.makedirs(os.path.dirname(self.checkpoint_path), exist_ok=True)
-            # 确保非恢复模式下重置完成任务计数
-            self.completed_tasks = 0
-            self.failed_tasks = 0  # 新增：重置失败任务计数
 
         # 加载关键词
         if keywords_file:

@@ -125,11 +125,16 @@ class InterestProfileCrawler(BaseCrawler):
         :param kwargs: 其他参数 (resume, task_id 等)
         """
         # 1. 初始化任务
-        self.task_id = kwargs.get('task_id') or kwargs.get('checkpoint_task_id') or self._generate_task_id()
-        self.output_path = self._init_output_dir(kwargs.get('output_dir')) # BaseCrawler 需要这个吗？
-        # BaseCrawler 没有 _init_output_dir，我们需要自己设置 self.output_path
-        
-        # 设置输出路径 (BaseCrawler 的 _flush_buffer 会用到 self.output_path)
+        if kwargs.get('resume') and (kwargs.get('task_id') or kwargs.get('checkpoint_task_id')):
+            self.task_id = kwargs.get('task_id') or kwargs.get('checkpoint_task_id')
+            if not self._load_global_checkpoint(self.task_id):
+                log.warning(f"Failed to load checkpoint {self.task_id}, creating new task.")
+                self.task_id = self._generate_task_id()
+                self._prepare_initial_state()
+        else:
+            self.task_id = kwargs.get('task_id') or self._generate_task_id()
+            self._prepare_initial_state()
+
         import os
         from src.core.config import OUTPUT_DIR
         self.output_path = os.path.join(OUTPUT_DIR, "interest_profiles", self.task_id)
@@ -140,17 +145,10 @@ class InterestProfileCrawler(BaseCrawler):
         tasks = self._prepare_tasks(keywords, **kwargs)
         self.total_tasks = len(tasks)
         
-        # 3. 恢复检查点 (如果需要)
-        start_index = 0
-        if kwargs.get('resume'):
-            checkpoint = self._load_global_checkpoint(self.task_id)
-            if checkpoint:
-                self.completed_tasks = checkpoint.get('completed_tasks', 0)
-                # 简单处理：对于分批任务，如果我们只记录了数量，可能很难精确恢复到具体哪一批
-                # 假设 tasks 列表生成是确定性的 (List[List[str]])
-                # 我们跳过已完成数量的批次
-                start_index = self.completed_tasks
-                log.info(f"[{self.task_type}] Resuming from batch index {start_index}")
+        # 3. 恢复后的起始索引
+        start_index = self.completed_tasks
+        if start_index > 0:
+            log.info(f"[{self.task_type}] Resuming from batch index {start_index}")
         
         # 4. 执行循环
         self._update_task_db_status('running', 0)

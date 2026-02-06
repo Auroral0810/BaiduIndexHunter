@@ -191,7 +191,16 @@ class RegionDistributionCrawler(BaseCrawler):
             date_ranges = self._generate_date_ranges(days, start_date, end_date, year_range)
 
         # 1. 初始化任务
-        self.task_id = kwargs.get('task_id') or kwargs.get('checkpoint_task_id') or self._generate_task_id()
+        if kwargs.get('resume') and (kwargs.get('task_id') or kwargs.get('checkpoint_task_id')):
+            self.task_id = kwargs.get('task_id') or kwargs.get('checkpoint_task_id')
+            if not self._load_global_checkpoint(self.task_id):
+                log.warning(f"Failed to load checkpoint {self.task_id}, creating new task.")
+                self.task_id = self._generate_task_id()
+                self._prepare_initial_state()
+        else:
+            self.task_id = kwargs.get('task_id') or self._generate_task_id()
+            self._prepare_initial_state()
+
         import os
         from src.core.config import OUTPUT_DIR
         self.output_path = os.path.join(OUTPUT_DIR, "region_distributions", self.task_id)
@@ -202,13 +211,8 @@ class RegionDistributionCrawler(BaseCrawler):
         tasks = self._prepare_tasks(keywords, regions, date_ranges)
         self.total_tasks = len(tasks)
         
-        # 3. 恢复检查点
-        start_index = 0
-        if kwargs.get('resume'):
-            checkpoint = self._load_global_checkpoint(self.task_id)
-            if checkpoint:
-                self.completed_tasks = checkpoint.get('completed_tasks', 0)
-                start_index = self.completed_tasks
+        # 3. 恢复后的起始索引
+        start_index = self.completed_tasks
         
         self._update_task_db_status('running', 0)
         
