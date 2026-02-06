@@ -117,10 +117,6 @@ class DemographicProcessor:
             for item in result:
                 word = item.get('word', query_keyword or '')
                 
-                # 跳过 "全网分布" 条目
-                if word == '全网分布':
-                    continue
-                
                 # 处理兴趣数据
                 for interest_item in item.get('interest', []):
                     tgi_val = interest_item.get('tgi', '')

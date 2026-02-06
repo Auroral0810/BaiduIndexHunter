@@ -479,7 +479,7 @@ const router = useRouter();
 const formData = reactive({
   keywords: [] as { value: string }[],
   output_format: "csv",
-  batch_size: 10,
+  batch_size: 5,
   resume: false,
   task_id: "",
   priority: 5,

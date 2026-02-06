@@ -25,7 +25,7 @@ class DemographicAttributesCrawler(BaseCrawler):
         if isinstance(keywords, str):
             keywords = [keywords]
             
-        batch_size = kwargs.get('batch_size', 5)
+        batch_size = min(kwargs.get('batch_size', 5), 5)
         batches = [keywords[i:i + batch_size] for i in range(0, len(keywords), batch_size)]
         return batches
 
