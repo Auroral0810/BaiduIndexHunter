@@ -2,19 +2,73 @@
 资讯指数数据处理器
 """
 import pandas as pd
+import requests
+import json
 from datetime import datetime, timedelta
 from src.core.logger import log
+from src.core.config import BAIDU_INDEX_API
 
 class FeedProcessor:
     """资讯指数数据处理器"""
     
-    def process_feed_index_data(self, data, keyword, city_code, city_name, start_date, end_date, decrypted_data, data_type='day'):
+    def _decrypt(self, key, data):
+        """解密百度指数数据"""
+        if not key or not data:
+            return ""
+            
+        try:
+            i = list(key)
+            n = list(data)
+            a = {}
+            r = []
+            
+            # 构建映射字典
+            for A in range(len(i) // 2):
+                a[i[A]] = i[len(i) // 2 + A]
+            
+            # 根据映射解密数据
+            for o in range(len(n)):
+                r.append(a.get(n[o], n[o]))
+            
+            return ''.join(r)
+        except Exception as e:
+            log.error(f"解密数据时出错: {e}")
+            return ""
+
+    def _get_key(self, uniqid, cookie):
+        """从百度接口获取解密密钥"""
+        params = {'uniqid': uniqid}
+        headers = {
+            'Accept': 'application/json, text/plain, */*',
+            'Referer': 'https://index.baidu.com/v2/main/index.html',
+            'User-Agent': BAIDU_INDEX_API['user_agent'],
+        }
+        try:
+            response = requests.get(
+                'https://index.baidu.com/Interface/ptbk', 
+                params=params, 
+                cookies=cookie, 
+                headers=headers,
+                timeout=10
+            )
+            if response.status_code == 200:
+                res_json = response.json()
+                if res_json.get('status') == 0:
+                    return res_json.get('data')
+            log.error(f"获取解密密钥失败: {response.status_code}, {response.text}")
+            return None
+        except Exception as e:
+            log.error(f"获取解密密钥异常: {e}")
+            return None
+
+    def process_feed_index_data(self, data, cookie, keyword, city_code, city_name, start_date, end_date, decrypted_data, data_type='day'):
         """处理资讯指数数据"""
         try:
-            if not data or not data.get('data') or not data['data'].get('index'):
+            res_data = data.get('data', {})
+            index_list = res_data.get('index', [])
+            if not index_list:
                 return None, None
-            
-            index_data = data['data']['index'][0]
+            index_data = index_list[0]
             general_ratio = index_data.get('generalRatio', {})
             avg_value = general_ratio.get('avg', 0)
             yoy_value = general_ratio.get('yoy', '-')
@@ -99,6 +153,79 @@ class FeedProcessor:
         except Exception as e:
             log.error(f"FeedProcessor error: {e}")
             return None, None
+
+    def process_multi_feed_index_data(self, data, cookie, keywords, city_code, city_name, start_date, end_date):
+        """处理多个关键词的资讯指数数据"""
+        if not data or not data.get('data') or not data['data'].get('index'):
+            log.warning(f"数据为空或格式不正确: {data}")
+            return [], []
+            
+        try:
+            res_data = data.get('data', {})
+            uniqid = res_data.get('uniqid')
+            if not uniqid:
+                log.error("API响应中缺少uniqid")
+                return [], []
+                
+            # 获取解密密钥
+            key = self._get_key(uniqid, cookie)
+            log.info(f"获取到解密密钥: {key}")
+            
+            if not key:
+                log.error("无法获取解密密钥，停止处理")
+                return [], []
+                
+            all_daily_data = []
+            all_stats_records = []
+            
+            index_list = res_data.get('index', [])
+            
+            # 处理每个关键词的数据
+            for i, keyword in enumerate(keywords):
+                try:
+                    index_item = index_list[i] if i < len(index_list) else {}
+                    raw_data = index_item.get('data', '')
+                    data_type = index_item.get('type', 'day')
+                    
+                    log.info(f"正在为关键词 '{keyword}' 解密数据. Key: {key}")
+                    log.info(f"原始加密数据: {raw_data[:100]}...")
+                    
+                    # 解密数据
+                    decrypted_data = self._decrypt(key, raw_data)
+                    log.info(f"解密后的数据: {decrypted_data[:100]}...")
+                    
+                    # 验证解密结果
+                    if decrypted_data and ',' not in decrypted_data and len(decrypted_data) > 0:
+                        log.warning(f"警告: 关键词 '{keyword}' 的解密结果中不包含逗号，可能解密失败")
+
+                    # 创建单个关键词的临时数据结构
+                    single_data = {
+                        'data': {
+                            'index': [index_item],
+                            'uniqid': uniqid
+                        },
+                        'status': 0
+                    }
+                    
+                    # 调用单个处理逻辑
+                    daily_data, stats_record = self.process_feed_index_data(
+                        single_data, cookie, keyword, city_code, city_name, 
+                        start_date, end_date, decrypted_data, data_type
+                    )
+                    
+                    if daily_data:
+                        all_daily_data.extend(daily_data)
+                    if stats_record:
+                        all_stats_records.append(stats_record)
+                        
+                except Exception as e:
+                    log.error(f"处理关键词 '{keyword}' 时出错: {e}")
+                    
+            return all_daily_data, all_stats_records
+            
+        except Exception as e:
+            log.error(f"process_multi_feed_index_data error: {e}")
+            return [], []
 
 # 单例
 feed_processor = FeedProcessor()

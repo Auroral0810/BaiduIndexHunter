@@ -44,6 +44,15 @@ class BaseCrawler:
         self.cookie_rotator = cookie_rotator
         self.setup_signal_handlers()
 
+    def _prepare_initial_state(self):
+        """初始化进度监控变量（新任务开始前调用）"""
+        self.completed_keywords = set()
+        self.failed_keywords = set()
+        self.completed_tasks = 0
+        self.failed_tasks = 0
+        self.data_cache = []
+        self.stats_cache = []
+
     # --- 基础设施 (Infrastructure) ---
 
     def setup_signal_handlers(self):
@@ -60,7 +69,10 @@ class BaseCrawler:
 
     def _generate_task_id(self):
         """生成唯一的任务ID"""
-        return datetime.now().strftime('%Y%m%d%H%M%S')
+        import uuid
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        random_str = uuid.uuid4().hex[:8]
+        return f"{timestamp}_{random_str}"
 
     # --- 数据库与统计 (DB & Stats) ---
 

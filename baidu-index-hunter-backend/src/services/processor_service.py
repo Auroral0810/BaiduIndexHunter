@@ -56,6 +56,10 @@ class BaiduIndexDataProcessor:
     def process_feed_index_data(self, *args, **kwargs):
         return feed_processor.process_feed_index_data(*args, **kwargs)
 
+    def process_multi_feed_index_data(self, *args, **kwargs):
+        """代理到 FeedProcessor 处理批量资讯指数数据"""
+        return feed_processor.process_multi_feed_index_data(*args, **kwargs)
+
     # --- 代理到 StorageService (I/O 逻辑) ---
     def save_to_excel(self, df, output_file='百度指数数据.xlsx'):
         return storage_service.save_to_excel(df, output_file)

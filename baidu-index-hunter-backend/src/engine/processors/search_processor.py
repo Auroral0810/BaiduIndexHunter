@@ -23,12 +23,11 @@ class SearchProcessor:
     def process_search_index_data(self, data, city_number, word, year=None):
         """处理搜索指数数据"""
         try:
-            if not data or 'data' not in data:
+            res_data = data.get('data', {})
+            general_ratio_list = res_data.get('generalRatio', [])
+            if not general_ratio_list:
                 return pd.DataFrame()
-            
-            general_ratio = data['data'].get('generalRatio', [{}])[0]
-            if not general_ratio:
-                return pd.DataFrame()
+            general_ratio = general_ratio_list[0]
             
             city_name = region_manager.get_city_name_by_code(city_number) or f"未知城市({city_number})"
             year = year or datetime.now().year
@@ -59,12 +58,11 @@ class SearchProcessor:
     def process_trend_index_data(self, data, area, keyword, year=None):
         """处理趋势指数数据"""
         try:
-            if not data or 'data' not in data:
+            res_data = data.get('data', {})
+            trend_list = res_data.get('index', [])
+            if not trend_list:
                 return pd.DataFrame()
-            
-            trend_data = data['data'].get('index', [{}])[0]
-            if not trend_data:
-                return pd.DataFrame()
+            trend_data = trend_list[0]
             
             city_name = region_manager.get_city_name_by_code(area) or f"未知城市({area})"
             year = year or datetime.now().year
@@ -247,7 +245,12 @@ class SearchProcessor:
             return [], []
             
         try:
-            uniqid = data['data']['uniqid']
+            res_data = data.get('data', {})
+            uniqid = res_data.get('uniqid')
+            if not uniqid:
+                log.error("API响应中缺少uniqid")
+                return [], []
+                
             # 获取解密密钥
             key = self._get_key(uniqid, cookie)
             if not key:
@@ -259,8 +262,8 @@ class SearchProcessor:
             all_stats_records = []
             
             # 确保用户索引和关键词列表长度一致
-            user_indexes = data['data']['userIndexes']
-            general_ratio = data['data']['generalRatio']
+            user_indexes = res_data.get('userIndexes', [])
+            general_ratio = res_data.get('generalRatio', [])
             
             # 处理每个关键词的数据
             for i, keyword in enumerate(keywords):
