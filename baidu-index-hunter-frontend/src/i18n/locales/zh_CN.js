@@ -1628,5 +1628,20 @@ export default {
   "task.type.interest_profile": "兴趣分布",
   "task.type.word_check": "词频检测",
   "task.type.demographic": "人群属性",
-  "task.type.region": "地域分布"
+  "task.type.region": "地域分布",
+  "views.logs.title": "实时系统日志",
+  "views.logs.subtitle": "实时监控爬虫引擎与后端服务的运行输出",
+  "views.logs.terminal_title": "终端输出",
+  "views.logs.clear_btn": "清空日志",
+  "views.logs.auto_scroll": "自动滚动",
+  "views.logs.pause": "暂停接收",
+  "views.logs.resume": "继续接收",
+  "views.logs.search_placeholder": "搜索内容...",
+  "views.logs.filter_level": "日志级别",
+  "views.logs.copy_log": "复制所选",
+  "views.logs.all_levels": "所有级别",
+  "views.logs.status_connected": "实时通信已建立",
+  "views.logs.status_disconnected": "实时通信已断开，正在重连...",
+  "views.logs.download_log": "导出当前日志",
+  "src-App-19c2993710803cda7-logs": "实时日志"
 }

@@ -17,9 +17,10 @@ const routeMap = {
   "/data-collection": "2",
   "/cookie-manager": "3",
   "/dashboard": "4",
-  "/settings": "5",
-  "/about": "6",
-  "/privacy": "7",
+  "/logs": "5",
+  "/settings": "6",
+  "/about": "7",
+  "/privacy": "8",
 };
 
 // 根据当前路径更新激活的菜单项
@@ -54,12 +55,15 @@ const handleSelect = (key) => {
       router.push("/dashboard");
       break;
     case "5":
-      router.push("/settings");
+      router.push("/logs");
       break;
     case "6":
-      router.push("/about");
+      router.push("/settings");
       break;
     case "7":
+      router.push("/about");
+      break;
+    case "8":
       router.push("/privacy");
       break;
   }
@@ -179,12 +183,15 @@ const isLoading = ref(true);
               $t("src-App-19c2993710803cda7-4")
             }}</el-menu-item>
             <el-menu-item index="5" class="nav-item">{{
-              $t("src-App-19c2993710803cda7-5")
+              $t("src-App-19c2993710803cda7-logs")
             }}</el-menu-item>
             <el-menu-item index="6" class="nav-item">{{
-              $t("src-App-19c2993710803cda7-6")
+              $t("src-App-19c2993710803cda7-5")
             }}</el-menu-item>
             <el-menu-item index="7" class="nav-item">{{
+              $t("src-App-19c2993710803cda7-6")
+            }}</el-menu-item>
+            <el-menu-item index="8" class="nav-item">{{
               $t("src-App-19c2993710803cda7-7")
             }}</el-menu-item></el-menu
           >

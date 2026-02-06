@@ -1,5 +1,6 @@
 from flask_socketio import SocketIO
 from src.core.logger import log
+from datetime import datetime
 
 # 初始化 SocketIO 实例
 # async_mode='threading' 提供最广的平台兼容性
@@ -47,5 +48,18 @@ def init_socketio(app):
             
     set_log_pusher(log_pusher)
     log.info("实时显示系统日志已开启")
+
+    @socketio.on('connect')
+    def handle_connect():
+        emit_task_update('system', {'status': 'connected'})
+        # 发送一条欢迎日志，确认连接成功
+        log_pusher({
+            "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3],
+            "level": "INFO",
+            "name": "System",
+            "function": "handle_connect",
+            "line": "0",
+            "message": "Client connected to real-time log stream. Waiting for system events..."
+        })
     
     return socketio
