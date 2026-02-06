@@ -285,7 +285,7 @@ export default {
   "views.cookiemanager.2bd8so":
     "Cookie プールのステータスを取得中にエラーが発生しました:",
   "views.cookiemanager.vkiw1q":
-    "Cookie ステータスの取得に失敗しました。 API 接続を確認してください",
+    "Cookie ステータスの取得に失敗しました。API 接続を確認してください",
   "views.cookiemanager.8d2gqe": "利用可能なアカウントを正常に読み込みます:",
   "views.cookiemanager.c3ne55":
     "使用可能なアカウントのリストを取得できませんでした: {0}",
@@ -312,7 +312,7 @@ export default {
   "views.cookiemanager.lc547n":
     "Cookie の解析に失敗しました。形式を確認してください (名前=値; 名前2=値2)",
   "views.cookiemanager.17ykj8": "JSON の解析に失敗しました:",
-  "views.cookiemanager.y32143": "JSON 形式エラー。 入力を確認してください。",
+  "views.cookiemanager.y32143": "JSON 形式エラー。入力を確認してください。",
   "views.cookiemanager.mu4bkt": "テーブルデータが空です",
   "views.cookiemanager.o60i16": "テーブルに空のフィールド名があります",
   "views.cookiemanager.d57we7": "プレビューデータが空です",
@@ -328,7 +328,7 @@ export default {
   "views.cookiemanager.474st2": "変換が成功しました",
   "views.cookiemanager.67p41h": "解析に失敗しました:",
   "views.cookiemanager.8649r1":
-    "Cookie 文字列の解析に失敗しました。 形式を確認してください。",
+    "Cookie 文字列の解析に失敗しました。形式を確認してください。",
   "views.cookiemanager.gyo861":
     "入力したフィールドをすべてクリアしてもよろしいですか?",
   "views.cookiemanager.lwo521": "ヒント",
@@ -339,7 +339,7 @@ export default {
   "views.cookiemanager.9s4ovr": "最初にファイルを選択してください",
   "views.cookiemanager.24z4mk": "ファイル処理に失敗しました:",
   "views.cookiemanager.2353e1":
-    "ファイルの解析に失敗しました。 形式を確認してください",
+    "ファイルの解析に失敗しました。形式を確認してください",
   "views.cookiemanager.y828v3": "ファイルの内容を読み取れません",
   "views.cookiemanager.7iz0dx": "ファイルの読み取りエラー",
   "views.cookiemanager.7tlafi": "{0} 個のフィールドが正常に解析されました",
@@ -455,7 +455,7 @@ export default {
   "views.cookiemanager.i184gl": "最初にアカウントを選択してください",
   "views.cookiemanager.pw1x8c": "アカウント {0} を一括禁止する際のエラー:",
   "views.cookiemanager.43wsob":
-    "{0} 個のアカウントが正常に禁止され、合計 {1} 個が処理され、所要時間は {2} 分でした",
+    "{0} 個のアカウントが正常に禁止され、合計 {1} 個が処理されました。 所要時間は {2} 分です",
   "views.cookiemanager.m75rm2": "一括禁止エラー:",
   "views.cookiemanager.611tx8": "バッチ禁止に失敗しました",
   "views.cookiemanager.42j2v1":
@@ -514,10 +514,10 @@ export default {
   "views.datacollection.220fyz": "APIサービス接続成功",
   "views.datacollection.77140v": "接続に失敗しました",
   "views.datacollection.327h7u":
-    "API サービス例外。バックエンド サービスが開始されているかどうかを確認してください。",
+    "API サービス例外。 バックエンド サービスが開始されているかどうかを確認してください。",
   "views.settings.49a0cg": "システム構成",
   "views.settings.6316r3":
-    "クローラーの動作、タスクのスケジュール設定、出力オプションを管理します。 機密情報を環境変数に設定してください。",
+    "クローラーの動作、タスクのスケジュール設定、出力オプションを管理します。機密情報を環境変数に設定してください。",
   "views.settings.8u2y54": "デフォルト設定にリセットする",
   "views.settings.0q2j84": "変更を保存する",
   "views.settings.7p05v8": "すでにオンになっています",
@@ -558,7 +558,7 @@ export default {
   "views.settings.t8dliz": "1日あたりの最大使用回数",
   "views.settings.9ue5fu": "使用可能な Cookie の最小数",
   "views.settings.j56utr": "Cookie ローテーション ポリシー",
-  "dashboard.dashboard.2dwsg6": "データの大画面",
+  "dashboard.dashboard.2dwsg6": "ビッグデータ画面",
   "dashboard.dashboard.327577": "データを更新する",
   "dashboard.dashboard.7iv3g2": "タスクの総数",
   "dashboard.dashboard.u3rve9": "タスクを完了する",
@@ -607,7 +607,7 @@ export default {
   "tasks-TaskList-19c298d949224c78d-10": "タスクのステータス",
   "tasks-TaskList-19c298d949224c78d-11": "待っています",
   "tasks-TaskList-19c298d949224c78d-12": "実行中",
-  "tasks-TaskList-19c298d949224c78d-13": "完了しました",
+  "tasks-TaskList-19c298d949224c78d-13": "完了",
   "tasks-TaskList-19c298d949224c78d-14": "失敗しました",
   "tasks-TaskList-19c298d949224c78d-15": "キャンセルされました",
   "tasks-TaskList-19c298d949224c78d-16": "検索",
@@ -654,7 +654,7 @@ export default {
   "tasks-TaskList-19c298d949224c78d-57": "完了時間",
   "tasks-TaskList-19c298d949224c78d-58": "クリエイター",
   "tasks-TaskList-19c298d949224c78d-59": "タスクの総数",
-  "tasks-TaskList-19c298d949224c78d-60": "完了しました",
+  "tasks-TaskList-19c298d949224c78d-60": "完了",
   "tasks-TaskList-19c298d949224c78d-61": "失敗数",
   "tasks-TaskList-19c298d949224c78d-62": "エラーメッセージ",
   "tasks-TaskList-19c298d949224c78d-63": "タスクの進捗状況",
@@ -716,7 +716,7 @@ export default {
     "タスクリストを取得できませんでした。ネットワーク接続を確認してください。",
   "tasks-TaskList-19c298d949224c78d-117": "タスクの詳細を取得できませんでした:",
   "tasks-TaskList-19c298d949224c78d-118":
-    "タスクの詳細の読み込み中にエラーが発生しました:",
+    "タスクの詳細のロード中にエラーが発生しました:",
   "tasks-TaskList-19c298d949224c78d-119": "タスクが再送信されました",
   "tasks-TaskList-19c298d949224c78d-120": "タスクが再送信されました",
   "tasks-TaskList-19c298d949224c78d-121": "タスクの再試行が失敗しました:",
@@ -750,7 +750,7 @@ export default {
   "tasks-TaskList-19c298d949224c78d-142": "地理的分布",
   "tasks-TaskList-19c298d949224c78d-143": "待っています",
   "tasks-TaskList-19c298d949224c78d-144": "実行中",
-  "tasks-TaskList-19c298d949224c78d-145": "完了しました",
+  "tasks-TaskList-19c298d949224c78d-145": "完了",
   "tasks-TaskList-19c298d949224c78d-146": "失敗しました",
   "tasks-TaskList-19c298d949224c78d-147": "キャンセルされました",
   "tasks-TaskList-19c298d949224c78d-148": "高い",
@@ -1175,8 +1175,9 @@ export default {
     "タスクの送信に失敗しました。ネットワーク接続を確認してください",
   "tasks-FeedIndexTask-19c298e1d0a206148-156":
     "タスクの送信中にエラーが発生しました:",
-  "tasks-FeedIndexTask-19c298e1d0a206148-157": "2017年7月3日から現在までのすべてのフィード指数データを取得します",
-  "tasks-FeedIndexTask-19c298e1d0a206148-158": "全データ（2017年7月3日から現在まで）",
+  "tasks-FeedIndexTask-19c298e1d0a206148-157":
+    "2017 年 7 月 3 日から現在までのすべての情報インデックス データがクロールされます。",
+  "tasks-FeedIndexTask-19c298e1d0a206148-158": "全データ（2017年7月3日～現在）",
   "tasks-InterestProfileTask-19c298e1e7a81a799-1": "興味分析集",
   "tasks-InterestProfileTask-19c298e1e7a81a799-2":
     "Baidu Index の群衆の関心に関するポートレート データ (関心カテゴリーとその割合を含む) を取得する",
@@ -1847,4 +1848,71 @@ export default {
   "src-App-19c2993710803cda7-11": "プロジェクトについて",
   "src-App-19c2993710803cda7-12": "利用規約",
   "src-App-19c2993710803cda7-13": "収集を開始する",
+  "views.home.data_region_title": "地理的分布",
+  "views.home.data_region_desc":
+    "このデータは次のことを示します: このキーワードをフォローしているユーザーはどの地域から来ているのか?",
+  "views.home.data_region_algo":
+    "アルゴリズムの説明: Baidu ユーザーの検索データに基づいて、データ マイニング手法を使用してキーワードの群集属性のクラスター分析を実行し、ユーザーが属する省、都市、および都市レベルの分布とランキングを取得します。",
+  "views.home.data_demographic_title": "群衆の属性",
+  "views.home.data_demographic_desc":
+    "このデータは次のことを示します: このキーワードをフォローしているユーザーの性別と年齢の分布",
+  "views.home.data_demographic_algo":
+    "アルゴリズムの説明: Baidu のユーザー検索データに基づいて、データマイニング手法を使用してキーワードの群衆属性のクラスター分析を実行し、ユーザーの年齢と性別の分布とランキングを示します。",
+  "views.home.data_interest_title": "利息の分配",
+  "views.home.data_interest_desc":
+    "Baidu 検索のユーザー行動データとポートレート データベースに基づいて、選択した範囲内のトピックワードに注目している人の分布と、ネットワーク全体の平均パフォーマンスに対するパフォーマンスの強さを表示します。",
+  "views.home.data_graph_title": "要件マップ",
+  "views.home.data_graph_desc":
+    "このデータは、関連する検索用語に対する需要が、ユーザーがその用語を検索する前後の検索行動の変化に反映されていることを示します。",
+  "views.home.data_graph_algo":
+    "アルゴリズム説明：キーワードと関連語の相関度や関連語そのものの検索需要を総合的に計算します。 円の中心からの関連語の距離は、関連語と中心の検索語との相関の強さを示します。関連語そのもののサイズは、関連語そのものの検索インデックスのサイズを示し、赤は検索インデックスの増加、緑は検索インデックスの減少を表します。",
+  "views.home.data_search_title": "検索インデックス",
+  "views.home.data_search_desc":
+    "このデータは次のことを示しています。キーワード検索に対するインターネット ユーザーの注目とその継続的な変化。",
+  "views.home.data_search_algo":
+    "アルゴリズムの説明: Baidu でのネチズンの検索ボリュームに基づいて、キーワードを統計対象として使用し、Baidu ウェブ検索における各キーワードの検索頻度の重み付けを科学的に分析および計算します。 さまざまなデータ ソースによると、検索インデックスは PC 検索インデックスとモバイル検索インデックスに分かれています。",
+  "views.home.data_feed_title": "情報インデックス",
+  "views.home.data_feed_desc":
+    "このデータは、インターネット上のニュース情報における特定のキーワードの注目度や報道度、およびその継続的な変化を示します。",
+  "views.home.data_feed_algo":
+    "情報指数: 情報指数は、百度のインテリジェントな配信と推奨コンテンツ データに基づいて、ネチズンの閲覧、コメント、転送、いいね、嫌い、その他の行動の重み付けされた数を合計することによって計算されます。",
+  "views.home.data_definitions_title": "データとアルゴリズムの説明",
+  "views.home.data_definitions_subtitle":
+    "当社が収集するデータの次元とその計算原理を深く理解する",
+  "views.cookiemanager.oi7woo": "一時的に禁止されたアカウントはまだありません",
+  "dashboard.dashboard.status_ok": "システムは正常に動作しています",
+  "dashboard.dashboard.status_disconnected": "システム接続が失われました",
+  "dashboard.dashboard.logs_badge": "リアルタイムログ",
+  "dashboard.dashboard.data_packets": "パケットを受信する",
+  "dashboard.dashboard.ws_status": "WSステータス",
+  "dashboard.dashboard.total_tasks": "タスクの総数",
+  "dashboard.dashboard.completed_tasks": "タスクを完了する",
+  "dashboard.dashboard.failed_tasks": "失敗したタスク",
+  "dashboard.dashboard.data_volume": "総データ量",
+  "dashboard.dashboard.crawled_items": "クロールされたアイテムの数",
+  "dashboard.dashboard.success_rate": "成功率",
+  "dashboard.dashboard.avg_duration": "平均所要時間",
+  "dashboard.dashboard.execution_trends": "タスクの実行傾向",
+  "dashboard.dashboard.crawling_trends": "データクローリングの傾向",
+  "dashboard.dashboard.success_comparison": "タスクの成功率の比較",
+  "dashboard.dashboard.duration_comparison": "平均実行時間の比較",
+  "dashboard.dashboard.volume_comparison": "データクロール量の比較",
+  "dashboard.dashboard.volume": "約定量",
+  "dashboard.dashboard.waiting_data":
+    "パケットが端末にプッシュされるのを待っています...",
+  "components-RegionProvinceSelector-1": "全国",
+  "components-RegionProvinceSelector-2": "すべての都道府県を選択してください",
+  "components-RegionProvinceSelector-3": "すべての選択を解除します",
+  "components-RegionProvinceSelector-4": "地理的分布のクエリ手順",
+  "components-RegionProvinceSelector-5":
+    "「全国」を選択すると各都道府県の分布データが表示されます。",
+  "components-RegionProvinceSelector-6":
+    "州を選択すると、その州の都市の分布データが返されます。",
+  "components-RegionProvinceSelector-7":
+    "国全体と複数の州を同時に選択してクエリを実行できます",
+  "components-RegionProvinceSelector-8": "選択したエリア",
+  "components-RegionProvinceSelector-9": "クリア",
+  "components-RegionProvinceSelector-10": "全国",
+  "tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint":
+    "2011 年から現在までのすべてのデータがクロールされます",
 };

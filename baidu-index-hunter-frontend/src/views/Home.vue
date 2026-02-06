@@ -16,7 +16,10 @@ import {
   Grid,
   Collection,
   Switch,
-  VideoPlay
+  VideoPlay,
+  User,
+  Star,
+  TrendCharts
 } from '@element-plus/icons-vue'
 
 
@@ -97,6 +100,51 @@ const workflowSteps = [
     icon: VideoPlay
   }
 ]
+
+const dataDefinitions = [
+  {
+    title: $t('views.home.data_region_title'),
+    desc: $t('views.home.data_region_desc'),
+    algo: $t('views.home.data_region_algo'),
+    icon: Location,
+    color: '#3b82f6'
+  },
+  {
+    title: $t('views.home.data_demographic_title'),
+    desc: $t('views.home.data_demographic_desc'),
+    algo: $t('views.home.data_demographic_algo'),
+    icon: User,
+    color: '#8b5cf6'
+  },
+  {
+    title: $t('views.home.data_interest_title'),
+    desc: $t('views.home.data_interest_desc'),
+    algo: '', // No specific algo label in text, but fits the pattern
+    icon: Star, // Need import
+    color: '#ec4899'
+  },
+  {
+    title: $t('views.home.data_graph_title'),
+    desc: $t('views.home.data_graph_desc'),
+    algo: $t('views.home.data_graph_algo'),
+    icon: Connection,
+    color: '#10b981'
+  },
+  {
+    title: $t('views.home.data_search_title'),
+    desc: $t('views.home.data_search_desc'),
+    algo: $t('views.home.data_search_algo'),
+    icon: DataAnalysis,
+    color: '#f59e0b'
+  },
+  {
+    title: $t('views.home.data_feed_title'),
+    desc: $t('views.home.data_feed_desc'),
+    algo: $t('views.home.data_feed_algo'),
+    icon: DocumentCopy,
+    color: '#6366f1'
+  }
+]
 </script>
 
 <template>
@@ -137,42 +185,19 @@ const workflowSteps = [
       </div>
       
       <div class="hero-visual">
-        <div class="visual-card main-card">
-          <div class="card-header">
-            <div class="window-dots">
-              <span></span><span></span><span></span>
-            </div>
-            <div class="window-title">{{$t('views.home.4iknky')}}</div>
-          </div>
-          <div class="card-body">
-            <div class="chart-placeholder">
-              <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0,150 C50,150 50,100 100,100 C150,100 150,180 200,180 C250,180 250,50 300,50 C350,50 350,120 400,120 L400,200 L0,200 Z" fill="url(#gradient)" opacity="0.2" />
-                <path d="M0,150 C50,150 50,100 100,100 C150,100 150,180 200,180 C250,180 250,50 300,50 C350,50 350,120 400,120" fill="none" stroke="var(--color-primary)" stroke-width="3" />
-                <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style="stop-color:var(--color-primary);stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:var(--color-primary);stop-opacity:0" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
-            <div class="data-row">
-              <div class="data-block" style="width: 60%"></div>
-              <div class="data-block" style="width: 30%"></div>
-            </div>
-            <div class="data-row">
-              <div class="data-block" style="width: 40%"></div>
-              <div class="data-block" style="width: 50%"></div>
-            </div>
-          </div>
-        </div>
-        <div class="visual-card floating-card card-1">
-          <div class="float-icon"><el-icon><Lightning /></el-icon></div>
-          <div class="float-text">
-            <div class="ft-title">{{$t('views.home.2l9pkd')}}</div>
-            <div class="ft-desc">{{$t('views.home.l65qr6')}}</div>
-          </div>
+        <div class="visual-carousel-wrapper">
+          <el-carousel :interval="4000" type="card" height="360px" indicator-position="none">
+            <el-carousel-item v-for="(item, index) in dataDefinitions" :key="index" class="visual-carousel-item">
+              <div class="visual-card-content" :style="{ borderColor: item.color }">
+                <div class="visual-icon-bg" :style="{ backgroundColor: item.color + '15', color: item.color }">
+                  <el-icon><component :is="item.icon" /></el-icon>
+                </div>
+                <h3 class="visual-title" :style="{ color: item.color }">{{ item.title }}</h3>
+                <p class="visual-desc">{{ item.desc }}</p>
+                <div class="visual-bg-blob" :style="{ background: item.color }"></div>
+              </div>
+            </el-carousel-item>
+          </el-carousel>
         </div>
       </div>
     </section>
@@ -211,6 +236,33 @@ const workflowSteps = [
           <h3 class="step-title">{{ step.title }}</h3>
           <p class="step-desc">{{ step.description }}</p>
           <div class="step-connector" v-if="index < workflowSteps.length - 1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Definitions Section -->
+    <section class="definitions-section">
+      <div class="section-header">
+        <h2 class="section-title">{{$t('views.home.data_definitions_title')}}</h2>
+        <p class="section-desc">{{$t('views.home.data_definitions_subtitle')}}</p>
+      </div>
+      
+      <div class="definitions-grid">
+        <div v-for="(item, index) in dataDefinitions" :key="index" class="definition-card">
+          <div class="def-header">
+            <div class="def-icon" :style="{ backgroundColor: item.color }">
+              <el-icon><component :is="item.icon" /></el-icon>
+            </div>
+            <h3 class="def-title">{{ item.title }}</h3>
+          </div>
+          <p class="def-desc">{{ item.desc }}</p>
+          <div class="def-algo" v-if="item.algo">
+            <div class="algo-label">
+              <el-icon><DataAnalysis /></el-icon>
+              <span>Algorithm</span>
+            </div>
+            <p>{{ item.algo }}</p>
+          </div>
         </div>
       </div>
     </section>
@@ -813,6 +865,164 @@ const workflowSteps = [
   
   .cta-title-new {
     font-size: 2rem;
+  }
+}
+
+/* Hero Visual Carousel */
+.visual-carousel-wrapper {
+  width: 500px;
+  margin: 0 auto;
+}
+
+.visual-carousel-item {
+  border-radius: 16px;
+  overflow: visible;
+}
+
+.visual-card-content {
+  background: var(--color-bg-surface);
+  border: 1px solid;
+  border-radius: 16px;
+  padding: 32px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  transition: all 0.3s;
+}
+
+.visual-icon-bg {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  margin-bottom: 24px;
+  z-index: 2;
+}
+
+.visual-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  z-index: 2;
+}
+
+.visual-desc {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  z-index: 2;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.visual-bg-blob {
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  border-radius: 40%;
+  opacity: 0.05;
+  filter: blur(60px);
+  z-index: 1;
+  animation: rotate 20s infinite linear;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Definitions Section */
+.definitions-section {
+  padding: 80px 24px;
+  background-color: var(--color-bg-body);
+}
+
+.definitions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.definition-card {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s;
+}
+
+.definition-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+}
+
+.def-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.def-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.def-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+
+.def-desc {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.def-algo {
+  background-color: var(--color-bg-subtle);
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.algo-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--color-text-main);
+  margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+  .definitions-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style> 

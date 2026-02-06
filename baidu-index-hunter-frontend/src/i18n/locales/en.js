@@ -548,7 +548,7 @@ export default {
   "views.settings.t8dliz": "Maximum number of uses per day",
   "views.settings.9ue5fu": "Minimum number of cookies available",
   "views.settings.j56utr": "Cookie rotation policy",
-  "dashboard.dashboard.2dwsg6": "Data big screen",
+  "dashboard.dashboard.2dwsg6": "Big data screen",
   "dashboard.dashboard.327577": "Refresh data",
   "dashboard.dashboard.7iv3g2": "Total number of tasks",
   "dashboard.dashboard.u3rve9": "Complete the task",
@@ -585,13 +585,14 @@ export default {
   "dashboard.dashboard.1co67w": "Failed to load large screen data",
   "dashboard.dashboard.48i4x2": "{b}: {c} seconds",
   "dashboard.dashboard.y69h15": "{value} seconds",
-  "dashboard.dashboard.status_ok": "SYSTEM OPERATIONAL",
-  "dashboard.dashboard.logs_badge": "LIVE LOGS",
-  "dashboard.dashboard.data_packets": "PACKETS RECV",
-  "dashboard.dashboard.ws_status": "WS STATUS",
+  "dashboard.dashboard.status_ok": "System is running normally",
+  "dashboard.dashboard.logs_badge": "real time log",
+  "dashboard.dashboard.data_packets": "receive packet",
+  "dashboard.dashboard.ws_status": "WS status",
   "dashboard.dashboard.execution_analytics": "Task Execution Analytics",
-  "dashboard.dashboard.volume": "Volume",
-  "dashboard.dashboard.waiting_data": "Waiting for incoming data packets...",
+  "dashboard.dashboard.volume": "Execution volume",
+  "dashboard.dashboard.waiting_data":
+    "Waiting for packet to be pushed to terminal...",
   "tasks-TaskList-19c298d949224c78d-1": "task list",
   "tasks-TaskList-19c298d949224c78d-2": "Search keywords",
   "tasks-TaskList-19c298d949224c78d-3": "Task type",
@@ -832,14 +833,19 @@ export default {
   "components-RegionProvinceSelector-1": "Nationwide",
   "components-RegionProvinceSelector-2": "Select all provinces",
   "components-RegionProvinceSelector-3": "Deselect all",
-  "components-RegionProvinceSelector-4": "Geographic distribution guide",
-  "components-RegionProvinceSelector-5": "Selecting 'Nationwide' will return distribution data for all provinces",
-  "components-RegionProvinceSelector-6": "Selecting a province will return distribution data for cities in that province",
-  "components-RegionProvinceSelector-7": "You can select 'Nationwide' and multiple provinces simultaneously",
-  "components-RegionProvinceSelector-8": "Selected regions",
+  "components-RegionProvinceSelector-4":
+    "Geographical distribution query instructions",
+  "components-RegionProvinceSelector-5":
+    'Selecting "Nationwide" will return the distribution data of each province.',
+  "components-RegionProvinceSelector-6":
+    "Selecting a province will return the distribution data of cities in that province.",
+  "components-RegionProvinceSelector-7":
+    "You can select the whole country and multiple provinces at the same time for query",
+  "components-RegionProvinceSelector-8": "Selected area",
   "components-RegionProvinceSelector-9": "Clear",
   "components-RegionProvinceSelector-10": "Nationwide",
-  "tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint": "Data from 2011 to present will be collected",
+  "tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint":
+    "All data from 2011 to present will be crawled",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-1":
     "Crowd attribute collection",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-2":
@@ -1154,8 +1160,10 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-155":
     "Task submission failed, please check the network connection",
   "tasks-FeedIndexTask-19c298e1d0a206148-156": "Error submitting task:",
-  "tasks-FeedIndexTask-19c298e1d0a206148-157": "Will crawl all feed index data from July 3, 2017 to present",
-  "tasks-FeedIndexTask-19c298e1d0a206148-158": "All data (July 3, 2017 to present)",
+  "tasks-FeedIndexTask-19c298e1d0a206148-157":
+    "All information index data from July 3, 2017 to present will be crawled",
+  "tasks-FeedIndexTask-19c298e1d0a206148-158":
+    "All data (July 3, 2017 to present)",
   "tasks-InterestProfileTask-19c298e1e7a81a799-1":
     "Interest analysis collection",
   "tasks-InterestProfileTask-19c298e1e7a81a799-2":
@@ -1799,4 +1807,50 @@ export default {
   "src-App-19c2993710803cda7-11": "About the project",
   "src-App-19c2993710803cda7-12": "Terms of use",
   "src-App-19c2993710803cda7-13": "Start collecting",
+  "views.home.data_region_title": "Geographical distribution",
+  "views.home.data_region_desc":
+    "This data shows you: Which regions do users who follow this keyword come from?",
+  "views.home.data_region_algo":
+    "Algorithm description: Based on Baidu user search data, data mining methods are used to perform cluster analysis on the crowd attributes of keywords, and the distribution and ranking of the provinces, cities, and city levels to which the users belong are given.",
+  "views.home.data_demographic_title": "Crowd attributes",
+  "views.home.data_demographic_desc":
+    "This data shows you: the gender and age distribution of users who follow this keyword",
+  "views.home.data_demographic_algo":
+    "Algorithm description: Based on Baidu user search data, data mining methods are used to perform cluster analysis on the crowd attributes of keywords, and the distribution and ranking of the age and gender of the users are given.",
+  "views.home.data_interest_title": "Interest distribution",
+  "views.home.data_interest_desc":
+    "Based on Baidu search user behavior data and portrait database, it depicts the distribution of people paying attention to the topic word in the selected range and the strength of the performance relative to the average performance of the entire network.",
+  "views.home.data_graph_title": "Requirements map",
+  "views.home.data_graph_desc":
+    "This data shows you: the demand for relevant search terms reflected in the changes in search behavior before and after the user searches for the term.",
+  "views.home.data_graph_algo":
+    "Algorithm description: Comprehensive calculation of the degree of correlation between keywords and related words, as well as the search demand of the related words themselves. The distance of the related words from the center of the circle indicates the correlation strength between the related words and the central search word; the size of the related words themselves indicates the size of the search index of the related words themselves, with red representing an increase in the search index and green representing a decrease in the search index.",
+  "views.home.data_search_title": "search index",
+  "views.home.data_search_desc":
+    "This data shows you: Internet users’ attention to keyword searches and their continued changes.",
+  "views.home.data_search_algo":
+    "Algorithm description: Based on the search volume of netizens on Baidu, and using keywords as statistical objects, we scientifically analyze and calculate the weighting of the search frequency of each keyword in Baidu web search. According to different data sources, the search index is divided into PC search index and mobile search index.",
+  "views.home.data_feed_title": "information index",
+  "views.home.data_feed_desc":
+    "This data shows you: the degree of attention and coverage of specific keywords in news information on the Internet and its continuous changes.",
+  "views.home.data_feed_algo":
+    "Information index: Based on Baidu's intelligent distribution and recommended content data, the information index is calculated by summing the weighted number of netizens' reading, commenting, forwarding, likes, dislikes and other behaviors.",
+  "views.home.data_definitions_title": "Data and Algorithm Description",
+  "views.home.data_definitions_subtitle":
+    "Get an in-depth understanding of the data dimensions we collect and their calculation principles",
+  "views.cookiemanager.oi7woo": "There are no temporarily banned accounts yet",
+  "dashboard.dashboard.status_disconnected": "System connection lost",
+  "dashboard.dashboard.total_tasks": "Total number of tasks",
+  "dashboard.dashboard.completed_tasks": "Complete the task",
+  "dashboard.dashboard.failed_tasks": "failed task",
+  "dashboard.dashboard.data_volume": "Total amount of data",
+  "dashboard.dashboard.crawled_items": "Number of crawled items",
+  "dashboard.dashboard.success_rate": "success rate",
+  "dashboard.dashboard.avg_duration": "Average time taken",
+  "dashboard.dashboard.execution_trends": "Task execution trends",
+  "dashboard.dashboard.crawling_trends": "Data crawling trends",
+  "dashboard.dashboard.success_comparison": "Task success rate comparison",
+  "dashboard.dashboard.duration_comparison":
+    "Average execution time comparison",
+  "dashboard.dashboard.volume_comparison": "Data crawl volume comparison",
 };

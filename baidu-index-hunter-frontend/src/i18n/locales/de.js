@@ -576,7 +576,7 @@ export default {
   "views.settings.t8dliz": "Maximale Anzahl von Anwendungen pro Tag",
   "views.settings.9ue5fu": "Mindestanzahl verfügbarer Cookies",
   "views.settings.j56utr": "Cookie-Rotationsrichtlinie",
-  "dashboard.dashboard.2dwsg6": "Daten auf großem Bildschirm",
+  "dashboard.dashboard.2dwsg6": "Big-Data-Bildschirm",
   "dashboard.dashboard.327577": "Daten aktualisieren",
   "dashboard.dashboard.7iv3g2": "Gesamtzahl der Aufgaben",
   "dashboard.dashboard.u3rve9": "Schließe die Aufgabe ab",
@@ -599,7 +599,7 @@ export default {
   "dashboard.dashboard.2a174n": "Letzte 7 Tage",
   "dashboard.dashboard.zk61g6": "Letzte 30 Tage",
   "dashboard.dashboard.5o84wx": "Letzte 90 Tage",
-  "dashboard.dashboard.096ld1": "letzten sechs Monaten",
+  "dashboard.dashboard.096ld1": "letzten sechs Monate",
   "dashboard.dashboard.rvgg9y": "letztes Jahr",
   "dashboard.dashboard.o64878": "alle Zeit",
   "dashboard.dashboard.tt8075": "Benutzerdefinierter Zeitbereich",
@@ -660,7 +660,7 @@ export default {
   "tasks-TaskList-19c298d949224c78d-41": "Fortschritt",
   "tasks-TaskList-19c298d949224c78d-42": "Betrieb",
   "tasks-TaskList-19c298d949224c78d-43": "Betrieb",
-  "tasks-TaskList-19c298d949224c78d-44": "Details",
+  "tasks-TaskList-19c298d949224c78d-44": "Einzelheiten",
   "tasks-TaskList-19c298d949224c78d-45": "Versuchen Sie es erneut",
   "tasks-TaskList-19c298d949224c78d-46": "Abbrechen",
   "tasks-TaskList-19c298d949224c78d-47": "Herunterladen",
@@ -877,16 +877,21 @@ export default {
   "components-RegionCitySelector-19c298e1bc4e14bf9-15":
     "Netzwerkfehler, bitte versuchen Sie es später noch einmal",
   "components-RegionProvinceSelector-1": "Bundesweit",
-  "components-RegionProvinceSelector-2": "Alle Provinzen auswählen",
+  "components-RegionProvinceSelector-2": "Wählen Sie alle Provinzen aus",
   "components-RegionProvinceSelector-3": "Alle abwählen",
-  "components-RegionProvinceSelector-4": "Anleitung zur geografischen Verteilung",
-  "components-RegionProvinceSelector-5": "Bei Auswahl von 'Bundesweit' werden die Verteilungsdaten der Provinzen zurückgegeben",
-  "components-RegionProvinceSelector-6": "Bei Auswahl einer Provinz werden die Verteilungsdaten der Städte in dieser Provinz zurückgegeben",
-  "components-RegionProvinceSelector-7": "Sie können gleichzeitig 'Bundesweit' und mehrere Provinzen auswählen",
-  "components-RegionProvinceSelector-8": "Ausgewählte Regionen",
-  "components-RegionProvinceSelector-9": "Löschen",
+  "components-RegionProvinceSelector-4":
+    "Anweisungen zur Abfrage der geografischen Verteilung",
+  "components-RegionProvinceSelector-5":
+    "Wenn Sie „Landesweit“ auswählen, werden die Verteilungsdaten jeder Provinz angezeigt.",
+  "components-RegionProvinceSelector-6":
+    "Wenn Sie eine Provinz auswählen, werden die Verteilungsdaten der Städte in dieser Provinz zurückgegeben.",
+  "components-RegionProvinceSelector-7":
+    "Sie können das gesamte Land und mehrere Provinzen gleichzeitig für die Abfrage auswählen",
+  "components-RegionProvinceSelector-8": "Ausgewählter Bereich",
+  "components-RegionProvinceSelector-9": "Klar",
   "components-RegionProvinceSelector-10": "Bundesweit",
-  "tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint": "Daten von 2011 bis heute werden erfasst",
+  "tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint":
+    "Alle Daten von 2011 bis heute werden gecrawlt",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-1":
     "Sammlung von Crowd-Attributen",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-2":
@@ -1235,8 +1240,10 @@ export default {
     "Das Senden der Aufgabe ist fehlgeschlagen. Bitte überprüfen Sie die Netzwerkverbindung",
   "tasks-FeedIndexTask-19c298e1d0a206148-156":
     "Fehler beim Senden der Aufgabe:",
-  "tasks-FeedIndexTask-19c298e1d0a206148-157": "Es werden alle Feed-Index-Daten vom 3. Juli 2017 bis heute gecrawlt",
-  "tasks-FeedIndexTask-19c298e1d0a206148-158": "Alle Daten (3. Juli 2017 bis heute)",
+  "tasks-FeedIndexTask-19c298e1d0a206148-157":
+    "Alle Informationsindexdaten vom 3. Juli 2017 bis heute werden gecrawlt",
+  "tasks-FeedIndexTask-19c298e1d0a206148-158":
+    "Alle Daten (3. Juli 2017 bis heute)",
   "tasks-InterestProfileTask-19c298e1e7a81a799-1":
     "Sammlung von Interessenanalysen",
   "tasks-InterestProfileTask-19c298e1e7a81a799-2":
@@ -1965,4 +1972,60 @@ export default {
   "src-App-19c2993710803cda7-11": "Über das Projekt",
   "src-App-19c2993710803cda7-12": "Nutzungsbedingungen",
   "src-App-19c2993710803cda7-13": "Beginnen Sie mit dem Sammeln",
+  "views.home.data_region_title": "Geografische Verteilung",
+  "views.home.data_region_desc":
+    "Diese Daten zeigen Ihnen: Aus welchen Regionen kommen Nutzer, die diesem Keyword folgen?",
+  "views.home.data_region_algo":
+    "Beschreibung des Algorithmus: Basierend auf Baidu-Benutzersuchdaten werden Data-Mining-Methoden verwendet, um eine Clusteranalyse der Crowd-Attribute von Schlüsselwörtern durchzuführen und die Verteilung und Rangfolge der Provinzen, Städte und Stadtebenen, zu denen die Benutzer gehören, anzugeben.",
+  "views.home.data_demographic_title": "Crowd-Attribute",
+  "views.home.data_demographic_desc":
+    "Diese Daten zeigen Ihnen: die Geschlechter- und Altersverteilung der Nutzer, die diesem Schlüsselwort folgen",
+  "views.home.data_demographic_algo":
+    "Beschreibung des Algorithmus: Basierend auf Baidu-Benutzersuchdaten werden Data-Mining-Methoden verwendet, um eine Clusteranalyse der Crowd-Attribute von Schlüsselwörtern durchzuführen und die Verteilung und Rangfolge des Alters und Geschlechts der Benutzer anzugeben.",
+  "views.home.data_interest_title": "Zinsverteilung",
+  "views.home.data_interest_desc":
+    "Basierend auf den Nutzerverhaltensdaten der Baidu-Suche und der Porträtdatenbank wird die Verteilung der Personen, die dem Themenwort im ausgewählten Bereich Aufmerksamkeit schenken, sowie die Stärke der Leistung im Verhältnis zur durchschnittlichen Leistung des gesamten Netzwerks dargestellt.",
+  "views.home.data_graph_title": "Anforderungskarte",
+  "views.home.data_graph_desc":
+    "Diese Daten zeigen Ihnen: die Nachfrage nach relevanten Suchbegriffen, die sich in den Veränderungen im Suchverhalten vor und nach der Suche des Nutzers nach dem Begriff widerspiegelt.",
+  "views.home.data_graph_algo":
+    "Beschreibung des Algorithmus: Umfassende Berechnung des Korrelationsgrads zwischen Schlüsselwörtern und verwandten Wörtern sowie des Suchbedarfs der verwandten Wörter selbst. Der Abstand der verwandten Wörter vom Mittelpunkt des Kreises gibt die Korrelationsstärke zwischen den verwandten Wörtern und dem zentralen Suchwort an; Die Größe der verwandten Wörter selbst gibt die Größe des Suchindex der verwandten Wörter selbst an, wobei Rot für eine Erhöhung des Suchindex und Grün für eine Verringerung des Suchindex steht.",
+  "views.home.data_search_title": "Suchindex",
+  "views.home.data_search_desc":
+    "Diese Daten zeigen Ihnen: Die Aufmerksamkeit der Internetnutzer für Stichwortsuchen und deren fortlaufende Änderungen.",
+  "views.home.data_search_algo":
+    "Beschreibung des Algorithmus: Basierend auf dem Suchvolumen der Internetnutzer auf Baidu und unter Verwendung von Schlüsselwörtern als statistische Objekte analysieren und berechnen wir wissenschaftlich die Gewichtung der Suchhäufigkeit jedes Schlüsselworts in der Baidu-Websuche. Je nach Datenquelle wird der Suchindex in einen PC-Suchindex und einen mobilen Suchindex unterteilt.",
+  "views.home.data_feed_title": "Informationsindex",
+  "views.home.data_feed_desc":
+    "Diese Daten zeigen Ihnen: den Grad der Aufmerksamkeit und Abdeckung bestimmter Schlüsselwörter in Nachrichteninformationen im Internet und deren kontinuierliche Veränderungen.",
+  "views.home.data_feed_algo":
+    "Informationsindex: Basierend auf der intelligenten Verteilung und den empfohlenen Inhaltsdaten von Baidu wird der Informationsindex berechnet, indem die gewichtete Anzahl der Lese-, Kommentar-, Weiterleitungs-, Like-, Abneigungs- und anderen Verhaltensweisen der Internetnutzer summiert wird.",
+  "views.home.data_definitions_title": "Daten- und Algorithmusbeschreibung",
+  "views.home.data_definitions_subtitle":
+    "Erhalten Sie einen detaillierten Einblick in die von uns erfassten Datendimensionen und deren Berechnungsprinzipien",
+  "views.cookiemanager.oi7woo":
+    "Es gibt noch keine vorübergehend gesperrten Konten",
+  "dashboard.dashboard.status_ok": "Das System läuft normal",
+  "dashboard.dashboard.status_disconnected": "Systemverbindung unterbrochen",
+  "dashboard.dashboard.logs_badge": "Echtzeitprotokoll",
+  "dashboard.dashboard.data_packets": "Paket empfangen",
+  "dashboard.dashboard.ws_status": "WS-Status",
+  "dashboard.dashboard.total_tasks": "Gesamtzahl der Aufgaben",
+  "dashboard.dashboard.completed_tasks": "Schließe die Aufgabe ab",
+  "dashboard.dashboard.failed_tasks": "fehlgeschlagene Aufgabe",
+  "dashboard.dashboard.data_volume": "Gesamtdatenmenge",
+  "dashboard.dashboard.crawled_items": "Anzahl der gecrawlten Elemente",
+  "dashboard.dashboard.success_rate": "Erfolgsquote",
+  "dashboard.dashboard.avg_duration": "Durchschnittlich benötigte Zeit",
+  "dashboard.dashboard.execution_trends": "Trends bei der Aufgabenausführung",
+  "dashboard.dashboard.crawling_trends": "Trends beim Daten-Crawling",
+  "dashboard.dashboard.success_comparison":
+    "Vergleich der Aufgabenerfolgsraten",
+  "dashboard.dashboard.duration_comparison":
+    "Vergleich der durchschnittlichen Ausführungszeit",
+  "dashboard.dashboard.volume_comparison":
+    "Vergleich des Daten-Crawling-Volumens",
+  "dashboard.dashboard.volume": "Ausführungsvolumen",
+  "dashboard.dashboard.waiting_data":
+    "Warten darauf, dass das Paket an das Terminal weitergeleitet wird ...",
 };

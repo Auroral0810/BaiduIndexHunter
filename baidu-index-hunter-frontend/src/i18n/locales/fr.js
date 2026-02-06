@@ -473,7 +473,7 @@ export default {
   "views.cookiemanager.pw1x8c":
     "Erreur lors du bannissement par lots du compte {0} :",
   "views.cookiemanager.43wsob":
-    "{0} comptes bannis avec succès, {1} traités au total, durée {2} minutes",
+    "{0} comptes bannis avec succès, {1} traités au total, durée {2} minutes",
   "views.cookiemanager.m75rm2": "Erreur d'interdiction groupée :",
   "views.cookiemanager.611tx8": "Échec de l'interdiction par lots",
   "views.cookiemanager.42j2v1":
@@ -584,7 +584,7 @@ export default {
   "views.settings.t8dliz": "Nombre maximum d'utilisations par jour",
   "views.settings.9ue5fu": "Nombre minimum de cookies disponibles",
   "views.settings.j56utr": "Politique de rotation des cookies",
-  "dashboard.dashboard.2dwsg6": "Grand écran de données",
+  "dashboard.dashboard.2dwsg6": "Écran de mégadonnées",
   "dashboard.dashboard.327577": "Actualiser les données",
   "dashboard.dashboard.7iv3g2": "Nombre total de tâches",
   "dashboard.dashboard.u3rve9": "Terminez la tâche",
@@ -723,7 +723,7 @@ export default {
     "Aucune donnée de point de contrôle pour l'instant",
   "tasks-TaskList-19c298d949224c78d-95": "Journal de mission",
   "tasks-TaskList-19c298d949224c78d-96": "temps",
-  "tasks-TaskList-19c298d949224c78d-97": "Niveau",
+  "tasks-TaskList-19c298d949224c78d-97": "niveau",
   "tasks-TaskList-19c298d949224c78d-98": "nouvelles",
   "tasks-TaskList-19c298d949224c78d-99": "Pas encore de journal des tâches",
   "tasks-TaskList-19c298d949224c78d-100": "Fermer",
@@ -1236,8 +1236,10 @@ export default {
     "Échec de la soumission de la tâche, veuillez vérifier la connexion réseau",
   "tasks-FeedIndexTask-19c298e1d0a206148-156":
     "Erreur lors de la soumission de la tâche :",
-  "tasks-FeedIndexTask-19c298e1d0a206148-157": "Toutes les données d'indice d'actualités du 3 juillet 2017 à aujourd'hui seront collectées",
-  "tasks-FeedIndexTask-19c298e1d0a206148-158": "Toutes les données (3 juillet 2017 à aujourd'hui)",
+  "tasks-FeedIndexTask-19c298e1d0a206148-157":
+    "Toutes les données de l'index d'informations du 3 juillet 2017 à aujourd'hui seront explorées.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-158":
+    "Toutes les données (du 3 juillet 2017 à aujourd'hui)",
   "tasks-InterestProfileTask-19c298e1e7a81a799-1":
     "Collecte d'analyses d'intérêts",
   "tasks-InterestProfileTask-19c298e1e7a81a799-2":
@@ -1955,4 +1957,78 @@ export default {
   "src-App-19c2993710803cda7-11": "À propos du projet",
   "src-App-19c2993710803cda7-12": "Conditions d'utilisation",
   "src-App-19c2993710803cda7-13": "Commencez à collectionner",
+  "views.home.data_region_title": "Répartition géographique",
+  "views.home.data_region_desc":
+    "Ces données vous montrent : De quelles régions proviennent les utilisateurs qui suivent ce mot-clé ?",
+  "views.home.data_region_algo":
+    "Description de l'algorithme : sur la base des données de recherche des utilisateurs de Baidu, des méthodes d'exploration de données sont utilisées pour effectuer une analyse de cluster sur les attributs de foule des mots-clés, ainsi que la distribution et le classement des provinces, des villes et des niveaux de ville auxquels appartiennent les utilisateurs.",
+  "views.home.data_demographic_title": "Attributs de la foule",
+  "views.home.data_demographic_desc":
+    "Ces données vous montrent : la répartition par sexe et par âge des utilisateurs qui suivent ce mot-clé",
+  "views.home.data_demographic_algo":
+    "Description de l'algorithme : sur la base des données de recherche des utilisateurs de Baidu, des méthodes d'exploration de données sont utilisées pour effectuer une analyse groupée sur les attributs de foule des mots-clés, et la distribution et le classement de l'âge et du sexe des utilisateurs sont donnés.",
+  "views.home.data_interest_title": "Répartition des intérêts",
+  "views.home.data_interest_desc":
+    "Basé sur les données de comportement des utilisateurs de recherche Baidu et la base de données de portraits, il décrit la répartition des personnes prêtant attention au mot sujet dans la plage sélectionnée et la force des performances par rapport aux performances moyennes de l'ensemble du réseau.",
+  "views.home.data_graph_title": "Carte des exigences",
+  "views.home.data_graph_desc":
+    "Ces données vous montrent : la demande de termes de recherche pertinents reflétée dans les changements de comportement de recherche avant et après que l'utilisateur ait recherché le terme.",
+  "views.home.data_graph_algo":
+    "Description de l'algorithme : calcul complet du degré de corrélation entre les mots-clés et les mots associés, ainsi que la demande de recherche des mots associés eux-mêmes. La distance des mots associés par rapport au centre du cercle indique la force de corrélation entre les mots associés et le mot de recherche central ; la taille des mots associés eux-mêmes indique la taille de l'index de recherche des mots associés eux-mêmes, le rouge représentant une augmentation de l'index de recherche et le vert représentant une diminution de l'index de recherche.",
+  "views.home.data_search_title": "index de recherche",
+  "views.home.data_search_desc":
+    "Ces données vous montrent : l’attention des internautes sur les recherches de mots clés et leurs évolutions continues.",
+  "views.home.data_search_algo":
+    "Description de l'algorithme : sur la base du volume de recherche des internautes sur Baidu et en utilisant des mots-clés comme objets statistiques, nous analysons et calculons scientifiquement la pondération de la fréquence de recherche de chaque mot-clé dans la recherche Web Baidu. Selon différentes sources de données, l'index de recherche est divisé en index de recherche PC et index de recherche mobile.",
+  "views.home.data_feed_title": "index d'informations",
+  "views.home.data_feed_desc":
+    "Ces données vous montrent : le degré d'attention et de couverture de mots-clés spécifiques dans les informations d'actualité sur Internet et leurs changements continus.",
+  "views.home.data_feed_algo":
+    "Indice d'information : sur la base de la distribution intelligente de Baidu et des données de contenu recommandées, l'indice d'information est calculé en additionnant le nombre pondéré de lectures, de commentaires, de transferts, de likes, de dégoûts et d'autres comportements des internautes.",
+  "views.home.data_definitions_title":
+    "Description des données et de l'algorithme",
+  "views.home.data_definitions_subtitle":
+    "Obtenez une compréhension approfondie des dimensions des données que nous collectons et de leurs principes de calcul",
+  "views.cookiemanager.oi7woo":
+    "Il n'y a pas encore de comptes temporairement bannis",
+  "dashboard.dashboard.status_ok": "Le système fonctionne normalement",
+  "dashboard.dashboard.status_disconnected": "Connexion système perdue",
+  "dashboard.dashboard.logs_badge": "journal en temps réel",
+  "dashboard.dashboard.data_packets": "recevoir un paquet",
+  "dashboard.dashboard.ws_status": "Statut WS",
+  "dashboard.dashboard.total_tasks": "Nombre total de tâches",
+  "dashboard.dashboard.completed_tasks": "Terminez la tâche",
+  "dashboard.dashboard.failed_tasks": "tâche échouée",
+  "dashboard.dashboard.data_volume": "Quantité totale de données",
+  "dashboard.dashboard.crawled_items": "Nombre d'éléments explorés",
+  "dashboard.dashboard.success_rate": "taux de réussite",
+  "dashboard.dashboard.avg_duration": "Temps moyen pris",
+  "dashboard.dashboard.execution_trends": "Tendances d'exécution des tâches",
+  "dashboard.dashboard.crawling_trends":
+    "Tendances en matière d'exploration des données",
+  "dashboard.dashboard.success_comparison":
+    "Comparaison du taux de réussite des tâches",
+  "dashboard.dashboard.duration_comparison":
+    "Comparaison du temps d'exécution moyen",
+  "dashboard.dashboard.volume_comparison":
+    "Comparaison des volumes d'analyse des données",
+  "dashboard.dashboard.volume": "Volume d'exécution",
+  "dashboard.dashboard.waiting_data":
+    "En attente que le paquet soit poussé vers le terminal...",
+  "components-RegionProvinceSelector-1": "Dans tout le pays",
+  "components-RegionProvinceSelector-2": "Sélectionnez toutes les provinces",
+  "components-RegionProvinceSelector-3": "Tout désélectionner",
+  "components-RegionProvinceSelector-4":
+    "Instructions de requête de répartition géographique",
+  "components-RegionProvinceSelector-5":
+    "La sélection de « À l'échelle nationale » renverra les données de distribution de chaque province.",
+  "components-RegionProvinceSelector-6":
+    "La sélection d'une province renverra les données de répartition des villes de cette province.",
+  "components-RegionProvinceSelector-7":
+    "Vous pouvez sélectionner le pays entier et plusieurs provinces en même temps pour une requête",
+  "components-RegionProvinceSelector-8": "Zone sélectionnée",
+  "components-RegionProvinceSelector-9": "Effacer",
+  "components-RegionProvinceSelector-10": "Dans tout le pays",
+  "tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint":
+    "Toutes les données de 2011 à aujourd'hui seront explorées",
 };

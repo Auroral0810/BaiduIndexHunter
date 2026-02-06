@@ -107,7 +107,7 @@ export default {
   "views.privacy.ck5753": "로컬 저장소",
   "views.privacy.b91mv3":
     ": 이 소프트웨어에 의해 수집된 모든 데이터, 구성 정보 및 쿠키는 로컬 데이터베이스에만 저장되며 제3자 서버에는 업로드되지 않습니다.",
-  "views.privacy.zz3h3w": "데이터 통제",
+  "views.privacy.zz3h3w": "데이터 제어",
   "views.privacy.k411bo":
     ": 귀하는 수집된 데이터를 완벽하게 통제할 수 있으며, 데이터를 안전하게 보관하고 규정에 맞게 사용할 책임도 있습니다.",
   "views.privacy.18573h": "5. 약관 업데이트",
@@ -271,7 +271,7 @@ export default {
   "views.cookiemanager.y7o532": "금지된 계정 없음",
   "views.cookiemanager.8d95yp": "로그인되지 않은 계정",
   "views.cookiemanager.cjq16u": "로그인되지 않은 계정 없음",
-  "views.cookiemanager.pm211s": "일괄적으로 계정을 일시적으로 금지",
+  "views.cookiemanager.pm211s": "일괄적으로 계정을 일시적으로 금지합니다.",
   "views.cookiemanager.43648j": "선택한 계정",
   "views.cookiemanager.0xi183": "만료됨/차단 해제 대기 중",
   "views.cookiemanager.n4d7oo": "{0}시간",
@@ -520,7 +520,7 @@ export default {
   "views.settings.txk3c7": "출력 구성",
   "views.settings.41yx5j": "파일 형식, 인코딩 및 저장 위치",
   "views.settings.6ip168": "쿠키 구성",
-  "views.settings.234y82": "계정 순환 및 금지 전략",
+  "views.settings.234y82": "계정 순환 및 차단 전략",
   "views.settings.87n068": "구성이 성공적으로 저장되었습니다.",
   "views.settings.jx4357": "구성이 기본값으로 재설정되었습니다.",
   "views.settings.8x81cv": "구성 항목 설명",
@@ -547,7 +547,7 @@ export default {
   "views.settings.t8dliz": "일일 최대 사용 횟수",
   "views.settings.9ue5fu": "사용 가능한 최소 쿠키 수",
   "views.settings.j56utr": "쿠키 순환 정책",
-  "dashboard.dashboard.2dwsg6": "데이터 큰 화면",
+  "dashboard.dashboard.2dwsg6": "빅데이터 화면",
   "dashboard.dashboard.327577": "데이터 새로 고침",
   "dashboard.dashboard.7iv3g2": "총 작업 수",
   "dashboard.dashboard.u3rve9": "작업을 완료하세요",
@@ -1136,8 +1136,10 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-155":
     "작업 제출에 실패했습니다. 네트워크 연결을 확인하세요.",
   "tasks-FeedIndexTask-19c298e1d0a206148-156": "작업 제출 중 오류 발생:",
-  "tasks-FeedIndexTask-19c298e1d0a206148-157": "2017년 7월 3일부터 현재까지의 모든 피드 지수 데이터를 수집합니다",
-  "tasks-FeedIndexTask-19c298e1d0a206148-158": "전체 데이터 (2017년 7월 3일부터 현재까지)",
+  "tasks-FeedIndexTask-19c298e1d0a206148-157":
+    "2017년 7월 3일부터 현재까지의 모든 정보지수 데이터를 크롤링합니다.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-158":
+    "전체 데이터(2017년 7월 3일~현재)",
   "tasks-InterestProfileTask-19c298e1e7a81a799-1": "관심도 분석 수집",
   "tasks-InterestProfileTask-19c298e1e7a81a799-2":
     "관심 카테고리 및 비율을 포함한 Baidu Index 군중 관심도 데이터를 얻습니다.",
@@ -1771,4 +1773,71 @@ export default {
   "src-App-19c2993710803cda7-11": "프로젝트 소개",
   "src-App-19c2993710803cda7-12": "이용약관",
   "src-App-19c2993710803cda7-13": "수집 시작",
+  "views.home.data_region_title": "지리적 분포",
+  "views.home.data_region_desc":
+    "이 데이터는 다음을 보여줍니다. 이 키워드를 따르는 사용자는 어느 지역에서 왔습니까?",
+  "views.home.data_region_algo":
+    "알고리즘 설명: Baidu 사용자 검색 데이터를 기반으로 데이터 마이닝 방법을 사용하여 키워드의 군중 속성에 대한 클러스터 분석을 수행하고 사용자가 속한 성, 도시 및 도시 수준의 분포 및 순위를 제공합니다.",
+  "views.home.data_demographic_title": "군중 속성",
+  "views.home.data_demographic_desc":
+    "이 데이터는 다음을 보여줍니다. 이 키워드를 따르는 사용자의 성별 및 연령 분포",
+  "views.home.data_demographic_algo":
+    "알고리즘 설명: Baidu 사용자 검색 데이터를 기반으로 데이터 마이닝 방법을 사용하여 키워드의 군중 속성에 대한 클러스터 분석을 수행하고 사용자의 연령 및 성별 분포와 순위를 제공합니다.",
+  "views.home.data_interest_title": "이자분배",
+  "views.home.data_interest_desc":
+    "Baidu 검색 사용자 행동 데이터 및 초상화 데이터베이스를 기반으로 선택한 범위에서 주제 단어에 주목하는 사람들의 분포와 전체 네트워크의 평균 성능 대비 성능 강도를 나타냅니다.",
+  "views.home.data_graph_title": "요구사항 맵",
+  "views.home.data_graph_desc":
+    "이 데이터는 사용자가 해당 용어를 검색하기 전후의 검색 행동 변화에 반영된 관련 검색어에 대한 수요를 보여줍니다.",
+  "views.home.data_graph_algo":
+    "알고리즘 설명: 키워드와 연관어 간의 상관도, 연관어 자체의 검색 수요를 종합적으로 계산합니다. 원 중심으로부터 관련 단어의 거리가 관련 단어와 중심 검색어 사이의 상관 강도를 나타냅니다. 관련 단어 자체의 크기는 관련 단어 자체의 검색 색인 크기를 나타내며, 빨간색은 검색 색인의 증가를 나타내고 녹색은 검색 색인의 감소를 나타냅니다.",
+  "views.home.data_search_title": "검색 색인",
+  "views.home.data_search_desc":
+    "이 데이터는 키워드 검색에 대한 인터넷 사용자의 관심과 지속적인 변화를 보여줍니다.",
+  "views.home.data_search_algo":
+    "알고리즘 설명: 바이두에서 네티즌의 검색량을 기반으로 키워드를 통계 객체로 활용하여 바이두 웹 검색에서 각 키워드의 검색 빈도에 대한 가중치를 과학적으로 분석하고 계산합니다. 검색지수는 데이터 소스에 따라 PC 검색지수와 모바일 검색지수로 구분됩니다.",
+  "views.home.data_feed_title": "정보 색인",
+  "views.home.data_feed_desc":
+    "이 데이터는 인터넷상의 뉴스 정보에서 특정 키워드에 대한 관심과 보도 정도, 그리고 그 지속적인 변화를 보여줍니다.",
+  "views.home.data_feed_algo":
+    "정보 지수: Baidu의 지능형 배포 및 추천 콘텐츠 데이터를 기반으로 네티즌의 읽기, 댓글 달기, 전달, 좋아요, 싫어요 및 기타 행동에 대한 가중치를 합산하여 정보 지수를 계산합니다.",
+  "views.home.data_definitions_title": "데이터 및 알고리즘 설명",
+  "views.home.data_definitions_subtitle":
+    "우리가 수집하는 데이터 차원과 그 계산 원리에 대해 심층적으로 이해하세요.",
+  "views.cookiemanager.oi7woo": "아직 일시적으로 차단된 계정이 없습니다.",
+  "dashboard.dashboard.status_ok": "시스템이 정상적으로 실행 중입니다.",
+  "dashboard.dashboard.status_disconnected": "시스템 연결이 끊겼습니다.",
+  "dashboard.dashboard.logs_badge": "실시간 로그",
+  "dashboard.dashboard.data_packets": "패킷을 수신하다",
+  "dashboard.dashboard.ws_status": "WS 상태",
+  "dashboard.dashboard.total_tasks": "총 작업 수",
+  "dashboard.dashboard.completed_tasks": "작업을 완료하세요",
+  "dashboard.dashboard.failed_tasks": "실패한 작업",
+  "dashboard.dashboard.data_volume": "총 데이터량",
+  "dashboard.dashboard.crawled_items": "크롤링된 항목 수",
+  "dashboard.dashboard.success_rate": "성공률",
+  "dashboard.dashboard.avg_duration": "평균 소요 시간",
+  "dashboard.dashboard.execution_trends": "작업 실행 동향",
+  "dashboard.dashboard.crawling_trends": "데이터 크롤링 동향",
+  "dashboard.dashboard.success_comparison": "작업 성공률 비교",
+  "dashboard.dashboard.duration_comparison": "평균 실행 시간 비교",
+  "dashboard.dashboard.volume_comparison": "데이터 크롤링 양 비교",
+  "dashboard.dashboard.volume": "실행량",
+  "dashboard.dashboard.waiting_data":
+    "패킷이 터미널에 푸시되기를 기다리는 중...",
+  "components-RegionProvinceSelector-1": "전국",
+  "components-RegionProvinceSelector-2": "모든 지방을 선택하세요.",
+  "components-RegionProvinceSelector-3": "모두 선택 취소",
+  "components-RegionProvinceSelector-4": "지리적 분포 쿼리 지침",
+  "components-RegionProvinceSelector-5":
+    "'전국'을 선택하면 각 지역의 분포 데이터가 반환됩니다.",
+  "components-RegionProvinceSelector-6":
+    "지방을 선택하면 해당 지방의 도시 분포 데이터가 반환됩니다.",
+  "components-RegionProvinceSelector-7":
+    "쿼리를 위해 전체 국가와 여러 지방을 동시에 선택할 수 있습니다",
+  "components-RegionProvinceSelector-8": "선택된 지역",
+  "components-RegionProvinceSelector-9": "지우기",
+  "components-RegionProvinceSelector-10": "전국",
+  "tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint":
+    "2011년부터 현재까지의 모든 데이터가 크롤링됩니다.",
 };

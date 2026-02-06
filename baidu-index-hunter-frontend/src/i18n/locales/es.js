@@ -576,7 +576,7 @@ export default {
   "views.settings.t8dliz": "Número máximo de usos por día",
   "views.settings.9ue5fu": "Número mínimo de cookies disponibles",
   "views.settings.j56utr": "Política de rotación de cookies",
-  "dashboard.dashboard.2dwsg6": "Pantalla grande de datos",
+  "dashboard.dashboard.2dwsg6": "Pantalla de datos grandes",
   "dashboard.dashboard.327577": "Actualizar datos",
   "dashboard.dashboard.7iv3g2": "Número total de tareas",
   "dashboard.dashboard.u3rve9": "Completa la tarea",
@@ -682,7 +682,7 @@ export default {
   "tasks-TaskList-19c298d949224c78d-64": "(fallido:",
   "tasks-TaskList-19c298d949224c78d-65": "Parámetros de la tarea",
   "tasks-TaskList-19c298d949224c78d-66": "palabras clave",
-  "tasks-TaskList-19c298d949224c78d-67": "área",
+  "tasks-TaskList-19c298d949224c78d-67": "zona",
   "tasks-TaskList-19c298d949224c78d-68": "área",
   "tasks-TaskList-19c298d949224c78d-69": "rango de tiempo",
   "tasks-TaskList-19c298d949224c78d-70": "rango de tiempo",
@@ -874,14 +874,19 @@ export default {
   "components-RegionProvinceSelector-1": "A nivel nacional",
   "components-RegionProvinceSelector-2": "Seleccionar todas las provincias",
   "components-RegionProvinceSelector-3": "Deseleccionar todo",
-  "components-RegionProvinceSelector-4": "Instrucciones de distribución geográfica",
-  "components-RegionProvinceSelector-5": "Seleccionar 'A nivel nacional' devolverá los datos de distribución de las provincias",
-  "components-RegionProvinceSelector-6": "Seleccionar una provincia devolverá los datos de distribución de las ciudades en esa provincia",
-  "components-RegionProvinceSelector-7": "Puede seleccionar 'A nivel nacional' y varias provincias simultáneamente",
-  "components-RegionProvinceSelector-8": "Regiones seleccionadas",
+  "components-RegionProvinceSelector-4":
+    "Instrucciones de consulta de distribución geográfica",
+  "components-RegionProvinceSelector-5":
+    'Al seleccionar "A nivel nacional" se devolverán los datos de distribución de cada provincia.',
+  "components-RegionProvinceSelector-6":
+    "Al seleccionar una provincia, se devolverán los datos de distribución de las ciudades de esa provincia.",
+  "components-RegionProvinceSelector-7":
+    "Puede seleccionar todo el país y varias provincias al mismo tiempo para realizar consultas.",
+  "components-RegionProvinceSelector-8": "Área seleccionada",
   "components-RegionProvinceSelector-9": "Borrar",
   "components-RegionProvinceSelector-10": "A nivel nacional",
-  "tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint": "Se recopilarán datos desde 2011 hasta el presente",
+  "tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint":
+    "Se rastrearán todos los datos desde 2011 hasta el presente.",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-1":
     "Colección de atributos de multitud",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-2":
@@ -1077,7 +1082,7 @@ export default {
     "Admite formatos .xlsx, .csv, .txt, un código de ciudad por línea",
   "tasks-FeedIndexTask-19c298e1d0a206148-25":
     "Saltar la primera fila (fila de título)",
-  "tasks-FeedIndexTask-19c298e1d0a206148-26": "Ajuste de tiempo",
+  "tasks-FeedIndexTask-19c298e1d0a206148-26": "Ajuste de hora",
   "tasks-FeedIndexTask-19c298e1d0a206148-27": "fuente de datos",
   "tasks-FeedIndexTask-19c298e1d0a206148-28": "PC+Móvil",
   "tasks-FeedIndexTask-19c298e1d0a206148-29": "moverse",
@@ -1233,8 +1238,10 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-155":
     "Error al enviar la tarea, verifique la conexión de red",
   "tasks-FeedIndexTask-19c298e1d0a206148-156": "Error al enviar la tarea:",
-  "tasks-FeedIndexTask-19c298e1d0a206148-157": "Se rastrearán todos los datos del índice de noticias desde el 3 de julio de 2017 hasta el presente",
-  "tasks-FeedIndexTask-19c298e1d0a206148-158": "Todos los datos (3 de julio de 2017 hasta el presente)",
+  "tasks-FeedIndexTask-19c298e1d0a206148-157":
+    "Se rastrearán todos los datos del índice de información desde el 3 de julio de 2017 hasta el presente.",
+  "tasks-FeedIndexTask-19c298e1d0a206148-158":
+    "Todos los datos (3 de julio de 2017 a la actualidad)",
   "tasks-InterestProfileTask-19c298e1e7a81a799-1":
     "Colección de análisis de intereses.",
   "tasks-InterestProfileTask-19c298e1e7a81a799-2":
@@ -1419,7 +1426,7 @@ export default {
     "Admite formatos .xlsx, .csv, .txt, un código de región por línea",
   "tasks-RegionDistributionTask-19c298e201890d5db-25":
     "Saltar la primera fila (fila de título)",
-  "tasks-RegionDistributionTask-19c298e201890d5db-26": "Ajuste de tiempo",
+  "tasks-RegionDistributionTask-19c298e201890d5db-26": "Ajuste de hora",
   "tasks-RegionDistributionTask-19c298e201890d5db-27": "fuente de datos",
   "tasks-RegionDistributionTask-19c298e201890d5db-28": "PC+Móvil",
   "tasks-RegionDistributionTask-19c298e201890d5db-29": "moverse",
@@ -1632,7 +1639,7 @@ export default {
     "Admite formatos .xlsx, .csv, .txt, un código de ciudad por línea",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-25":
     "Saltar la primera fila (fila de título)",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-26": "Ajuste de tiempo",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-26": "Ajuste de hora",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-27": "fuente de datos",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-28": "PC+Móvil",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-29": "moverse",
@@ -1942,4 +1949,60 @@ export default {
   "src-App-19c2993710803cda7-11": "Sobre el proyecto",
   "src-App-19c2993710803cda7-12": "Condiciones de uso",
   "src-App-19c2993710803cda7-13": "Empezar a coleccionar",
+  "views.home.data_region_title": "Distribución geográfica",
+  "views.home.data_region_desc":
+    "Estos datos le muestran: ¿De qué regiones provienen los usuarios que siguen esta palabra clave?",
+  "views.home.data_region_algo":
+    "Descripción del algoritmo: basándose en los datos de búsqueda de los usuarios de Baidu, se utilizan métodos de extracción de datos para realizar análisis de conglomerados de los atributos de masa de las palabras clave y se proporciona la distribución y clasificación de las provincias, ciudades y niveles de ciudades a los que pertenecen los usuarios.",
+  "views.home.data_demographic_title": "Atributos de multitud",
+  "views.home.data_demographic_desc":
+    "Estos datos le muestran: la distribución por sexo y edad de los usuarios que siguen esta palabra clave.",
+  "views.home.data_demographic_algo":
+    "Descripción del algoritmo: basándose en los datos de búsqueda de los usuarios de Baidu, se utilizan métodos de extracción de datos para realizar análisis de conglomerados de los atributos masivos de las palabras clave, y se proporciona la distribución y clasificación de la edad y el sexo de los usuarios.",
+  "views.home.data_interest_title": "Distribución de intereses",
+  "views.home.data_interest_desc":
+    "Basado en los datos de comportamiento del usuario de búsqueda de Baidu y la base de datos de retratos, muestra la distribución de personas que prestan atención a la palabra temática en el rango seleccionado y la solidez del rendimiento en relación con el rendimiento promedio de toda la red.",
+  "views.home.data_graph_title": "Mapa de requisitos",
+  "views.home.data_graph_desc":
+    "Estos datos le muestran: la demanda de términos de búsqueda relevantes reflejados en los cambios en el comportamiento de búsqueda antes y después de que el usuario busque el término.",
+  "views.home.data_graph_algo":
+    "Descripción del algoritmo: Cálculo integral del grado de correlación entre palabras clave y palabras relacionadas, así como la demanda de búsqueda de las propias palabras relacionadas. La distancia de las palabras relacionadas desde el centro del círculo indica la fuerza de correlación entre las palabras relacionadas y la palabra de búsqueda central; el tamaño de las palabras relacionadas indica el tamaño del índice de búsqueda de las palabras relacionadas, donde el rojo representa un aumento en el índice de búsqueda y el verde representa una disminución en el índice de búsqueda.",
+  "views.home.data_search_title": "índice de búsqueda",
+  "views.home.data_search_desc":
+    "Estos datos le muestran: La atención de los usuarios de Internet a las búsquedas de palabras clave y sus continuos cambios.",
+  "views.home.data_search_algo":
+    "Descripción del algoritmo: basándonos en el volumen de búsqueda de los internautas en Baidu y utilizando palabras clave como objetos estadísticos, analizamos y calculamos científicamente la ponderación de la frecuencia de búsqueda de cada palabra clave en la búsqueda web de Baidu. Según las diferentes fuentes de datos, el índice de búsqueda se divide en índice de búsqueda para PC e índice de búsqueda para dispositivos móviles.",
+  "views.home.data_feed_title": "índice de información",
+  "views.home.data_feed_desc":
+    "Estos datos te muestran: el grado de atención y cobertura de palabras clave específicas en la información noticiosa en Internet y sus continuos cambios.",
+  "views.home.data_feed_algo":
+    "Índice de información: basado en la distribución inteligente de Baidu y los datos de contenido recomendado, el índice de información se calcula sumando el número ponderado de lecturas, comentarios, reenvíos, me gusta, no me gusta y otros comportamientos de los internautas.",
+  "views.home.data_definitions_title": "Descripción de datos y algoritmos",
+  "views.home.data_definitions_subtitle":
+    "Obtenga una comprensión profunda de las dimensiones de datos que recopilamos y sus principios de cálculo.",
+  "views.cookiemanager.oi7woo": "Aún no hay cuentas prohibidas temporalmente",
+  "dashboard.dashboard.status_ok": "El sistema está funcionando normalmente.",
+  "dashboard.dashboard.status_disconnected":
+    "Se perdió la conexión del sistema",
+  "dashboard.dashboard.logs_badge": "registro en tiempo real",
+  "dashboard.dashboard.data_packets": "recibir paquete",
+  "dashboard.dashboard.ws_status": "estado WS",
+  "dashboard.dashboard.total_tasks": "Número total de tareas",
+  "dashboard.dashboard.completed_tasks": "Completa la tarea",
+  "dashboard.dashboard.failed_tasks": "tarea fallida",
+  "dashboard.dashboard.data_volume": "Cantidad total de datos",
+  "dashboard.dashboard.crawled_items": "Número de elementos rastreados",
+  "dashboard.dashboard.success_rate": "tasa de éxito",
+  "dashboard.dashboard.avg_duration": "Tiempo promedio empleado",
+  "dashboard.dashboard.execution_trends": "Tendencias de ejecución de tareas",
+  "dashboard.dashboard.crawling_trends": "Tendencias de rastreo de datos",
+  "dashboard.dashboard.success_comparison":
+    "Comparación de la tasa de éxito de la tarea",
+  "dashboard.dashboard.duration_comparison":
+    "Comparación del tiempo medio de ejecución",
+  "dashboard.dashboard.volume_comparison":
+    "Comparación del volumen de rastreo de datos",
+  "dashboard.dashboard.volume": "Volumen de ejecución",
+  "dashboard.dashboard.waiting_data":
+    "Esperando que el paquete sea enviado a la terminal...",
 };

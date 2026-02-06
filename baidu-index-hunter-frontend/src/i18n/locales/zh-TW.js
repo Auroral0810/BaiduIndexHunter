@@ -1054,8 +1054,9 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-154": "任務提交失敗:",
   "tasks-FeedIndexTask-19c298e1d0a206148-155": "任務提交失敗，請檢查網絡連接",
   "tasks-FeedIndexTask-19c298e1d0a206148-156": "提交任務錯誤:",
-  "tasks-FeedIndexTask-19c298e1d0a206148-157": "將爬取2017年7月3日至今的全部資訊指數資料",
-  "tasks-FeedIndexTask-19c298e1d0a206148-158": "全部資料（2017年7月3日至今）",
+  "tasks-FeedIndexTask-19c298e1d0a206148-157":
+    "將爬取2017年7月3日至今的全部資訊指數數據",
+  "tasks-FeedIndexTask-19c298e1d0a206148-158": "全部數據（2017年7月3日至今）",
   "tasks-InterestProfileTask-19c298e1e7a81a799-1": "興趣分析採集",
   "tasks-InterestProfileTask-19c298e1e7a81a799-2":
     "獲取百度指數人群興趣畫像數據，包含興趣類別及其比例",
@@ -1636,4 +1637,68 @@ export default {
   "src-App-19c2993710803cda7-11": "關於項目",
   "src-App-19c2993710803cda7-12": "使用條款",
   "src-App-19c2993710803cda7-13": "開始採集",
+  "views.home.data_region_title": "地域分佈",
+  "views.home.data_region_desc":
+    "該數據為您顯示：關注該關鍵詞的用戶來自哪些地域",
+  "views.home.data_region_algo":
+    "算法說明：根據百度用戶搜索數據，採用數據挖掘方法，對關鍵詞的人群屬性進行聚類分析，給出用戶所屬的省份、城市，及城市級別的分佈及排名。",
+  "views.home.data_demographic_title": "人群屬性",
+  "views.home.data_demographic_desc":
+    "該數據為您顯示：關注該關鍵詞的用戶的性別、年齡分佈",
+  "views.home.data_demographic_algo":
+    "算法說明：根據百度用戶搜索數據，採用數據挖掘方法，對關鍵詞的人群屬性進行聚類分析，給出用戶所屬的年齡及性別的分佈及排名。",
+  "views.home.data_interest_title": "興趣分佈",
+  "views.home.data_interest_desc":
+    "基於百度搜索用戶行為數據以及畫像庫，刻畫所選範圍上關注該主題詞的人群分佈情況以及相對全網平均表現的強弱程度。",
+  "views.home.data_graph_title": "需求圖譜",
+  "views.home.data_graph_desc":
+    "該數據為您顯示：通過用戶在搜索該詞的前後的搜索行為變化中表現出來的相關檢索詞需求",
+  "views.home.data_graph_algo":
+    "算法說明：綜合計算關鍵詞與相關詞的相關程度，以及相關詞自身的搜索需求大小得出。 相關詞距圓心的距離表示相關詞與中心檢索詞的相關性強度； 相關詞自身大小表示相關詞自身搜索指數大小，紅色代表搜索指數上升，綠色代表搜索指數下降。",
+  "views.home.data_search_title": "搜索指數",
+  "views.home.data_search_desc":
+    "該數據為您顯示：互聯網用戶對關鍵詞搜索關注程度及持續變化情況。",
+  "views.home.data_search_algo":
+    "算法說明：以網民在百度的搜索量為數據基礎，以關鍵詞為統計對象，科學分析併計算出各個關鍵詞在百度網頁搜索中搜索頻次的加權。 根據數據來源的不同，搜索指數分為PC搜索指數和移動搜索指數。",
+  "views.home.data_feed_title": "資訊指數",
+  "views.home.data_feed_desc":
+    "該數據為您顯示：新聞資訊在互聯網上對特定關鍵詞的關注及報導程度及持續變化。",
+  "views.home.data_feed_algo":
+    "資訊指數：以百度智能分發和推薦內容數據為基礎，將網民的閱讀、評論、轉發、點贊、不喜歡等行為的數量加權求和得出資訊指數。",
+  "views.home.data_definitions_title": "數據與算法說明",
+  "views.home.data_definitions_subtitle":
+    "深入了解我們採集的數據維度及其計算原理",
+  "views.cookiemanager.oi7woo": "暫無臨時封禁賬號",
+  "dashboard.dashboard.status_ok": "系統正常運行",
+  "dashboard.dashboard.status_disconnected": "系統連接斷開",
+  "dashboard.dashboard.logs_badge": "實時日誌",
+  "dashboard.dashboard.data_packets": "接收數據包",
+  "dashboard.dashboard.ws_status": "WS狀態",
+  "dashboard.dashboard.total_tasks": "總任務數",
+  "dashboard.dashboard.completed_tasks": "完成任務",
+  "dashboard.dashboard.failed_tasks": "失敗任務",
+  "dashboard.dashboard.data_volume": "數據總量",
+  "dashboard.dashboard.crawled_items": "爬取條數",
+  "dashboard.dashboard.success_rate": "成功率",
+  "dashboard.dashboard.avg_duration": "平均耗時",
+  "dashboard.dashboard.execution_trends": "任務執行趨勢",
+  "dashboard.dashboard.crawling_trends": "數據爬取趨勢",
+  "dashboard.dashboard.success_comparison": "任務成功率對比",
+  "dashboard.dashboard.duration_comparison": "平均執行時間對比",
+  "dashboard.dashboard.volume_comparison": "數據爬取量對比",
+  "dashboard.dashboard.volume": "執行量",
+  "dashboard.dashboard.waiting_data": "正在等待數據包推送到終端...",
+  "components-RegionProvinceSelector-1": "全國",
+  "components-RegionProvinceSelector-2": "全選省份",
+  "components-RegionProvinceSelector-3": "取消全選",
+  "components-RegionProvinceSelector-4": "地域分佈查詢說明",
+  "components-RegionProvinceSelector-5": "選擇「全國」將返回各省份的分佈數據",
+  "components-RegionProvinceSelector-6":
+    "選擇省份將返回該省份下各城市的分佈數據",
+  "components-RegionProvinceSelector-7": "可同時選擇全國和多個省份進行查詢",
+  "components-RegionProvinceSelector-8": "已選地區",
+  "components-RegionProvinceSelector-9": "清空",
+  "components-RegionProvinceSelector-10": "全國",
+  "tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint":
+    "將爬取 2011 年至今的全部數據",
 };
