@@ -14,11 +14,16 @@ class RegionProcessor:
     def _get_region_name(self, region_code):
         """获取地区名称"""
         if str(region_code) == '0': return "全国"
-        return region_manager.get_region_name_by_code(region_code) or f"未知地区({region_code})"
+        region = region_manager.get_region_by_code(region_code)
+        return region['name'] if region else f"未知地区({region_code})"
 
     def _get_province_name(self, prov_code):
         """获取省份名称"""
-        return region_manager.get_province_name_by_code(prov_code) or f"未知省份({prov_code})"
+        # 尝试从 region 表获取（省份也是一种 region）
+        region = region_manager.get_region_by_code(prov_code)
+        if region:
+            return region['name']
+        return f"未知省份({prov_code})"
 
     def _get_city_name(self, city_code):
         """获取城市名称"""
@@ -147,6 +152,7 @@ class RegionProcessor:
                 )
                 
                 # 处理省份级别数据
+                region_stats = {}
                 if prov_data or prov_real_merged:
                     all_prov_codes = set(prov_data.keys()) | set(prov_real_merged.keys())
                     for code in all_prov_codes:
@@ -168,13 +174,36 @@ class RegionProcessor:
                             '查询地区代码': area_code,
                             '查询地区名称': area_name,
                             '时间范围': period,
-                            '数据级别': 'province',
+                            '数据级别': '省份',
                             '代码': str(code),
                             '名称': self._get_province_name(code),
                             '指数': index_value,
                             '真实占比': real_value,
                             '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                         })
+                        
+                        # 统计大区数据
+                        prov_region = region_manager.get_province_region(str(code))
+                        if prov_region:
+                            if prov_region not in region_stats:
+                                region_stats[prov_region] = {'index': 0, 'real': 0.0}
+                            region_stats[prov_region]['index'] += index_value
+                            region_stats[prov_region]['real'] += real_value
+                
+                # 添加大区聚合数据
+                for region_name, stats in region_stats.items():
+                    results.append({
+                        '关键词': item_keyword,
+                        '查询地区代码': area_code,
+                        '查询地区名称': area_name,
+                        '时间范围': period,
+                        '数据级别': '区域',
+                        '代码': '-',  # 大区没有统一标准代码，用-代替
+                        '名称': region_name,
+                        '指数': stats['index'],
+                        '真实占比': stats['real'],
+                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    })
                 
                 # 处理城市数据
                 # 合并 city/cityReal/city_real
@@ -206,7 +235,7 @@ class RegionProcessor:
                             '查询地区代码': area_code,
                             '查询地区名称': area_name,
                             '时间范围': period,
-                            '数据级别': 'city',
+                            '数据级别': '地级市',
                             '代码': str(code),
                             '名称': self._get_city_name(code),
                             '指数': index_value,

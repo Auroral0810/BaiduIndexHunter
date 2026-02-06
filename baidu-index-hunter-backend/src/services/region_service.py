@@ -230,9 +230,12 @@ class RegionManager:
         :param code: 区域代码
         :return: 区域信息字典
         """
+        # 确保 code 为字符串
+        code_str = str(code)
+        
         # 从区域关系数据中获取
         regions = self.get_all_regions()
-        return regions.get(code)
+        return regions.get(code_str)
     
     def get_region_code_by_name(self, name: str, level: Optional[int] = None) -> Optional[str]:
         """

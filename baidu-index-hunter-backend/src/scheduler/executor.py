@@ -31,9 +31,9 @@ class TaskExecutor:
             'search_index': search_index_crawler,
             'feed_index': feed_index_crawler,
             'word_graph': word_graph_crawler,
-            'demographic': demographic_attributes_crawler,
-            'interest': interest_profile_crawler,
-            'region': region_distribution_crawler
+            'demographic_attributes': demographic_attributes_crawler,
+            'interest_profile': interest_profile_crawler,
+            'region_distribution': region_distribution_crawler
         }
 
     def execute_task(self, task_id: str, task_type: str, parameters: Dict[str, Any], checkpoint_path: Optional[str] = None):
