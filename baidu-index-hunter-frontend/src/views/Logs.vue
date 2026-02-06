@@ -120,6 +120,7 @@
             :key="index" 
             class="log-row"
             :class="log.level.toLowerCase()"
+            :data-index="index"
           >
             <!-- Decorative track -->
             <div class="row-indicator"></div>
@@ -157,8 +158,28 @@
         </footer>
       </main>
     </div>
+
+    <!-- Smart Floating Copy Button -->
+    <Transition name="pop-scale">
+      <div 
+        v-if="selectionMenu.visible" 
+        class="smart-copy-btn"
+        :style="{ left: selectionMenu.x + 'px', top: selectionMenu.y + 'px' }"
+        @click.stop="copySelectedLogs"
+      >
+        <div class="glass-bg"></div>
+        <div class="btn-content">
+          <el-icon v-if="!copySuccess" class="action-icon"><CopyDocument /></el-icon>
+          <el-icon v-else class="action-icon success"><Check /></el-icon>
+          <span class="btn-text">
+            {{ copySuccess ? $t('views.logs.copied') : $t('views.logs.copy_items', { count: selectedLogCount }) }}
+          </span>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
+
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
@@ -166,9 +187,10 @@ import { io } from 'socket.io-client'
 import { useI18n } from 'vue-i18n'
 import { 
   Search, Delete, Download, VideoPause, VideoPlay, 
-  Bottom, Monitor, Filter, ArrowRight 
+  Bottom, Monitor, Filter, CopyDocument, Check
 } from '@element-plus/icons-vue'
 import { saveAs } from 'file-saver'
+import { ElMessage } from 'element-plus'
 
 const { t: $t } = useI18n()
 
@@ -188,6 +210,11 @@ const logSpeed = ref(0)
 let messageCount = 0
 let speedTimer = null
 
+// Selection & Copy State
+const selectedLogCount = ref(0)
+const selectionMenu = ref({ visible: false, x: 0, y: 0, logIndices: [] })
+const copySuccess = ref(false)
+
 // Filtering logic
 const filteredLogs = computed(() => {
   return logs.value.filter(log => {
@@ -201,6 +228,11 @@ const handleScroll = () => {
   if (!terminalBody.value) return
   const { scrollTop, scrollHeight, clientHeight } = terminalBody.value
   autoScroll.value = scrollHeight - scrollTop - clientHeight < 50
+  
+  // Hide menu on scroll to prevent misalignment
+  if (selectionMenu.value.visible) {
+    clearSelectionMenu()
+  }
 }
 
 const scrollToBottom = async () => {
@@ -211,6 +243,98 @@ const scrollToBottom = async () => {
 }
 
 const clearLogs = () => logs.value = []
+
+// Selection Handling
+const handleMouseUp = (event) => {
+  const selection = window.getSelection()
+  if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+    // Delay clearing to allow clicking the button itself
+    // We handle button click separately, so if we clicked elsewhere, clear
+    const target = event.target
+    if (!target.closest('.smart-copy-btn')) {
+      clearSelectionMenu()
+    }
+    return
+  }
+
+  // Check if selection is within log container
+  if (!terminalBody.value.contains(selection.anchorNode)) return
+
+  // Find start and end indices
+  const range = selection.getRangeAt(0)
+  const container = terminalBody.value
+  
+  // Find all log rows in the selection range
+  const logRows = Array.from(container.querySelectorAll('.log-row'))
+  const selectedIndices = []
+  
+  logRows.forEach((row, index) => {
+    if (selection.containsNode(row, true)) {
+      selectedIndices.push(index)
+    }
+  })
+
+  // If we selected text inside a single row, add that row
+  if (selectedIndices.length === 0) {
+    let node = selection.anchorNode
+    while (node && node !== container) {
+      if (node.classList && node.classList.contains('log-row')) {
+        const index = parseInt(node.getAttribute('data-index'))
+        if (!isNaN(index)) selectedIndices.push(index)
+        break
+      }
+      node = node.parentNode
+    }
+  }
+
+  if (selectedIndices.length > 0) {
+    const uniqueIndices = [...new Set(selectedIndices)].sort((a, b) => a - b)
+    selectedLogCount.value = uniqueIndices.length
+    selectionMenu.value = {
+      visible: true,
+      x: event.clientX,
+      y: event.clientY - 20, // Position above cursor
+      logIndices: uniqueIndices
+    }
+  } else {
+    clearSelectionMenu()
+  }
+}
+
+const clearSelectionMenu = () => {
+  selectionMenu.value.visible = false
+  selectedLogCount.value = 0
+  copySuccess.value = false
+}
+
+const copySelectedLogs = async () => {
+  if (selectedLogCount.value === 0) return
+
+  const indices = selectionMenu.value.logIndices
+  const content = indices.map(idx => {
+    const l = filteredLogs.value[idx]
+    if (!l) return ''
+    return `${l.time} | ${l.level.padEnd(8)} | ${l.name}: ${l.message}`
+  }).filter(Boolean).join('\n')
+
+  try {
+    await navigator.clipboard.writeText(content)
+    copySuccess.value = true
+    ElMessage.success({
+      message: `${selectedLogCount.value} Logs Copied!`,
+      type: 'success',
+      duration: 2000,
+      customClass: 'saas-notification'
+    })
+    
+    // Auto hide after success
+    setTimeout(() => {
+      clearSelectionMenu()
+    }, 1500)
+  } catch (err) {
+    ElMessage.error('Details copy failed')
+  }
+}
 
 // Escape regex special characters
 const escapeRegExp = (string) => {
@@ -250,15 +374,18 @@ const initSocket = () => {
 onMounted(() => {
   initSocket()
   speedTimer = setInterval(() => { logSpeed.value = messageCount; messageCount = 0 }, 1000)
+  document.addEventListener('mouseup', handleMouseUp)
 })
 
 onUnmounted(() => {
   if (socket.value) socket.value.disconnect()
   if (speedTimer) clearInterval(speedTimer)
+  document.removeEventListener('mouseup', handleMouseUp)
 })
 
 watch(filteredLogs, () => { if (autoScroll.value) scrollToBottom() })
 </script>
+
 
 <style scoped>
 /* Atmospheric Layers */
@@ -519,8 +646,75 @@ watch(filteredLogs, () => { if (autoScroll.value) scrollToBottom() })
   color: var(--color-text-main) !important;
   font-weight: 500;
 }
+
 :deep(.saas-select .el-input__wrapper) {
   background: var(--color-bg-surface) !important;
   border-radius: 10px;
+}
+
+/* SMART COPY BUTTON STYLES */
+.smart-copy-btn {
+  position: fixed;
+  z-index: 9999;
+  transform: translate(-50%, -100%);
+  margin-top: -10px;
+  cursor: pointer;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
+}
+
+.smart-copy-btn .glass-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  border-radius: 30px;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 
+    0 0 0 1px rgba(0,0,0,0.2),
+    0 10px 15px -3px rgba(0,0,0,0.3);
+}
+
+.smart-copy-btn .btn-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  color: white;
+  white-space: nowrap;
+}
+
+.smart-copy-btn .action-icon {
+  font-size: 1.1rem;
+}
+
+.smart-copy-btn .action-icon.success {
+  color: #4ade80;
+}
+
+.smart-copy-btn .btn-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.smart-copy-btn:hover .glass-bg {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: var(--color-primary);
+  box-shadow: 
+    0 0 0 1px var(--color-primary),
+    0 10px 25px -5px rgba(0,0,0,0.4);
+}
+
+/* Transitions */
+.pop-scale-enter-active,
+.pop-scale-leave-active {
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pop-scale-enter-from,
+.pop-scale-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -80%) scale(0.8);
 }
 </style>

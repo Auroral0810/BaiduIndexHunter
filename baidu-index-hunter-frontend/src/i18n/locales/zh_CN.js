@@ -1643,5 +1643,13 @@ export default {
   "views.logs.status_connected": "实时通信已建立",
   "views.logs.status_disconnected": "实时通信已断开，正在重连...",
   "views.logs.download_log": "导出当前日志",
+  "views.logs.title": "实时日志控制台",
+  "views.logs.search_placeholder": "搜索日志内容...",
+  "views.logs.resume": "恢复滚动",
+  "views.logs.pause": "暂停滚动",
+  "views.logs.auto_scroll": "自动滚动",
+  "views.logs.clear_btn": "清空日志",
+  "views.logs.copy_items": "复制 {count} 条日志",
+  "views.logs.copied": "已复制成功!",
   "src-App-19c2993710803cda7-logs": "实时日志"
 }
