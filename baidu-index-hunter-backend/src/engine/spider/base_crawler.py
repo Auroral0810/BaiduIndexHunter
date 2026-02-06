@@ -49,7 +49,19 @@ class BaseCrawler:
         
         self.cookie_rotator = cookie_rotator
         self.is_running = True # 运行状态标志
+        
+        # Cookie 统计
+        self.cookie_usage_count = 0
+        self.cookie_ban_count = 0
+        
         self.setup_signal_handlers()
+
+    def _report_cookie_status(self, account_id: str, is_valid: bool, permanent: bool = False):
+        """报告Cookie状态并更新统计"""
+        if not is_valid:
+            self.cookie_ban_count += 1
+        return self.cookie_rotator.report_cookie_status(account_id, is_valid, permanent)
+
 
     def _prepare_initial_state(self):
         """初始化进度监控变量（新任务开始前调用）"""
@@ -217,6 +229,8 @@ class BaseCrawler:
 
     # --- HTTP & Cookie Utils ---
 
+        return account_id, cookie_dict
+
     def _get_common_headers(self, cipher_text: str) -> Dict[str, str]:
         """获取通用的百度指数请求头"""
         return {
@@ -230,12 +244,37 @@ class BaseCrawler:
             'sec-ch-ua-platform': '"macOS"',
         }
 
+    def _get_cipher_text(self, keyword: str) -> str:
+        """获取 Cipher-Text 参数 (通用)"""
+        encoded_keyword = keyword.replace(' ', '%20')
+        cipher_url = f'{BAIDU_INDEX_API["referer"]}#/trend/{encoded_keyword}?words={encoded_keyword}'
+        return cipher_text_generator.generate(cipher_url)
+
+    def _update_ab_sr_cookies(self) -> bool:
+        """更新所有账号的 ab_sr cookie (通用)"""
+        try:
+            from src.services.cookie_service import CookieManager
+            cookie_manager = CookieManager()
+            result = cookie_manager.update_ab_sr_for_all_accounts()
+            cookie_manager.close()
+            
+            if 'error' in result:
+                log.error(f"[{self.task_type}] 更新 ab_sr cookie 失败: {result['error']}")
+                return False
+            
+            self.cookie_rotator.reset_cache()
+            return True
+        except Exception as e:
+            log.error(f"[{self.task_type}] 更新 ab_sr cookie 时出错: {e}")
+            return False
+
     def _get_cookie_dict(self) -> Tuple[Optional[str], Optional[Dict]]:
         """通过轮换器获取可用的 Cookie"""
         account_id, cookie_dict = self.cookie_rotator.get_cookie()
         if not cookie_dict:
             log.warning(f"[{self.task_type}] 所有 Cookie 均被锁定")
             return None, None
+        self.cookie_usage_count += 1
         return account_id, cookie_dict
 
     def _get_cipher_text(self, keyword: str) -> str:
@@ -476,7 +515,9 @@ class BaseCrawler:
                 total_delta=1, # 一个任务实例
                 completed_delta=1 if status == 'completed' else 0,
                 failed_delta=1 if status == 'failed' else 0,
-                duration=duration
+                duration=duration,
+                cookie_usage=self.cookie_usage_count, 
+                cookie_ban_count=self.cookie_ban_count
             )
         except Exception as e:
             log.error(f"Finalize Crawl Stats Error: {e}")

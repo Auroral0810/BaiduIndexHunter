@@ -351,8 +351,8 @@ class StatisticsRepository:
                     session.add(new_stats)
             session.commit()
 
-    def update_spider_summary(self, task_type: str, total_delta: int = 0, completed_delta: int = 0, failed_delta: int = 0, duration: float = 0):
-        """更新爬虫总体统计摘要 (任务数、平均时长等)"""
+    def update_spider_summary(self, task_type: str, total_delta: int = 0, completed_delta: int = 0, failed_delta: int = 0, duration: float = 0, cookie_usage: int = 0, cookie_ban_count: int = 0):
+        """更新爬虫总体统计摘要 (任务数、平均时长、Cookie使用情况等)"""
         stat_date = date.today()
         with session_scope() as session:
             statement = select(SpiderStatisticsModel).where(and_(
@@ -366,16 +366,28 @@ class StatisticsRepository:
                 stats.total_tasks = (stats.total_tasks or 0) + total_delta
                 stats.completed_tasks = (stats.completed_tasks or 0) + completed_delta
                 stats.failed_tasks = (stats.failed_tasks or 0) + failed_delta
+                stats.cookie_usage = (stats.cookie_usage or 0) + cookie_usage
+                stats.cookie_ban_count = (stats.cookie_ban_count or 0) + cookie_ban_count
                 
                 # 更新平均执行时间 (加权平均)
                 if completed_delta > 0 and duration > 0:
                     new_completed = stats.completed_tasks
                     if new_completed > 0:
-                        stats.avg_duration = ((old_completed * stats.avg_duration) + (completed_delta * duration)) / new_completed
+                        stats.avg_duration = ((old_completed * (stats.avg_duration or 0)) + (completed_delta * duration)) / new_completed
                 
+                # Recalculate success rate
+                if stats.total_tasks > 0:
+                    stats.success_rate = (stats.completed_tasks / stats.total_tasks) * 100.0
+                else:
+                    stats.success_rate = 0.0
+
                 stats.update_time = datetime.now()
                 session.add(stats)
             else:
+                success_rate = 0.0
+                if (total_delta or 1) > 0:
+                     success_rate = (completed_delta / (total_delta or 1)) * 100.0
+
                 stats = SpiderStatisticsModel(
                     stat_date=stat_date,
                     task_type=task_type,
@@ -383,6 +395,9 @@ class StatisticsRepository:
                     completed_tasks=completed_delta,
                     failed_tasks=failed_delta,
                     avg_duration=duration if completed_delta > 0 else 0,
+                    cookie_usage=cookie_usage,
+                    cookie_ban_count=cookie_ban_count,
+                    success_rate=success_rate,
                     update_time=datetime.now()
                 )
                 session.add(stats)

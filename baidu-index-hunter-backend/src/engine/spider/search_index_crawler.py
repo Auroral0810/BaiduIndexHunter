@@ -125,11 +125,11 @@ class SearchIndexCrawler(BaseCrawler):
         status = data.get('status')
         if status == 10001:  # 请求被锁定
             log.warning(f"Cookie被临时锁定: {account_id}")
-            self.cookie_rotator.report_cookie_status(account_id, False)
+            self._report_cookie_status(account_id, False)
             return None
         elif status == 10000:  # 未登录
             log.warning(f"Cookie无效或已过期: {account_id}")
-            self.cookie_rotator.report_cookie_status(account_id, False, permanent=True)
+            self._report_cookie_status(account_id, False, permanent=True)
             return None
         elif status != 0:
             log.error(f"请求失败: {data}")
@@ -488,7 +488,8 @@ class SearchIndexCrawler(BaseCrawler):
                     except Exception as e:
                         log.error(f"子任务异常: {e}")
 
-            msg = f"完成但有 {self.failed_tasks} 项失败" if status == 'failed' else None
+            status = 'failed' if self.failed_tasks > 0 else 'completed'
+            msg = f"完成但有 {self.failed_tasks} 项失败" if status == 'failed' else "所有任务已完成"
             return self._finalize_crawl(status, msg)
 
         except CrawlerInterrupted:
