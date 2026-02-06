@@ -30,7 +30,7 @@
         <div class="control-item search-item">
           <el-input 
             v-model="cityName" 
-            :placeholder="$t('dashboard.region.city_name')" 
+            :placeholder="$t('dashboard.region.search_placeholder')" 
             class="premium-input" 
             @change="loadData" 
             clearable

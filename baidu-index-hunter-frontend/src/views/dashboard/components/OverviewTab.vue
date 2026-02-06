@@ -309,6 +309,9 @@ const commonOptions = computed(() => ({
 
 const initCharts = () => {
   nextTick(() => {
+    // Check if component is still mounted and visible
+    if (!mainChartRef.value) return
+    
     initMainChart()
     initDistributionChart()
     initDurationChart()
@@ -318,7 +321,7 @@ const initCharts = () => {
 }
 
 const initMainChart = () => {
-  if (!mainChartRef.value) return
+  if (!mainChartRef.value || mainChartRef.value.clientWidth === 0) return
   if (!mainChartInstance) mainChartInstance = echarts.init(mainChartRef.value)
   
   const trendData = selectedTaskType.value === 'all' 

@@ -77,6 +77,7 @@ import { Search, Refresh } from '@element-plus/icons-vue'
 import { useAppStore } from '@/store/app'
 import { useI18n } from 'vue-i18n'
 import * as echarts from 'echarts'
+import { getKeywordStatistics } from '@/api/statistics'
 
 const { t: $t } = useI18n()
 const appStore = useAppStore()
@@ -141,11 +142,6 @@ const loadData = async () => {
       start.setTime(start.getTime() - 3600 * 1000 * 24 * selectedDays.value)
       params.start_date = start.toISOString().split('T')[0]
       params.end_date = end.toISOString().split('T')[0]
-    }
-    
-    if (dateRange.value && dateRange.value.length === 2) {
-      params.start_date = dateRange.value[0]
-      params.end_date = dateRange.value[1]
     }
     
     const res = await getKeywordStatistics(params)
