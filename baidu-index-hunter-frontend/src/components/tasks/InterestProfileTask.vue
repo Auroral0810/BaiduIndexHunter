@@ -134,18 +134,7 @@
         <el-divider content-position="left">{{
           $t("tasks-InterestProfileTask-19c298e1e7a81a799-20")
         }}</el-divider>
-        <el-form-item
-          :label="$t('tasks-InterestProfileTask-19c298e1e7a81a799-21')"
-          ><el-radio-group v-model="formData.kind"
-            ><el-radio-button label="all">{{
-              $t("tasks-InterestProfileTask-19c298e1e7a81a799-22")
-            }}</el-radio-button>
-            <el-radio-button label="pc">PC</el-radio-button>
-            <el-radio-button label="wise">{{
-              $t("tasks-InterestProfileTask-19c298e1e7a81a799-23")
-            }}</el-radio-button></el-radio-group
-          ></el-form-item
-        >
+
         <el-form-item
           :label="$t('tasks-InterestProfileTask-19c298e1e7a81a799-24')"
           ><el-radio-group v-model="formData.output_format"
@@ -413,16 +402,6 @@
           <el-descriptions-item
             :label="$t('tasks-InterestProfileTask-19c298e1e7a81a799-70')"
             ><div>
-              {{ $t("tasks-InterestProfileTask-19c298e1e7a81a799-71") }}
-              {{
-                formData.kind === "all"
-                  ? $t("tasks-InterestProfileTask-19c298e1e7a81a799-72")
-                  : formData.kind === "pc"
-                    ? "PC"
-                    : $t("tasks-InterestProfileTask-19c298e1e7a81a799-73")
-              }}
-            </div>
-            <div>
               {{ $t("tasks-InterestProfileTask-19c298e1e7a81a799-74") }}
               {{ formData.priority }}
             </div>
@@ -482,7 +461,6 @@ const formData = reactive({
   resume: false,
   task_id: "",
   priority: 5,
-  kind: "all",
 });
 
 // 关键词输入
@@ -854,7 +832,6 @@ const submitTask = async () => {
         output_format: formData.output_format,
         batch_size: formData.batch_size,
         resume: formData.resume,
-        kind: formData.kind,
       },
       priority: formData.priority,
     };
@@ -895,7 +872,6 @@ const resetForm = () => {
   formData.resume = false;
   formData.task_id = "";
   formData.priority = 5;
-  formData.kind = "all";
   batchKeywords.value = "";
 };
 

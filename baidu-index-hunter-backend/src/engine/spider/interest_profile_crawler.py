@@ -61,51 +61,50 @@ class InterestProfileCrawler(BaseCrawler):
     def get_interest_profiles(self, keywords: List[str], typeid: Optional[str] = None) -> Optional[Dict]:
         """
         获取兴趣分布数据 API 请求
+        使用 wordlist[] 参数格式批量查询关键词
         """
         try:
             # 获取可用Cookie (使用基类方法)
             account_id, cookie_dict = self._get_cookie_dict()
             if not cookie_dict:
                 return None
-                
-            # 构造URL参数
-            url_params = [f'wordlist[]={kw}' for kw in keywords]
             
-            # TypeID (虽然很少用到，API似乎默认返回全部)
-            url = f'{self.interest_api_url}?{"&".join(url_params)}'
-            if typeid:
-                url += f'&typeid={typeid}'
-                
-            # 获取通用的加密参数 (Headers)
-            # 注意：Interest API 可能不需要 cipher-text，或者使用的是第一个关键词的？
-            # 百度指数 Social API (Demographic/Interest) 图谱类通常不需要 Cipher-Text，只需要 Cookie 和 Referer
-            # 但为了保险，我们可以带上。如果不需要，带上也无妨。
-            # 另外，RateLimiter 在基类没强制，这里手动调用
             from src.utils.rate_limiter import rate_limiter
             rate_limiter.wait()
             
             import requests
-            headers = self._get_common_headers("") # Cipher-Text 为空
-            # 覆盖 Referer 确保正确
-            headers['Referer'] = self.interest_api_url
             
-            log.info(f"[{self.task_type}] Requesting: {keywords}")
+            # 生成 Cipher-Text (使用第一个关键词)
+            cipher_text = self._get_cipher_text(keywords[0])
+            headers = self._get_common_headers(cipher_text)
+            headers['Referer'] = 'https://index.baidu.com/v2/main/index.html'
+            
+            # 使用 params 参数让 requests 正确构造 wordlist[] 格式
+            params = [('wordlist[]', kw) for kw in keywords]
+            # 添加 typeid 参数 (可以为空)
+            params.append(('typeid', typeid or ''))
+            
+            log.info(f"[{self.task_type}] Requesting interest profiles: {keywords}")
             response = requests.get(
-                url=url,
+                url=self.interest_api_url,
                 headers=headers,
                 cookies=cookie_dict,
+                params=params,
                 timeout=15
             )
             
             if response.status_code != 200:
+                log.error(f"[{self.task_type}] HTTP Error: {response.status_code}")
                 self.cookie_rotator.report_cookie_status(account_id, False)
                 return None
-                
+            
             result = response.json()
+            log.info(f"[{self.task_type}] API Response status: {result.get('status')}")
+            
             if result.get('status') != 0:
                 msg = result.get('message', '')
                 log.error(f"[{self.task_type}] API Error: {msg}")
-                if "not login" in msg:
+                if "not login" in msg.lower():
                     self.cookie_rotator.report_cookie_status(account_id, False, permanent=True)
                 else:
                     self.cookie_rotator.report_cookie_status(account_id, False)
@@ -134,6 +133,9 @@ class InterestProfileCrawler(BaseCrawler):
         else:
             self.task_id = kwargs.get('task_id') or self._generate_task_id()
             self._prepare_initial_state()
+            
+        # 整个任务只保留一次“全网分布”数据
+        self.all_network_processed = False
 
         import os
         from src.core.config import OUTPUT_DIR
@@ -162,7 +164,14 @@ class InterestProfileCrawler(BaseCrawler):
                     
                     with self.task_lock:
                         if df is not None and not df.empty:
-                            self.data_cache.extend(df.to_dict('records'))
+                            # 整个任务只保留一次“全网分布”数据
+                            if self.all_network_processed:
+                                df = df[df['关键词'] != '全网分布']
+                            elif '全网分布' in df['关键词'].values:
+                                self.all_network_processed = True
+                                
+                            if not df.empty:
+                                self.data_cache.extend(df.to_dict('records'))
                         
                         self.completed_tasks += 1
                         # 记录完成的关键词 (拆分batch)

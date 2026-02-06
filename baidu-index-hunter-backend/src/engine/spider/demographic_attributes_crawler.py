@@ -51,39 +51,48 @@ class DemographicAttributesCrawler(BaseCrawler):
     def get_demographic_attributes(self, keywords: List[str]) -> Optional[Dict]:
         """
         获取人群属性数据 API 请求
+        使用 wordlist[] 参数格式批量查询关键词
         """
         try:
             account_id, cookie_dict = self._get_cookie_dict()
             if not cookie_dict:
                 return None
             
-            url_params = [f'wordlist[]={kw}' for kw in keywords]
-            url = f'{self.social_api_url}?{"&".join(url_params)}'
-            
             from src.utils.rate_limiter import rate_limiter
             rate_limiter.wait()
             
             import requests
-            headers = self._get_common_headers("")
-            headers['Referer'] = self.social_api_url
             
-            log.info(f"[{self.task_type}] Requesting: {keywords}")
+            # 生成 Cipher-Text (使用第一个关键词)
+            cipher_text = self._get_cipher_text(keywords[0])
+            headers = self._get_common_headers(cipher_text)
+            headers['Referer'] = 'https://index.baidu.com/v2/main/index.html'
+            
+            # 使用 params 参数让 requests 正确构造 wordlist[] 格式
+            # requests 会自动将列表转换为 wordlist[]=a&wordlist[]=b 格式
+            params = [('wordlist[]', kw) for kw in keywords]
+            
+            log.info(f"[{self.task_type}] Requesting demographic attributes: {keywords}")
             response = requests.get(
-                url=url,
+                url=self.social_api_url,
                 headers=headers,
                 cookies=cookie_dict,
+                params=params,
                 timeout=15
             )
             
             if response.status_code != 200:
+                log.error(f"[{self.task_type}] HTTP Error: {response.status_code}")
                 self.cookie_rotator.report_cookie_status(account_id, False)
                 return None
-                
+            
             result = response.json()
+            log.info(f"[{self.task_type}] API Response status: {result.get('status')}")
+            
             if result.get('status') != 0:
                 msg = result.get('message', '')
                 log.error(f"[{self.task_type}] API Error: {msg}")
-                if "not login" in msg:
+                if "not login" in msg.lower():
                     self.cookie_rotator.report_cookie_status(account_id, False, permanent=True)
                 else:
                     self.cookie_rotator.report_cookie_status(account_id, False)
@@ -110,6 +119,9 @@ class DemographicAttributesCrawler(BaseCrawler):
         else:
             self.task_id = kwargs.get('task_id') or self._generate_task_id()
             self._prepare_initial_state()
+            
+        # 整个任务只保留一次“全网分布”数据
+        self.all_network_processed = False
 
         import os
         from src.core.config import OUTPUT_DIR
@@ -134,7 +146,15 @@ class DemographicAttributesCrawler(BaseCrawler):
                     
                     with self.task_lock:
                         if df is not None and not df.empty:
-                            self.data_cache.extend(df.to_dict('records'))
+                            # 整个任务只保留一次“全网分布”数据
+                            if self.all_network_processed:
+                                df = df[df['关键词'] != '全网分布']
+                            elif '全网分布' in df['关键词'].values:
+                                self.all_network_processed = True
+                                
+                            if not df.empty:
+                                self.data_cache.extend(df.to_dict('records'))
+                                
                         self.completed_tasks += 1
                         for kw in batch:
                             self.completed_keywords.add(kw)

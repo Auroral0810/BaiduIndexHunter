@@ -9,87 +9,138 @@ class DemographicProcessor:
     """人群属性数据处理器"""
     
     def process_demographic_data(self, data, query_keyword=None):
-        """处理人群属性数据"""
+        """
+        处理人群属性数据 (baseAttributes API)
+        
+        API返回格式:
+        {
+            "status": 0,
+            "data": {
+                "result": [
+                    {
+                        "word": "手机",
+                        "gender": [{"typeId": 0, "desc": "女", "tgi": 89.2, "rate": 41.08}, ...],
+                        "age": [{"typeId": 1, "desc": "0-19", "tgi": 111.67, "rate": 7.39}, ...]
+                    }
+                ],
+                "startDate": "2026-01-01",
+                "endDate": "2026-01-31"
+            }
+        }
+        """
         try:
             if not data or data.get('status') != 0:
+                log.warning(f"[DemographicProcessor] Invalid data or status != 0")
                 return pd.DataFrame()
             
             api_data = data.get('data', {})
             result = api_data.get('result', [])
             start_date = api_data.get('startDate', '')
             end_date = api_data.get('endDate', '')
-            period = f"{start_date} 至 {end_date}"
+            period = f"{start_date} 至 {end_date}" if start_date and end_date else ''
             
             data_records = []
-            for item in result:
-                word = item.get('word', query_keyword)
-                
-                # Helper to process child attributes
-                def extract_attr(attr_list, attr_type):
-                    for attr in attr_list:
-                        data_records.append({
-                            '关键词': word,
-                            '属性类型': attr_type,
-                            '属性值': f"{attr.get('desc', '')}岁" if attr_type == '年龄' else attr.get('desc', ''),
-                            '比例': attr.get('rate', 0),
-                            'TGI': attr.get('tgi', ''),
-                            '数据周期': period,
-                            '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                        })
-
-                extract_attr(item.get('gender', []), '性别')
-                extract_attr(item.get('age', []), '年龄')
-                extract_attr(item.get('education', []), '学历')
-                extract_attr(item.get('interest', []), '兴趣')
+            crawl_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             
+            for item in result:
+                word = item.get('word', query_keyword or '')
+                
+                # 处理性别数据
+                for gender_item in item.get('gender', []):
+                    tgi_val = gender_item.get('tgi', '')
+                    # TGI 可能为空字符串，需要处理
+                    tgi_display = tgi_val if tgi_val != '' else '-'
+                    data_records.append({
+                        '关键词': word,
+                        '属性类型': '性别',
+                        '属性值': gender_item.get('desc', ''),
+                        '比例': gender_item.get('rate', 0),
+                        'TGI': tgi_display,
+                        '数据周期': period,
+                        '爬取时间': crawl_time
+                    })
+                
+                # 处理年龄数据
+                for age_item in item.get('age', []):
+                    tgi_val = age_item.get('tgi', '')
+                    tgi_display = tgi_val if tgi_val != '' else '-'
+                    data_records.append({
+                        '关键词': word,
+                        '属性类型': '年龄',
+                        '属性值': age_item.get('desc', ''),  # 已经是 "0-19", "20-29" 格式
+                        '比例': age_item.get('rate', 0),
+                        'TGI': tgi_display,
+                        '数据周期': period,
+                        '爬取时间': crawl_time
+                    })
+            
+            log.info(f"[DemographicProcessor] Processed {len(data_records)} records")
             return pd.DataFrame(data_records)
+            
         except Exception as e:
             log.error(f"DemographicProcessor error: {e}")
             return pd.DataFrame()
 
     def process_interest_profile_data(self, data, query_keyword=None):
-        """处理兴趣分布数据"""
+        """
+        处理兴趣分布数据 (interest API)
+        
+        API返回格式与 baseAttributes 类似，但包含 interest 字段
+        {
+            "status": 0,
+            "data": {
+                "result": [
+                    {
+                        "word": "手机",
+                        "interest": [{"typeId": 1, "desc": "科技数码", "tgi": 150.5, "rate": 25.3}, ...]
+                    }
+                ],
+                "startDate": "2026-01-01",
+                "endDate": "2026-01-31"
+            }
+        }
+        """
         try:
             if not data or data.get('status') != 0:
+                log.warning(f"[InterestProcessor] Invalid data or status != 0")
                 return pd.DataFrame()
             
             api_data = data.get('data', {})
             result = api_data.get('result', [])
             start_date = api_data.get('startDate', '')
             end_date = api_data.get('endDate', '')
-            period = f"{start_date} 至 {end_date}"
+            period = f"{start_date} 至 {end_date}" if start_date and end_date else ''
             
             data_records = []
+            crawl_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            
             for item in result:
-                word = item.get('word', query_keyword)
+                word = item.get('word', query_keyword or '')
                 
-                # 处理兴趣点数据
-                for interest_item in item.get('result', []):  # 注意：有时API结构可能是 item.get('interest') 或 item.get('result')
-                    # 这里尝试兼容两种结构，通常兴趣分布API返回结构可能含有一层 'result'
-                    # 不过根据之前的 demographic_data 来看，interest 是直接在 item 下的
-                    # 为了安全，先检查 'interest'，如果没有再检查 'result' 
-                    # 但根据经验，专门的兴趣接口可能返回列表
-                    
-                    # 假设结构与 demographic 类似，但在 interest_api_url 返回的可能略有不同
-                    # 保守策略：遍历可能的字段
-                    pass
-
-                # 根据 user context, use generic extraction
-                # 重新参考 demographic 结构: item.get('interest', [])
-                for interest in item.get('interest', []):
-                     data_records.append({
+                # 跳过 "全网分布" 条目
+                if word == '全网分布':
+                    continue
+                
+                # 处理兴趣数据
+                for interest_item in item.get('interest', []):
+                    tgi_val = interest_item.get('tgi', '')
+                    tgi_display = tgi_val if tgi_val != '' else '-'
+                    data_records.append({
                         '关键词': word,
-                        '兴趣名称': interest.get('desc', ''),
-                        'TGI': interest.get('tgi', ''),
-                        '占比': interest.get('rate', 0),
+                        '兴趣名称': interest_item.get('desc', ''),
+                        'TGI': tgi_display,
+                        '占比': interest_item.get('rate', 0),
                         '数据周期': period,
-                        '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        '爬取时间': crawl_time
                     })
             
+            log.info(f"[InterestProcessor] Processed {len(data_records)} records")
             return pd.DataFrame(data_records)
+            
         except Exception as e:
             log.error(f"InterestProfile processing error: {e}")
             return pd.DataFrame()
 
 # 单例
 demographic_processor = DemographicProcessor()
+
