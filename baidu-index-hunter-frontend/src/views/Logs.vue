@@ -117,17 +117,17 @@
           
           <div 
             v-for="(log, index) in filteredLogs" 
-            :key="index" 
+            :key="log.type === 'progress' ? `progress-${log.task_id}` : index" 
             class="log-row"
-            :class="log.level.toLowerCase()"
+            :class="[log.level.toLowerCase(), { 'is-progress': log.type === 'progress' }]"
             :data-index="index"
           >
             <!-- Decorative track -->
             <div class="row-indicator"></div>
             <div class="row-content">
               <span class="meta-time">{{ log.time }}</span>
-              <span class="meta-lvl">{{ log.level }}</span>
-              <div class="meta-path">
+              <span class="meta-lvl">{{ log.type === 'progress' ? 'PROG' : log.level }}</span>
+              <div class="meta-path" v-if="log.type !== 'progress'">
                 <span class="path-name">{{ log.name }}</span>
                 <span class="path-loc">{{ log.function }}:{{ log.line }}</span>
               </div>
@@ -365,10 +365,33 @@ const initSocket = () => {
   socket.value.on('system_log', (data) => {
     if (isPaused.value) return
     messageCount++
-    logs.value.push(data)
+    
+    // 进度类型日志: 覆盖上一条同类进度，实现"原地刷新"效果
+    if (data.type === 'progress') {
+      const lastIdx = findLastProgressIndex(data.task_id)
+      if (lastIdx >= 0) {
+        logs.value[lastIdx] = data
+      } else {
+        logs.value.push(data)
+      }
+    } else {
+      logs.value.push(data)
+    }
+    
     if (logs.value.length > maxLogs) logs.value.shift()
     if (autoScroll.value) scrollToBottom()
   })
+}
+
+/** 从末尾向前查找同一 task_id 的最后一条 progress 日志的索引 */
+const findLastProgressIndex = (taskId) => {
+  for (let i = logs.value.length - 1; i >= 0; i--) {
+    const entry = logs.value[i]
+    if (entry.type === 'progress' && (!taskId || entry.task_id === taskId)) {
+      return i
+    }
+  }
+  return -1
 }
 
 onMounted(() => {
@@ -610,6 +633,29 @@ watch(filteredLogs, () => { if (autoScroll.value) scrollToBottom() })
 .error .row-msg { color: #fecaca; font-weight: 600; }
 
 .debug .meta-lvl { color: #94a3b8; background: rgba(148, 163, 184, 0.1); }
+
+/* Progress bar row — sticky highlight */
+.is-progress {
+  background: rgba(56, 189, 248, 0.06);
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  border-radius: 8px;
+  padding: 6px 12px;
+  margin: 4px 0;
+  transition: all 0.3s ease;
+}
+.is-progress .row-indicator { background: #38bdf8; }
+.is-progress .meta-lvl {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.15);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+.is-progress .row-msg {
+  color: #e0f2fe;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
 
 /* Empty View */
 .console-empty { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #484f58; }

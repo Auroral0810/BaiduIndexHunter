@@ -649,6 +649,21 @@ class BaseCrawler:
         sys.stdout.write(progress_line + '\033[K')
         sys.stdout.flush()
         
+        # 同时推送到前端日志控制台（标记 type=progress，前端覆盖式显示）
+        try:
+            from src.services.websocket_service import push_system_log
+            clean_msg = (
+                f"[{self.task_type}] {bar} {current_percent:.2f}% "
+                f"| {self.completed_tasks} done, {self.failed_tasks} fail / {self.total_tasks} "
+                f"| {speed:.1f}/s | ETA: {eta_str} | elapsed: {elapsed_str}"
+            )
+            push_system_log(
+                "INFO", clean_msg, name="Progress",
+                type="progress", task_id=self.task_id or ""
+            )
+        except Exception:
+            pass
+        
         self._last_report_time = now
         self._last_report_percent = current_percent
 
