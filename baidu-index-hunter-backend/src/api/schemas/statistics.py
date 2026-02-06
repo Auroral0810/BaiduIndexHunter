@@ -24,6 +24,8 @@ class GetSpiderStatisticsRequest(BaseModel):
 class GetKeywordStatisticsRequest(BaseModel):
     """获取关键词统计请求"""
     task_id: Optional[str] = Field(None, description="任务ID过滤")
+    start_date: Optional[str] = Field(None, description="开始日期 YYYY-MM-DD")
+    end_date: Optional[str] = Field(None, description="结束日期 YYYY-MM-DD")
     limit: int = Field(20, ge=1, le=100, description="返回数量")
 
 
@@ -31,6 +33,8 @@ class GetCityStatisticsRequest(BaseModel):
     """获取城市统计请求"""
     city_name: Optional[str] = Field(None, description="城市名称过滤")
     task_type: Optional[str] = Field(None, description="任务类型过滤")
+    start_date: Optional[str] = Field(None, description="开始日期 YYYY-MM-DD")
+    end_date: Optional[str] = Field(None, description="结束日期 YYYY-MM-DD")
     limit: int = Field(100, ge=1, le=500, description="返回数量")
 
 

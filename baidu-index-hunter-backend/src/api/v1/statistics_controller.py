@@ -145,7 +145,12 @@ def get_spider_statistics(validated_data: GetSpiderStatisticsRequest):
 def get_keyword_statistics(validated_data: GetKeywordStatisticsRequest):
     """获取关键词统计数据"""
     try:
-        data = statistics_service.get_keyword_statistics(validated_data.task_id, validated_data.limit)
+        data = statistics_service.get_keyword_statistics(
+            validated_data.task_id, 
+            validated_data.limit,
+            validated_data.start_date,
+            validated_data.end_date
+        )
         return jsonify(ResponseFormatter.success(data, "获取关键词统计数据成功"))
     except Exception as e:
         log.error(f"获取关键词统计数据失败: {e}")
@@ -158,7 +163,13 @@ def get_keyword_statistics(validated_data: GetKeywordStatisticsRequest):
 def get_city_statistics(validated_data: GetCityStatisticsRequest):
     """获取城市统计数据"""
     try:
-        data = statistics_service.get_city_statistics(validated_data.city_name, validated_data.task_type, validated_data.limit)
+        data = statistics_service.get_city_statistics(
+            validated_data.city_name, 
+            validated_data.task_type, 
+            validated_data.limit,
+            validated_data.start_date,
+            validated_data.end_date
+        )
         return jsonify(ResponseFormatter.success(data, "获取城市统计数据成功"))
     except Exception as e:
         log.error(f"获取城市统计数据失败: {e}")

@@ -3,7 +3,7 @@
 处理统计数据的数据库操作
 """
 from typing import List, Optional, Dict, Any
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from sqlmodel import select, col, func, text, desc, asc, case, and_
 from src.data.database import session_scope
 from src.data.repositories.base_repository import BaseRepository
@@ -36,7 +36,7 @@ class StatisticsRepository:
             statement = statement.order_by(desc(SpiderStatisticsModel.stat_date), asc(SpiderStatisticsModel.task_type))
             return session.exec(statement).all()
 
-    def get_keyword_statistics(self, task_id: Optional[str] = None, limit: int = 100) -> List[Dict]:
+    def get_keyword_statistics(self, task_id: Optional[str] = None, limit: int = 100, start_date: Optional[date] = None, end_date: Optional[date] = None) -> List[Dict]:
         """获取关键词统计数据"""
         with session_scope() as session:
             statement = select(
@@ -49,6 +49,13 @@ class StatisticsRepository:
 
             if task_id:
                 statement = statement.where(TaskStatisticsModel.task_id == task_id)
+            
+            if start_date:
+                statement = statement.where(TaskStatisticsModel.create_time >= start_date)
+            if end_date:
+                # Add one day to end_date to include the full day
+                next_day = end_date + timedelta(days=1)
+                statement = statement.where(TaskStatisticsModel.create_time < next_day)
 
             results = session.exec(statement).all()
             return [
@@ -62,7 +69,7 @@ class StatisticsRepository:
                 for r in results
             ]
 
-    def get_city_statistics(self, city_name: Optional[str] = None, task_type: Optional[str] = None, limit: int = 100) -> List[Dict]:
+    def get_city_statistics(self, city_name: Optional[str] = None, task_type: Optional[str] = None, limit: int = 100, start_date: Optional[date] = None, end_date: Optional[date] = None) -> List[Dict]:
         """获取城市统计数据"""
         with session_scope() as session:
             # Note: TaskStatisticsModel doesn't directly have task_type, 
@@ -82,6 +89,12 @@ class StatisticsRepository:
                 
             if city_name:
                 statement = statement.where(TaskStatisticsModel.city_name.contains(city_name))
+
+            if start_date:
+                statement = statement.where(TaskStatisticsModel.create_time >= start_date)
+            if end_date:
+                next_day = end_date + timedelta(days=1)
+                statement = statement.where(TaskStatisticsModel.create_time < next_day)
                 
             statement = statement.group_by(TaskStatisticsModel.city_code, TaskStatisticsModel.city_name)\
                                  .order_by(desc("item_count")).limit(limit)

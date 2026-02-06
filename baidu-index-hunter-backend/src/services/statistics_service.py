@@ -87,18 +87,38 @@ class StatisticsService:
             results.append(data)
         return results
 
-    def get_keyword_statistics(self, task_id: Optional[str] = None, limit: int = 100) -> Dict[str, Any]:
+    def get_keyword_statistics(self, task_id: Optional[str] = None, limit: int = 100, start_date_str: Optional[str] = None, end_date_str: Optional[str] = None) -> Dict[str, Any]:
         """获取关键词统计"""
-        keywords = self.stats_repo.get_keyword_statistics(task_id, limit)
+        start_date = None
+        end_date = None
+        try:
+            if start_date_str:
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            if end_date_str:
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        except ValueError as e:
+            log.warning(f"Invalid date format in get_keyword_statistics: {e}")
+
+        keywords = self.stats_repo.get_keyword_statistics(task_id, limit, start_date, end_date)
         return {
             'keywords': keywords,
             'total': len(keywords)
         }
 
-    def get_city_statistics(self, city_name: Optional[str] = None, task_type: Optional[str] = None, limit: int = 100) -> List[Dict[str, Any]]:
+    def get_city_statistics(self, city_name: Optional[str] = None, task_type: Optional[str] = None, limit: int = 100, start_date_str: Optional[str] = None, end_date_str: Optional[str] = None) -> List[Dict[str, Any]]:
         """获取城市统计"""
+        start_date = None
+        end_date = None
+        try:
+            if start_date_str:
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            if end_date_str:
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        except ValueError as e:
+            log.warning(f"Invalid date format in get_city_statistics: {e}")
+
         # Repo already returns dicts
-        return self.stats_repo.get_city_statistics(city_name, task_type, limit)
+        return self.stats_repo.get_city_statistics(city_name, task_type, limit, start_date, end_date)
 
     def get_dashboard_data(self, days: int, start_date_str: Optional[str] = None, end_date_str: Optional[str] = None) -> Dict[str, Any]:
         """获取大屏数据"""

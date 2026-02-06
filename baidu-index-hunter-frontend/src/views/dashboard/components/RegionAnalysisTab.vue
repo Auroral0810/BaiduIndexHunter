@@ -92,9 +92,19 @@ const handleTaskTypeChange = () => {
 
 const handleDaysChange = (val) => {
   if (val !== 'custom') {
-    dateRange.value = []
-    loadData()
+    if (val === -1) {
+      dateRange.value = []
+    } else {
+      const end = new Date()
+      const start = new Date()
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * val)
+      dateRange.value = [
+        start.toISOString().split('T')[0],
+        end.toISOString().split('T')[0]
+      ]
+    }
   }
+  loadData()
 }
 
 const cityChartRef = ref(null)
@@ -112,6 +122,12 @@ const loadData = async () => {
     if (dateRange.value && dateRange.value.length === 2) {
       params.start_date = dateRange.value[0]
       params.end_date = dateRange.value[1]
+    } else if (selectedDays.value !== 'custom' && selectedDays.value !== -1) {
+      const end = new Date()
+      const start = new Date()
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * selectedDays.value)
+      params.start_date = start.toISOString().split('T')[0]
+      params.end_date = end.toISOString().split('T')[0]
     }
     
     const res = await getCityStatistics(params)
