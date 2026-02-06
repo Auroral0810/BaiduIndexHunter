@@ -20,7 +20,7 @@ from src.services.processor_service import data_processor
 from src.services.storage_service import storage_service
 from src.core.config import BAIDU_INDEX_API, OUTPUT_DIR
 from fake_useragent import UserAgent
-from src.engine.spider.base_crawler import BaseCrawler
+from src.engine.spider.base_crawler import BaseCrawler, CrawlerInterrupted
 
 # 自定义异常类
 class NoCookieAvailableError(Exception):
@@ -189,16 +189,8 @@ class FeedIndexCrawler(BaseCrawler):
     def _process_task(self, task_data):
         """
         处理单个任务的函数，用于线程池
-        
-        参数:
-            task_data (tuple): (keyword, city_code, city_name, start_date, end_date)
-        或者 (keywords, city_code, city_name, start_date, end_date) 其中keywords是关键词列表
-        
-        返回值:
-            对于单关键词模式: (task_key, daily_data, stats_record, is_success)
-            对于批量模式: ([task_keys], daily_data_list, stats_records_list, is_success)
-            其中 is_success 表示是否成功获取到有效数据
         """
+        self.check_running()
         rate_limiter.wait()
         
         # 判断第一个参数是单个关键词还是关键词列表
@@ -393,6 +385,7 @@ class FeedIndexCrawler(BaseCrawler):
             with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
                 future_to_task = {executor.submit(self._process_task, task): task for task in all_tasks}
                 for future in as_completed(future_to_task):
+                    self.check_running()
                     try:
                         result = future.result()
                         if not result: continue
@@ -435,10 +428,15 @@ class FeedIndexCrawler(BaseCrawler):
                         log.error(traceback.format_exc())
 
             # 5. 完成
-            status = 'completed' if self.failed_tasks == 0 else 'failed'
             msg = f"Completed with {self.failed_tasks} failed items" if status == 'failed' else None
             return self._finalize_crawl(status, msg)
 
+        except CrawlerInterrupted:
+            log.warning(f"[{self.task_type}] 任务被用户或系统中断")
+            try:
+                for f in future_to_task: f.cancel()
+            except: pass
+            return self._finalize_crawl('cancelled', "Task interrupted")
         except Exception as e:
             log.error(f"Crawl master loop failed: {e}")
             log.error(traceback.format_exc())

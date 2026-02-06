@@ -6,7 +6,7 @@ from typing import List, Dict, Any, Optional
 import pandas as pd
 from src.core.logger import log
 from src.utils.decorators import retry
-from src.engine.spider.base_crawler import BaseCrawler
+from src.engine.spider.base_crawler import BaseCrawler, CrawlerInterrupted
 from src.services.processor_service import data_processor
 
 class InterestProfileCrawler(BaseCrawler):
@@ -154,9 +154,13 @@ class InterestProfileCrawler(BaseCrawler):
         
         # 4. 执行循环
         self._update_task_db_status('running', 0)
+        self._add_task_log('info', f"开始执行兴趣分布爬取任务，总关键词数: {len(keywords)}")
         
         try:
             for i in range(start_index, len(tasks)):
+                # 检查运行状态，支持快速停止
+                self.check_running()
+                
                 batch = tasks[i]
                 
                 try:
@@ -172,6 +176,20 @@ class InterestProfileCrawler(BaseCrawler):
                                 
                             if not df.empty:
                                 self.data_cache.extend(df.to_dict('records'))
+                                
+                                # 生成统计信息并存入 stats_cache
+                                for kw in batch:
+                                    kw_df = df[df['关键词'] == kw]
+                                    if not kw_df.empty:
+                                        self.stats_cache.append({
+                                            'task_id': self.task_id,
+                                            '关键词': kw,
+                                            '数据类型': self.task_type,
+                                            '数据周期': kw_df.iloc[0]['数据周期'],
+                                            '数据项数量': len(kw_df),
+                                            '成功数量': 1,
+                                            '失败数量': 0,
+                                        })
                         
                         self.completed_tasks += 1
                         # 记录完成的关键词 (拆分batch)
@@ -197,6 +215,9 @@ class InterestProfileCrawler(BaseCrawler):
             # 5. 完成
             return self._finalize_crawl('completed')
             
+        except CrawlerInterrupted:
+            log.warning(f"[{self.task_type}] 任务被用户或系统中断")
+            return self._finalize_crawl('cancelled', "Task interrupted")
         except Exception as e:
             log.error(f"[{self.task_type}] Critical Error: {e}")
             return self._finalize_crawl('failed', str(e))

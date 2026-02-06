@@ -39,10 +39,8 @@ class TaskService:
             spider_params = self._process_feed_index_params(parameters, resume)
         elif task_type == 'word_graph':
             spider_params = self._process_word_graph_params(parameters, resume)
-        elif task_type == 'demographic_attributes':
-            spider_params = self._process_demographic_params(parameters, resume)
-        elif task_type == 'interest_profile':
-            spider_params = self._process_interest_profile_params(parameters, resume)
+        elif task_type in ['demographic_attributes', 'interest_profile']:
+            spider_params = self._process_attribute_params(parameters, resume)
         elif task_type == 'region_distribution':
             spider_params = self._process_region_distribution_params(parameters, resume)
         else:
@@ -137,8 +135,8 @@ class TaskService:
         
         return spider_params
 
-    def _process_demographic_params(self, parameters: Dict[str, Any], resume: bool) -> Dict[str, Any]:
-        """处理人群属性参数"""
+    def _process_attribute_params(self, parameters: Dict[str, Any], resume: bool) -> Dict[str, Any]:
+        """处理属性参数 (人群属性/兴趣分布)"""
         if not parameters.get('keywords'):
             raise ValueError("缺少必要参数: keywords")
 
@@ -157,11 +155,6 @@ class TaskService:
         self._add_common_spider_params(spider_params, parameters, skip_time=True)
 
         return spider_params
-
-    def _process_interest_profile_params(self, parameters: Dict[str, Any], resume: bool) -> Dict[str, Any]:
-        """处理兴趣分布参数"""
-        # 逻辑与人群属性完全一致
-        return self._process_demographic_params(parameters, resume)
 
     def _process_region_distribution_params(self, parameters: Dict[str, Any], resume: bool) -> Dict[str, Any]:
         """处理地域分布参数"""

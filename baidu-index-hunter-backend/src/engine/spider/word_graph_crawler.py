@@ -7,7 +7,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 from src.core.logger import log
 from src.utils.decorators import retry
-from src.engine.spider.base_crawler import BaseCrawler
+from src.engine.spider.base_crawler import BaseCrawler, CrawlerInterrupted
 from src.services.processor_service import data_processor
 
 class WordGraphCrawler(BaseCrawler):
@@ -163,6 +163,7 @@ class WordGraphCrawler(BaseCrawler):
         
         try:
             for i in range(start_index, len(tasks)):
+                self.check_running()
                 task_item = tasks[i]
                 try:
                     df = self._process_task(task_item)
@@ -188,6 +189,9 @@ class WordGraphCrawler(BaseCrawler):
 
             return self._finalize_crawl('completed')
             
+        except CrawlerInterrupted:
+            log.warning(f"[{self.task_type}] 任务被用户或系统中断")
+            return self._finalize_crawl('cancelled', "Task interrupted")
         except Exception as e:
             log.error(f"[{self.task_type}] Critical Error: {e}")
             return self._finalize_crawl('failed', str(e))

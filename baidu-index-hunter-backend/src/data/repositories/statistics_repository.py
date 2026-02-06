@@ -310,4 +310,82 @@ class StatisticsRepository:
                 session.add(new_stats)
             session.commit()
 
+    def save_task_statistics_batch(self, stats_list: List[Dict[str, Any]]):
+        """批量保存单次爬取关键词的统计信息"""
+        if not stats_list: return
+        with session_scope() as session:
+            for stats_data in stats_list:
+                # 检查是否存在 (同 task_id + keyword + city_code)
+                statement = select(TaskStatisticsModel).where(and_(
+                    TaskStatisticsModel.task_id == stats_data.get('task_id'),
+                    TaskStatisticsModel.keyword == stats_data.get('关键词'),
+                    TaskStatisticsModel.city_code == stats_data.get('city_code', '')
+                ))
+                existing = session.exec(statement).first()
+                
+                # 转换字段名
+                model_data = {
+                    'task_id': stats_data.get('task_id'),
+                    'keyword': stats_data.get('关键词'),
+                    'city_code': stats_data.get('city_code'),
+                    'city_name': stats_data.get('城市'),
+                    'date_range': stats_data.get('数据周期'),
+                    'data_type': stats_data.get('数据类型'),
+                    'item_count': stats_data.get('数据项数量', 0),
+                    'success_count': stats_data.get('成功数量', 0),
+                    'fail_count': stats_data.get('失败数量', 0),
+                    'avg_value': stats_data.get('平均值'),
+                    'max_value': stats_data.get('最大值'),
+                    'min_value': stats_data.get('最小值'),
+                    'sum_value': stats_data.get('总和'),
+                    'extra_data': stats_data.get('extra_data'),
+                    'create_time': datetime.now()
+                }
+                
+                if existing:
+                    for key, val in model_data.items():
+                        setattr(existing, key, val)
+                    session.add(existing)
+                else:
+                    new_stats = TaskStatisticsModel(**model_data)
+                    session.add(new_stats)
+            session.commit()
+
+    def update_spider_summary(self, task_type: str, total_delta: int = 0, completed_delta: int = 0, failed_delta: int = 0, duration: float = 0):
+        """更新爬虫总体统计摘要 (任务数、平均时长等)"""
+        stat_date = date.today()
+        with session_scope() as session:
+            statement = select(SpiderStatisticsModel).where(and_(
+                SpiderStatisticsModel.stat_date == stat_date,
+                SpiderStatisticsModel.task_type == task_type
+            ))
+            stats = session.exec(statement).first()
+            
+            if stats:
+                old_completed = stats.completed_tasks or 0
+                stats.total_tasks = (stats.total_tasks or 0) + total_delta
+                stats.completed_tasks = (stats.completed_tasks or 0) + completed_delta
+                stats.failed_tasks = (stats.failed_tasks or 0) + failed_delta
+                
+                # 更新平均执行时间 (加权平均)
+                if completed_delta > 0 and duration > 0:
+                    new_completed = stats.completed_tasks
+                    if new_completed > 0:
+                        stats.avg_duration = ((old_completed * stats.avg_duration) + (completed_delta * duration)) / new_completed
+                
+                stats.update_time = datetime.now()
+                session.add(stats)
+            else:
+                stats = SpiderStatisticsModel(
+                    stat_date=stat_date,
+                    task_type=task_type,
+                    total_tasks=total_delta or 1,
+                    completed_tasks=completed_delta,
+                    failed_tasks=failed_delta,
+                    avg_duration=duration if completed_delta > 0 else 0,
+                    update_time=datetime.now()
+                )
+                session.add(stats)
+            session.commit()
+
 statistics_repo = StatisticsRepository()

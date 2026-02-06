@@ -15,7 +15,7 @@ from src.engine.crypto.cipher_generator import cipher_text_generator
 from src.services.processor_service import data_processor
 from src.services.storage_service import storage_service
 from src.core.config import BAIDU_INDEX_API, OUTPUT_DIR
-from src.engine.spider.base_crawler import BaseCrawler
+from src.engine.spider.base_crawler import BaseCrawler, CrawlerInterrupted
 
 # 自定义异常类
 class NoCookieAvailableError(Exception):
@@ -157,16 +157,8 @@ class SearchIndexCrawler(BaseCrawler):
     def _process_task(self, task_data):
         """
         处理单个任务的函数，用于线程池
-        
-        参数:
-            task_data (tuple): (keyword, city_code, city_name, start_date, end_date)
-        或者 (keywords, city_code, city_name, start_date, end_date) 其中keywords是关键词列表
-        
-        返回值:
-            对于单关键词模式: (task_key, daily_data, stats_record, is_success)
-            对于批量模式: ([task_keys], daily_data_list, stats_records_list, is_success)
-            其中 is_success 表示是否成功获取到有效数据
         """
+        self.check_running()
         rate_limiter.wait()
         
         # 判断第一个参数是单个关键词还是关键词列表
@@ -457,6 +449,8 @@ class SearchIndexCrawler(BaseCrawler):
                 future_to_task = {executor.submit(self._process_task, task): task for task in all_tasks}
                 
                 for future in as_completed(future_to_task):
+                    # 每次结果返回前检查是否停止
+                    self.check_running()
                     try:
                         result = future.result()
                         if not result: continue
@@ -494,10 +488,16 @@ class SearchIndexCrawler(BaseCrawler):
                     except Exception as e:
                         log.error(f"子任务异常: {e}")
 
-            status = 'completed' if self.failed_tasks == 0 else 'failed'
             msg = f"完成但有 {self.failed_tasks} 项失败" if status == 'failed' else None
             return self._finalize_crawl(status, msg)
 
+        except CrawlerInterrupted:
+            log.warning(f"[{self.task_type}] 任务被用户或系统中断")
+            # 尝试取消还没开始的任务
+            try:
+                for f in future_to_task: f.cancel()
+            except: pass
+            return self._finalize_crawl('cancelled', "Task interrupted")
         except Exception as e:
             log.error(f"爬取主流程失败: {e}")
             self._flush_buffer(force=True)

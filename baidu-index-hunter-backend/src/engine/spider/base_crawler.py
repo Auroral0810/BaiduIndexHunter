@@ -18,6 +18,10 @@ from src.engine.crypto.cipher_generator import cipher_text_generator
 import pickle
 import traceback
 
+class CrawlerInterrupted(Exception):
+    """爬虫任务被中断异常"""
+    pass
+
 class BaseCrawler:
     """所有百度指数爬虫的基类"""
     
@@ -44,6 +48,7 @@ class BaseCrawler:
         self.failed_keywords = set()
         
         self.cookie_rotator = cookie_rotator
+        self.is_running = True # 运行状态标志
         self.setup_signal_handlers()
 
     def _prepare_initial_state(self):
@@ -56,6 +61,7 @@ class BaseCrawler:
         self.output_files = []
         self.data_cache = []
         self.stats_cache = []
+        self.is_running = True
 
     # --- 基础设施 (Infrastructure) ---
 
@@ -67,9 +73,16 @@ class BaseCrawler:
     def handle_exit(self, signum, frame):
         """处理退出信号，保存数据和检查点"""
         log.info(f"[{self.task_type}] 接收到退出信号，正在保存数据...")
+        self.is_running = False # 设置停止标志
         self._flush_buffer(force=True)
         log.info(f"数据和检查点已保存。任务ID: {self.task_id}")
         sys.exit(0)
+
+    def check_running(self):
+        """检查爬虫是否应当继续运行，如果已停止则抛出异常"""
+        if not self.is_running:
+            log.info(f"[{self.task_type}] 检查到停止信号，中断执行。任务ID: {self.task_id}")
+            raise CrawlerInterrupted("Task cancelled or interrupted")
 
     def _generate_task_id(self):
         """生成唯一的任务ID"""
@@ -246,12 +259,14 @@ class BaseCrawler:
             with self.task_lock:
                 if (force or len(self.data_cache) >= self.cache_limit) and self.data_cache:
                     data_to_save, self.data_cache = list(self.data_cache), []
-                if (force or len(self.stats_cache) >= self.cache_limit) and self.stats_cache:
+                if (force or len(self.stats_cache) >= 1) and self.stats_cache: # 统计数据及时入库
                     stats_to_save, self.stats_cache = list(self.stats_cache), []
             
             if not data_to_save and not stats_to_save: return
                 
             try:
+                from src.data.repositories.statistics_repository import statistics_repo
+                
                 if data_to_save:
                     path = os.path.join(self.output_path, f"{self.task_type}_{self.task_id}_data.csv")
                     storage_service.append_to_csv(pd.DataFrame(data_to_save), path)
@@ -260,15 +275,29 @@ class BaseCrawler:
                         self.output_files.append(path)
                 
                 if stats_to_save:
+                    # 持久化到 CSV
                     path = os.path.join(self.output_path, f"{self.task_type}_{self.task_id}_stats.csv")
                     storage_service.append_to_csv(pd.DataFrame(stats_to_save), path)
                     if path not in self.output_files:
                         self.output_files.append(path)
+                    
+                    # 持久化到数据库
+                    for item in stats_to_save:
+                        item['task_id'] = self.task_id # 确保有 task_id
+                    statistics_repo.save_task_statistics_batch(stats_to_save)
                 
                 # 每次执行 flush 都尝试保存检查点
                 self._save_global_checkpoint()
             except Exception as e:
                 log.error(f"Flush Buffer Error: {e}")
+
+    def _add_task_log(self, level: str, message: str, details: Optional[Dict] = None):
+        """记录任务日志到数据库"""
+        try:
+            from src.data.repositories.log_repository import log_repo
+            log_repo.add_log(self.task_id, level, message, details)
+        except Exception as e:
+            log.error(f"Add Task Log Error: {e}")
 
     def _get_checkpoint_data(self) -> Dict:
         """获取需要持久化的检查点数据，子类可扩展"""
@@ -418,6 +447,33 @@ class BaseCrawler:
     def _finalize_crawl(self, status: str, message: Optional[str] = None) -> bool:
         """爬取结束后的通用清理逻辑"""
         self._flush_buffer(force=True)
+        
+        # 更新数据库中的任务状态
         self._update_task_db_status(status, progress=100, error_message=message)
-        log.info(f"[{self.task_type}] 任务 {self.task_id} 结束，状态: {status}")
+        
+        # 记录汇总统计到 spider_statistics
+        try:
+            from src.data.repositories.statistics_repository import statistics_repo
+            duration = 0
+            if self.start_time:
+                duration = (datetime.now() - self.start_time).total_seconds()
+            
+            # 这里的 total_delta 等是相对于该任务的
+            statistics_repo.update_spider_summary(
+                task_type=self.task_type,
+                total_delta=1, # 一个任务实例
+                completed_delta=1 if status == 'completed' else 0,
+                failed_delta=1 if status == 'failed' else 0,
+                duration=duration
+            )
+        except Exception as e:
+            log.error(f"Finalize Crawl Stats Error: {e}")
+
+        # 记录任务结束日志
+        log_msg = f"任务 {self.task_id} 结束，状态: {status}"
+        if message:
+            log_msg += f", 消息: {message}"
+        self._add_task_log('info' if status == 'completed' else 'warning', log_msg)
+        
+        log.info(f"[{self.task_type}] {log_msg}")
         return status == 'completed'
