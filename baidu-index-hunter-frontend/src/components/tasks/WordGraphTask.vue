@@ -121,11 +121,23 @@
           $t("tasks-WordGraphTask-19c298e227e044aa6-20")
         }}</el-divider>
         <el-form-item :label="$t('tasks-WordGraphTask-19c298e227e044aa6-24')">
-          <div class="date-selection" v-loading="loadingTimeRange">
+          <div class="date-selection-container" v-loading="loadingTimeRange">
+            <div class="date-selection-header">
+              <span class="selection-count" v-if="selectedWeeks.length > 0">
+                已选择 <el-tag type="success" size="small">{{ selectedWeeks.length }}</el-tag> 周
+              </span>
+              <div class="selection-actions">
+                <el-button link type="primary" @click="selectAllWeeks" :disabled="!weeklyDates.length">全选</el-button>
+                <el-button link type="warning" @click="clearWeeks" :disabled="!selectedWeeks.length">清空</el-button>
+              </div>
+            </div>
+            
             <el-select
               v-model="selectedWeeks"
               multiple
               filterable
+              collapse-tags
+              collapse-tags-tooltip
               :placeholder="timeRangeError ? '获取时间范围失败' : '请选择周开始日期'"
               style="width: 100%"
               :disabled="!weeklyDates.length"
@@ -137,14 +149,18 @@
                 :value="item.value"
               />
             </el-select>
-            <div class="date-tip" v-if="timeRangeStore.startDate && timeRangeStore.endDate">
-              可选范围：{{ timeRangeStore.startDate }} 至 {{ timeRangeStore.endDate }}
-              <el-button link type="primary" @click="selectAllWeeks" style="margin-left: 10px">全选</el-button>
-              <el-button link type="warning" @click="clearWeeks">清空</el-button>
+            
+            <div class="date-range-info" v-if="timeRangeStore.startDate && timeRangeStore.endDate">
+              <el-icon><Calendar /></el-icon>
+              <span>可选范围：{{ timeRangeStore.startDate }} 至 {{ timeRangeStore.endDate }}</span>
             </div>
-            <div class="date-tip" v-else-if="timeRangeError">
-              <el-text type="danger">{{ timeRangeError }}</el-text>
-              <el-button link type="primary" @click="fetchTimeRange">重试</el-button>
+            
+            <div class="date-error-info" v-else-if="timeRangeError">
+              <el-alert :title="timeRangeError" type="error" :closable="false" show-icon>
+                <template #default>
+                  <el-button link type="primary" @click="fetchTimeRange">点击重试</el-button>
+                </template>
+              </el-alert>
             </div>
           </div>
         </el-form-item>
@@ -437,6 +453,7 @@ import {
   Refresh,
   Warning,
   Close,
+  Calendar,
 } from "@element-plus/icons-vue";
 import axios from "axios";
 import * as XLSX from "xlsx";
@@ -1008,6 +1025,47 @@ const removeInvalidKeywords = () => {
 .keywords-tip {
   color: #909399;
   font-size: 12px;
+}
+
+.date-selection-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.date-selection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 24px;
+}
+
+.selection-count {
+  font-size: 13px;
+  color: #606266;
+}
+
+.selection-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.date-range-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #909399;
+  background-color: var(--color-bg-subtle);
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px dashed var(--color-border);
+}
+
+.date-range-info .el-icon {
+  font-size: 16px;
+  color: #4f46e5;
 }
 
 .keywords-tags-container,
