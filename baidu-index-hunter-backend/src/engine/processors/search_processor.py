@@ -162,20 +162,18 @@ class SearchProcessor:
                 '城市代码': city_code,
                 '城市': city_name,
                 '时间范围': f"{start_date} 至 {end_date}",
-                '数据类型': data_type,
-                '数据项数量': expected_days,
-                '成功数量': len(all_list) if all_list else 0,
-                '失败数量': 0,
-                '平均值': get_val('all', 'avg'),
-                '最大值': 0, 
-                '最小值': 0,
-                '总和': get_val('all', 'avg') * expected_days,
-                'extra_data': json.dumps({
-                    'yoy': ratio_data.get('all', {}).get('yoy', '-'),
-                    'qoq': ratio_data.get('all', {}).get('qoq', '-'),
-                    'mobile_avg': get_val('wise', 'avg'),
-                    'pc_avg': get_val('pc', 'avg')
-                }, ensure_ascii=False),
+                '整体日均值': get_val('all', 'avg'),
+                '整体同比': ratio_data.get('all', {}).get('yoy', '-'),
+                '整体环比': ratio_data.get('all', {}).get('qoq', '-'),
+                '移动日均值': get_val('wise', 'avg'),
+                '移动同比': ratio_data.get('wise', {}).get('yoy', '-'),
+                '移动环比': ratio_data.get('wise', {}).get('qoq', '-'),
+                'PC日均值': get_val('pc', 'avg'),
+                'PC同比': ratio_data.get('pc', {}).get('yoy', '-'),
+                'PC环比': ratio_data.get('pc', {}).get('qoq', '-'),
+                '整体总值': get_val('all', 'avg') * expected_days,
+                '移动总值': get_val('wise', 'avg') * expected_days,
+                'PC总值': get_val('pc', 'avg') * expected_days,
                 '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             }
             

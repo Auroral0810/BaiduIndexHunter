@@ -110,18 +110,10 @@ class FeedProcessor:
                     '城市代码': city_code,
                     '城市': city_name,
                     '时间范围': f"{api_start_date} 至 {api_end_date}",
-                    '数据类型': data_frequency,
-                    '数据项数量': data_length,
-                    '成功数量': 0,
-                    '失败数量': data_length,
-                    '平均值': avg_value,
-                    '最大值': 0,
-                    '最小值': 0,
-                    '总和': 0,
-                    'extra_data': json.dumps({
-                        'yoy': yoy_value,
-                        'qoq': qoq_value
-                    }, ensure_ascii=False),
+                    '资讯指数日均值': avg_value,
+                    '资讯指数同比': yoy_value,
+                    '资讯指数环比': qoq_value,
+                    '资讯指数总值': 0,
                     '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 }
                 return daily_data, stats_record
@@ -172,18 +164,10 @@ class FeedProcessor:
                 '城市代码': city_code,
                 '城市': city_name,
                 '时间范围': f"{api_start_date} 至 {api_end_date}",
-                '数据类型': data_frequency,
-                '数据项数量': data_length,
-                '成功数量': data_length,
-                '失败数量': 0,
-                '平均值': avg_value,
-                '最大值': 0,
-                '最小值': 0,
-                '总和': total_value,
-                'extra_data': json.dumps({
-                    'yoy': yoy_value,
-                    'qoq': qoq_value
-                }, ensure_ascii=False),
+                '资讯指数日均值': avg_value,
+                '资讯指数同比': yoy_value,
+                '资讯指数环比': qoq_value,
+                '资讯指数总值': total_value,
                 '爬取时间': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             }
             return daily_data, stats_record

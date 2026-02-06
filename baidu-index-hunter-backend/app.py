@@ -160,4 +160,4 @@ if __name__ == '__main__':
     app = create_app()
     log.info(f"启动应用，地址: http://{host}:{port}，调试模式: {'开启' if debug else '关闭'}")
     log.info(f"API文档地址: http://{host}:{port}/api/docs/")
-    socketio.run(app, host=host, port=port, debug=debug, allow_unsafe_werkzeug=True)
+    socketio.run(app, host=host, port=port, debug=debug)
