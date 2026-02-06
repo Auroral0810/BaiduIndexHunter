@@ -140,7 +140,7 @@
         }}</el-divider>
         <el-form-item
           :label="$t('tasks-RegionDistributionTask-19c298e201890d5db-21')"
-          ><RegionCitySelector
+          ><RegionProvinceSelector
             v-model="selectedRegions"
             :api-base-url="API_BASE_URL"
             @change="handleRegionsChange"
@@ -174,18 +174,6 @@
         <el-divider content-position="left">{{
           $t("tasks-RegionDistributionTask-19c298e201890d5db-26")
         }}</el-divider>
-        <el-form-item
-          :label="$t('tasks-RegionDistributionTask-19c298e201890d5db-27')"
-          ><el-radio-group v-model="formData.kind"
-            ><el-radio-button label="all">{{
-              $t("tasks-RegionDistributionTask-19c298e201890d5db-28")
-            }}</el-radio-button>
-            <el-radio-button label="pc">PC</el-radio-button>
-            <el-radio-button label="wise">{{
-              $t("tasks-RegionDistributionTask-19c298e201890d5db-29")
-            }}</el-radio-button></el-radio-group
-          ></el-form-item
-        >
         <el-form-item
           :label="$t('tasks-RegionDistributionTask-19c298e201890d5db-30')"
           ><el-radio-group v-model="timeType"
@@ -282,7 +270,7 @@
           :label="$t('tasks-RegionDistributionTask-19c298e201890d5db-50')"
           ><div class="time-info">
             <el-alert
-              :title="`${$t('tasks-RegionDistributionTask-19c298e201890d5db-51')}${formData.kind === 'pc' ? $t('tasks-RegionDistributionTask-19c298e201890d5db-53') : $t('tasks-RegionDistributionTask-19c298e201890d5db-54')}${$t('tasks-RegionDistributionTask-19c298e201890d5db-52')}`"
+              :title="$t('tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint') || '将爱取 2011 年至今的全部数据'"
               type="info"
               :closable="false"
               show-icon
@@ -586,11 +574,7 @@
             ><div class="overview-time">
               <template v-if="timeType === 'all'"
                 >{{ $t("tasks-RegionDistributionTask-19c298e201890d5db-110") }}
-                {{
-                  formData.kind === "pc"
-                    ? $t("tasks-RegionDistributionTask-19c298e201890d5db-111")
-                    : $t("tasks-RegionDistributionTask-19c298e201890d5db-112")
-                }}
+                2011
                 {{
                   $t("tasks-RegionDistributionTask-19c298e201890d5db-113")
                 }}</template
@@ -636,16 +620,6 @@
           <el-descriptions-item
             :label="$t('tasks-RegionDistributionTask-19c298e201890d5db-122')"
             ><div>
-              {{ $t("tasks-RegionDistributionTask-19c298e201890d5db-123") }}
-              {{
-                formData.kind === "all"
-                  ? $t("tasks-RegionDistributionTask-19c298e201890d5db-124")
-                  : formData.kind === "pc"
-                    ? "PC"
-                    : $t("tasks-RegionDistributionTask-19c298e201890d5db-125")
-              }}
-            </div>
-            <div>
               {{ $t("tasks-RegionDistributionTask-19c298e201890d5db-126") }}
               {{ formData.priority }}
             </div>
@@ -693,7 +667,7 @@ import {
 } from "@element-plus/icons-vue";
 import axios from "axios";
 import * as XLSX from "xlsx";
-import RegionCitySelector from "@/components/RegionCitySelector.vue";
+import RegionProvinceSelector from "@/components/RegionProvinceSelector.vue";
 import { useRegionStore } from "@/store/region";
 
 const API_BASE_URL = "http://127.0.0.1:5001/api";
@@ -704,7 +678,7 @@ const regionStore = useRegionStore();
 const formData = reactive({
   keywords: [] as { value: string }[],
   regionLevel: "province",
-  days: 30,
+  days: 90,
   start_date: "",
   end_date: "",
   output_format: "csv",
@@ -712,8 +686,8 @@ const formData = reactive({
   task_id: "",
   priority: 5,
   yearRange: [2011, new Date().getFullYear()],
-  kind: "all",
 });
+
 
 // 地区选择
 const selectedRegions = ref<string[]>(["0"]); // 默认选择全国
@@ -769,30 +743,31 @@ YESTERDAY.setDate(YESTERDAY.getDate() - 1);
 
 // 禁用日期函数
 const disabledDate = (date: Date) => {
-  const minDate =
-    formData.kind === "pc" ? new Date(2006, 0, 1) : new Date(2011, 0, 1);
+  // 地域分布数据从 2011 年开始
+  const minDate = new Date(2011, 0, 1);
   return (
     date.getTime() < minDate.getTime() || date.getTime() > YESTERDAY.getTime()
   );
 };
 
+
 // 禁用年份开始函数
 const disabledYearStart = (date: Date) => {
   const year = date.getFullYear();
-  const minYear = formData.kind === "pc" ? 2006 : 2011;
+  const minYear = 2011; // 地域分布数据从 2011 年开始
   return year < minYear || year > new Date().getFullYear();
 };
+
 
 // 禁用年份结束函数
 const disabledYearEnd = (date: Date) => {
   const year = date.getFullYear();
   const startYear = formData.yearRange[0]
     ? parseInt(formData.yearRange[0])
-    : formData.kind === "pc"
-      ? 2006
-      : 2011;
+    : 2011;
   return year < startYear || year > new Date().getFullYear();
 };
+
 
 // 从store获取省份和城市数据
 const provincesList = computed(() => regionStore.getProvincesList);
@@ -1205,10 +1180,10 @@ const submitTask = async () => {
         output_format: formData.output_format,
         resume: formData.resume,
         regions: selectedRegions.value,
-        kind: formData.kind,
       },
       priority: formData.priority,
     };
+
 
     // 添加时间参数
     if (timeType.value === "preset") {
@@ -1226,26 +1201,17 @@ const submitTask = async () => {
       // 全部数据类型：生成按年份分割的日期范围数组
       const currentYear = new Date().getFullYear();
       const currentDate = new Date();
-      let startYear;
-
-      if (formData.kind === "pc") {
-        startYear = 2006; // PC端从2006年开始
-      } else {
-        startYear = 2011; // 移动端和PC+移动从2011年开始
-      }
+      // 地域分布数据从 2011 年开始
+      const startYear = 2011;
 
       // 生成年度日期范围数组
       const dateRanges = [];
       for (let year = startYear; year <= currentYear; year++) {
         let startDate, endDate;
 
-        if (year === startYear && formData.kind === "pc") {
-          // PC端第一年从6月1日开始
-          startDate = `${year}-06-01`;
-        } else {
-          // 其他情况从1月1日开始
-          startDate = `${year}-01-01`;
-        }
+        // 从 1 月 1 日开始
+        startDate = `${year}-01-01`;
+
 
         if (year === currentYear) {
           // 当前年份到今天
@@ -1307,7 +1273,6 @@ const resetForm = () => {
   dateRange.value = [];
   formData.yearRange = [2011, new Date().getFullYear()];
   selectedRegions.value = ["0"]; // 重置为全国
-  formData.kind = "all";
 };
 
 // 前往任务列表页面

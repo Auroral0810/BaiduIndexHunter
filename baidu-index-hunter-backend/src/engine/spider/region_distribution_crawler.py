@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from src.core.logger import log
 from src.utils.decorators import retry
 from src.engine.spider.base_crawler import BaseCrawler
-from src.services.processor_service import data_processor
+from src.engine.processors.region_processor import region_processor
 
 class RegionDistributionCrawler(BaseCrawler):
     """地域分布爬虫，负责获取百度指数的地域分布数据"""
@@ -52,8 +52,8 @@ class RegionDistributionCrawler(BaseCrawler):
         if not result:
              raise Exception(f"Failed to get region distribution for {task_item['keyword']}")
              
-        # 使用数据处理器处理
-        df = data_processor.process_region_distribution_data(
+        # 使用地域分布数据处理器处理
+        df = region_processor.process_region_distribution_data(
             result, 
             task_item['region'], 
             task_item['keyword'], 
@@ -125,46 +125,34 @@ class RegionDistributionCrawler(BaseCrawler):
             return None
 
     def _generate_date_ranges(self, days=None, start_date=None, end_date=None, year_range=None) -> List[Tuple[str, str]]:
-        """辅助生成日期范围"""
-        ranges = []
+        """
+        生成日期范围
+        地域分布 API 返回的是聚合数据，不需要按天拆分
+        直接返回一个完整的日期范围即可
+        """
+        # 如果同时指定了 start/end，直接作为一个整体范围
         if start_date and end_date:
-             # 如果同时指定了start/end，生成日度范围? 或者作为一个整体范围? 
-             # 原始逻辑如果是 start/end 都有，则生成每日范围 (generate_daily_date_ranges)
-             # 但一般 region API 支持一段时间。
-             # 原始逻辑 _generate_daily_date_ranges 是为了模拟 SearchIndex 的日度抓取。
-             # 但 Region API 返回的是聚合数据。
-             # 如果用户想要"每天的地域分布"，必须每天发请求。
-             # 如果用户想要"这段时间的聚合地域分布"，发一个请求。
-             # 原始逻辑 _process_task 调用 get_region_distribution 时传递了 start_date, end_date
-             # 原始 logic: if start_date and end_date: use them.
-             # 并且 calculate_date_range 里如果是 start/end 都有，则 days=None.
-             
-             # 原始 crawl 逻辑里：
-             # if start_date and end_date: date_ranges = self._generate_daily_date_ranges(start_date, end_date)
-             # 这说明它想要获取每一天的数据！
-             start = datetime.strptime(start_date, '%Y-%m-%d')
-             end = datetime.strptime(end_date, '%Y-%m-%d')
-             curr = start
-             while curr <= end:
-                 d = curr.strftime('%Y-%m-%d')
-                 ranges.append((d, d))
-                 curr += timedelta(days=1)
-             return ranges
-
-        if days:
-             end = datetime.now()
-             start = end - timedelta(days=days)
-             return [(start.strftime('%Y-%m-%d'), end.strftime('%Y-%m-%d'))]
-
-        if year_range:
-             # 处理年份
-             if isinstance(year_range, (list, tuple)) and len(year_range) >= 2:
-                  return self._process_year_range(year_range[0], year_range[1])
+            return [(start_date, end_date)]
         
-        # 默认30天
+        # 如果指定了天数
+        if days:
+            end = datetime.now()
+            start = end - timedelta(days=days)
+            return [(start.strftime('%Y-%m-%d'), end.strftime('%Y-%m-%d'))]
+        
+        # 如果指定了年份范围
+        if year_range:
+            if isinstance(year_range, (list, tuple)) and len(year_range) >= 2:
+                # 年份范围转换为日期范围
+                start_year = int(year_range[0])
+                end_year = int(year_range[1])
+                return [(f"{start_year}-01-01", f"{end_year}-12-31")]
+        
+        # 默认返回最近 90 天（地域分布通常需要更长时间来聚合数据）
         end = datetime.now()
-        start = end - timedelta(days=30)
+        start = end - timedelta(days=90)
         return [(start.strftime('%Y-%m-%d'), end.strftime('%Y-%m-%d'))]
+
 
     def crawl(self, keywords: Union[List[str], str], 
               regions: Optional[Union[List[int], int]] = None,

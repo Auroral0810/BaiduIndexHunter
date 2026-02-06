@@ -876,6 +876,17 @@ export default {
     "Fehler beim Abrufen der Daten:",
   "components-RegionCitySelector-19c298e1bc4e14bf9-15":
     "Netzwerkfehler, bitte versuchen Sie es später noch einmal",
+  "components-RegionProvinceSelector-1": "Bundesweit",
+  "components-RegionProvinceSelector-2": "Alle Provinzen auswählen",
+  "components-RegionProvinceSelector-3": "Alle abwählen",
+  "components-RegionProvinceSelector-4": "Anleitung zur geografischen Verteilung",
+  "components-RegionProvinceSelector-5": "Bei Auswahl von 'Bundesweit' werden die Verteilungsdaten der Provinzen zurückgegeben",
+  "components-RegionProvinceSelector-6": "Bei Auswahl einer Provinz werden die Verteilungsdaten der Städte in dieser Provinz zurückgegeben",
+  "components-RegionProvinceSelector-7": "Sie können gleichzeitig 'Bundesweit' und mehrere Provinzen auswählen",
+  "components-RegionProvinceSelector-8": "Ausgewählte Regionen",
+  "components-RegionProvinceSelector-9": "Löschen",
+  "components-RegionProvinceSelector-10": "Bundesweit",
+  "tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint": "Daten von 2011 bis heute werden erfasst",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-1":
     "Sammlung von Crowd-Attributen",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-2":

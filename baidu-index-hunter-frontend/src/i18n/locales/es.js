@@ -871,6 +871,17 @@ export default {
     "Error al obtener datos:",
   "components-RegionCitySelector-19c298e1bc4e14bf9-15":
     "Error de red, inténtelo de nuevo más tarde",
+  "components-RegionProvinceSelector-1": "A nivel nacional",
+  "components-RegionProvinceSelector-2": "Seleccionar todas las provincias",
+  "components-RegionProvinceSelector-3": "Deseleccionar todo",
+  "components-RegionProvinceSelector-4": "Instrucciones de distribución geográfica",
+  "components-RegionProvinceSelector-5": "Seleccionar 'A nivel nacional' devolverá los datos de distribución de las provincias",
+  "components-RegionProvinceSelector-6": "Seleccionar una provincia devolverá los datos de distribución de las ciudades en esa provincia",
+  "components-RegionProvinceSelector-7": "Puede seleccionar 'A nivel nacional' y varias provincias simultáneamente",
+  "components-RegionProvinceSelector-8": "Regiones seleccionadas",
+  "components-RegionProvinceSelector-9": "Borrar",
+  "components-RegionProvinceSelector-10": "A nivel nacional",
+  "tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint": "Se recopilarán datos desde 2011 hasta el presente",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-1":
     "Colección de atributos de multitud",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-2":

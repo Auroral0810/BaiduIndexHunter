@@ -829,6 +829,17 @@ export default {
   "components-RegionCitySelector-19c298e1bc4e14bf9-14": "Error getting data:",
   "components-RegionCitySelector-19c298e1bc4e14bf9-15":
     "Network error, please try again later",
+  "components-RegionProvinceSelector-1": "Nationwide",
+  "components-RegionProvinceSelector-2": "Select all provinces",
+  "components-RegionProvinceSelector-3": "Deselect all",
+  "components-RegionProvinceSelector-4": "Geographic distribution guide",
+  "components-RegionProvinceSelector-5": "Selecting 'Nationwide' will return distribution data for all provinces",
+  "components-RegionProvinceSelector-6": "Selecting a province will return distribution data for cities in that province",
+  "components-RegionProvinceSelector-7": "You can select 'Nationwide' and multiple provinces simultaneously",
+  "components-RegionProvinceSelector-8": "Selected regions",
+  "components-RegionProvinceSelector-9": "Clear",
+  "components-RegionProvinceSelector-10": "Nationwide",
+  "tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint": "Data from 2011 to present will be collected",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-1":
     "Crowd attribute collection",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-2":
