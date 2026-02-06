@@ -104,12 +104,12 @@ class SearchProcessor:
             if expected_days > 366:
                 interval_days = 7
                 data_type = '周度'
-                log.info(f"Detect weekly data for {keyword} (Duration > 366 days). Range: {expected_days} days")
+                # log.info(f"Detect weekly data for {keyword} (Duration > 366 days). Range: {expected_days} days")
             else:
                 # 即使数据点少，只要是一年内（含闰年），也强制认为是日度（根据用户要求，可能是缺失数据需要补0）
                 interval_days = 1
                 data_type = '日度'
-                log.info(f"Detect daily data for {keyword} (Duration <= 366 days). Range: {expected_days} days")
+                # log.info(f"Detect daily data for {keyword} (Duration <= 366 days). Range: {expected_days} days")
             
             daily_data = []
             
@@ -276,7 +276,7 @@ class SearchProcessor:
                     wise_data = user_idx['wise']['data'] if 'wise' in user_idx and 'data' in user_idx['wise'] else ''
                     pc_data = user_idx['pc']['data'] if 'pc' in user_idx and 'data' in user_idx['pc'] else ''
                     
-                    log.info(f"Decrypting data for word: {keyword}. Key: {key}")
+                    # log.info(f"Decrypting data for word: {keyword}. Key: {key}")
                     log.debug(f"Raw encrypted data - All: {all_data[:50]}...")
                     
                     # 解密数据

@@ -38,6 +38,7 @@ class TaskStatisticsModel(BaseDataModel, table=True):
     task_id: str = Field(..., max_length=32)
     keyword: Optional[str] = None
     city_code: Optional[str] = None
+    city_name: Optional[str] = None
     date_range: Optional[str] = None
     data_type: Optional[str] = None
     item_count: int = Field(0)

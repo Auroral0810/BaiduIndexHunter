@@ -63,6 +63,8 @@ const handleGoHome = () => {
   letter-spacing: -5px;
   animation: float 6s ease-in-out infinite;
   text-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
+  position: relative;
+  z-index: 5;
 }
 
 .message-box {
@@ -76,6 +78,8 @@ const handleGoHome = () => {
   margin-top: -40px;
   max-width: 500px;
   animation: slideUp 0.8s ease-out;
+  position: relative;
+  z-index: 5;
 }
 
 .title {

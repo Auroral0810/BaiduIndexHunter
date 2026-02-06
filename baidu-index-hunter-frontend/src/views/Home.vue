@@ -1084,7 +1084,8 @@ const activeTab = ref(0)
 }
 
 :root[class~="dark"] .feature-detail-card {
-  background: rgba(30, 30, 30, 0.6);
+  background: var(--glass-bg);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .detail-header {
