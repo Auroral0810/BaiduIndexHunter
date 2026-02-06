@@ -121,6 +121,7 @@ class RegionProcessor:
                 return pd.DataFrame()
             
             region_data = data['data'].get('region', [])
+            log.info(f"DEBUG_REGION: region_data={region_data}")
             if not region_data:
                 if keyword:
                     return self._create_empty_region_data(keyword, query_region_code, query_region_name, default_period, 'none')
@@ -146,6 +147,7 @@ class RegionProcessor:
                 # 处理省份数据（仅当查询全国时有数据）
                 # 合并 prov/provReal/prov_real
                 prov_data = item.get('prov', {}) or {}
+                log.info(f"DEBUG_REGION: prov_data={prov_data}")
                 prov_real_merged = self._merge_real_data(
                     item.get('provReal', {}),
                     item.get('prov_real', {})
@@ -155,27 +157,59 @@ class RegionProcessor:
                 all_provinces = region_manager.get_all_provinces()
                 
                 # 处理省份级别数据
+                # 重命名变量以避免混淆
+                prov_index_map = item.get('prov', {}) or {}
+                log.info(f"DEBUG_REGION: prov_index_map={prov_index_map}")
+                prov_real_map = self._merge_real_data(
+                    item.get('provReal', {}),
+                    item.get('prov_real', {})
+                )
+                
                 region_stats = {}
-                if prov_data or prov_real_merged:
-                    all_prov_codes = set(prov_data.keys()) | set(prov_real_merged.keys())
-                    for code in all_prov_codes:
+                if prov_index_map or prov_real_map:
+                    # 使用 set set union 确保覆盖所有存在的 code
+                    all_prov_codes = set()
+                    if prov_index_map:
+                        all_prov_codes.update(prov_index_map.keys())
+                    if prov_real_map:
+                        all_prov_codes.update(prov_real_map.keys())
+                        
+                    for code in all_prov_codes:  
                         code_str = str(code)
                         # 获取省份信息
                         prov_info = all_provinces.get(code_str)
                         prov_name = prov_info['name'] if prov_info else f"未知省份({code})"
                         
-                        index_value = prov_data.get(code_str, 0) or 0
-                        real_value = prov_real_merged.get(code_str, 0) or 0
+                        # 显式使用 str key 获取值
+                        # 注意：如果 user JSON 是正确的，那么 prov_index_map[code_str] 应该是 51 (上海)
+                        idx_val = prov_index_map.get(code_str)
+                        log.info(f"DEBUG_REGION: Code {code_str} Name={prov_name} Key={code_str} IndexRaw={idx_val} InIndexMap={code_str in prov_index_map}")
+                        # 尝试 int conversion, 只有 explicit None 或者 missing 才会 default 0
+                        if idx_val is None:
+                            # 尝试用 int key 获取 (防备 keys 是 int)
+                            try:
+                                idx_val = prov_index_map.get(int(code_str), 0)
+                            except:
+                                idx_val = 0
                         
+                        real_val = prov_real_map.get(code_str)
+                        if real_val is None:
+                             try:
+                                real_val = prov_real_map.get(int(code_str), 0)
+                             except:
+                                real_val = 0
+
+                        # Debug: 针对 910 打印 (Testing purpose, can be removed)
+                        if code_str == '910':
+                             log.info(f"DEBUG_REGION: Code 910 Name={prov_name} Key={code_str} IndexRaw={idx_val} RealRaw={real_val} InIndexMap={code_str in prov_index_map}")
+
                         # 确保数值类型
                         try:
-                            index_value = int(index_value) if index_value else 0
+                            index_value = int(idx_val)
                         except (ValueError, TypeError):
                             index_value = 0
                         try:
-                            # 百度指数的 provReal 通常是百分比字符串或者小数，这里尝试转换
-                            # 如果是百分比字符串 '30%' -> 0.3? 用户说 provReal 是 "真实指数", 暂按 float 处理
-                            real_value = float(real_value) if real_value else 0.0
+                            real_value = float(real_val)
                         except (ValueError, TypeError):
                             real_value = 0.0
                         
@@ -193,7 +227,6 @@ class RegionProcessor:
                         })
                         
                         # 统计大区数据
-                        # 从省份信息中获取所属大区
                         prov_region = prov_info.get('region') if prov_info else None
                         if prov_region:
                             if prov_region not in region_stats:
@@ -209,7 +242,7 @@ class RegionProcessor:
                         '查询地区名称': area_name,
                         '时间范围': period,
                         '数据级别': '区域',
-                        '代码': '-',  # 大区没有统一标准代码，用-代替
+                        '代码': '-',
                         '名称': region_name,
                         '指数': stats['index'],
                         '真实占比': stats['real'],
@@ -217,28 +250,44 @@ class RegionProcessor:
                     })
                 
                 # 处理城市数据
-                # 合并 city/cityReal/city_real
-                city_data = item.get('city', {}) or {}
-                city_real_merged = self._merge_real_data(
+                city_index_map = item.get('city', {}) or {}
+                city_real_map = self._merge_real_data(
                     item.get('cityReal', {}),
                     item.get('city_real', {})
                 )
                 
                 # 处理城市级别数据
-                if city_data or city_real_merged:
-                    all_city_codes = set(city_data.keys()) | set(city_real_merged.keys())
+                if city_index_map or city_real_map:
+                    all_city_codes = set()
+                    if city_index_map:
+                        all_city_codes.update(city_index_map.keys())
+                    if city_real_map:
+                        all_city_codes.update(city_real_map.keys())
+
                     for code in all_city_codes:
                         code_str = str(code)
-                        index_value = city_data.get(code_str, 0) or 0
-                        real_value = city_real_merged.get(code_str, 0) or 0
+                        
+                        idx_val = city_index_map.get(code_str)
+                        if idx_val is None:
+                             try:
+                                idx_val = city_index_map.get(int(code_str), 0)
+                             except:
+                                idx_val = 0
+                        
+                        real_val = city_real_map.get(code_str)
+                        if real_val is None:
+                             try:
+                                real_val = city_real_map.get(int(code_str), 0)
+                             except:
+                                real_val = 0
                         
                         # 确保数值类型
                         try:
-                            index_value = int(index_value) if index_value else 0
+                            index_value = int(idx_val)
                         except (ValueError, TypeError):
                             index_value = 0
                         try:
-                            real_value = float(real_value) if real_value else 0.0
+                            real_value = float(real_val)
                         except (ValueError, TypeError):
                             real_value = 0.0
                         

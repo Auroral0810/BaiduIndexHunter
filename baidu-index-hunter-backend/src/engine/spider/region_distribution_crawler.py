@@ -92,7 +92,12 @@ class RegionDistributionCrawler(BaseCrawler):
             rate_limiter.wait()
             
             import requests
-            headers = self._get_common_headers("")
+            
+            # Generate Cipher-Text using the first keyword (or primary keyword)
+            # This is critical for getting correct non-duplicated data from Baidu
+            cipher_text = self._get_cipher_text(keywords[0])
+            headers = self._get_common_headers(cipher_text)
+            
             headers['Referer'] = self.region_api_url
             
             log.info(f"[{self.task_type}] Requesting: {keywords_str} Region:{region} Date:{start_date}-{end_date}")
@@ -108,6 +113,7 @@ class RegionDistributionCrawler(BaseCrawler):
                 return None
                 
             result = response.json()
+            log.info(f"[{self.task_type}] API Response: {result}")
             if result.get('status') != 0:
                 msg = result.get('message', '')
                 log.error(f"[{self.task_type}] API Error: {msg}")
