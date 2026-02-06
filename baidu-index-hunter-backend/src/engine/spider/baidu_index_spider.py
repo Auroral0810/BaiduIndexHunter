@@ -1,10 +1,11 @@
 from src.core.logger import log
-from src.engine.spider.search_index_crawler import search_index_crawler
-from src.engine.spider.feed_index_crawler import feed_index_crawler
-from src.engine.spider.word_graph_crawler import word_graph_crawler
-from src.engine.spider.demographic_attributes_crawler import demographic_attributes_crawler
-from src.engine.spider.interest_profile_crawler import interest_profile_crawler
-from src.engine.spider.region_distribution_crawler import region_distribution_crawler
+# 导入具体爬虫类
+from src.engine.spider.search_index_crawler import SearchIndexCrawler
+from src.engine.spider.feed_index_crawler import FeedIndexCrawler
+from src.engine.spider.word_graph_crawler import WordGraphCrawler
+from src.engine.spider.demographic_attributes_crawler import DemographicAttributesCrawler
+from src.engine.spider.interest_profile_crawler import InterestProfileCrawler
+from src.engine.spider.region_distribution_crawler import RegionDistributionCrawler
 
 
 class BaiduIndexSpider:
@@ -12,13 +13,6 @@ class BaiduIndexSpider:
     
     def __init__(self):
         """初始化爬虫类"""
-        self.search_index_crawler = search_index_crawler
-        self.feed_index_crawler = feed_index_crawler
-        self.word_graph_crawler = word_graph_crawler
-        self.demographic_attributes_crawler = demographic_attributes_crawler
-        self.interest_profile_crawler = interest_profile_crawler
-        self.region_distribution_crawler = region_distribution_crawler
-        
         log.info("百度指数爬虫初始化完成")
     
     def get_search_index(self, keyword, start_date, end_date, area="0", cookie=None):
@@ -57,7 +51,8 @@ class BaiduIndexSpider:
             date_ranges = [(start_date, end_date)]
             
             # 调用爬虫获取数据
-            result = self.search_index_crawler._get_search_index(area, keywords, start_date, end_date)
+            crawler = SearchIndexCrawler()
+            result = crawler._get_search_index(area, keywords, start_date, end_date)
             
             if not result:
                 log.error("获取搜索指数失败")
@@ -82,7 +77,8 @@ class BaiduIndexSpider:
             else:
                 keywords = keyword
                 
-            result = self.feed_index_crawler._get_feed_index(area, keywords, start_date, end_date)
+            crawler = FeedIndexCrawler()
+            result = crawler._get_feed_index(area, keywords, start_date, end_date)
             return result[0] if isinstance(result, tuple) else result
         except Exception as e:
             log.error(f"获取资讯指数出错: {str(e)}")
@@ -99,7 +95,8 @@ class BaiduIndexSpider:
                 from datetime import datetime
                 datelist = datetime.now().strftime('%Y%m%d')
                 
-            result = self.word_graph_crawler.get_word_graph(keyword, datelist)
+            crawler = WordGraphCrawler()
+            result = crawler.get_word_graph(keyword, datelist)
             return result
         except Exception as e:
             log.error(f"获取需求图谱出错: {str(e)}")
@@ -117,7 +114,8 @@ class BaiduIndexSpider:
             else:
                 keywords = keyword
                 
-            result = self.demographic_attributes_crawler.get_demographic_attributes(keywords)
+            crawler = DemographicAttributesCrawler()
+            result = crawler.get_demographic_attributes(keywords)
             return result
         except Exception as e:
             log.error(f"获取人群属性出错: {str(e)}")
@@ -135,7 +133,8 @@ class BaiduIndexSpider:
             else:
                 keywords = keyword
                 
-            result = self.interest_profile_crawler.get_interest_profiles(keywords)
+            crawler = InterestProfileCrawler()
+            result = crawler.get_interest_profiles(keywords)
             return result
         except Exception as e:
             log.error(f"获取兴趣分布出错: {str(e)}")
@@ -153,7 +152,8 @@ class BaiduIndexSpider:
             else:
                 keywords = keyword
                 
-            result = self.region_distribution_crawler.get_region_distribution(
+            crawler = RegionDistributionCrawler()
+            result = crawler.get_region_distribution(
                 keywords, region=area, days=days, start_date=start_date, end_date=end_date
             )
             return result

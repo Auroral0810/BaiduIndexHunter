@@ -93,6 +93,18 @@ class TaskRepository(BaseRepository[SpiderTaskModel]):
             results = session.exec(statement).all()
             return [{"date": r[0].strftime('%Y-%m-%d') if r[0] else None, "count": r[1]} for r in results]
 
+    def add_task(self, task: SpiderTaskModel) -> bool:
+        """添加新任务"""
+        try:
+            with session_scope() as session:
+                session.add(task)
+                session.commit()
+                return True
+        except Exception as e:
+            from src.core.logger import log
+            log.error(f"Add Task Error: {e}")
+            return False
+
     def update_task_progress(self, task_id: str, status: str, progress: Optional[float] = None, 
                              completed_items: Optional[int] = None, failed_items: Optional[int] = None,
                              total_items: Optional[int] = None, start_time: Optional[datetime] = None,

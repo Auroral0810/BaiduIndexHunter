@@ -103,13 +103,15 @@ class BaseCrawler:
 
     def handle_exit(self, signum, frame):
         """处理退出信号，保存数据和检查点"""
-        log.info(f"[{self.task_type}] 接收到退出信号，正在保存数据...")
+        log.info(f"[{self.task_type}] 接收到退出信号，正在保存数据并强制退出...")
         self.is_running = False # 设置停止标志
         self._flush_buffer(force=True)
         if self.progress_manager:
             self.progress_manager.close()
         log.info(f"数据和检查点已保存。任务ID: {self.task_id}")
-        sys.exit(0)
+        # 使用 os._exit(1) 确保在多线程环境下也能强制终止终端
+        import os
+        os._exit(1)
 
     def check_running(self):
         """检查爬虫是否应当继续运行，如果已停止则抛出异常"""
@@ -149,7 +151,32 @@ class BaseCrawler:
             )
             
             if not success:
-                log.error(f"DB Status Update Error: Task {self.task_id} not found")
+                # 如果更新失败（任务不存在），尝试创建任务
+                log.warning(f"Task {self.task_id} not found in DB, creating it now...")
+                from src.data.models.task import SpiderTaskModel
+                new_task = SpiderTaskModel(
+                    task_id=self.task_id,
+                    task_type=self.task_type,
+                    task_name=f"{self.task_type}_{self.task_id}",
+                    status=status,
+                    create_time=datetime.now(),
+                    update_time=datetime.now()
+                )
+                task_repo.add_task(new_task)
+                
+                # 再次尝试更新 (以应用进度和其他详细信息)
+                task_repo.update_task_progress(
+                    task_id=self.task_id,
+                    status=status,
+                    progress=min(float(progress or 0), 100.0) if progress is not None else None,
+                    completed_items=self.completed_tasks,
+                    failed_items=self.failed_tasks,
+                    total_items=self.total_tasks,
+                    start_time=self.start_time,
+                    checkpoint_path=self.checkpoint_path,
+                    output_files=self.output_files if self.output_files else None,
+                    error_message=error_message
+                )
                 return
 
             try:

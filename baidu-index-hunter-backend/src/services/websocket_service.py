@@ -14,8 +14,12 @@ def emit_task_update(task_id, data):
     :param data: 包含进度、状态等的信息字典
     """
     try:
+        # 只有在 SocketIO 已初始化且服务器存在时才发送
+        if socketio.server is None:
+            # log.debug("WebSocket 尚未初始化，跳过发送")
+            return
+            
         # 发送 'task_update' 事件到所有连接的客户端
-        # 如果需要定向发送给某个用户，可以在这里扩展逻辑（例如使用房间机制）
         socketio.emit('task_update', {
             'taskId': task_id,
             'progress': data.get('progress'),
@@ -24,9 +28,10 @@ def emit_task_update(task_id, data):
             'total_items': data.get('total_items'),
             'error_message': data.get('error_message')
         })
-        # log.debug(f"已通过 WebSocket 发送任务更新: {task_id}")
     except Exception as e:
-        log.error(f"WebSocket 发送更新失败: {e}")
+        # 避免在非关键路径上抛出异常，仅记录日志
+        if "NoneType" not in str(e):
+            log.error(f"WebSocket 发送更新失败: {e}")
 
 def init_socketio(app):
     """

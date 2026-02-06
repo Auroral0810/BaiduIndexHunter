@@ -296,27 +296,29 @@ class SearchIndexCrawler(BaseCrawler):
             log.error("未提供关键词列表")
             return False
             
-        # 加载城市（如果没有从检查点恢复）
         if not resume:
             if cities_file:
                 self.city_dict = self._load_cities_from_file(cities_file)
-                cities = self.city_dict
             elif cities:
-                # 处理前端传来的城市参数格式
+                # 统一处理城市参数为 {code: name} 字典格式
                 if isinstance(cities, dict):
                     processed_cities = {}
                     for code, city_info in cities.items():
                         if isinstance(city_info, dict) and 'name' in city_info and 'code' in city_info:
-                            processed_cities[city_info['code']] = city_info['name']
+                            processed_cities[str(city_info['code'])] = city_info['name']
                         else:
-                            processed_cities[code] = str(city_info)
+                            processed_cities[str(code)] = str(city_info)
                     self.city_dict = processed_cities
+                elif isinstance(cities, list):
+                    self.city_dict = {str(c): f"地区{c}" for c in cities}
+                    if '0' in self.city_dict: self.city_dict['0'] = "全国"
+                elif isinstance(cities, str):
+                    self.city_dict = {cities: f"地区{cities}"}
+                    if cities == '0': self.city_dict['0'] = "全国"
                 else:
-                    self.city_dict = cities
+                    self.city_dict = {"0": "全国"}
             else:
-                # 默认使用全国
-                cities = {0: "全国"}
-                self.city_dict = cities
+                self.city_dict = {"0": "全国"}
         
         # 处理日期范围
         log.info(f"爬虫接收到的 date_ranges 参数: {date_ranges}, 类型: {type(date_ranges)}, 长度: {len(date_ranges) if date_ranges else 0}")

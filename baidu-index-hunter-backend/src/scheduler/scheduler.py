@@ -217,6 +217,15 @@ class TaskScheduler:
                 
         return True
 
+    def update_task_checkpoint(self, task_id: str, checkpoint_path: str):
+        """
+        更新任务检查点路径
+        :param task_id: 任务ID
+        :param checkpoint_path: 检查点文件路径
+        """
+        log.info(f"更新任务 {task_id} 的检查点路径: {checkpoint_path}")
+        task_repo.update_task_progress(task_id, status='pending', checkpoint_path=checkpoint_path)
+
     def get_task(self, task_id: str) -> Optional[Dict]:
         """获取任务详情 (兼容旧 API 返回字典)"""
         task = task_repo.get_by_task_id(task_id)

@@ -10,13 +10,13 @@ from src.core.logger import log
 from src.data.repositories.task_repository import task_repo
 from src.engine.spider.baidu_index_spider import BaiduIndexSpider
 
-# 导入具体爬虫类 (用于直接调用或类型检查)
-from src.engine.spider.search_index_crawler import search_index_crawler
-from src.engine.spider.feed_index_crawler import feed_index_crawler
-from src.engine.spider.word_graph_crawler import word_graph_crawler
-from src.engine.spider.demographic_attributes_crawler import demographic_attributes_crawler
-from src.engine.spider.interest_profile_crawler import interest_profile_crawler
-from src.engine.spider.region_distribution_crawler import region_distribution_crawler
+# 导入具体爬虫类
+from src.engine.spider.search_index_crawler import SearchIndexCrawler
+from src.engine.spider.feed_index_crawler import FeedIndexCrawler
+from src.engine.spider.word_graph_crawler import WordGraphCrawler
+from src.engine.spider.demographic_attributes_crawler import DemographicAttributesCrawler
+from src.engine.spider.interest_profile_crawler import InterestProfileCrawler
+from src.engine.spider.region_distribution_crawler import RegionDistributionCrawler
 
 
 class TaskExecutor:
@@ -26,15 +26,18 @@ class TaskExecutor:
         """初始化任务执行器"""
         self.spider = BaiduIndexSpider()
         
-        # 爬虫映射表：根据任务类型映射到具体的爬虫实例
-        self.crawler_map = {
-            'search_index': search_index_crawler,
-            'feed_index': feed_index_crawler,
-            'word_graph': word_graph_crawler,
-            'demographic_attributes': demographic_attributes_crawler,
-            'interest_profile': interest_profile_crawler,
-            'region_distribution': region_distribution_crawler
+        # 爬虫类映射表：根据任务类型映射到具体的爬虫类
+        self.crawler_classes = {
+            'search_index': SearchIndexCrawler,
+            'feed_index': FeedIndexCrawler,
+            'word_graph': WordGraphCrawler,
+            'demographic_attributes': DemographicAttributesCrawler,
+            'interest_profile': InterestProfileCrawler,
+            'region_distribution': RegionDistributionCrawler
         }
+        
+        # 正在运行的爬虫实例映射表: task_id -> crawler instance
+        self.active_crawlers: Dict[str, Any] = {}
 
     def execute_task(self, task_id: str, task_type: str, parameters: Dict[str, Any], checkpoint_path: Optional[str] = None):
         """
@@ -47,54 +50,48 @@ class TaskExecutor:
         log.info(f"开始执行任务: {task_id}, 类型: {task_type}")
         
         try:
-            # 1. 验证任务类型
-            crawler = self.crawler_map.get(task_type)
-            if not crawler:
+            # 1. 获取爬虫类并实例化 (确保每个任务有独立实例)
+            crawler_class = self.crawler_classes.get(task_type)
+            if not crawler_class:
                 error_msg = f"未知的任务类型: {task_type}"
                 log.error(error_msg)
                 self._update_task_status(task_id, 'failed', error_message=error_msg)
                 return
 
+            crawler = crawler_class()
+            self.active_crawlers[task_id] = crawler
+            
             # 2. 更新任务状态为运行中
             self._update_task_status(task_id, 'running')
             
             # 3. 准备执行参数
-            # 大多数爬虫的 crawl 方法参数名基本一致，这里进行统一解包
-            # 注意：BaseCrawler 定义的 crawl 方法签名可能会有细微差别，但大多兼容 **kwargs
-            
             # 注入恢复参数
             if parameters.get('resume', False) or checkpoint_path:
                 parameters['resume'] = True
-                parameters['checkpoint_task_id'] = task_id  # 恢复时通常使用当前 task_id 查找检查点
+                parameters['checkpoint_task_id'] = task_id
             
-            # 注入 task_id 以便爬虫内部使用
             parameters['task_id'] = task_id
             
             # 4. 执行爬取
-            # 具体的 Crawler 负责：
-            # - 创建输出目录
-            # - 创建/加载检查点
-            # - 更新数据库进度 (通过 BaseCrawler._update_task_db_status)
-            # - 异常处理与重试
-            # - 保存结果数据
-            
-            success = crawler.crawl(**parameters)
-            
-            # 5. 任务结束处理
-            # 爬虫内部通常会更新状态，但为了保险起见，这里做最后的状态确认
-            if success:
-                log.info(f"任务执行成功: {task_id}")
-                # 只有当爬虫没有明确更新为 completed 时，这里才更新
-                # 通常 BaseCrawler 会在 _finalize_crawl 中处理
-            else:
-                log.warning(f"任务执行未完全成功: {task_id}")
-                # 如果爬虫返回 False，可能已经在内部更新了 failed 状态，这里可以根据需要补充逻辑
+            try:
+                success = crawler.crawl(**parameters)
+                
+                if success:
+                    log.info(f"任务执行成功: {task_id}")
+                else:
+                    log.warning(f"任务执行结束(未成功): {task_id}")
+            finally:
+                # 任务结束，从活跃映射中移除
+                if task_id in self.active_crawlers:
+                    del self.active_crawlers[task_id]
 
         except Exception as e:
             error_msg = f"任务执行发生未捕获异常: {str(e)}"
             log.error(error_msg)
             log.error(traceback.format_exc())
             self._update_task_status(task_id, 'failed', error_message=error_msg)
+            if task_id in self.active_crawlers:
+                del self.active_crawlers[task_id]
 
     def stop_task(self, task_id: str):
         """
@@ -103,22 +100,14 @@ class TaskExecutor:
         """
         log.info(f"正在请求停止任务: {task_id}")
         
-        # 遍历所有爬虫，查找正在运行该 task_id 的爬虫并停止它
-        # 注意：目前的单例模式下，如果不加锁或并发控制，可能会影响其他任务
-        # 但鉴于目前的架构，我们尝试向所有爬虫发送停止信号（如果是它们正在运行的任务）
+        crawler = self.active_crawlers.get(task_id)
+        if crawler:
+            log.info(f"找到正在执行的任务 {task_id}，发送停止信号")
+            crawler.is_running = False
+            return True
         
-        stopped = False
-        for name, crawler in self.crawler_map.items():
-            # 假设爬虫实例有 current_task_id 属性或类似机制
-            if getattr(crawler, 'task_id', None) == task_id:
-                log.info(f"找到正在执行任务 {task_id} 的爬虫: {name}，发送停止信号")
-                # BaseCrawler 通常通过信号处理停止，但在多线程下需要更优雅的方式
-                # 这里暂时假设设置一个标志位
-                crawler.is_running = False # 这是一个假设的标志位，需要在 BaseCrawler 中支持
-                stopped = True
-        
-        if not stopped:
-            log.warning(f"未找到正在执行任务 {task_id} 的爬虫实例")
+        log.warning(f"未找到正在执行任务 {task_id} 的活跃爬虫实例")
+        return False
 
     def _update_task_status(self, task_id: str, status: str, error_message: str = None):
         """
