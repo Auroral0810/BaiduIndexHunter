@@ -550,7 +550,7 @@
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { ref, reactive, computed, onMounted } from "vue";
+import { ref, reactive, computed, onMounted, nextTick } from "vue";
 
 const { t } = useI18n();
 import { useRouter } from "vue-router";
@@ -596,25 +596,25 @@ const skipFirstLineForCities = ref(true);
 const timeType = ref("all"); // 默认为全部数据
 const dateRange = ref<[string, string] | null>(null);
 
-// 日期范围限制
-const MIN_DATE = new Date(2011, 0, 1);
+// 日期范围限制（资讯指数从2017年7月3日开始）
+const MIN_DATE = new Date(2017, 6, 3); // 月份从0开始，所以6代表7月
 const TODAY = new Date();
 TODAY.setHours(0, 0, 0, 0);
 const YESTERDAY = new Date(TODAY);
 YESTERDAY.setDate(YESTERDAY.getDate() - 1);
 
-// 禁用日期函数（资讯指数从2011年开始）
+// 禁用日期函数（资讯指数从2017年7月3日开始）
 const disabledDate = (date: Date) => {
-  const minDate = new Date(2011, 0, 1);
+  const minDate = new Date(2017, 6, 3);
   return (
     date.getTime() < minDate.getTime() || date.getTime() > YESTERDAY.getTime()
   );
 };
 
-// 禁用年份开始函数（资讯指数从2011年开始）
+// 禁用年份开始函数（资讯指数从2017年开始）
 const disabledYearStart = (date: Date) => {
   const year = date.getFullYear();
-  return year < 2011 || year > new Date().getFullYear();
+  return year < 2017 || year > new Date().getFullYear();
 };
 
 // 禁用年份结束函数
@@ -622,7 +622,7 @@ const disabledYearEnd = (date: Date) => {
   const year = date.getFullYear();
   const startYear = formData.yearRange[0]
     ? parseInt(formData.yearRange[0])
-    : 2011;
+    : 2017;
   return year < startYear || year > new Date().getFullYear();
 };
 
@@ -1109,17 +1109,23 @@ const submitTask = async () => {
       ];
     } else if (timeType.value === "all") {
       // 全部数据类型：生成按年份分割的日期范围数组
+      // 资讯指数从2017年7月3日开始
       const currentYear = new Date().getFullYear();
       const currentDate = new Date();
-      const startYear = 2011; // 资讯指数从2011年开始
+      const startYear = 2017;
 
       // 生成年度日期范围数组
       const dateRanges = [];
       for (let year = startYear; year <= currentYear; year++) {
         let startDate, endDate;
 
-        // 从1月1日开始
-        startDate = `${year}-01-01`;
+        if (year === 2017) {
+          // 2017年从7月3日开始
+          startDate = `${year}-07-03`;
+        } else {
+          // 其他年份从1月1日开始
+          startDate = `${year}-01-01`;
+        }
 
         if (year === currentYear) {
           // 当前年份到今天
@@ -1184,7 +1190,9 @@ const goToTaskList = () => {
 };
 
 // 显示任务概览
-const showTaskOverview = () => {
+const showTaskOverview = async () => {
+  // 使用 nextTick 确保所有响应式更新完成后再显示对话框
+  await nextTick();
   taskOverviewDialogVisible.value = true;
 };
 

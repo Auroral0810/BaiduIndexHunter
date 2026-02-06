@@ -1175,8 +1175,8 @@ export default {
     "タスクの送信に失敗しました。ネットワーク接続を確認してください",
   "tasks-FeedIndexTask-19c298e1d0a206148-156":
     "タスクの送信中にエラーが発生しました:",
-  "tasks-FeedIndexTask-19c298e1d0a206148-157": "2011年から現在までのすべてのフィード指数データを取得します",
-  "tasks-FeedIndexTask-19c298e1d0a206148-158": "全データ（2011年から現在まで）",
+  "tasks-FeedIndexTask-19c298e1d0a206148-157": "2017年7月3日から現在までのすべてのフィード指数データを取得します",
+  "tasks-FeedIndexTask-19c298e1d0a206148-158": "全データ（2017年7月3日から現在まで）",
   "tasks-InterestProfileTask-19c298e1e7a81a799-1": "興味分析集",
   "tasks-InterestProfileTask-19c298e1e7a81a799-2":
     "Baidu Index の群衆の関心に関するポートレート データ (関心カテゴリーとその割合を含む) を取得する",

@@ -271,8 +271,11 @@ const getCityName = (cityCode) => {
 
 // 清空所有选择
 const clearAllSelection = () => {
+  isUpdating.value = true;
   clearProvinceAndCitySelection();
   nationwideSelected.value = false;
+  isUpdating.value = false;
+  generateFinalSelection();
 };
 
 // 清空省份和城市选择
@@ -359,6 +362,7 @@ const selectNationwide = () => {
   isUpdating.value = true;
   nationwideSelected.value = !nationwideSelected.value;
   isUpdating.value = false;
+  generateFinalSelection();
 };
 
 // 取消选择全国
@@ -367,6 +371,7 @@ const unselectNationwide = () => {
   isUpdating.value = true;
   nationwideSelected.value = false;
   isUpdating.value = false;
+  generateFinalSelection();
 };
 
 // 处理全国选项变化
@@ -375,6 +380,7 @@ const handleNationwideCheck = (isChecked) => {
   isUpdating.value = true;
   nationwideSelected.value = isChecked;
   isUpdating.value = false;
+  generateFinalSelection();
 };
 
 // 选择所有省份
@@ -387,6 +393,7 @@ const selectAllProvinces = () => {
     provinceChecked[code] = true;
   });
   isUpdating.value = false;
+  generateFinalSelection();
 };
 
 // 取消选择所有省份
@@ -399,6 +406,7 @@ const unselectAllProvinces = () => {
     provinceChecked[code] = false;
   });
   isUpdating.value = false;
+  generateFinalSelection();
 };
 
 // 选择省份
@@ -415,6 +423,7 @@ const handleProvinceCheck = (provinceCode, isChecked) => {
   provinceChecked[provinceCode] = isChecked;
 
   isUpdating.value = false;
+  generateFinalSelection();
 };
 
 // 取消选择省份
@@ -424,6 +433,7 @@ const unselectProvince = (provinceCode) => {
   selectedProvinceDirectly[provinceCode] = false;
   provinceChecked[provinceCode] = false;
   isUpdating.value = false;
+  generateFinalSelection();
 };
 
 // 处理城市选中状态变化
@@ -431,6 +441,7 @@ const handleCityCheck = (cityCode) => {
   if (isUpdating.value) return;
   isUpdating.value = true;
   isUpdating.value = false;
+  generateFinalSelection();
 };
 
 // 选择当前省份下的所有城市
@@ -452,6 +463,7 @@ const selectAllCitiesInProvince = () => {
     });
   }
   isUpdating.value = false;
+  generateFinalSelection();
 };
 
 // 取消选择当前省份下的所有城市
@@ -470,6 +482,7 @@ const unselectAllCitiesInProvince = () => {
     });
   }
   isUpdating.value = false;
+  generateFinalSelection();
 };
 
 // 选择所有地级市
@@ -495,6 +508,7 @@ const selectAllCities = () => {
   }
 
   isUpdating.value = false;
+  generateFinalSelection();
 };
 
 // 取消选择所有地级市
@@ -509,6 +523,7 @@ const unselectAllCities = () => {
   });
 
   isUpdating.value = false;
+  generateFinalSelection();
 };
 
 // 取消选择单个城市
@@ -517,6 +532,8 @@ const unselectCity = (cityCode) => {
   isUpdating.value = true;
   cityChecked[cityCode] = false;
   isUpdating.value = false;
+  // 立即触发更新，确保数据一致性
+  generateFinalSelection();
 };
 
 // 组件挂载时获取数据

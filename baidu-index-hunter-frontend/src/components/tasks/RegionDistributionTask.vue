@@ -677,7 +677,7 @@
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { ref, reactive, computed, onMounted } from "vue";
+import { ref, reactive, computed, onMounted, nextTick } from "vue";
 
 const { t } = useI18n();
 import { useRouter } from "vue-router";
@@ -1317,7 +1317,9 @@ const goToTaskList = () => {
 };
 
 // 显示任务概览对话框
-const showTaskOverview = () => {
+const showTaskOverview = async () => {
+  // 使用 nextTick 确保所有响应式更新完成后再显示对话框
+  await nextTick();
   taskOverviewDialogVisible.value = true;
 };
 
