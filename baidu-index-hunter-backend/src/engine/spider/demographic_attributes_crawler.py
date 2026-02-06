@@ -127,7 +127,8 @@ class DemographicAttributesCrawler(BaseCrawler):
         from src.core.config import OUTPUT_DIR
         self.output_path = os.path.join(OUTPUT_DIR, "demographic_attributes", self.task_id)
         os.makedirs(self.output_path, exist_ok=True)
-        self.checkpoint_path = os.path.join(OUTPUT_DIR, "checkpoints", f"{self.task_type}_checkpoint_{self.task_id}.pkl")
+        self.checkpoint_path = os.path.join(OUTPUT_DIR, "checkpoints", f"{self.task_type}_checkpoint_{self.task_id}.db")
+        self._init_progress_manager(self.checkpoint_path)
         
         # 2. 准备任务
         tasks = self._prepare_tasks(keywords, **kwargs)
@@ -164,9 +165,7 @@ class DemographicAttributesCrawler(BaseCrawler):
                                     if stats:
                                         self.stats_cache.append(stats)
                                 
-                        self.completed_tasks += 1
-                        for kw in batch:
-                            self.completed_keywords.add(kw)
+                        self._mark_items_completed(list(batch))
                             
                     self._flush_buffer()
                     

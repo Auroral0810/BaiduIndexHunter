@@ -13,7 +13,6 @@ from src.utils.rate_limiter import rate_limiter
 from src.utils.decorators import retry
 from src.engine.crypto.cipher_generator import cipher_text_generator
 from src.services.processor_service import data_processor
-from src.services.storage_service import storage_service
 from src.core.config import BAIDU_INDEX_API, OUTPUT_DIR
 from src.engine.spider.base_crawler import BaseCrawler, CrawlerInterrupted
 
@@ -44,6 +43,17 @@ class SearchIndexCrawler(BaseCrawler):
         
     # --- 覆盖基类方法以处理特定的状态 ---
 
+    def _get_checkpoint_data(self) -> dict:
+        """获取需要持久化的检查点数据 (扩展基类，添加 city_dict 等)"""
+        data = super()._get_checkpoint_data()
+        data.update({
+            'city_dict': self.city_dict,
+            'current_keyword_index': self.current_keyword_index,
+            'current_city_index': self.current_city_index,
+            'current_date_range_index': self.current_date_range_index,
+        })
+        return data
+
     def _load_global_checkpoint(self, task_id):
         """加载全局检查点 (覆盖基类以处理 city_dict)"""
         checkpoint = super()._load_global_checkpoint(task_id)
@@ -54,29 +64,6 @@ class SearchIndexCrawler(BaseCrawler):
             self.current_date_range_index = checkpoint.get('current_date_range_index', 0)
             return True
         return False
-
-    def _save_global_checkpoint(self):
-        """保存全局检查点 (覆盖基类以包含特定状态)"""
-        if not self.checkpoint_path: return
-        try:
-            checkpoint_data = {
-                'completed_keywords': list(self.completed_keywords),
-                'failed_keywords': list(self.failed_keywords),
-                'completed_tasks': self.completed_tasks,
-                'failed_tasks': self.failed_tasks,
-                'total_tasks': self.total_tasks,
-                'task_id': self.task_id,
-                'output_path': self.output_path,
-                'update_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'city_dict': self.city_dict,
-                'current_keyword_index': self.current_keyword_index,
-                'current_city_index': self.current_city_index,
-                'current_date_range_index': self.current_date_range_index,
-            }
-            storage_service.save_pickle(checkpoint_data, self.checkpoint_path)
-            log.info(f"[{self.task_type}] 检查点已保存: {self.completed_tasks}/{self.total_tasks}")
-        except Exception as e:
-            log.error(f"Save Checkpoint Error: {e}")
     
     @retry(max_retries=3, delay=2)
     def _get_search_index(self, area, keywords, start_date, end_date):
@@ -297,8 +284,9 @@ class SearchIndexCrawler(BaseCrawler):
         if not resume:
             self.output_path = os.path.join(OUTPUT_DIR, 'search_index', self.task_id)
             os.makedirs(self.output_path, exist_ok=True)
-            self.checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/search_index_checkpoint_{self.task_id}.pkl")
+            self.checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/{self.task_type}_checkpoint_{self.task_id}.db")
             os.makedirs(os.path.dirname(self.checkpoint_path), exist_ok=True)
+            self._init_progress_manager(self.checkpoint_path)
 
         # 加载关键词
         if keywords_file:
@@ -461,16 +449,14 @@ class SearchIndexCrawler(BaseCrawler):
                         with self.task_lock:
                             if is_success:
                                 keys = task_keys if is_batch else [task_keys]
-                                self.completed_keywords.update(keys)
-                                self.completed_tasks += len(keys)
+                                self._mark_items_completed(keys)
                                 if daily_data: self.data_cache.extend(daily_data)
                                 if stats_records:
                                     if isinstance(stats_records, list): self.stats_cache.extend(stats_records)
                                     else: self.stats_cache.append(stats_records)
                             else:
                                 keys = task_keys if is_batch else [task_keys]
-                                self.failed_keywords.update(keys)
-                                self.failed_tasks += len(keys)
+                                self._mark_items_failed(keys)
                             
                             if self.completed_tasks % 20 == 0: self._save_global_checkpoint()
 
@@ -502,6 +488,9 @@ class SearchIndexCrawler(BaseCrawler):
         except Exception as e:
             log.error(f"爬取主流程失败: {e}")
             self._flush_buffer(force=True)
+            if self.progress_manager:
+                self.progress_manager.close()
+                self.progress_manager = None
             self._update_task_db_status('failed', error_message=str(e))
             return False
     

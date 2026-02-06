@@ -13,9 +13,9 @@ from typing import List, Dict, Optional, Any, Set, Tuple
 from src.core.logger import log
 from src.services.storage_service import storage_service
 from src.services.cookie_rotator import cookie_rotator
+from src.services.progress_manager import ProgressManager
 from src.core.config import BAIDU_INDEX_API, OUTPUT_DIR
 from src.engine.crypto.cipher_generator import cipher_text_generator
-import pickle
 import traceback
 
 class CrawlerInterrupted(Exception):
@@ -32,6 +32,9 @@ class BaseCrawler:
         self.checkpoint_path = None
         self.start_time = None
         self.output_files = []
+        
+        # 进度管理器 (SQLite-based, 替代 pkl)
+        self.progress_manager: Optional[ProgressManager] = None
         
         # 缓存与锁
         self.data_cache = []
@@ -65,6 +68,10 @@ class BaseCrawler:
 
     def _prepare_initial_state(self):
         """初始化进度监控变量（新任务开始前调用）"""
+        # 关闭旧的进度管理器
+        if self.progress_manager:
+            self.progress_manager.close()
+            self.progress_manager = None
         self.completed_keywords = set()
         self.failed_keywords = set()
         self.completed_tasks = 0
@@ -99,6 +106,8 @@ class BaseCrawler:
         log.info(f"[{self.task_type}] 接收到退出信号，正在保存数据...")
         self.is_running = False # 设置停止标志
         self._flush_buffer(force=True)
+        if self.progress_manager:
+            self.progress_manager.close()
         log.info(f"数据和检查点已保存。任务ID: {self.task_id}")
         sys.exit(0)
 
@@ -359,87 +368,199 @@ class BaseCrawler:
             'failed_tasks': self.failed_tasks,
             'total_tasks': self.total_tasks,
             'task_id': self.task_id,
+            'task_type': self.task_type,
             'output_path': self.output_path,
             'output_files': self.output_files,
             'start_time': self.start_time.strftime('%Y-%m-%d %H:%M:%S') if self.start_time else None,
             'update_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
 
+    def _init_progress_manager(self, db_path: str):
+        """创建或重新初始化 ProgressManager (SQLite 进度管理器)"""
+        if self.progress_manager:
+            self.progress_manager.close()
+        self.progress_manager = ProgressManager(db_path, self.task_id)
+
     def _save_global_checkpoint(self):
-        """保存检查点"""
-        if not self.checkpoint_path: return
-        try:
-            checkpoint_data = self._get_checkpoint_data()
-            storage_service.save_pickle(checkpoint_data, self.checkpoint_path)
-            log.info(f"检查点已更新: {self.completed_tasks}/{self.total_tasks}")
-        except Exception as e:
-            log.error(f"Save Checkpoint Error: {e}")
+        """
+        保存检查点。
+        优先使用 ProgressManager (SQLite)，向后兼容 pkl。
+        """
+        if self.progress_manager:
+            # 新方式: SQLite
+            try:
+                checkpoint_data = self._get_checkpoint_data()
+                self.progress_manager.save_checkpoint(checkpoint_data)
+                log.info(f"[{self.task_type}] 检查点已保存: {self.completed_tasks}/{self.total_tasks}")
+            except Exception as e:
+                log.error(f"Save Checkpoint Error: {e}")
+        elif self.checkpoint_path:
+            # 旧方式: Pickle (兼容未迁移的爬虫)
+            try:
+                checkpoint_data = self._get_checkpoint_data()
+                storage_service.save_pickle(checkpoint_data, self.checkpoint_path)
+                log.info(f"[{self.task_type}] 检查点已保存(pkl): {self.completed_tasks}/{self.total_tasks}")
+            except Exception as e:
+                log.error(f"Save Checkpoint Error: {e}")
 
     def _load_global_checkpoint(self, task_id: str) -> Optional[Dict]:
-        """加载检查点 (通用的查找逻辑)"""
-        # 尝试多个可能的检查点位置
-        possible_paths = [
+        """
+        加载检查点 (SQLite 优先, pkl 兜底并自动迁移)。
+        
+        查找顺序:
+        1. .db 文件 (新格式, SQLite)
+        2. .pkl 文件 (旧格式, 自动迁移到 SQLite)
+        """
+        # --- 1. 检查 .db 文件 (新格式) ---
+        db_paths = [
+            os.path.join(OUTPUT_DIR, 'checkpoints', f"{self.task_type}_checkpoint_{task_id}.db"),
+        ]
+        
+        for db_path in db_paths:
+            if os.path.exists(db_path):
+                try:
+                    self._init_progress_manager(db_path)
+                    data = self.progress_manager.load_checkpoint()
+                    if data:
+                        self._restore_from_checkpoint(data)
+                        self.checkpoint_path = db_path
+                        log.info(f"[{self.task_type}] 从 SQLite 检查点恢复: {self.completed_tasks} 已完成, {self.failed_tasks} 失败")
+                        return data
+                except Exception as e:
+                    log.error(f"Load SQLite Checkpoint Error: {e}")
+        
+        # --- 2. 检查 .pkl 文件 (旧格式, 自动迁移) ---
+        pkl_paths = [
             os.path.join(OUTPUT_DIR, 'checkpoints', f"{self.task_type}_checkpoint_{task_id}.pkl"),
             os.path.join(OUTPUT_DIR, task_id, "checkpoint.pkl")
         ]
         
-        path = None
-        for p in possible_paths:
-            if os.path.exists(p):
-                path = p
-                break
-                
-        if not path:
-            return None
-            
-        try:
-            data = storage_service.load_pickle(path)
-            if data:
-                completed_keywords = data.get('completed_keywords', [])
-                self.completed_keywords = set(completed_keywords) if isinstance(completed_keywords, list) else completed_keywords
-                
-                failed_keywords = data.get('failed_keywords', [])
-                self.failed_keywords = set(failed_keywords) if isinstance(failed_keywords, list) else failed_keywords
-                
-                self.completed_tasks = data.get('completed_tasks', 0)
-                self.failed_tasks = data.get('failed_tasks', 0)
-                self.total_tasks = data.get('total_tasks', 0)
-                self.task_id = data.get('task_id')
-                self.output_path = data.get('output_path')
-                self.output_files = data.get('output_files', [])
-                
-                # 恢复开始时间
-                start_time_str = data.get('start_time')
-                if start_time_str:
-                    try:
-                        self.start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M:%S')
-                    except:
-                        pass
-                elif data.get('update_time'): # 兼容旧版或兜底
-                    try:
-                        self.start_time = datetime.strptime(data.get('update_time'), '%Y-%m-%d %H:%M:%S')
-                    except:
-                        pass
-                
-                self.checkpoint_path = path # 记录当前使用的检查点路径
-            return data
-        except Exception as e:
-            log.error(f"Load Checkpoint Error: {e}")
-            return None
+        for pkl_path in pkl_paths:
+            if os.path.exists(pkl_path):
+                try:
+                    data = storage_service.load_pickle(pkl_path)
+                    if data:
+                        log.info(f"[{self.task_type}] 发现旧 pkl 检查点，自动迁移到 SQLite...")
+                        
+                        # 创建新的 .db 并迁移数据
+                        new_db_path = os.path.join(
+                            OUTPUT_DIR, 'checkpoints', 
+                            f"{self.task_type}_checkpoint_{task_id}.db"
+                        )
+                        self._init_progress_manager(new_db_path)
+                        self.progress_manager.migrate_from_dict(data)
+                        
+                        # 恢复实例状态
+                        self._restore_from_checkpoint(data)
+                        self.checkpoint_path = new_db_path
+                        
+                        # 将旧 pkl 重命名为备份
+                        backup_path = pkl_path + '.migrated'
+                        try:
+                            os.rename(pkl_path, backup_path)
+                            log.info(f"旧 pkl 检查点已备份为: {backup_path}")
+                        except Exception:
+                            pass
+                        
+                        return data
+                except Exception as e:
+                    log.error(f"Load/Migrate pkl Checkpoint Error: {e}")
+        
+        return None
+
+    def _restore_from_checkpoint(self, data: Dict):
+        """从检查点字典恢复实例状态（通用逻辑，子类可调用 super 后提取额外字段）"""
+        completed_keywords = data.get('completed_keywords', [])
+        self.completed_keywords = set(completed_keywords) if isinstance(completed_keywords, list) else completed_keywords
+        
+        failed_keywords = data.get('failed_keywords', [])
+        self.failed_keywords = set(failed_keywords) if isinstance(failed_keywords, list) else failed_keywords
+        
+        # 使用实际集合大小，比存储的计数器更准确（防止崩溃导致计数器不一致）
+        self.completed_tasks = len(self.completed_keywords)
+        self.failed_tasks = len(self.failed_keywords)
+        self.total_tasks = data.get('total_tasks', 0)
+        self.task_id = data.get('task_id') or self.task_id
+        self.output_path = data.get('output_path')
+        self.output_files = data.get('output_files', [])
+        
+        # 恢复开始时间
+        start_time_str = data.get('start_time')
+        if start_time_str:
+            try:
+                self.start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M:%S')
+            except Exception:
+                pass
+        elif data.get('update_time'):  # 兼容旧版或兜底
+            try:
+                self.start_time = datetime.strptime(data.get('update_time'), '%Y-%m-%d %H:%M:%S')
+            except Exception:
+                pass
+
+    def _mark_items_completed(self, keys: List[str]):
+        """
+        标记任务项为完成（更新内存集合 + 持久化到 SQLite）。
+        应在 task_lock 保护下调用。
+        """
+        self.completed_keywords.update(keys)
+        self.completed_tasks += len(keys)
+        if self.progress_manager:
+            self.progress_manager.mark_completed(keys)
+
+    def _mark_items_failed(self, keys: List[str]):
+        """
+        标记任务项为失败（更新内存集合 + 持久化到 SQLite）。
+        应在 task_lock 保护下调用。
+        """
+        self.failed_keywords.update(keys)
+        self.failed_tasks += len(keys)
+        if self.progress_manager:
+            self.progress_manager.mark_failed(keys)
 
     def list_tasks(self) -> List[Dict]:
-        """列出所有属于当前爬虫类型的任务及其状态"""
+        """列出所有属于当前爬虫类型的任务及其状态（支持 .db 和 .pkl 格式）"""
         checkpoint_dir = os.path.join(OUTPUT_DIR, "checkpoints")
         if not os.path.exists(checkpoint_dir):
             return []
             
         tasks = []
+        seen_task_ids = set()
         pattern = f"{self.task_type}_checkpoint_"
+        
         for file in os.listdir(checkpoint_dir):
-            if file.startswith(pattern) and file.endswith(".pkl"):
-                task_id = file.replace(pattern, "").replace(".pkl", "")
+            if not file.startswith(pattern):
+                continue
+            
+            # 支持 .db (新格式) 和 .pkl (旧格式)
+            if file.endswith(".db"):
+                task_id = file.replace(pattern, "").replace(".db", "")
+                if task_id in seen_task_ids:
+                    continue
+                seen_task_ids.add(task_id)
                 checkpoint_path = os.path.join(checkpoint_dir, file)
-                
+                try:
+                    pm = ProgressManager(checkpoint_path, task_id)
+                    checkpoint = pm.load_checkpoint()
+                    pm.close()
+                    if checkpoint:
+                        completed = len(checkpoint.get('completed_keywords', []))
+                        total = checkpoint.get('total_tasks', 0)
+                        tasks.append({
+                            'task_id': task_id,
+                            'completed': completed,
+                            'total': total,
+                            'progress': f"{(completed/total*100):.2f}%" if total > 0 else "0%",
+                            'update_time': checkpoint.get('update_time', 'unknown'),
+                            'format': 'sqlite'
+                        })
+                except Exception:
+                    pass
+            elif file.endswith(".pkl"):
+                task_id = file.replace(pattern, "").replace(".pkl", "")
+                if task_id in seen_task_ids:
+                    continue
+                seen_task_ids.add(task_id)
+                checkpoint_path = os.path.join(checkpoint_dir, file)
                 try:
                     checkpoint = storage_service.load_pickle(checkpoint_path)
                     if checkpoint:
@@ -450,9 +571,11 @@ class BaseCrawler:
                             'completed': completed,
                             'total': total,
                             'progress': f"{(completed/total*100):.2f}%" if total > 0 else "0%",
-                            'update_time': checkpoint.get('update_time', 'unknown')
+                            'update_time': checkpoint.get('update_time', 'unknown'),
+                            'format': 'pkl'
                         })
-                except: pass
+                except Exception:
+                    pass
         return tasks
 
     def resume_task(self, task_id: str) -> bool:
@@ -498,6 +621,11 @@ class BaseCrawler:
     def _finalize_crawl(self, status: str, message: Optional[str] = None) -> bool:
         """爬取结束后的通用清理逻辑"""
         self._flush_buffer(force=True)
+        
+        # 关闭进度管理器（确保所有数据已持久化）
+        if self.progress_manager:
+            self.progress_manager.close()
+            self.progress_manager = None
         
         # 更新数据库中的任务状态
         self._update_task_db_status(status, progress=100, error_message=message)

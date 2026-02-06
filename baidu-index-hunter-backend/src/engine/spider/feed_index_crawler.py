@@ -9,15 +9,12 @@ import requests
 import traceback
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import pickle
-import traceback
 
 from src.core.logger import log
 from src.utils.rate_limiter import rate_limiter
 from src.utils.decorators import retry
 from src.engine.crypto.cipher_generator import cipher_text_generator
 from src.services.processor_service import data_processor
-from src.services.storage_service import storage_service
 from src.core.config import BAIDU_INDEX_API, OUTPUT_DIR
 from fake_useragent import UserAgent
 from src.engine.spider.base_crawler import BaseCrawler, CrawlerInterrupted
@@ -312,8 +309,9 @@ class FeedIndexCrawler(BaseCrawler):
             if not resume:
                 self.output_path = os.path.join(OUTPUT_DIR, 'feed_index', self.task_id)
                 os.makedirs(self.output_path, exist_ok=True)
-                self.checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/feed_index_checkpoint_{self.task_id}.pkl")
+                self.checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/{self.task_type}_checkpoint_{self.task_id}.db")
                 os.makedirs(os.path.dirname(self.checkpoint_path), exist_ok=True)
+                self._init_progress_manager(self.checkpoint_path)
 
             # 2. 准备参数
             keywords = keywords or (self._load_keywords_from_file(keywords_file) if keywords_file else [])
@@ -404,13 +402,9 @@ class FeedIndexCrawler(BaseCrawler):
                                     self.data_cache.extend(daily_data)
                                     self.stats_cache.append(stats_records)
                                 
-                                for tk in keys:
-                                    self.completed_keywords.add(tk)
-                                    self.completed_tasks += 1
+                                self._mark_items_completed(keys)
                             else:
-                                for tk in keys:
-                                    self.failed_keywords.add(tk)
-                                    self.failed_tasks += 1
+                                self._mark_items_failed(keys)
                         
                         if (self.completed_tasks + self.failed_tasks) % 10 == 0:
                             self._save_global_checkpoint()
@@ -441,6 +435,9 @@ class FeedIndexCrawler(BaseCrawler):
             log.error(f"Crawl master loop failed: {e}")
             log.error(traceback.format_exc())
             self._flush_buffer(force=True)
+            if self.progress_manager:
+                self.progress_manager.close()
+                self.progress_manager = None
             self._update_task_db_status('failed', error_message=str(e))
             return False
     
