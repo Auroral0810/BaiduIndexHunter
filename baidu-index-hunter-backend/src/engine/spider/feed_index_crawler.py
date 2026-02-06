@@ -51,28 +51,16 @@ class FeedIndexCrawler(BaseCrawler):
     
     # _get_feed_index 包含特定的解析逻辑，处理过程委托给 data_processor
 
-    def _save_global_checkpoint(self):
-        """保存全局检查点 (覆盖基类以包含 city_dict)"""
-        if not self.checkpoint_path: return
-        try:
-            checkpoint_data = {
-                'completed_keywords': list(self.completed_keywords),
-                'failed_keywords': list(self.failed_keywords),
-                'completed_tasks': self.completed_tasks,
-                'failed_tasks': self.failed_tasks,
-                'total_tasks': self.total_tasks,
-                'task_id': self.task_id,
-                'output_path': self.output_path,
-                'update_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'city_dict': self.city_dict,
-                'current_keyword_index': self.current_keyword_index,
-                'current_city_index': self.current_city_index,
-                'current_date_range_index': self.current_date_range_index,
-            }
-            storage_service.save_pickle(checkpoint_data, self.checkpoint_path)
-            log.info(f"检查点已更新: {self.completed_tasks}/{self.total_tasks}")
-        except Exception as e:
-            log.error(f"Save Checkpoint Error: {e}")
+    def _get_checkpoint_data(self) -> Dict:
+        """获取需要持久化的检查点数据 (扩展基类)"""
+        data = super()._get_checkpoint_data()
+        data.update({
+            'city_dict': self.city_dict,
+            'current_keyword_index': self.current_keyword_index,
+            'current_city_index': self.current_city_index,
+            'current_date_range_index': self.current_date_range_index,
+        })
+        return data
             
     def _load_global_checkpoint(self, task_id):
         """加载全局检查点 (覆盖基类以处理 city_dict)"""
@@ -312,12 +300,17 @@ class FeedIndexCrawler(BaseCrawler):
               year_range=None, resume=False, checkpoint_task_id=None, total_tasks=None, batch_size=5, **kwargs):
         """爬取百度资讯指数任务"""
         try:
+            # 从 kwargs 提取参数，防止 UnboundLocalError 并确保与基类一致
+            resume = kwargs.get('resume', resume)
+            checkpoint_task_id = kwargs.get('checkpoint_task_id', checkpoint_task_id) or kwargs.get('task_id')
+            
             # 1. 初始化
             if resume and checkpoint_task_id:
                 self.task_id = checkpoint_task_id
                 if not self._load_global_checkpoint(checkpoint_task_id):
                     log.warning(f"Failed to load checkpoint {checkpoint_task_id}, creating new task.")
                     self.task_id = self._generate_task_id()
+                    self._prepare_initial_state()
                     resume = False
             else:
                 self.task_id = task_id if task_id else self._generate_task_id()
@@ -373,8 +366,10 @@ class FeedIndexCrawler(BaseCrawler):
                 date_ranges = [(start_date, end_date)]
             
             log.info(f"最终使用的 date_ranges 长度: {len(date_ranges)}")
-
-            self.total_tasks = len(keywords) * len(self.city_dict) * len(date_ranges)
+            
+            # 确保 keywords 是列表
+            kw_list = [keywords] if isinstance(keywords, str) else keywords
+            self.total_tasks = len(kw_list) * len(self.city_dict) * len(date_ranges)
             log.info(f"Task ID: {self.task_id}, Total: {self.total_tasks}")
 
             # 3. 准备子任务
@@ -439,11 +434,9 @@ class FeedIndexCrawler(BaseCrawler):
                         log.error(traceback.format_exc())
 
             # 5. 完成
-            self._flush_buffer(force=True)
             status = 'completed' if self.failed_tasks == 0 else 'failed'
             msg = f"Completed with {self.failed_tasks} failed items" if status == 'failed' else None
-            self._update_task_db_status(status, progress=100, error_message=msg)
-            return status == 'completed'
+            return self._finalize_crawl(status, msg)
 
         except Exception as e:
             log.error(f"Crawl master loop failed: {e}")

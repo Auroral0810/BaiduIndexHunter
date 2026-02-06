@@ -273,7 +273,17 @@ class TaskService:
 
     def get_task_logs(self, task_id: str, limit: int = 100):
         """获取任务日志"""
-        return task_scheduler.get_task_logs(task_id, limit=limit)
+        from src.data.models.log import TaskLogModel
+        from src.data.database import session_scope
+        from sqlmodel import select, col
+        
+        with session_scope() as session:
+            statement = select(TaskLogModel).where(
+                TaskLogModel.task_id == task_id
+            ).order_by(col(TaskLogModel.timestamp).desc()).limit(limit)
+            
+            logs = session.exec(statement).all()
+            return [log_item.model_dump() for log_item in logs]
 
     def start_task(self, task_id: str):
         """启动任务"""

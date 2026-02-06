@@ -241,13 +241,10 @@ class RegionDistributionCrawler(BaseCrawler):
                 
                 time.sleep(1)
 
-            self._finalize_crawl('completed')
+            return self._finalize_crawl('completed')
             
         except Exception as e:
             log.error(f"[{self.task_type}] Critical Error: {e}")
-            self._finalize_crawl('failed', str(e))
-            return False
-            
-        return True
+            return self._finalize_crawl('failed', str(e))
 
 region_distribution_crawler = RegionDistributionCrawler()

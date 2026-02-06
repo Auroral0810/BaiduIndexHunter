@@ -494,11 +494,9 @@ class SearchIndexCrawler(BaseCrawler):
                     except Exception as e:
                         log.error(f"子任务异常: {e}")
 
-            self._flush_buffer(force=True)
             status = 'completed' if self.failed_tasks == 0 else 'failed'
             msg = f"完成但有 {self.failed_tasks} 项失败" if status == 'failed' else None
-            self._update_task_db_status(status, progress=100, error_message=msg)
-            return status == 'completed'
+            return self._finalize_crawl(status, msg)
 
         except Exception as e:
             log.error(f"爬取主流程失败: {e}")

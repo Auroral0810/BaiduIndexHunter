@@ -26,6 +26,8 @@ class BaseCrawler:
         self.task_id = None
         self.output_path = None
         self.checkpoint_path = None
+        self.start_time = None
+        self.output_files = []
         
         # 缓存与锁
         self.data_cache = []
@@ -50,6 +52,8 @@ class BaseCrawler:
         self.failed_keywords = set()
         self.completed_tasks = 0
         self.failed_tasks = 0
+        self.start_time = None
+        self.output_files = []
         self.data_cache = []
         self.stats_cache = []
 
@@ -80,12 +84,21 @@ class BaseCrawler:
         """更新数据库中的任务状态、进度和错误信息"""
         try:
             from src.data.repositories.task_repository import task_repo
+            
+            # 首次记录开始时间
+            if status == 'running' and self.start_time is None:
+                self.start_time = datetime.now()
+
             success = task_repo.update_task_progress(
                 task_id=self.task_id,
                 status=status,
                 progress=min(float(progress or 0), 100.0) if progress is not None else None,
                 completed_items=self.completed_tasks,
                 failed_items=self.failed_tasks,
+                total_items=self.total_tasks,
+                start_time=self.start_time,
+                checkpoint_path=self.checkpoint_path,
+                output_files=self.output_files if self.output_files else None,
                 error_message=error_message
             )
             
@@ -243,30 +256,39 @@ class BaseCrawler:
                     path = os.path.join(self.output_path, f"{self.task_type}_{self.task_id}_data.csv")
                     storage_service.append_to_csv(pd.DataFrame(data_to_save), path)
                     self._update_spider_statistics(len(data_to_save))
+                    if path not in self.output_files:
+                        self.output_files.append(path)
                 
                 if stats_to_save:
                     path = os.path.join(self.output_path, f"{self.task_type}_{self.task_id}_stats.csv")
                     storage_service.append_to_csv(pd.DataFrame(stats_to_save), path)
+                    if path not in self.output_files:
+                        self.output_files.append(path)
                 
                 # 每次执行 flush 都尝试保存检查点
                 self._save_global_checkpoint()
             except Exception as e:
                 log.error(f"Flush Buffer Error: {e}")
 
+    def _get_checkpoint_data(self) -> Dict:
+        """获取需要持久化的检查点数据，子类可扩展"""
+        return {
+            'completed_keywords': list(self.completed_keywords),
+            'failed_keywords': list(self.failed_keywords),
+            'completed_tasks': self.completed_tasks,
+            'failed_tasks': self.failed_tasks,
+            'total_tasks': self.total_tasks,
+            'task_id': self.task_id,
+            'output_path': self.output_path,
+            'output_files': self.output_files,
+            'update_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+
     def _save_global_checkpoint(self):
         """保存检查点"""
         if not self.checkpoint_path: return
         try:
-            checkpoint_data = {
-                'completed_keywords': list(self.completed_keywords),
-                'failed_keywords': list(self.failed_keywords),
-                'completed_tasks': self.completed_tasks,
-                'failed_tasks': self.failed_tasks,
-                'total_tasks': self.total_tasks,
-                'task_id': self.task_id,
-                'output_path': self.output_path,
-                'update_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            }
+            checkpoint_data = self._get_checkpoint_data()
             storage_service.save_pickle(checkpoint_data, self.checkpoint_path)
             log.info(f"检查点已更新: {self.completed_tasks}/{self.total_tasks}")
         except Exception as e:
@@ -377,8 +399,9 @@ class BaseCrawler:
         """
         return []
 
-    def _finalize_crawl(self, status: str, message: Optional[str] = None):
+    def _finalize_crawl(self, status: str, message: Optional[str] = None) -> bool:
         """爬取结束后的通用清理逻辑"""
         self._flush_buffer(force=True)
         self._update_task_db_status(status, progress=100, error_message=message)
         log.info(f"[{self.task_type}] 任务 {self.task_id} 结束，状态: {status}")
+        return status == 'completed'

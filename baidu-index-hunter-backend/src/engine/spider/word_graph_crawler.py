@@ -130,6 +130,10 @@ class WordGraphCrawler(BaseCrawler):
         if isinstance(datelists, str):
             datelists = [datelists]
 
+        # 从 kwargs 中提取参数，防止 UnboundLocalError
+        resume = kwargs.get('resume', False)
+        checkpoint_task_id = kwargs.get('task_id') or kwargs.get('checkpoint_task_id')
+
         # 1. 初始化任务
         if resume and checkpoint_task_id:
             self.task_id = checkpoint_task_id
@@ -182,13 +186,10 @@ class WordGraphCrawler(BaseCrawler):
                 
                 time.sleep(1)
 
-            self._finalize_crawl('completed')
+            return self._finalize_crawl('completed')
             
         except Exception as e:
             log.error(f"[{self.task_type}] Critical Error: {e}")
-            self._finalize_crawl('failed', str(e))
-            return False
-            
-        return True
+            return self._finalize_crawl('failed', str(e))
 
 word_graph_crawler = WordGraphCrawler()
