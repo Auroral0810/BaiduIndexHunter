@@ -72,7 +72,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue'
+import { ref, onMounted, onUnmounted, watch, nextTick, computed, markRaw } from 'vue'
 import { Search, Refresh } from '@element-plus/icons-vue'
 import { useAppStore } from '@/store/app'
 import { useI18n } from 'vue-i18n'
@@ -162,6 +162,9 @@ const loadData = async () => {
 }
 
 const updateChart = (data) => {
+  if (!chartInstance) {
+    initChart()
+  }
   if (!chartInstance) return
   
   if (data.length === 0) {
@@ -203,12 +206,15 @@ const updateChart = (data) => {
       }
     }]
   }
-  chartInstance.setOption(option)
+  chartInstance.setOption(option, true)
 }
 
 const initChart = () => {
   if (chartRef.value) {
-    chartInstance = echarts.init(chartRef.value)
+    if (chartInstance) {
+      chartInstance.dispose()
+    }
+    chartInstance = markRaw(echarts.init(chartRef.value))
   }
 }
 
@@ -233,11 +239,17 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
-  chartInstance?.dispose()
+  if (chartInstance) {
+    chartInstance.dispose()
+    chartInstance = null
+  }
 })
 
 watch(() => appStore.theme, () => {
-    chartInstance?.dispose()
+    if (chartInstance) {
+        chartInstance.dispose()
+        chartInstance = null
+    }
     nextTick(() => {
         initChart()
         loadData()

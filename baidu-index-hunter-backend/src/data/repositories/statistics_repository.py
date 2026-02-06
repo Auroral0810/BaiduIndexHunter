@@ -74,11 +74,13 @@ class StatisticsRepository:
     def get_city_statistics(self, city_name: Optional[str] = None, task_type: Optional[str] = None, limit: int = 100, start_date: Optional[date] = None, end_date: Optional[date] = None) -> List[Dict]:
         """获取城市统计数据"""
         with session_scope() as session:
-            # Note: TaskStatisticsModel doesn't directly have task_type, 
-            # we might need to join with spider_tasks if task_type filter is needed
+            # 统一处理 NULL 和空值为默认值，确保分组正确
+            city_code_col = func.coalesce(func.nullif(TaskStatisticsModel.city_code, ''), '0').label("city_code")
+            city_name_col = func.coalesce(func.nullif(TaskStatisticsModel.city_name, ''), '全国').label("city_name")
+
             statement = select(
-                TaskStatisticsModel.city_code,
-                TaskStatisticsModel.city_name,
+                city_code_col,
+                city_name_col,
                 func.sum(TaskStatisticsModel.item_count).label("item_count"),
                 func.sum(TaskStatisticsModel.success_count).label("success_count"),
                 func.sum(TaskStatisticsModel.fail_count).label("fail_count")
@@ -98,14 +100,14 @@ class StatisticsRepository:
                 next_day = end_date + timedelta(days=1)
                 statement = statement.where(TaskStatisticsModel.create_time < next_day)
                 
-            statement = statement.group_by(TaskStatisticsModel.city_code, TaskStatisticsModel.city_name)\
+            statement = statement.group_by(city_code_col, city_name_col)\
                                  .order_by(desc("item_count")).limit(limit)
 
             results = session.exec(statement).all()
             return [
                 {
-                    "city_code": r[0] or "0",
-                    "city_name": r[1] or "全国",
+                    "city_code": r[0],
+                    "city_name": r[1],
                     "item_count": int(r[2] or 0),
                     "success_count": int(r[3] or 0),
                     "fail_count": int(r[4] or 0),

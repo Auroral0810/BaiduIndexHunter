@@ -117,7 +117,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted, nextTick, computed, watch } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, nextTick, computed, watch, markRaw } from 'vue'
 import { getDashboardData } from '@/api/statistics'
 import { getTaskList } from '@/api/task'
 import { webSocketService } from '@/utils/websocket'
@@ -171,7 +171,7 @@ let mainChartInstance = null
 let distributionChartInstance = null
 let durationChartInstance = null
 let volumeChartInstance = null
-const sparklineInstances = []
+let sparklineInstances = []
 
 // DOM Refs
 const mainChartRef = ref(null)
@@ -297,7 +297,6 @@ watch(recentTasks, () => {
 }, { deep: true })
 
 // --- ECharts Logic ---
-// ... (Including chart logic from original file but using formatTaskType(key) which uses i18n)
 
 const commonOptions = computed(() => ({
   backgroundColor: 'transparent',
@@ -306,6 +305,19 @@ const commonOptions = computed(() => ({
     color: isDark.value ? '#94a3b8' : '#64748b' 
   },
 }))
+
+const disposeCharts = () => {
+  mainChartInstance?.dispose()
+  mainChartInstance = null
+  distributionChartInstance?.dispose()
+  distributionChartInstance = null
+  durationChartInstance?.dispose()
+  durationChartInstance = null
+  volumeChartInstance?.dispose()
+  volumeChartInstance = null
+  sparklineInstances.forEach(i => i?.dispose())
+  sparklineInstances = []
+}
 
 const initCharts = () => {
   nextTick(() => {
@@ -322,7 +334,8 @@ const initCharts = () => {
 
 const initMainChart = () => {
   if (!mainChartRef.value || mainChartRef.value.clientWidth === 0) return
-  if (!mainChartInstance) mainChartInstance = echarts.init(mainChartRef.value)
+  if (mainChartInstance) mainChartInstance.dispose()
+  mainChartInstance = markRaw(echarts.init(mainChartRef.value))
   
   const trendData = selectedTaskType.value === 'all' 
     ? dashboardData.daily_trend 
@@ -395,7 +408,8 @@ const initMainChart = () => {
 
 const initDistributionChart = () => {
   if (!distributionChartRef.value) return
-  if (!distributionChartInstance) distributionChartInstance = echarts.init(distributionChartRef.value)
+  if (distributionChartInstance) distributionChartInstance.dispose()
+  distributionChartInstance = markRaw(echarts.init(distributionChartRef.value))
   
   const sourceData = dashboardData.success_rate_comparison && dashboardData.success_rate_comparison.length > 0 
     ? dashboardData.success_rate_comparison 
@@ -428,7 +442,8 @@ const initDistributionChart = () => {
 
 const initDurationChart = () => {
   if (!durationChartRef.value) return
-  if (!durationChartInstance) durationChartInstance = echarts.init(durationChartRef.value)
+  if (durationChartInstance) durationChartInstance.dispose()
+  durationChartInstance = markRaw(echarts.init(durationChartRef.value))
   
   const sourceData = dashboardData.avg_duration_comparison && dashboardData.avg_duration_comparison.length > 0
     ? dashboardData.avg_duration_comparison
@@ -493,7 +508,8 @@ const initDurationChart = () => {
 
 const initVolumeChart = () => {
   if (!volumeChartRef.value) return
-  if (!volumeChartInstance) volumeChartInstance = echarts.init(volumeChartRef.value)
+  if (volumeChartInstance) volumeChartInstance.dispose()
+  volumeChartInstance = markRaw(echarts.init(volumeChartRef.value))
   
   let sourceData = []
   if (dashboardData.data_volume_comparison && dashboardData.data_volume_comparison.length > 0) {
@@ -564,7 +580,8 @@ const initVolumeChart = () => {
 const initSparklines = () => {
   sparklineRefs.forEach((el, i) => {
     if (!el) return
-    if (!sparklineInstances[i]) sparklineInstances[i] = echarts.init(el)
+    if (sparklineInstances[i]) sparklineInstances[i].dispose()
+    sparklineInstances[i] = markRaw(echarts.init(el))
     const mockData = Array.from({ length: 15 }, () => Math.random() * 10)
     sparklineInstances[i].setOption({
       grid: { left: 0, right: 0, top: 0, bottom: 0 },
@@ -593,11 +610,7 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
   webSocketService.off('task_update', handleWsUpdate)
-  mainChartInstance?.dispose()
-  distributionChartInstance?.dispose()
-  durationChartInstance?.dispose()
-  volumeChartInstance?.dispose()
-  sparklineInstances.forEach(i => i?.dispose())
+  disposeCharts()
 })
 
 const handleResize = () => {
@@ -609,8 +622,14 @@ const handleResize = () => {
 }
 
 watch(trendMode, initMainChart)
-watch(locale, initCharts)
-watch(isDark, initCharts)
+watch(locale, () => {
+  disposeCharts()
+  initCharts()
+})
+watch(isDark, () => {
+  disposeCharts()
+  initCharts()
+})
 </script>
 
 <style scoped>

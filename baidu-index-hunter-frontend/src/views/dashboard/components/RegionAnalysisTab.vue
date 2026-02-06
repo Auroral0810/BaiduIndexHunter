@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue'
+import { ref, onMounted, onUnmounted, watch, nextTick, computed, markRaw } from 'vue'
 import { Search, Refresh } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 import { getCityStatistics } from '@/api/statistics'
@@ -143,7 +143,11 @@ const loadData = async () => {
 }
 
 const updateChart = (data) => {
+  if (!cityChart) {
+    initChart()
+  }
   if (!cityChart) return
+
   if (data.length === 0) {
     cityChart.clear()
     cityChart.setOption({
@@ -183,12 +187,15 @@ const updateChart = (data) => {
     }]
   }
   
-  cityChart.setOption(option)
+  cityChart.setOption(option, true)
 }
 
 const initChart = () => {
   if (cityChartRef.value) {
-    cityChart = echarts.init(cityChartRef.value)
+    if (cityChart) {
+      cityChart.dispose()
+    }
+    cityChart = markRaw(echarts.init(cityChartRef.value))
   }
 }
 
@@ -213,11 +220,17 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
-  cityChart?.dispose()
+  if (cityChart) {
+    cityChart.dispose()
+    cityChart = null
+  }
 })
 
 watch(() => appStore.theme, () => {
-    cityChart?.dispose()
+    if (cityChart) {
+        cityChart.dispose()
+        cityChart = null
+    }
     nextTick(() => {
         initChart()
         loadData()

@@ -130,6 +130,81 @@ def setup_unified_logger(console_max_logs=3000):
         format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} - {message}",
         encoding="utf-8",
     )
+
+    # 添加实时流输出 (WebSocket)
+    logger.add(
+        streaming_sink,
+        level=log_level,
+    )
+    
+    # 拦截标准库日志
+    logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+    
+    # 禁用特定的日志记录器以减少噪音
+    logging.getLogger("werkzeug").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    
+    return LoggerWithCache(logger, console_max_logs)
+
+
+_log_pusher = None
+
+def set_log_pusher(pusher_func):
+    """设置日志推送器"""
+    global _log_pusher
+    _log_pusher = pusher_func
+
+def streaming_sink(message):
+    """实时日志推送到 WebSocket"""
+    if _log_pusher:
+        try:
+            record = message.record
+            _log_pusher({
+                "time": record["time"].strftime("%Y-%m-%d %H:%M:%S.%f")[:-3],
+                "level": record["level"].name,
+                "name": record["name"],
+                "function": record["function"],
+                "line": record["line"],
+                "message": record["message"]
+            })
+        except:
+            pass
+
+def setup_unified_logger(console_max_logs=3000):
+    """
+    配置统一的日志系统
+    """
+    # 从配置中获取日志级别和保留天数
+    log_level = LOG_CONFIG.get('level', 'INFO')
+    log_retention = LOG_CONFIG.get('retention', 7)
+    
+    # 清除loguru默认处理程序
+    logger.remove()
+    
+    # 添加控制台输出（统一格式）
+    logger.add(
+        sys.stdout,
+        level=log_level,
+        format="<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
+        colorize=True,
+    )
+    
+    # 添加文件输出（统一格式）
+    log_file = LOG_DIR / "baidu_index_hunter_{time:YYYY-MM-DD}.log"
+    logger.add(
+        log_file,
+        rotation="00:00",
+        retention=log_retention,
+        level=log_level,
+        format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} - {message}",
+        encoding="utf-8",
+    )
+
+    # 添加实时流输出 (WebSocket)
+    logger.add(
+        streaming_sink,
+        level=log_level,
+    )
     
     # 拦截标准库日志
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)

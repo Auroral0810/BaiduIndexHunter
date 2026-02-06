@@ -58,13 +58,21 @@ const routes = [
     }
   },
   {
-  path: '/:pathMatch(.*)*',
+    path: '/logs',
+    name: 'Logs',
+    component: () => import('../views/Logs.vue'),
+    meta: {
+      title: '实时日志 - BaiduIndexHunter'
+    }
+  },
+  {
+    path: '/:pathMatch(.*)*',
     name: 'NotFound',
-      component: () => import('../views/NotFound.vue'),
-        meta: {
-    title: '404 Not Found - BaiduIndexHunter'
+    component: () => import('../views/NotFound.vue'),
+    meta: {
+      title: '404 Not Found - BaiduIndexHunter'
+    }
   }
- }
 ]
 
 const router = createRouter({

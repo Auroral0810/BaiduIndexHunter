@@ -33,4 +33,19 @@ def init_socketio(app):
     """
     socketio.init_app(app)
     log.info("WebSocket 服务已初始化")
+    
+    # 注册日志推送器到统一日志系统
+    from src.core.logger import set_log_pusher
+    
+    def log_pusher(log_data):
+        """将日志推送到所有连接的客户端"""
+        try:
+            socketio.emit('system_log', log_data)
+        except Exception as e:
+            # 避免在日志推送器中记录普通错误日志，防止死循环
+            print(f"WebSocket 日志推送失败: {e}")
+            
+    set_log_pusher(log_pusher)
+    log.info("实时显示系统日志已开启")
+    
     return socketio
