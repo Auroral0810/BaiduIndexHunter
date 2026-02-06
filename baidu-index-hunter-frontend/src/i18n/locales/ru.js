@@ -208,7 +208,7 @@ export default {
   "views.cookiemanager.c805dh": "никогда не истекает",
   "views.cookiemanager.f46go7": "Редактировать",
   "views.cookiemanager.b1v50i": "Тенденции использования файлов cookie",
-  "views.cookiemanager.2623i5": "Edit cookies",
+  "views.cookiemanager.2623i5": "Редактировать файлы cookie",
   "views.cookiemanager.5s8vk4": "Пожалуйста, введите идентификатор аккаунта",
   "views.cookiemanager.0jv8m7": "струнный узор",
   "views.cookiemanager.uk514y": "Строка cookie",
@@ -223,7 +223,7 @@ export default {
   "views.cookiemanager.xuc351": "Имя ключа",
   "views.cookiemanager.3b8z62": "ключевое значение",
   "views.cookiemanager.w4j2q1": "Создать JSON",
-  "views.cookiemanager.6p2h3h": "JSON to table",
+  "views.cookiemanager.6p2h3h": "JSON в таблицу",
   "views.cookiemanager.1883e3": "Пакетный импорт",
   "views.cookiemanager.td2u38": "Формат импорта",
   "views.cookiemanager.628u23": "Выберите тип файла",
@@ -493,7 +493,7 @@ export default {
   "views.datacollection.j887qn": "Статус службы API",
   "views.datacollection.h2894t": "Тип задачи",
   "views.datacollection.14ux91": "обновить статус",
-  "views.datacollection.u24u75": "закрыть",
+  "views.datacollection.u24u75": "Закрыть",
   "views.datacollection.wt72k3": "Текущие задачи:",
   "views.datacollection.6k50e9": "Прогресс",
   "views.datacollection.qww0ij": "Работает нормально",
@@ -571,7 +571,7 @@ export default {
   "views.settings.42533h": "Время охлаждения запрета файлов cookie (секунды)",
   "views.settings.t8dliz": "Максимальное количество использований в день",
   "views.settings.9ue5fu": "Минимальное количество доступных файлов cookie",
-  "views.settings.j56utr": "Стратегия ротации файлов cookie",
+  "views.settings.j56utr": "Политика ротации файлов cookie",
   "dashboard.dashboard.2dwsg6": "Большой экран данных",
   "dashboard.dashboard.327577": "Обновить данные",
   "dashboard.dashboard.7iv3g2": "Общее количество задач",
@@ -602,7 +602,7 @@ export default {
   "dashboard.dashboard.778577": "дата начала",
   "dashboard.dashboard.sq6620": "дата окончания",
   "dashboard.dashboard.g1431k": "Общая статистика",
-  "dashboard.dashboard.2c6u95": "Статистика",
+  "dashboard.dashboard.2c6u95": "статистика",
   "dashboard.dashboard.py2bk3": "Распределение процентов",
   "dashboard.dashboard.vx7j16": "Не удалось получить данные большого экрана.",
   "dashboard.dashboard.1yq0uj": "Не удалось загрузить данные большого экрана:",
@@ -708,7 +708,7 @@ export default {
   "tasks-TaskList-19c298d949224c78d-97": "уровень",
   "tasks-TaskList-19c298d949224c78d-98": "новости",
   "tasks-TaskList-19c298d949224c78d-99": "Журнала задач пока нет",
-  "tasks-TaskList-19c298d949224c78d-100": "закрыть",
+  "tasks-TaskList-19c298d949224c78d-100": "Закрыть",
   "tasks-TaskList-19c298d949224c78d-101": "Повторить задачу",
   "tasks-TaskList-19c298d949224c78d-102": "Отменить задачу",
   "tasks-TaskList-19c298d949224c78d-103": "мобильный телефон Сяоми",
@@ -802,7 +802,7 @@ export default {
     "Количество использований",
   "components-CookieUsageChart-19c298e1b08b4a7ef-23":
     "Коэффициент использования",
-  "components-CookieUsageChart-19c298e1b08b4a7ef-24": "закрыть",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-24": "Закрыть",
   "components-CookieUsageChart-19c298e1b08b4a7ef-25": "Экспортировать данные",
   "components-CookieUsageChart-19c298e1b08b4a7ef-26":
     "Ежедневная статистика использования файлов cookie",
@@ -938,7 +938,7 @@ export default {
     "ключевые слова не существуют",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-46":
     "Ключевые слова, которых не существует:",
-  "tasks-DemographicAttributesTask-19c298e1c74d5b997-47": "закрыть",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-47": "Закрыть",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-48":
     "Удалить несуществующие ключевые слова",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-49":
@@ -950,7 +950,7 @@ export default {
     "Недопустимые или повторяющиеся ключевые слова:",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-53": "...и т.д.",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-54": "а",
-  "tasks-DemographicAttributesTask-19c298e1c74d5b997-55": "закрыть",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-55": "Закрыть",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-56": "Обзор миссии",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-57":
     "Подтверждение параметра задачи",
@@ -1397,7 +1397,7 @@ export default {
     "Поддерживает форматы .xlsx, .csv, .txt, по одному коду региона в строке.",
   "tasks-RegionDistributionTask-19c298e201890d5db-25":
     "Пропустить первую строку (строку заголовка)",
-  "tasks-RegionDistributionTask-19c298e201890d5db-26": "Настройка времени",
+  "tasks-RegionDistributionTask-19c298e201890d5db-26": "Установка времени",
   "tasks-RegionDistributionTask-19c298e201890d5db-27": "Источник данных",
   "tasks-RegionDistributionTask-19c298e201890d5db-28": "ПК+мобильный",
   "tasks-RegionDistributionTask-19c298e201890d5db-29": "двигаться",
@@ -1460,7 +1460,7 @@ export default {
     "ключевые слова не существуют",
   "tasks-RegionDistributionTask-19c298e201890d5db-76":
     "Ключевые слова, которых не существует:",
-  "tasks-RegionDistributionTask-19c298e201890d5db-77": "закрыть",
+  "tasks-RegionDistributionTask-19c298e201890d5db-77": "Закрыть",
   "tasks-RegionDistributionTask-19c298e201890d5db-78":
     "Удалить несуществующие ключевые слова",
   "tasks-RegionDistributionTask-19c298e201890d5db-79": "Импортирован успешно.",
@@ -1482,7 +1482,7 @@ export default {
   "tasks-RegionDistributionTask-19c298e201890d5db-90": "площадь",
   "tasks-RegionDistributionTask-19c298e201890d5db-91": "...и т.д.",
   "tasks-RegionDistributionTask-19c298e201890d5db-92": "а",
-  "tasks-RegionDistributionTask-19c298e201890d5db-93": "закрыть",
+  "tasks-RegionDistributionTask-19c298e201890d5db-93": "Закрыть",
   "tasks-RegionDistributionTask-19c298e201890d5db-94": "Обзор миссии",
   "tasks-RegionDistributionTask-19c298e201890d5db-95":
     "Подтверждение параметра задачи",
@@ -1608,7 +1608,7 @@ export default {
     "Поддерживает форматы .xlsx, .csv, .txt, по одному коду города в строке.",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-25":
     "Пропустить первую строку (строку заголовка)",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-26": "Настройка времени",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-26": "Установка времени",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-27": "Источник данных",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-28": "ПК+мобильный",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-29": "двигаться",
@@ -1659,7 +1659,7 @@ export default {
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-70": "ключевые слова не существуют",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-71":
     "Ключевые слова, которых не существует:",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-72": "закрыть",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-72": "Закрыть",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-73":
     "Удалить несуществующие ключевые слова",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-74": "Импортирован успешно.",
@@ -1681,7 +1681,7 @@ export default {
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-85": "город",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-86": "...и т.д.",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-87": "а",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-88": "закрыть",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-88": "Закрыть",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-89": "Обзор миссии",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-90":
     "Подтверждение параметра задачи",
@@ -1769,7 +1769,7 @@ export default {
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-156": "Ошибка отправки задачи:",
   "tasks-WordGraphTask-19c298e227e044aa6-1": "Коллекция карт требований",
   "tasks-WordGraphTask-19c298e227e044aa6-2":
-    "Получите данные карты спроса Baidu с поддержкой нескольких ключевых слов и выбора нескольких дат.",
+    "Получите данные карты спроса Baidu, поддерживая несколько ключевых слов и несколько вариантов выбора дат.",
   "tasks-WordGraphTask-19c298e227e044aa6-3": "Установить параметры",
   "tasks-WordGraphTask-19c298e227e044aa6-4": "Настройки ключевых слов",
   "tasks-WordGraphTask-19c298e227e044aa6-5": "Ввод ключевого слова",
@@ -1828,7 +1828,7 @@ export default {
   "tasks-WordGraphTask-19c298e227e044aa6-50": "ключевые слова не существуют",
   "tasks-WordGraphTask-19c298e227e044aa6-51":
     "Ключевые слова, которых не существует:",
-  "tasks-WordGraphTask-19c298e227e044aa6-52": "закрыть",
+  "tasks-WordGraphTask-19c298e227e044aa6-52": "Закрыть",
   "tasks-WordGraphTask-19c298e227e044aa6-53":
     "Удалить несуществующие ключевые слова",
   "tasks-WordGraphTask-19c298e227e044aa6-54":
@@ -1841,7 +1841,7 @@ export default {
     "Недопустимые или повторяющиеся ключевые слова:",
   "tasks-WordGraphTask-19c298e227e044aa6-59": "...и т.д.",
   "tasks-WordGraphTask-19c298e227e044aa6-60": "а",
-  "tasks-WordGraphTask-19c298e227e044aa6-61": "закрыть",
+  "tasks-WordGraphTask-19c298e227e044aa6-61": "Закрыть",
   "tasks-WordGraphTask-19c298e227e044aa6-62": "Обзор миссии",
   "tasks-WordGraphTask-19c298e227e044aa6-63": "Подтверждение параметра задачи",
   "tasks-WordGraphTask-19c298e227e044aa6-64": "Тип задачи",
@@ -1984,7 +1984,7 @@ export default {
     "Выбор провинции вернет данные о распределении городов в этой провинции.",
   "components-RegionProvinceSelector-7":
     "Вы можете выбрать для запроса всю страну и несколько провинций одновременно.",
-  "components-RegionProvinceSelector-8": "Selected area",
+  "components-RegionProvinceSelector-8": "Выбранная область",
   "components-RegionProvinceSelector-9": "Очистить",
   "components-RegionProvinceSelector-10": "По всей стране",
   "tasks-RegionDistributionTask-19c298e201890d5db-alltime-hint":
@@ -2020,15 +2020,15 @@ export default {
   "dashboard.region.search_placeholder": "Поиск города...",
   "dashboard.region.table_title": "Рейтинг активной области",
   "dashboard.region.stat_total": "Общая статистика",
-  "views.logs.title": "Системный журнал в реальном времени",
+  "views.logs.title": "Консоль журнала в реальном времени",
   "views.logs.subtitle":
     "Мониторинг в режиме реального времени производительности сканеров и серверных служб.",
   "views.logs.terminal_title": "Выходной терминал",
   "views.logs.clear_btn": "Очистить журнал",
   "views.logs.auto_scroll": "автопрокрутка",
-  "views.logs.pause": "Приостановить прием",
-  "views.logs.resume": "продолжать получать",
-  "views.logs.search_placeholder": "Поиск контента...",
+  "views.logs.pause": "Приостановить прокрутку",
+  "views.logs.resume": "Возобновить прокрутку",
+  "views.logs.search_placeholder": "Поиск по содержимому журнала...",
   "views.logs.filter_level": "Уровень журнала",
   "views.logs.copy_log": "Копировать выбранное",
   "views.logs.all_levels": "Все уровни",
@@ -2037,4 +2037,6 @@ export default {
     "Связь в режиме реального времени была отключена и восстанавливается...",
   "views.logs.download_log": "Экспортировать текущий журнал",
   "src-App-19c2993710803cda7-logs": "журнал в реальном времени",
+  "views.logs.copy_items": "Копировать журналы: {count}",
+  "views.logs.copied": "Скопировано успешно!",
 };

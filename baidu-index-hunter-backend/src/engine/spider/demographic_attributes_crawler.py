@@ -169,9 +169,6 @@ class DemographicAttributesCrawler(BaseCrawler):
                             
                     self._flush_buffer()
                     
-                    progress = (self.completed_tasks / self.total_tasks) * 100
-                    self._update_task_db_status('running', progress)
-                    
                 except Exception as e:
                     self.failed_tasks += 1
                     log.error(f"[{self.task_type}] Batch failed: {batch}, Error: {e}")

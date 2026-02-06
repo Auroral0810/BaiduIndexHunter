@@ -19,7 +19,7 @@ class StorageService:
             # 确保目录存在
             os.makedirs(os.path.dirname(os.path.abspath(output_file)), exist_ok=True)
             df.to_excel(output_file, index=False)
-            log.info(f"数据已保存到 {output_file}")
+            log.debug(f"数据已保存到 {output_file}")
             return True
         except Exception as e:
             log.error(f"保存数据到Excel失败: {e}")
@@ -37,7 +37,7 @@ class StorageService:
                 combined_df = df
             
             combined_df.to_excel(output_file, index=False)
-            log.info(f"数据已追加到 {output_file}")
+            log.debug(f"数据已追加到 {output_file}")
             return True
         except Exception as e:
             log.error(f"追加数据到Excel失败: {e}")
@@ -48,7 +48,7 @@ class StorageService:
         try:
             os.makedirs(os.path.dirname(os.path.abspath(output_file)), exist_ok=True)
             df.to_csv(output_file, index=False, encoding='utf-8-sig')
-            log.info(f"数据已保存到 {output_file}")
+            log.debug(f"数据已保存到 {output_file}")
             return True
         except Exception as e:
             log.error(f"保存数据到CSV失败: {e}")
@@ -60,7 +60,7 @@ class StorageService:
             os.makedirs(os.path.dirname(os.path.abspath(output_file)), exist_ok=True)
             file_exists = os.path.exists(output_file) and os.path.getsize(output_file) > 0
             df.to_csv(output_file, mode='a', header=not file_exists, index=False, encoding='utf-8-sig')
-            log.info(f"数据已追加到 {output_file}")
+            log.debug(f"数据已追加到 {output_file}")
             return True
         except Exception as e:
             log.error(f"追加数据到CSV失败: {e}")

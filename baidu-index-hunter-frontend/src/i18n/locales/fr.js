@@ -726,7 +726,7 @@ export default {
   "tasks-TaskList-19c298d949224c78d-97": "niveau",
   "tasks-TaskList-19c298d949224c78d-98": "nouvelles",
   "tasks-TaskList-19c298d949224c78d-99": "Pas encore de journal des tâches",
-  "tasks-TaskList-19c298d949224c78d-100": "fermer",
+  "tasks-TaskList-19c298d949224c78d-100": "Fermer",
   "tasks-TaskList-19c298d949224c78d-101": "Réessayer la tâche",
   "tasks-TaskList-19c298d949224c78d-102": "Annuler la tâche",
   "tasks-TaskList-19c298d949224c78d-103": "Téléphone portable Xiaomi",
@@ -821,7 +821,7 @@ export default {
   "components-CookieUsageChart-19c298e1b08b4a7ef-21": "Identifiant du compte",
   "components-CookieUsageChart-19c298e1b08b4a7ef-22": "Nombre d'utilisations",
   "components-CookieUsageChart-19c298e1b08b4a7ef-23": "Taux d'utilisation",
-  "components-CookieUsageChart-19c298e1b08b4a7ef-24": "fermer",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-24": "Fermer",
   "components-CookieUsageChart-19c298e1b08b4a7ef-25": "Exporter des données",
   "components-CookieUsageChart-19c298e1b08b4a7ef-26":
     "Statistiques quotidiennes d'utilisation des cookies",
@@ -956,7 +956,7 @@ export default {
     "les mots-clés n'existent pas",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-46":
     "Mots-clés qui n'existent pas :",
-  "tasks-DemographicAttributesTask-19c298e1c74d5b997-47": "fermer",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-47": "Fermer",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-48":
     "Effacer les mots-clés inexistants",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-49": "Importé avec succès",
@@ -967,7 +967,7 @@ export default {
     "Mots clés invalides ou en double :",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-53": "...etc",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-54": "un",
-  "tasks-DemographicAttributesTask-19c298e1c74d5b997-55": "fermer",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-55": "Fermer",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-56": "Aperçu des missions",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-57":
     "Confirmation des paramètres de la tâche",
@@ -1484,7 +1484,7 @@ export default {
     "les mots-clés n'existent pas",
   "tasks-RegionDistributionTask-19c298e201890d5db-76":
     "Mots-clés qui n'existent pas :",
-  "tasks-RegionDistributionTask-19c298e201890d5db-77": "fermer",
+  "tasks-RegionDistributionTask-19c298e201890d5db-77": "Fermer",
   "tasks-RegionDistributionTask-19c298e201890d5db-78":
     "Effacer les mots-clés inexistants",
   "tasks-RegionDistributionTask-19c298e201890d5db-79": "Importé avec succès",
@@ -1504,7 +1504,7 @@ export default {
   "tasks-RegionDistributionTask-19c298e201890d5db-90": "zone",
   "tasks-RegionDistributionTask-19c298e201890d5db-91": "...etc",
   "tasks-RegionDistributionTask-19c298e201890d5db-92": "un",
-  "tasks-RegionDistributionTask-19c298e201890d5db-93": "fermer",
+  "tasks-RegionDistributionTask-19c298e201890d5db-93": "Fermer",
   "tasks-RegionDistributionTask-19c298e201890d5db-94": "Aperçu des missions",
   "tasks-RegionDistributionTask-19c298e201890d5db-95":
     "Confirmation des paramètres de la tâche",
@@ -2062,15 +2062,15 @@ export default {
   "dashboard.region.search_placeholder": "Rechercher une ville...",
   "dashboard.region.table_title": "Classement des zones actives",
   "dashboard.region.stat_total": "Statistiques totales",
-  "views.logs.title": "Journal système en temps réel",
+  "views.logs.title": "Console de journaux en temps réel",
   "views.logs.subtitle":
     "Surveillance en temps réel de la sortie en cours des moteurs d'exploration et des services back-end",
   "views.logs.terminal_title": "Sortie terminale",
   "views.logs.clear_btn": "Effacer le journal",
   "views.logs.auto_scroll": "défilement automatique",
-  "views.logs.pause": "Suspendre la réception",
-  "views.logs.resume": "continuer à recevoir",
-  "views.logs.search_placeholder": "Rechercher du contenu...",
+  "views.logs.pause": "Suspendre le défilement",
+  "views.logs.resume": "Reprendre le défilement",
+  "views.logs.search_placeholder": "Rechercher le contenu du journal...",
   "views.logs.filter_level": "Niveau de journalisation",
   "views.logs.copy_log": "Copier la sélection",
   "views.logs.all_levels": "Tous niveaux",
@@ -2079,4 +2079,6 @@ export default {
     "La communication en temps réel a été déconnectée et se reconnecte...",
   "views.logs.download_log": "Exporter le journal actuel",
   "src-App-19c2993710803cda7-logs": "journal en temps réel",
+  "views.logs.copy_items": "Copier {count} journaux",
+  "views.logs.copied": "Copié avec succès !",
 };

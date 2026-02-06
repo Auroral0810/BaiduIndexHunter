@@ -408,8 +408,6 @@ class FeedIndexCrawler(BaseCrawler):
                         
                         if (self.completed_tasks + self.failed_tasks) % 10 == 0:
                             self._save_global_checkpoint()
-                            prog = (self.completed_tasks + self.failed_tasks) / self.total_tasks * 100
-                            self._update_task_db_status('running', progress=prog)
                             if len(self.data_cache) >= 100: self._flush_buffer()
 
                     except NoCookieAvailableError:

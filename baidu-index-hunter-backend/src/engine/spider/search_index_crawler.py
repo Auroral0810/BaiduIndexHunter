@@ -464,8 +464,6 @@ class SearchIndexCrawler(BaseCrawler):
 
                         if len(self.data_cache) >= 200:
                             self._flush_buffer()
-                            prog = (self.completed_tasks + self.failed_tasks) / self.total_tasks * 100
-                            self._update_task_db_status('running', progress=prog)
 
                     except NoCookieAvailableError:
                         log.error("Cookie 耗尽，暂停任务")

@@ -5,6 +5,7 @@
 import os
 import sys
 import json
+import time
 import signal
 import threading
 import pandas as pd
@@ -57,6 +58,16 @@ class BaseCrawler:
         self.cookie_usage_count = 0
         self.cookie_ban_count = 0
         
+        # 进度报告器状态（控制输出频率，\r 覆盖式进度条）
+        self._progress_start_time = 0.0       # 会话开始时间（延迟初始化）
+        self._session_start_done = 0          # 会话开始时已完成数（用于计算增量速度）
+        self._last_report_time = 0.0
+        self._last_report_percent = -1.0
+        self._last_db_update_time = 0.0
+        self._progress_report_interval = 5    # 秒：进度报告最小间隔
+        self._progress_min_change = 0.01      # %：进度变化最小阈值
+        self._db_update_interval = 5          # 秒：DB 更新最小间隔
+        
         self.setup_signal_handlers()
 
     def _report_cookie_status(self, account_id: str, is_valid: bool, permanent: bool = False):
@@ -81,6 +92,12 @@ class BaseCrawler:
         self.data_cache = []
         self.stats_cache = []
         self.is_running = True
+        # 重置进度报告器（延迟初始化，首次 _maybe_report_progress 时设置实际起始时间）
+        self._progress_start_time = 0.0
+        self._session_start_done = 0
+        self._last_report_time = 0.0
+        self._last_report_percent = -1.0
+        self._last_db_update_time = 0.0
 
     # --- 基础设施 (Infrastructure) ---
 
@@ -103,6 +120,7 @@ class BaseCrawler:
 
     def handle_exit(self, signum, frame):
         """处理退出信号，保存数据和检查点"""
+        self._finish_progress_bar()
         log.info(f"[{self.task_type}] 接收到退出信号，正在保存数据并强制退出...")
         self.is_running = False # 设置停止标志
         self._flush_buffer(force=True)
@@ -410,23 +428,19 @@ class BaseCrawler:
 
     def _save_global_checkpoint(self):
         """
-        保存检查点。
+        保存检查点（静默操作，不输出日志，仅在失败时报错）。
         优先使用 ProgressManager (SQLite)，向后兼容 pkl。
         """
         if self.progress_manager:
-            # 新方式: SQLite
             try:
                 checkpoint_data = self._get_checkpoint_data()
                 self.progress_manager.save_checkpoint(checkpoint_data)
-                log.info(f"[{self.task_type}] 检查点已保存: {self.completed_tasks}/{self.total_tasks}")
             except Exception as e:
                 log.error(f"Save Checkpoint Error: {e}")
         elif self.checkpoint_path:
-            # 旧方式: Pickle (兼容未迁移的爬虫)
             try:
                 checkpoint_data = self._get_checkpoint_data()
                 storage_service.save_pickle(checkpoint_data, self.checkpoint_path)
-                log.info(f"[{self.task_type}] 检查点已保存(pkl): {self.completed_tasks}/{self.total_tasks}")
             except Exception as e:
                 log.error(f"Save Checkpoint Error: {e}")
 
@@ -526,23 +540,165 @@ class BaseCrawler:
 
     def _mark_items_completed(self, keys: List[str]):
         """
-        标记任务项为完成（更新内存集合 + 持久化到 SQLite）。
+        标记任务项为完成（更新内存集合 + 持久化到 SQLite + 进度报告）。
         应在 task_lock 保护下调用。
         """
         self.completed_keywords.update(keys)
         self.completed_tasks += len(keys)
         if self.progress_manager:
             self.progress_manager.mark_completed(keys)
+        self._maybe_report_progress()
 
     def _mark_items_failed(self, keys: List[str]):
         """
-        标记任务项为失败（更新内存集合 + 持久化到 SQLite）。
+        标记任务项为失败（更新内存集合 + 持久化到 SQLite + 进度报告）。
         应在 task_lock 保护下调用。
         """
         self.failed_keywords.update(keys)
         self.failed_tasks += len(keys)
         if self.progress_manager:
             self.progress_manager.mark_failed(keys)
+        self._maybe_report_progress()
+
+    # --- 进度报告 (Progress Reporting) ---
+
+    def _calc_speed_and_eta(self, now: float, total_done: int):
+        """计算基于本次会话增量的速度和 ETA"""
+        elapsed = now - self._progress_start_time if self._progress_start_time > 0 else 0
+        session_done = total_done - self._session_start_done
+        speed = session_done / elapsed if elapsed > 0 else 0
+        remaining = self.total_tasks - total_done
+        eta_seconds = remaining / speed if speed > 0 else 0
+        return elapsed, speed, eta_seconds
+
+    @staticmethod
+    def _format_duration(seconds: float) -> str:
+        """将秒数格式化为人类可读的时间字符串"""
+        if seconds > 3600:
+            return f"{seconds / 3600:.1f}h"
+        elif seconds > 60:
+            return f"{seconds / 60:.1f}min"
+        else:
+            return f"{seconds:.0f}s"
+
+    def _maybe_report_progress(self):
+        """
+        检查是否应该输出进度报告（节流控制）。
+        使用 \\r 覆盖式进度条，终端中始终只显示一行。
+        
+        触发条件（满足任一即报告）:
+        - 时间条件: 距上次报告 >= 5 秒 且 进度变化 >= 0.01%
+        - 100% 完成时
+        """
+        if self.total_tasks <= 0:
+            return
+        
+        now = time.time()
+        total_done = self.completed_tasks + self.failed_tasks
+        current_percent = total_done / self.total_tasks * 100
+        
+        # 延迟初始化：首次调用时记录会话起始基准
+        if self._progress_start_time == 0:
+            self._progress_start_time = now
+            self._session_start_done = total_done
+        
+        should_report = False
+        
+        # 首次报告
+        if self._last_report_time == 0:
+            should_report = True
+        # 时间 + 进度双重条件
+        elif (now - self._last_report_time >= self._progress_report_interval
+              and current_percent - self._last_report_percent >= self._progress_min_change):
+            should_report = True
+        # 完成时强制报告
+        elif current_percent >= 100 and self._last_report_percent < 100:
+            should_report = True
+        
+        if should_report:
+            self._report_progress(now, total_done, current_percent)
+        
+        # DB 更新节流（独立于终端报告，保持前端同步）
+        if now - self._last_db_update_time >= self._db_update_interval:
+            self._last_db_update_time = now
+            self._update_task_db_status_with_speed('running', current_percent)
+
+    def _report_progress(self, now: float, total_done: int, current_percent: float):
+        """
+        使用 \\r 覆盖终端当前行输出进度条（不产生新行）。
+        
+        输出示例:
+        [search_index] ████████████░░░░░░░░░░░░░░░░░░ 40.20% | 52920 done, 80 fail / 131733 | 85.3/s | ETA: 15.4min | elapsed: 4.7min
+        """
+        elapsed, speed, eta_seconds = self._calc_speed_and_eta(now, total_done)
+        eta_str = self._format_duration(eta_seconds)
+        elapsed_str = self._format_duration(elapsed)
+        
+        # 进度条 (30 字符宽)
+        bar_width = 30
+        filled = int(bar_width * current_percent / 100)
+        bar = chr(9608) * filled + chr(9617) * (bar_width - filled)  # █ and ░
+        
+        progress_line = (
+            f"\r[{self.task_type}] {bar} {current_percent:.2f}% "
+            f"| {self.completed_tasks} done, {self.failed_tasks} fail / {self.total_tasks} "
+            f"| {speed:.1f}/s | ETA: {eta_str} | elapsed: {elapsed_str}"
+        )
+        
+        # \r 覆盖 + \033[K 清除行尾残余字符
+        sys.stdout.write(progress_line + '\033[K')
+        sys.stdout.flush()
+        
+        self._last_report_time = now
+        self._last_report_percent = current_percent
+
+    def _finish_progress_bar(self):
+        """结束进度条行（打印换行符），以便后续日志正常输出"""
+        if self._last_report_time > 0:
+            sys.stdout.write('\n')
+            sys.stdout.flush()
+
+    def _update_task_db_status_with_speed(self, status: str, progress: float):
+        """更新数据库状态，包含速度和 ETA 信息（通过 WebSocket 推送给前端）"""
+        try:
+            from src.data.repositories.task_repository import task_repo
+            
+            if status == 'running' and self.start_time is None:
+                self.start_time = datetime.now()
+            
+            task_repo.update_task_progress(
+                task_id=self.task_id,
+                status=status,
+                progress=min(float(progress), 100.0),
+                completed_items=self.completed_tasks,
+                failed_items=self.failed_tasks,
+                total_items=self.total_tasks,
+                start_time=self.start_time,
+                checkpoint_path=self.checkpoint_path,
+                output_files=self.output_files if self.output_files else None,
+            )
+            
+            # WebSocket 推送增强数据（速度和 ETA 基于会话增量）
+            try:
+                from src.services.websocket_service import emit_task_update
+                now = time.time()
+                total_done = self.completed_tasks + self.failed_tasks
+                _, speed, eta_seconds = self._calc_speed_and_eta(now, total_done)
+                
+                emit_task_update(self.task_id, {
+                    'status': status,
+                    'progress': round(progress, 2),
+                    'completed_items': self.completed_tasks,
+                    'failed_items': self.failed_tasks,
+                    'total_items': self.total_tasks,
+                    'speed': round(speed, 1),
+                    'eta_seconds': round(eta_seconds),
+                    'error_message': ''
+                })
+            except Exception:
+                pass
+        except Exception as e:
+            log.error(f"DB Status Update Error: {e}")
 
     def list_tasks(self) -> List[Dict]:
         """列出所有属于当前爬虫类型的任务及其状态（支持 .db 和 .pkl 格式）"""
@@ -648,6 +804,21 @@ class BaseCrawler:
     def _finalize_crawl(self, status: str, message: Optional[str] = None) -> bool:
         """爬取结束后的通用清理逻辑"""
         self._flush_buffer(force=True)
+        
+        # 结束覆盖式进度条（换行），然后用 log.info 输出最终汇总
+        self._finish_progress_bar()
+        
+        now = time.time()
+        total_done = self.completed_tasks + self.failed_tasks
+        elapsed, speed, _ = self._calc_speed_and_eta(now, total_done)
+        elapsed_str = self._format_duration(elapsed)
+        
+        bar = chr(9608) * 30  # 完成时满格
+        log.info(
+            f"[{self.task_type}] {bar} 100.00% "
+            f"| {self.completed_tasks} done, {self.failed_tasks} fail / {self.total_tasks} "
+            f"| avg: {speed:.1f}/s | total: {elapsed_str} | status: {status}"
+        )
         
         # 关闭进度管理器（确保所有数据已持久化）
         if self.progress_manager:

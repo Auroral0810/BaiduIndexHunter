@@ -167,8 +167,13 @@ def streaming_sink(message):
                 "line": record["line"],
                 "message": record["message"]
             })
-        except:
-            pass
+        except Exception as e:
+            import sys
+            print(f"DEBUG: streaming_sink error: {e}", file=sys.stderr)
+    else:
+        import sys
+        # print("DEBUG: _log_pusher is None", file=sys.stderr)
+        pass
 
 def setup_unified_logger(console_max_logs=3000):
     """
