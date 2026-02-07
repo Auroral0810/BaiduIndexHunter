@@ -24,18 +24,19 @@
 ---
 
 > [!IMPORTANT]
-> 
-> 本项目**仅供学习与技术交流**，<span style="color: #e53935; font-weight:600;">严禁将本项目用于任何商业用途或非法行为！</span>  
-> 
+>
+> 本项目**仅供学习与技术交流**，`<span style="color: #e53935; font-weight:600;">`严禁将本项目用于任何商业用途或非法行为！
+>
 > 1. 使用者需遵守所属国家和地区的法律法规，**因违反政策、法规或他人权益而导致的任何后果，由使用者自行承担全部责任**。
 > 2. 作者对由此项目引发的任何直接或间接损失、法律责任与风险不承担任何法律责任。
 > 3. 若对免责声明条款有疑问或无法接受，请立即停止下载和使用本项目。
 > 4. 本项目源码及其衍生内容，请勿在未获授权情况下转载或发布于其他平台。
 
 ---
+
 ## ⚡️ 项目概述
 
-**BaiduIndexHunter 2.0** 是一套面向百度指数数据的采集、存储与可视化平台，采用前后端分离架构，基于 **Flask + Vue 3 + Element Plus** 构建。系统支持**搜索指数**、**资讯指数**、**需求图谱**、**人群属性**、**兴趣分布**、**地域分布** 六大维度数据采集，集成任务调度、Cookie 轮换、断点续爬、实时进度推送与数据大屏等核心能力。
+**BaiduIndexHunter** 是一套面向百度指数数据的采集、存储与可视化平台，采用前后端分离架构，基于 **Flask + Vue 3 + Element Plus** 构建。系统支持**搜索指数**、**资讯指数**、**需求图谱**、**人群属性**、**兴趣分布**、**地域分布** 六大维度数据采集，集成任务调度、Cookie 轮换、断点续爬、实时进度推送与数据大屏等核心能力。
 
 项目面向学术研究、市场分析与舆情监测等场景，支持批量关键词与多地域采集、多格式导出（CSV / Excel / Parquet 等），并内置 API 鉴权、环境校验等安全机制，适用于单机或小规模团队部署使用。
 
@@ -55,17 +56,18 @@
 
 <div align="center">
 
-| 核心能力             | 详细描述                                                                                                    |
-| :------------------- | :--------------------------------------------------------------------------------------------------------- |
-| 六大模块全覆盖       | 深度集成搜索指数、资讯指数、需求图谱、人群属性、兴趣分布、地域分布六大数据接口。                              |
-| 实时状态监控         | 基于 WebSocket 技术，秒级同步采集进度与系统日志，实时监控项目运行状态。                                       |
-| 高效并发采集         | 采用分布式消息队列设计，支持多任务同时运行，高效应对海量关键词采集场景。                                      |
-| 智能账号池           | 内置账号状态自动巡检机制，支持 Cookie 自动轮换，封禁预警和用量可视化统计。                                   |
-| 任务断点续存         | 支持任务检查点（Checkpoint）机制，意外中断后可一键恢复，杜绝重复流量消耗。                                    |
-| 结构化数据导出       | 采集结果自动清洗为 CSV / Excel / Parquet / dta / json 等六种主流数据结构，并支持结构化数据库存储。            |
-| 多语言与国际化       | 完整支持九种语言界面切换，满足多语种全球用户的需求。                                                        |
-| 深色模式支持         | 适配现代 IDE 审美，支持 Dark Mode 一键切换，保护长时间工作下的视觉体验。                                    |
-| 全面数据可视化支持   | 内置丰富的数据分析与可视化展示，助力数据洞察与业务决策。                                                    |
+| 核心能力           | 详细描述                                                                                           |
+| :----------------- | :------------------------------------------------------------------------------------------------- |
+| 六大模块全覆盖     | 深度集成搜索指数、资讯指数、需求图谱、人群属性、兴趣分布、地域分布六大数据接口。                   |
+| 实时状态监控       | 基于 WebSocket 技术，秒级同步采集进度与系统日志，实时监控项目运行状态。                            |
+| 高效并发采集       | 采用分布式消息队列设计，支持多任务同时运行，高效应对海量关键词采集场景。                           |
+| 智能账号池         | 内置账号状态自动巡检机制，支持 Cookie 自动轮换，封禁预警和用量可视化统计。                         |
+| 任务断点续存       | 支持任务检查点（Checkpoint）机制，意外中断后可一键恢复，杜绝重复流量消耗。                         |
+| 结构化数据导出     | 采集结果自动清洗为 CSV / Excel / Parquet / dta / json 等六种主流数据结构，并支持结构化数据库存储。 |
+| 多语言与国际化     | 完整支持九种语言界面切换，满足多语种全球用户的需求。                                               |
+| 深色模式支持       | 适配现代 IDE 审美，支持 Dark Mode 一键切换，保护长时间工作下的视觉体验。                           |
+| 全面数据可视化支持 | 内置丰富的数据分析与可视化展示，助力数据洞察与业务决策。                                           |
+
 </div>
 
 ---
@@ -77,11 +79,10 @@
 <div align="center">
   <img src="static/整体架构图.png" alt="系统整体架构图" width="100%" style="border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.10); margin: 24px 0;" />
   <br />
-  <span style="color: #888; font-size: 15px;">BaiduIndexHunter 2.0 系统整体架构图</span>
+  <span style="color: #888; font-size: 15px;">BaiduIndexHunter 系统整体架构图</span>
 </div>
 
 ---
-
 
 ### 1️⃣ 首页
 
@@ -167,38 +168,38 @@
 
 ## 一次完整采集流程
 
-| 步骤 | 阶段名称 | 主要操作 | 参与组件 | 循环特性 |
-|------|----------|----------|----------|----------|
-| 1 | 用户配置 | 前端选择关键词、地区、日期范围、输出格式等参数 | DataCollection + SearchIndexTask/FeedIndexTask 等 | - |
-| 2 | 任务提交 | 用户点击创建任务，前端 POST /api/task/create | 任务组件 + request.js（鉴权） | - |
-| 3 | 接口接收 | 后端验证请求、解析参数 | TaskController + TaskService | - |
-| 4 | 参数处理 | 解析关键词列表、城市代码、日期范围，生成蜘蛛参数 | TaskService | - |
-| 5 | 任务入队 | 生成 task_id，写入 MySQL，加入优先级队列 | TaskScheduler + TaskRepository | - |
-| 6 | 响应返回 | 前端收到 task_id，展示「任务已创建」 | 前端 + WebSocket 订阅 | - |
-| 7 | 调度出队 | 后台调度循环检查队列，取出待执行任务 | TaskScheduler | - |
-| 8 | 爬虫实例化 | 根据 task_type 实例化对应爬虫（如 SearchIndexCrawler） | TaskExecutor | - |
-| 9 | 初始化与续爬 | 加载 SQLite 检查点（若有），生成子任务列表，跳过已完成项 | BaseCrawler + ProgressManager | - |
-| 10-N | **循环阶段** | **并发采集 + 进度上报** | **爬虫 + CookieRotator + WebSocket** | **多轮循环** |
-| 10.1 | 获取 Cookie | 从 Cookie 池按策略选取可用账号 | CookieRotator + CookieService | 每批/每子任务 |
-| 10.2 | 加密 Token | 生成 Cipher-Text 等请求头 | CipherGenerator + execjs | 每子任务 |
-| 10.3 | 请求解析 | 请求百度指数 API，解析 JSON 响应 | Processor（search_processor 等） | 每子任务 |
-| 10.4 | 数据缓冲 | 追加到内存缓冲，达到阈值时批量写入 CSV | BaseCrawler + StorageService | 每批 |
-| 10.5 | 检查点更新 | 标记已完成/失败，写入 SQLite 检查点 | ProgressManager | 每批 |
-| 10.6 | 进度推送 | 向前端推送进度条、速度、ETA | WebSocketService + Logs.vue | 每批 |
-| N+1 | 数据落盘 | 刷新缓冲，将剩余数据写入 CSV | StorageService | - |
-| N+2 | 格式转换 | 按配置将 CSV 转为 Excel/DTA/JSON/Parquet/SQLite | StorageService | - |
-| N+3 | 任务完成 | 更新任务状态、输出路径，推送完成事件 | TaskRepository + WebSocketService | - |
-| N+4 | 前端展示 | 任务列表显示完成，用户可下载输出文件 | TaskList + DirPicker | - |
+| 步骤 | 阶段名称           | 主要操作                                                 | 参与组件                                          | 循环特性           |
+| ---- | ------------------ | -------------------------------------------------------- | ------------------------------------------------- | ------------------ |
+| 1    | 用户配置           | 前端选择关键词、地区、日期范围、输出格式等参数           | DataCollection + SearchIndexTask/FeedIndexTask 等 | -                  |
+| 2    | 任务提交           | 用户点击创建任务，前端 POST /api/task/create             | 任务组件 + request.js（鉴权）                     | -                  |
+| 3    | 接口接收           | 后端验证请求、解析参数                                   | TaskController + TaskService                      | -                  |
+| 4    | 参数处理           | 解析关键词列表、城市代码、日期范围，生成蜘蛛参数         | TaskService                                       | -                  |
+| 5    | 任务入队           | 生成 task_id，写入 MySQL，加入优先级队列                 | TaskScheduler + TaskRepository                    | -                  |
+| 6    | 响应返回           | 前端收到 task_id，展示「任务已创建」                     | 前端 + WebSocket 订阅                             | -                  |
+| 7    | 调度出队           | 后台调度循环检查队列，取出待执行任务                     | TaskScheduler                                     | -                  |
+| 8    | 爬虫实例化         | 根据 task_type 实例化对应爬虫（如 SearchIndexCrawler）   | TaskExecutor                                      | -                  |
+| 9    | 初始化与续爬       | 加载 SQLite 检查点（若有），生成子任务列表，跳过已完成项 | BaseCrawler + ProgressManager                     | -                  |
+| 10-N | **循环阶段** | **并发采集 + 进度上报**                            | **爬虫 + CookieRotator + WebSocket**        | **多轮循环** |
+| 10.1 | 获取 Cookie        | 从 Cookie 池按策略选取可用账号                           | CookieRotator + CookieService                     | 每批/每子任务      |
+| 10.2 | 加密 Token         | 生成 Cipher-Text 等请求头                                | CipherGenerator + execjs                          | 每子任务           |
+| 10.3 | 请求解析           | 请求百度指数 API，解析 JSON 响应                         | Processor（search_processor 等）                  | 每子任务           |
+| 10.4 | 数据缓冲           | 追加到内存缓冲，达到阈值时批量写入 CSV                   | BaseCrawler + StorageService                      | 每批               |
+| 10.5 | 检查点更新         | 标记已完成/失败，写入 SQLite 检查点                      | ProgressManager                                   | 每批               |
+| 10.6 | 进度推送           | 向前端推送进度条、速度、ETA                              | WebSocketService + Logs.vue                       | 每批               |
+| N+1  | 数据落盘           | 刷新缓冲，将剩余数据写入 CSV                             | StorageService                                    | -                  |
+| N+2  | 格式转换           | 按配置将 CSV 转为 Excel/DTA/JSON/Parquet/SQLite          | StorageService                                    | -                  |
+| N+3  | 任务完成           | 更新任务状态、输出路径，推送完成事件                     | TaskRepository + WebSocketService                 | -                  |
+| N+4  | 前端展示           | 任务列表显示完成，用户可下载输出文件                     | TaskList + DirPicker                              | -                  |
 
 ---
 
 ## 项目代码结构树
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > 以下结构已排除 `node_modules`、`venv`、`logs`、`output`、`.env` 等被 `.gitignore` 忽略的内容。
 
 ```
-BaiduIndexHunter2.0/
+BaiduIndexHunter/
 ├── baidu-index-hunter-backend/                 # 后端 Flask 应用
 │   ├── app.py                                  # Flask 主入口，蓝图注册、WebSocket 初始化
 │   ├── config/                                 # 配置目录
@@ -359,7 +360,8 @@ BaiduIndexHunter2.0/
 ├── start.sh                                    # 一键启动脚本（后端+前端）
 ├── README.md                                   # 中文说明文档
 ├── README_EN.md                                # 英文说明文档
-├── CONTRIBUTING.md                             # 贡献指南
+├── CONTRIBUTING.md                             # 贡献指南（中文）
+├── CONTRIBUTING_en.md                          # 贡献指南（英文）
 ├── LICENSE                                     # 非商业许可协议
 └── .gitignore                                  # Git 忽略规则
 ```
@@ -368,30 +370,81 @@ BaiduIndexHunter2.0/
 
 ## 🚀 快速开始
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > 本项目为个人在百度指数实证研究过程中，为方便批量采集关键词数据而构建的工具，**仅供学习交流使用，严禁用于商业用途**。因商业用途产生的一切后果由使用者自行承担。
 
 ### 一、环境要求
 
 #### 1.1 操作系统
 
-| 平台 | 要求 |
-| :--- | :--- |
-| Windows | 10 / 11 |
-| macOS | 10.14 或更高版本 |
-| Linux | Ubuntu 18.04+ / CentOS 7+ / Debian 9+ |
+<div align="center">
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:center;">平台</th>
+      <th style="text-align:center;">要求</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:center;">Windows</td>
+      <td style="text-align:center;">10 / 11</td>
+    </tr>
+    <tr>
+      <td style="text-align:center;">macOS</td>
+      <td style="text-align:center;">10.14 或更高版本</td>
+    </tr>
+    <tr>
+      <td style="text-align:center;">Linux</td>
+      <td style="text-align:center;">Ubuntu 18.04+ / CentOS 7+ / Debian 9+</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
 
 #### 1.2 必需软件
 
-| 软件 | 最低版本 | 推荐版本 |
-| :--- | :--- | :--- |
-| Python | 3.11 | 3.11.x |
-| Node.js | 18.0 | 18.x 或 21.x |
-| MySQL | 8.0 | 8.x |
-| Redis | 7.4 | 7.4 |
+<div align="center">
 
-> **Windows 用户说明**：  
-> - Node.js 推荐使用 [nvm-windows](https://github.com/coreybutler/nvm-windows) 管理多版本，安装后执行 `nvm install 21`、`nvm use 21` 使用 Node 21。  
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:center;">软件</th>
+      <th style="text-align:center;">最低版本</th>
+      <th style="text-align:center;">推荐版本</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:center;">Python</td>
+      <td style="text-align:center;">3.11</td>
+      <td style="text-align:center;">3.11.x</td>
+    </tr>
+    <tr>
+      <td style="text-align:center;">Node.js</td>
+      <td style="text-align:center;">18.0</td>
+      <td style="text-align:center;">18.x 或 21.x</td>
+    </tr>
+    <tr>
+      <td style="text-align:center;">MySQL</td>
+      <td style="text-align:center;">8.0</td>
+      <td style="text-align:center;">8.x</td>
+    </tr>
+    <tr>
+      <td style="text-align:center;">Redis</td>
+      <td style="text-align:center;">7.4</td>
+      <td style="text-align:center;">7.4</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+
+> **Windows 用户说明**：
+>
+> - Node.js 推荐使用 [nvm-windows](https://github.com/coreybutler/nvm-windows) 管理多版本，安装后执行 `nvm install 21`、`nvm use 21` 使用 Node 21。
 > - Redis 在 Windows 下可使用 [Memurai](https://www.memurai.com/) 替代，安装后需确保 `memurai-cli ping` 返回 `PONG`。
 
 #### 1.3 环境验证
@@ -441,9 +494,9 @@ source scripts/BaiduIndexHunter.sql
 2. 复制 `.env.example` 为 `.env`
 3. 编辑 `.env`，**至少修改以下必填项**：
 
-| 配置项 | 说明 |
-| :--- | :--- |
-| `MYSQL_PASSWORD` | 替换为你的 MySQL 登录密码，禁止使用占位符 |
+| 配置项             | 说明                                                                          |
+| :----------------- | :---------------------------------------------------------------------------- |
+| `MYSQL_PASSWORD` | 替换为你的 MySQL 登录密码，禁止使用占位符                                     |
 | `API_SECRET_KEY` | 替换为随机生成的复杂密钥（用于 API 鉴权），禁止使用「请修改此密钥」等占位文字 |
 
 4. 其他配置（Redis、Flask 端口、爬虫参数等）可按需调整，完整说明见 `config/.env.example`。
@@ -545,13 +598,13 @@ VITE v5.x.x  ready in xxx ms
 
 ### 五、验证安装
 
-| 步骤 | 操作 | 预期结果 |
-| :--- | :--- | :--- |
-| 1 | 浏览器访问 `http://localhost:5001/api/health` | 返回 JSON，包含 `status: "UP"` |
-| 2 | 浏览器访问 `http://localhost:5173/` | 显示项目首页 |
-| 3 | 前端 → 左侧菜单「系统配置」 | 能正常加载配置项（说明数据库连接正常） |
-| 4 | 前端 → 「Cookie 管理」→ 添加 Cookie | 能成功添加（需先登录百度指数，从浏览器开发者工具复制 Cookie） |
-| 5 | 前端 → 「搜索指数采集」→ 测试一个简单关键词 | 任务能创建并执行，有进度反馈 |
+| 步骤 | 操作                                            | 预期结果                                                      |
+| :--- | :---------------------------------------------- | :------------------------------------------------------------ |
+| 1    | 浏览器访问 `http://localhost:5001/api/health` | 返回 JSON，包含 `status: "UP"`                              |
+| 2    | 浏览器访问 `http://localhost:5173/`           | 显示项目首页                                                  |
+| 3    | 前端 → 左侧菜单「系统配置」                    | 能正常加载配置项（说明数据库连接正常）                        |
+| 4    | 前端 → 「Cookie 管理」→ 添加 Cookie           | 能成功添加（需先登录百度指数，从浏览器开发者工具复制 Cookie） |
+| 5    | 前端 → 「搜索指数采集」→ 测试一个简单关键词   | 任务能创建并执行，有进度反馈                                  |
 
 #### Cookie 获取方式
 
@@ -564,12 +617,12 @@ VITE v5.x.x  ready in xxx ms
 
 ### 六、常见问题
 
-| 问题 | 可能原因 | 处理建议 |
-| :--- | :--- | :--- |
-| 后端启动失败，提示环境变量校验错误 | `MYSQL_PASSWORD` 或 `API_SECRET_KEY` 使用占位值 | 修改 `config/.env`，填写真实密码和随机密钥 |
-| 无法连接 MySQL | 密码错误、MySQL 未启动、端口非 3306 | 检查 MySQL 服务、密码、端口配置 |
-| 无法连接 Redis | Redis 未启动、Windows 未安装 Memurai | 启动 Redis 服务；Windows 用户安装并启动 Memurai |
-| 前端请求 401 | 前端未配置 `API_SECRET_KEY` | 在「系统配置」→「API 连接」中填写与后端一致的密钥，或在前端 `.env` 中配置 `VITE_API_SECRET_KEY` |
+| 问题                               | 可能原因                                            | 处理建议                                                                                             |
+| :--------------------------------- | :-------------------------------------------------- | :--------------------------------------------------------------------------------------------------- |
+| 后端启动失败，提示环境变量校验错误 | `MYSQL_PASSWORD` 或 `API_SECRET_KEY` 使用占位值 | 修改 `config/.env`，填写真实密码和随机密钥                                                         |
+| 无法连接 MySQL                     | 密码错误、MySQL 未启动、端口非 3306                 | 检查 MySQL 服务、密码、端口配置                                                                      |
+| 无法连接 Redis                     | Redis 未启动、Windows 未安装 Memurai                | 启动 Redis 服务；Windows 用户安装并启动 Memurai                                                      |
+| 前端请求 401                       | 前端未配置 `API_SECRET_KEY`                       | 在「系统配置」→「API 连接」中填写与后端一致的密钥，或在前端 `.env` 中配置 `VITE_API_SECRET_KEY` |
 
 ---
 
@@ -582,26 +635,22 @@ VITE v5.x.x  ready in xxx ms
    - 本项目中的所有代码、工具和功能均仅供学习、学术研究和教育目的使用。
    - 严禁将本项目用于任何商业用途或盈利性活动。
    - 严禁将本项目用于任何违法、违规或侵犯他人权益的行为。
-
 2. **爬虫功能免责**：
 
    - 项目中的爬虫功能仅用于技术学习和研究目的。
    - 使用者必须遵守目标网站的 robots.txt 协议和使用条款。
    - 使用者必须遵守相关法律法规，不得进行恶意爬取或数据滥用。
    - 因使用爬虫功能产生的任何法律后果由使用者自行承担。
-
 3. **数据使用免责**：
 
    - 项目涉及的数据分析功能仅供学术研究使用。
    - 严禁将分析结果用于商业决策或盈利目的。
    - 使用者应确保所分析数据的合法性和合规性。
-
 4. **技术免责**：
 
    - 本项目按“现状”提供，不提供任何明示或暗示的保证。
    - 作者不对使用本项目造成的任何直接或间接损失承担责任。
    - 使用者应自行评估项目的适用性和风险。
-
 5. **责任限制**：
 
    - 使用者在使用本项目前应充分了解相关法律法规。
@@ -646,7 +695,6 @@ VITE v5.x.x  ready in xxx ms
 <a href="https://www.star-history.com/#Auroral0810/BaiduIndexHunter&type=date&legend=bottom-right">
   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Auroral0810/BaiduIndexHunter&type=date&theme=light&legend=bottom-right" style="vertical-align:middle;display:inline-block;" />
 </a>
-
 
 ![Alt](https://repobeats.axiom.co/api/embed/1f0334fb444a74a291d3eeb3bf381df5bf6619e3.svg "Repobeats analytics image")
 
