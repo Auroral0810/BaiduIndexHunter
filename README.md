@@ -1,20 +1,9 @@
-<div align="center">
-  <div style="display: flex; justify-content: center; align-items: center; gap: 2.5rem; flex-wrap: wrap;">
-    <div style="display: flex; flex-direction: column; align-items: flex-start; min-width: 320px;">
-      <h1 style="margin-bottom: 0.5em;">
-        <img src="baidu-index-hunter-frontend/src/assets/logo.svg" alt="BaiduIndexHunter Logo" style="vertical-align: middle; height: 2em; margin-right: 0.5em;" />
-        BaiduIndexHunter
-      </h1>
-      <h3 style="margin-top:0;">专业的百度指数采集与分析平台</h3>
-    </div>
-    <div>
-      <img src="baidu-index-hunter-frontend/src/assets/slogn_logo.jpg" alt="Slogan" style="max-width:350px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.10);" />
-    </div>
-  </div>
-</div>
+<p align="center">
+  <img src="/Users/超级无敌巨重要的资料/BaiduIndexHunter2.0/static/github-header-banner-zh.png" alt="BaiduIndexHunter Banner" style="border:none;box-shadow:none;outline:none;width:100%;max-width:900px;" />
+</p>
 
 <p align="center">
-  <a href="./README.md">🇨🇳 简体中文</a> | <a href="./README_EN.md">🇺🇸 English</a>
+  <a href="./README.md">中文文档</a> | <a href="./README_EN.md">English</a>
 </p>
 <p align="center">
   <!-- 技术栈、版本、License、PR、Fork、Watch、Star、Issue、Last Commit —— 所有徽章聚合到同一行 -->
@@ -24,7 +13,7 @@
   <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat-square&logo=mysql&logoColor=white" alt="MySQL" />
   <img src="https://img.shields.io/badge/Redis-7.x-DC382D?style=flat-square&logo=redis&logoColor=white" alt="Redis" />
   <img src="https://img.shields.io/badge/version-2.0.0-blue?style=flat-square" alt="Version" />
-  <img src="https://img.shields.io/github/license/Auroral0810/BaiduIndexHunter?style=flat-square" alt="License" />
+  <img src="https://img.shields.io/badge/license-Custom%20@LICENSE-blue?style=flat-square" alt="License" />
   <img src="https://img.shields.io/github/issues-pr/Auroral0810/BaiduIndexHunter?style=flat-square" alt="Pull Requests" />
   <img src="https://img.shields.io/github/forks/Auroral0810/BaiduIndexHunter?style=flat-square" alt="GitHub Forks" />
   <img src="https://img.shields.io/github/watchers/Auroral0810/BaiduIndexHunter?style=flat-square" alt="Watchers" />
@@ -33,6 +22,16 @@
   <img src="https://img.shields.io/github/last-commit/Auroral0810/BaiduIndexHunter?style=flat-square" alt="Last Commit" />
 </p>
 
+---
+
+> [!IMPORTANT]
+> 
+> 本项目**仅供学习与技术交流**，<span style="color: #e53935; font-weight:600;">严禁将本项目用于任何商业用途或非法行为！</span>  
+> 
+> 1. 使用者需遵守所属国家和地区的法律法规，**因违反政策、法规或他人权益而导致的任何后果，由使用者自行承担全部责任**。
+> 2. 作者对由此项目引发的任何直接或间接损失、法律责任与风险不承担任何法律责任。
+> 3. 若对免责声明条款有疑问或无法接受，请立即停止下载和使用本项目。
+> 4. 本项目源码及其衍生内容，请勿在未获授权情况下转载或发布于其他平台。
 
 ---
 
@@ -80,16 +79,16 @@
 
 <div align="center">
 
-| 🏷️ **核心能力**       | 📝 **详细描述**                                                                                    |
-| :-------------------- | :------------------------------------------------------------------------------------------------- |
-| 🔍 **六大模块全覆盖** | 深度集成 **搜索指数**、**资讯指数**、**需求图谱**、**人群属性**、**兴趣分布**、**地域分布** 接口。 |
-| 📊 **实时状态监控**   | 基于 **WebSocket** 技术，秒级同步采集进度与系统日志，实时监控项目运行状态。                        |
-| ⚡ **高效并发采集**   | 采用分布式消息队列设计，支持多任务同时运行，轻松应对海量关键词采集需求。                           |
-| 🍪 **智能账号池**     | 内置账号状态自动巡检机，支持 Cookie **自动轮换**、封禁预警与用量可视化统计。                       |
-| 🔄 **任务断点续存**   | 支持任务检查点（Checkpoint）机制，意外中断后可一键恢复，杜绝重复流量消耗。                         |
-| 📤 **结构化数据导出** | 自动将采集结果清洗为 **CSV / Excel / Parquet** 格式，并提供结构化数据库存储支持。                  |
-| 🌐 **多语言与国际化** | 完整支持 **中/英 双语** 界面切换，适应多语言工作环境。                                             |
-| 🌙 **深色模式支持**   | 适配现代 IDE 审美，支持 **Dark Mode** 一键切换，保护长时间工作下的视觉疲劳。                       |
+| 🏷️**核心能力**     | 📝**详细描述**                                                                                                                  |
+| :------------------------- | :------------------------------------------------------------------------------------------------------------------------------------ |
+| 🔍**六大模块全覆盖** | 深度集成**搜索指数**、**资讯指数**、**需求图谱**、**人群属性**、**兴趣分布**、**地域分布** 接口。 |
+| 📊**实时状态监控**   | 基于**WebSocket** 技术，秒级同步采集进度与系统日志，实时监控项目运行状态。                                                      |
+| ⚡**高效并发采集**   | 采用分布式消息队列设计，支持多任务同时运行，轻松应对海量关键词采集需求。                                                              |
+| 🍪**智能账号池**     | 内置账号状态自动巡检机，支持 Cookie**自动轮换**、封禁预警与用量可视化统计。                                                     |
+| 🔄**任务断点续存**   | 支持任务检查点（Checkpoint）机制，意外中断后可一键恢复，杜绝重复流量消耗。                                                            |
+| 📤**结构化数据导出** | 自动将采集结果清洗为**CSV / Excel / Parquet** 格式，并提供结构化数据库存储支持。                                                |
+| 🌐**多语言与国际化** | 完整支持**中/英 双语** 界面切换，适应多语言工作环境。                                                                           |
+| 🌙**深色模式支持**   | 适配现代 IDE 审美，支持**Dark Mode** 一键切换，保护长时间工作下的视觉疲劳。                                                     |
 
 </div>
 
@@ -217,8 +216,8 @@ npm install && npm run dev
 
 ## 💻 环境要求
 
-| 软件        | 最低要求 | 推荐版本 |
-| :---------- | :------- | :------- |
+| 软件              | 最低要求 | 推荐版本 |
+| :---------------- | :------- | :------- |
 | **Python**  | 3.11.0   | 3.11.13  |
 | **Node.js** | 18.0.0   | 18.20.x  |
 | **MySQL**   | 8.0.0    | 8.0.36   |
