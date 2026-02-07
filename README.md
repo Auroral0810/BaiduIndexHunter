@@ -1,9 +1,15 @@
-<div align="center">
-  <img src="baidu-index-hunter-frontend/src/assets/logo.svg" alt="BaiduIndexHunter Logo" width="150">
-  <h1>🎯 BaiduIndexHunter 2.0</h1>
-  <p><strong>专业的百度指数采集与分析平台</strong></p>
-  <img src="baidu-index-hunter-frontend/src/assets/slogn_logo.jpg" alt="Slogan" width="80%">
-</div>
+<table align="center" border="0">
+  <tr>
+    <td width="45%" align="center">
+      <img src="baidu-index-hunter-frontend/src/assets/logo.svg" alt="Logo" width="80">
+      <h1>🎯 BaiduIndexHunter 2.0</h1>
+      <p><strong>专业的百度指数采集与分析平台</strong></p>
+    </td>
+    <td width="55%">
+      <img src="baidu-index-hunter-frontend/src/assets/slogn_logo.jpg" alt="Slogan" width="100%">
+    </td>
+  </tr>
+</table>
 
 <p align="center">
   <a href="./README.md">🇨🇳 简体中文</a> | <a href="./README_EN.md">🇺🇸 English</a>
@@ -30,12 +36,10 @@
 ## 📺 演示视频
 
 <p align="center">
-  <a href="static/github演示视频.mp4">
-    <img src="static/首页-门面.png" alt="点击观看演示视频" width="80%">
-  </a>
+  <video src="https://github.com/Auroral0810/BaiduIndexHunter/raw/main/static/github演示视频.mp4" controls autoplay muted loop width="90%">
+    您的浏览器不支持视频播放，请<a href="static/github演示视频.mp4">点击此处下载</a>观看。
+  </video>
 </p>
-
-> 👆 点击上方图片观看完整演示视频
 
 ---
 
@@ -43,7 +47,6 @@
 
 > **本项目仅供学习交流使用，严禁用于任何商业用途。**
 > 使用者需遵守相关法律法规，因使用本项目而产生的任何法律责任由使用者自行承担。
-> 请勿将本项目用于任何可能侵犯他人权益的行为。
 
 ---
 
@@ -77,58 +80,23 @@
 - 🔄 断点续传与自动恢复
 - 🌍 多语言国际化支持
 
-无论是学术研究、市场分析还是竞品调研，BaiduIndexHunter 都能为您提供稳定可靠的数据支持。
-
 ---
 
 ## ✨ 功能特性
 
-<table>
-  <tr>
-    <td align="center" width="25%">
-      <img src="https://img.icons8.com/color/48/000000/search--v1.png" width="40"><br>
-      <strong>六大模块覆盖</strong><br>
-      <sub>搜索指数、资讯指数、需求图谱<br>人群属性、兴趣分布、地域分布</sub>
-    </td>
-    <td align="center" width="25%">
-      <img src="https://img.icons8.com/color/48/000000/parallel-tasks.png" width="40"><br>
-      <strong>高效并发采集</strong><br>
-      <sub>分布式任务队列<br>多用户同时采集</sub>
-    </td>
-    <td align="center" width="25%">
-      <img src="https://img.icons8.com/color/48/000000/real-time.png" width="40"><br>
-      <strong>实时状态监控</strong><br>
-      <sub>WebSocket 实时推送<br>数据大屏可视化</sub>
-    </td>
-    <td align="center" width="25%">
-      <img src="https://img.icons8.com/color/48/000000/cookie.png" width="40"><br>
-      <strong>智能 Cookie 管理</strong><br>
-      <sub>自动轮换、封禁检测<br>用量统计可视化</sub>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="https://img.icons8.com/color/48/000000/resume.png" width="40"><br>
-      <strong>断点续传</strong><br>
-      <sub>任务中断自动恢复<br>检查点持久化</sub>
-    </td>
-    <td align="center">
-      <img src="https://img.icons8.com/color/48/000000/export.png" width="40"><br>
-      <strong>灵活数据导出</strong><br>
-      <sub>CSV / Excel 格式<br>自动持久化存储</sub>
-    </td>
-    <td align="center">
-      <img src="https://img.icons8.com/color/48/000000/language.png" width="40"><br>
-      <strong>国际化多语言</strong><br>
-      <sub>中文 / 英文 界面切换</sub>
-    </td>
-    <td align="center">
-      <img src="https://img.icons8.com/color/48/000000/moon-satellite.png" width="40"><br>
-      <strong>深色模式</strong><br>
-      <sub>护眼深色主题<br>一键切换</sub>
-    </td>
-  </tr>
-</table>
+<div align="center">
+
+|     🔍 **六大模块全覆盖**      | ⚡ **高效并发采集** | 📊 **实时状态监控** | 🍪 **智能 Cookie 管理** |
+| :----------------------------: | :-----------------: | :-----------------: | :---------------------: |
+| 搜索指数 · 资讯指数 · 需求图谱 |   分布式任务队列    | WebSocket 实时推送  |   自动轮换 · 封禁检测   |
+| 人群属性 · 兴趣分布 · 地域分布 |   多用户同时采集    |   数据大屏可视化    |     用量统计可视化      |
+
+| 🔄 **断点续传**  | 📤 **灵活数据导出** | 🌐 **国际化多语言**  | 🌙 **深色模式** |
+| :--------------: | :-----------------: | :------------------: | :-------------: |
+| 任务中断自动恢复 |  CSV / Excel 格式   | 中文 / 英文 界面切换 |  护眼深色主题   |
+|   检查点持久化   |   自动持久化存储    |     一键切换语言     |  一键切换主题   |
+
+</div>
 
 ---
 
@@ -137,71 +105,71 @@
 ### 整体架构图
 
 ```mermaid
-graph TB
-    subgraph Frontend["🎨 前端 (Vue.js 3)"]
-        UI[Element Plus UI]
-        Charts[ECharts 图表]
-        WS_Client[WebSocket 客户端]
-        Router[Vue Router]
-        Store[Pinia 状态管理]
+flowchart TB
+    subgraph Client["🖥️ 客户端"]
+        Browser["浏览器"]
     end
 
-    subgraph Backend["⚙️ 后端 (Flask)"]
-        API[RESTful API]
-        WS_Server[Socket.IO 服务]
-        Scheduler[APScheduler 调度器]
-        CookiePool[Cookie 池管理]
+    subgraph Frontend["🎨 前端 Vue.js 3"]
+        direction LR
+        UI["Element Plus UI"]
+        Charts["ECharts 图表"]
+        WS_C["WebSocket"]
     end
 
-    subgraph Engine["🕷️ 爬虫引擎"]
-        SearchCrawler[搜索指数爬虫]
-        FeedCrawler[资讯指数爬虫]
-        RegionCrawler[地域分布爬虫]
-        DemoCrawler[人群属性爬虫]
-        GraphCrawler[需求图谱爬虫]
+    subgraph Backend["⚙️ 后端 Flask"]
+        direction LR
+        API["RESTful API"]
+        WS_S["Socket.IO"]
+        Scheduler["APScheduler"]
+    end
+
+    subgraph Crawler["🕷️ 爬虫引擎"]
+        direction TB
+        C1["搜索指数"]
+        C2["资讯指数"]
+        C3["地域分布"]
+        C4["人群属性"]
+        C5["需求图谱"]
+        C6["兴趣分布"]
     end
 
     subgraph Storage["💾 数据存储"]
-        MySQL[(MySQL 8.0)]
-        Redis[(Redis 7.x)]
-        FileSystem[文件系统<br>CSV/Excel]
+        direction LR
+        MySQL[("MySQL")]
+        Redis[("Redis")]
+        Files["CSV/Excel"]
     end
 
-    Frontend --> |HTTP/WebSocket| Backend
-    Backend --> Engine
-    Backend --> Storage
-    Engine --> |数据持久化| Storage
-    Engine --> |Cookie 轮换| CookiePool
+    Browser --> Frontend
+    Frontend <--> Backend
+    Backend --> Crawler
+    Crawler --> Storage
+    Backend <--> Storage
 ```
 
 ### 爬虫任务流程图
 
 ```mermaid
-sequenceDiagram
-    participant U as 用户
-    participant F as 前端
-    participant B as 后端 API
-    participant Q as 任务队列
-    participant C as 爬虫引擎
-    participant DB as 数据库
+flowchart LR
+    A([🧑 用户]) -->|1. 创建任务| B[📱 前端]
+    B -->|2. POST /api/tasks| C[⚙️ 后端]
+    C -->|3. 保存任务| D[(💾 数据库)]
+    C -->|4. 加入队列| E[📋 任务队列]
+    E -->|5. 分发任务| F[🕷️ 爬虫引擎]
+    F -->|6. 请求数据| G[🌐 百度 API]
+    G -->|7. 返回数据| F
+    F -->|8. 存储结果| D
+    F -.->|9. 推送进度| B
+    B -.->|10. 显示结果| A
 
-    U->>F: 创建采集任务
-    F->>B: POST /api/v1/tasks
-    B->>DB: 保存任务信息
-    B->>Q: 加入任务队列
-    B-->>F: 返回任务 ID
-
-    loop 任务执行
-        Q->>C: 分发任务
-        C->>C: 获取 Cookie
-        C->>C: 请求百度 API
-        C->>DB: 保存采集数据
-        C-->>F: WebSocket 推送进度
-    end
-
-    C->>DB: 更新任务状态
-    C-->>F: 任务完成通知
-    F-->>U: 显示结果
+    style A fill:#e1f5fe
+    style B fill:#fff3e0
+    style C fill:#f3e5f5
+    style D fill:#e8f5e9
+    style E fill:#fce4ec
+    style F fill:#fff8e1
+    style G fill:#e3f2fd
 ```
 
 ---
@@ -227,7 +195,7 @@ sequenceDiagram
 |        ![Vue.js](https://img.shields.io/badge/-Vue.js-4FC08D?style=flat-square&logo=vue.js&logoColor=white)         | 3.4  | 前端框架 (组合式 API) |
 |           ![Vite](https://img.shields.io/badge/-Vite-646CFF?style=flat-square&logo=vite&logoColor=white)            | 5.1  | 构建工具              |
 | ![Element Plus](https://img.shields.io/badge/-Element%20Plus-409EFF?style=flat-square&logo=element&logoColor=white) | 2.4  | UI 组件库             |
-|          ![Pinia](https://img.shields.io/badge/-Pinia-F7D336?style=flat-square&logo=pinia&logoColor=black)          | 2.x  | 状态管理              |
+|         ![Pinia](https://img.shields.io/badge/-Pinia-F7D336?style=flat-square&logo=vue.js&logoColor=black)          | 2.x  | 状态管理              |
 |   ![ECharts](https://img.shields.io/badge/-ECharts-AA344D?style=flat-square&logo=apache-echarts&logoColor=white)    | 5.6  | 数据可视化            |
 |          ![Axios](https://img.shields.io/badge/-Axios-5A29E4?style=flat-square&logo=axios&logoColor=white)          | 1.6  | HTTP 客户端           |
 
@@ -371,8 +339,6 @@ npm run build
 
 ### 输出文件格式
 
-数据文件存储在 `output/` 目录下，按模块组织：
-
 ```
 output/
 ├── search_index/           # 搜索指数
@@ -420,8 +386,6 @@ output/
 
 我们欢迎任何形式的贡献！请查阅 [CONTRIBUTING.md](CONTRIBUTING.md) 了解详情。
 
-### 贡献流程
-
 1. 🍴 Fork 本仓库
 2. 🔨 创建特性分支 (`git checkout -b feature/AmazingFeature`)
 3. 📝 提交更改 (`git commit -m 'Add some AmazingFeature'`)
@@ -446,7 +410,7 @@ output/
 
 如有任何问题或建议，欢迎通过以下方式联系：
 
-<table>
+<table align="center">
   <tr>
     <td align="center">
       <strong>📧 邮箱</strong><br>
