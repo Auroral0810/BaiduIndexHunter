@@ -146,6 +146,17 @@
             <el-option label="SQLite (.sqlite)" value="sql" />
           </el-select>
         </el-form-item>
+        <el-form-item label="输出目录">
+          <DirPicker
+            v-model="formData.output_dir"
+            placeholder="留空则使用系统默认输出目录"
+            hint="自定义此任务的输出目录，留空使用全局配置中的默认目录"
+          />
+        </el-form-item>
+        <el-form-item label="自定义文件名">
+          <el-input v-model="formData.output_name" placeholder="留空则使用默认文件名" clearable />
+          <div style="font-size: 12px; color: #909399; margin-top: 4px;">设置输出文件名前缀（如 "my_data"），留空则使用默认格式</div>
+        </el-form-item>
         <el-form-item
           :label="$t('tasks-InterestProfileTask-19c298e1e7a81a799-27')"
           ><el-input-number
@@ -448,6 +459,7 @@ import {
   Close,
 } from "@element-plus/icons-vue";
 import axios from "axios";
+import DirPicker from "../DirPicker.vue";
 import * as XLSX from "xlsx";
 
 const API_BASE_URL = "http://127.0.0.1:5001/api";
@@ -457,6 +469,8 @@ const router = useRouter();
 const formData = reactive({
   keywords: [] as { value: string }[],
   output_format: "csv",
+  output_dir: "",
+  output_name: "",
   batch_size: 5,
   resume: false,
   task_id: "",
@@ -830,6 +844,8 @@ const submitTask = async () => {
       parameters: {
         keywords: formData.keywords.map((k) => k.value),
         output_format: formData.output_format,
+        ...(formData.output_dir ? { output_dir: formData.output_dir } : {}),
+        ...(formData.output_name ? { output_name: formData.output_name } : {}),
         batch_size: formData.batch_size,
         resume: formData.resume,
       },

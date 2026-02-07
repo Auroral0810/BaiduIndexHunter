@@ -2,6 +2,7 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useConfigStore } from '../store/config'
+import DirPicker from '../components/DirPicker.vue'
 import { List, Loading, Document, Files, Refresh, Check } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 const { t: $t } = useI18n()
@@ -97,7 +98,12 @@ const selectOptions: Record<string, { label: string; value: string }[]> = {
   ],
 }
 
+// 需要目录路径选择器的配置项
+const pathConfigs = ['output.default_dir']
+
 const getConfigType = (key: string, value: any) => {
+  // 检查是否为目录路径类型
+  if (pathConfigs.includes(key)) return 'path'
   // 检查是否有预定义的下拉选项
   if (selectOptions[key]) return 'select'
   if (typeof value === 'boolean' || value === 'True' || value === 'False' || value === 'true' || value === 'false') return 'boolean'
@@ -113,6 +119,8 @@ const getConfigType = (key: string, value: any) => {
   }
   return 'string'
 }
+
+// 目录选择功能已由 DirPicker 组件提供
 
 // 获取显示标签（优先使用中文描述）
 const getDisplayLabel = (key: string) => {
@@ -154,6 +162,7 @@ const getConfigDescription = (key: string) => {
     'spider.failure_multiplier': $t('views.settings.2732fq'),
     
     // 输出配置
+    'output.default_dir': '默认输出文件夹',
     'output.default_format': $t('views.settings.5pe522'),
     'output.csv_encoding': $t('views.settings.813612'),
     'output.excel_sheet_name': $t('views.settings.1744lc'),
@@ -295,6 +304,14 @@ onMounted(async () => {
                         class="custom-input"
                   />
                   
+                  <!-- 路径类型（目录选择器） -->
+                  <DirPicker
+                    v-else-if="getConfigType(String(key), value) === 'path'"
+                    v-model="configStore.configs[key]"
+                    placeholder="输入文件夹路径或点击浏览选择"
+                    hint="可直接输入路径或点击浏览按钮选择文件夹"
+                  />
+
                   <!-- URL类型 -->
                   <el-input 
                         v-else-if="getConfigType(String(key), value) === 'url'"
@@ -326,6 +343,9 @@ onMounted(async () => {
         </div>
       </main>
     </div>
+
+    <!-- 目录浏览对话框 -->
+    <!-- 目录浏览器已由 DirPicker 组件内置提供 -->
   </div>
 </template>
 
@@ -614,4 +634,9 @@ onMounted(async () => {
     width: 100%;
   }
 }
+
+/* DirPicker 在 settings 中的宽度 */
+
+/* 目录浏览器 */
+/* 目录浏览器样式已内置在 DirPicker 组件中 */
 </style> 

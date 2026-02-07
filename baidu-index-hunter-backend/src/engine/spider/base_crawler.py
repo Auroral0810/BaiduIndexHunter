@@ -34,6 +34,8 @@ class BaseCrawler:
         self.start_time = None
         self.output_files = []
         self.output_format = 'csv'  # 最终输出格式（爬取时始终用 CSV，结束后转换）
+        self.output_name = None     # 自定义文件名前缀（为空时使用 {task_type}_{task_id}）
+        self.custom_output_dir = None  # 每任务自定义输出目录（为空时使用全局配置）
         
         # 进度管理器 (SQLite-based, 替代 pkl)
         self.progress_manager: Optional[ProgressManager] = None
@@ -92,6 +94,49 @@ class BaseCrawler:
             except Exception:
                 self.output_format = 'csv'
 
+    def _apply_output_settings(self, output_dir=None, output_name=None):
+        """
+        应用输出目录和文件名设置。
+        
+        :param output_dir: 每任务自定义输出目录（绝对路径）。为空则使用全局配置。
+        :param output_name: 自定义文件名前缀。为空则使用 {task_type}_{task_id}。
+        """
+        # 1. 输出目录
+        if output_dir and isinstance(output_dir, str) and output_dir.strip():
+            self.custom_output_dir = output_dir.strip()
+        
+        # 2. 文件名前缀
+        if output_name and isinstance(output_name, str) and output_name.strip():
+            self.output_name = output_name.strip()
+
+    def _get_output_base_dir(self) -> str:
+        """
+        获取输出基础目录。
+        优先级：每任务自定义 > 全局配置 output.default_dir > 硬编码 OUTPUT_DIR。
+        """
+        # 1. 每任务自定义
+        if self.custom_output_dir:
+            return self.custom_output_dir
+        
+        # 2. 全局配置
+        try:
+            from src.services.config_service import config_manager
+            config_dir = config_manager.get('output.default_dir')
+            if config_dir and isinstance(config_dir, str) and config_dir.strip():
+                return config_dir.strip()
+        except Exception:
+            pass
+        
+        # 3. 默认
+        return OUTPUT_DIR
+
+    def _get_file_prefix(self) -> str:
+        """
+        获取输出文件名前缀。
+        如果设置了自定义 output_name 则使用，否则使用默认 {task_type}_{task_id}。
+        """
+        return self.output_name or f"{self.task_type}_{self.task_id}"
+
     def _prepare_initial_state(self):
         """初始化进度监控变量（新任务开始前调用）"""
         # 关闭旧的进度管理器
@@ -113,6 +158,22 @@ class BaseCrawler:
         self._last_report_time = 0.0
         self._last_report_percent = -1.0
         self._last_db_update_time = 0.0
+
+    def _setup_output_paths(self, task_type_subdir: str = None):
+        """
+        统一设置输出目录和检查点路径。所有爬虫子类在非 resume 模式下调用此方法。
+        
+        :param task_type_subdir: 任务类型子目录名（默认使用 self.task_type）
+        """
+        subdir = task_type_subdir or self.task_type
+        base_dir = self._get_output_base_dir()
+        self.output_path = os.path.join(base_dir, subdir, self.task_id)
+        os.makedirs(self.output_path, exist_ok=True)
+        
+        # 检查点始终放在默认 OUTPUT_DIR 下（避免检查点散落到用户自定义路径）
+        self.checkpoint_path = os.path.join(OUTPUT_DIR, 'checkpoints', f"{self.task_type}_checkpoint_{self.task_id}.db")
+        os.makedirs(os.path.dirname(self.checkpoint_path), exist_ok=True)
+        self._init_progress_manager(self.checkpoint_path)
 
     # --- 基础设施 (Infrastructure) ---
 
@@ -387,8 +448,10 @@ class BaseCrawler:
             try:
                 from src.data.repositories.statistics_repository import statistics_repo
                 
+                file_prefix = self._get_file_prefix()
+                
                 if data_to_save:
-                    path = os.path.join(self.output_path, f"{self.task_type}_{self.task_id}_data.csv")
+                    path = os.path.join(self.output_path, f"{file_prefix}_data.csv")
                     storage_service.append_to_csv(pd.DataFrame(data_to_save), path)
                     self._update_spider_statistics(len(data_to_save))
                     if path not in self.output_files:
@@ -396,7 +459,7 @@ class BaseCrawler:
                 
                 if stats_to_save:
                     # 持久化到 CSV
-                    path = os.path.join(self.output_path, f"{self.task_type}_{self.task_id}_stats.csv")
+                    path = os.path.join(self.output_path, f"{file_prefix}_stats.csv")
                     storage_service.append_to_csv(pd.DataFrame(stats_to_save), path)
                     if path not in self.output_files:
                         self.output_files.append(path)
@@ -421,7 +484,7 @@ class BaseCrawler:
 
     def _get_checkpoint_data(self) -> Dict:
         """获取需要持久化的检查点数据，子类可扩展"""
-        return {
+        data = {
             'completed_keywords': list(self.completed_keywords),
             'failed_keywords': list(self.failed_keywords),
             'completed_tasks': self.completed_tasks,
@@ -434,6 +497,12 @@ class BaseCrawler:
             'start_time': self.start_time.strftime('%Y-%m-%d %H:%M:%S') if self.start_time else None,
             'update_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
+        # 保存自定义输出设置（断点续爬时恢复）
+        if self.output_name:
+            data['output_name'] = self.output_name
+        if self.custom_output_dir:
+            data['custom_output_dir'] = self.custom_output_dir
+        return data
 
     def _init_progress_manager(self, db_path: str):
         """创建或重新初始化 ProgressManager (SQLite 进度管理器)"""
@@ -552,6 +621,12 @@ class BaseCrawler:
                 self.start_time = datetime.strptime(data.get('update_time'), '%Y-%m-%d %H:%M:%S')
             except Exception:
                 pass
+        
+        # 恢复自定义输出设置
+        if data.get('output_name'):
+            self.output_name = data['output_name']
+        if data.get('custom_output_dir'):
+            self.custom_output_dir = data['custom_output_dir']
 
     def _mark_items_completed(self, keys: List[str]):
         """

@@ -103,11 +103,12 @@ class WordGraphCrawler(BaseCrawler):
               datelists: Optional[List[str]] = None, 
               start_date: Optional[str] = None, 
               end_date: Optional[str] = None, 
-              output_format=None, **kwargs):
+              output_format=None, output_dir=None, output_name=None, **kwargs):
         """
         执行爬取任务
         """
         self._apply_output_format(output_format or kwargs.get('output_format'))
+        self._apply_output_settings(output_dir, output_name)
         
         if isinstance(keywords, str):
             keywords = [keywords]
@@ -148,12 +149,7 @@ class WordGraphCrawler(BaseCrawler):
             self.task_id = kwargs.get('task_id') or self._generate_task_id()
             self._prepare_initial_state()
 
-        import os
-        from src.core.config import OUTPUT_DIR
-        self.output_path = os.path.join(OUTPUT_DIR, "word_graph", self.task_id)
-        os.makedirs(self.output_path, exist_ok=True)
-        self.checkpoint_path = os.path.join(OUTPUT_DIR, "checkpoints", f"{self.task_type}_checkpoint_{self.task_id}.db")
-        self._init_progress_manager(self.checkpoint_path)
+        self._setup_output_paths('word_graph')
         
         # 2. 准备任务
         tasks = self._prepare_tasks(keywords, datelists)

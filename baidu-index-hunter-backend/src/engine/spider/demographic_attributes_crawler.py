@@ -105,11 +105,12 @@ class DemographicAttributesCrawler(BaseCrawler):
             log.error(f"[{self.task_type}] Request Error: {e}")
             return None
 
-    def crawl(self, keywords: List[str], output_format=None, **kwargs):
+    def crawl(self, keywords: List[str], output_format=None, output_dir=None, output_name=None, **kwargs):
         """
         执行爬取任务
         """
         self._apply_output_format(output_format or kwargs.get('output_format'))
+        self._apply_output_settings(output_dir, output_name)
         
         # 1. 初始化任务
         if kwargs.get('resume') and (kwargs.get('task_id') or kwargs.get('checkpoint_task_id')):
@@ -125,12 +126,7 @@ class DemographicAttributesCrawler(BaseCrawler):
         # 整个任务只保留一次“全网分布”数据
         self.all_network_processed = False
 
-        import os
-        from src.core.config import OUTPUT_DIR
-        self.output_path = os.path.join(OUTPUT_DIR, "demographic_attributes", self.task_id)
-        os.makedirs(self.output_path, exist_ok=True)
-        self.checkpoint_path = os.path.join(OUTPUT_DIR, "checkpoints", f"{self.task_type}_checkpoint_{self.task_id}.db")
-        self._init_progress_manager(self.checkpoint_path)
+        self._setup_output_paths('demographic_attributes')
         
         # 2. 准备任务
         tasks = self._prepare_tasks(keywords, **kwargs)

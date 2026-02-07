@@ -245,7 +245,7 @@ class SearchIndexCrawler(BaseCrawler):
     def crawl(self, task_id=None, keywords=None, cities=None, date_ranges=None, days=None, 
               keywords_file=None, cities_file=None, date_ranges_file=None,
               year_range=None, resume=False, checkpoint_task_id=None, total_tasks=None, batch_size=5,
-              output_format=None, **kwargs):
+              output_format=None, output_dir=None, output_name=None, **kwargs):
         """
         爬取百度搜索指数数据
         
@@ -264,9 +264,12 @@ class SearchIndexCrawler(BaseCrawler):
             total_tasks (int): 总任务数（从task_executor传入）
             batch_size (int): 每批处理的关键词数量，默认为5，最大不超过5个
             output_format (str): 输出格式 (csv/excel/dta/json/parquet/sql)
+            output_dir (str): 自定义输出目录
+            output_name (str): 自定义文件名前缀
         """
-        # 设置输出格式
+        # 设置输出格式和输出路径设置
         self._apply_output_format(output_format)
+        self._apply_output_settings(output_dir, output_name)
         
         # 设置任务ID和检查点路径
         if resume and checkpoint_task_id:
@@ -287,11 +290,7 @@ class SearchIndexCrawler(BaseCrawler):
             
         # 如果没有从检查点恢复，则需要设置输出路径和检查点路径
         if not resume:
-            self.output_path = os.path.join(OUTPUT_DIR, 'search_index', self.task_id)
-            os.makedirs(self.output_path, exist_ok=True)
-            self.checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/{self.task_type}_checkpoint_{self.task_id}.db")
-            os.makedirs(os.path.dirname(self.checkpoint_path), exist_ok=True)
-            self._init_progress_manager(self.checkpoint_path)
+            self._setup_output_paths('search_index')
 
         # 加载关键词
         if keywords_file:

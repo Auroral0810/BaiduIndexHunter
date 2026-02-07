@@ -173,6 +173,7 @@ class ConfigManager:
             'cookie.max_usage_per_day': 1000,
             
             # 输出配置
+            'output.default_dir': str(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'output')),
             'output.default_format': 'csv',
             'output.csv_encoding': 'utf-8-sig',
         }

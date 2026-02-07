@@ -200,6 +200,12 @@ class TaskService:
             output_format = 'csv'
         spider_params['output_format'] = output_format
 
+        # 统一提取输出目录和文件名（可选，为空则使用全局配置/默认值）
+        if parameters.get('output_dir'):
+            spider_params['output_dir'] = parameters['output_dir']
+        if parameters.get('output_name'):
+            spider_params['output_name'] = parameters['output_name']
+
     def _process_year_range(self, spider_params: Dict[str, Any], parameters: Dict[str, Any], keys: List[str] = ['year_range']):
         """处理年份范围参数"""
         year_range = None

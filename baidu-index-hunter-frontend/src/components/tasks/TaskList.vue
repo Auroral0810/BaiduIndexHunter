@@ -161,6 +161,13 @@
                 <strong>{{ $t("tasks-TaskList-19c298d949224c78d-39") }}</strong>
                 {{ formatLabel(scope.row.parameters.output_format) }}
               </div>
+              <div v-if="scope.row.parameters.output_dir">
+                <strong>输出目录: </strong>
+                <span style="word-break: break-all">{{ scope.row.parameters.output_dir }}</span>
+              </div>
+              <div v-if="scope.row.parameters.output_name">
+                <strong>文件名: </strong>{{ scope.row.parameters.output_name }}
+              </div>
             </div></template
           ></el-table-column
         >
@@ -576,6 +583,18 @@
                   :label="$t('tasks-TaskList-19c298d949224c78d-82')"
                   :span="1"
                   >{{ formatLabel(selectedTask.parameters.output_format) }}</el-descriptions-item
+                >
+                <el-descriptions-item
+                  v-if="selectedTask.parameters && selectedTask.parameters.output_dir"
+                  label="输出目录"
+                  :span="2"
+                  >{{ selectedTask.parameters.output_dir }}</el-descriptions-item
+                >
+                <el-descriptions-item
+                  v-if="selectedTask.parameters && selectedTask.parameters.output_name"
+                  label="自定义文件名"
+                  :span="1"
+                  >{{ selectedTask.parameters.output_name }}</el-descriptions-item
                 ></el-descriptions
               >
             </div></el-card
@@ -819,6 +838,8 @@ interface TaskParameter {
   datelists?: string[];
   batch_size?: number;
   output_format?: string;
+  output_dir?: string;
+  output_name?: string;
   resume?: boolean;
   task_id?: string;
   [key: string]: any;

@@ -249,6 +249,17 @@
             <el-option label="SQLite (.sqlite)" value="sql" />
           </el-select>
         </el-form-item>
+        <el-form-item label="输出目录">
+          <DirPicker
+            v-model="formData.output_dir"
+            placeholder="留空则使用系统默认输出目录"
+            hint="自定义此任务的输出目录，留空使用全局配置中的默认目录"
+          />
+        </el-form-item>
+        <el-form-item label="自定义文件名">
+          <el-input v-model="formData.output_name" placeholder="留空则使用默认文件名" clearable />
+          <div style="font-size: 12px; color: #909399; margin-top: 4px;">设置输出文件名前缀（如 "my_data"），留空则使用默认格式</div>
+        </el-form-item>
         <!-- 任务设置 -->
         <el-divider content-position="left">{{
           $t("tasks-FeedIndexTask-19c298e1d0a206148-54")
@@ -578,6 +589,7 @@ import {
 } from "@element-plus/icons-vue";
 import axios from "axios";
 import RegionCitySelector from "../RegionCitySelector.vue";
+import DirPicker from "../DirPicker.vue";
 import { useRegionStore } from "../../store/region";
 import * as XLSX from "xlsx";
 
@@ -594,6 +606,8 @@ const formData = reactive({
   taskId: "",
   priority: 5,
   output_format: "csv",
+  output_dir: "",
+  output_name: "",
 });
 
 // 城市数据
@@ -1101,6 +1115,8 @@ const submitTask = async () => {
         cities: citiesParam,
         resume: formData.resume,
         output_format: formData.output_format,
+        ...(formData.output_dir ? { output_dir: formData.output_dir } : {}),
+        ...(formData.output_name ? { output_name: formData.output_name } : {}),
       },
       priority: formData.priority,
     };

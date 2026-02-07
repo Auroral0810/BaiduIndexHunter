@@ -2,6 +2,7 @@
 配置API模块
 提供配置管理的API接口
 """
+import os
 import json
 from flask import Blueprint, request, jsonify
 from flasgger import swag_from
@@ -194,6 +195,110 @@ def refresh_config():
     except Exception as e:
         log.error(f"刷新配置缓存失败: {e}")
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"刷新配置缓存失败: {str(e)}"))
+
+
+@config_bp.route('/browse_dir', methods=['GET'])
+def browse_directory():
+    """
+    浏览目录结构（用于前端选择输出目录）。
+    Query params:
+      - path: 要浏览的目录路径（为空则返回常用根路径）
+    Returns:
+      - current: 当前目录的绝对路径
+      - parent: 父目录路径
+      - dirs: 子目录列表
+    """
+    try:
+        target_path = request.args.get('path', '').strip()
+        
+        if not target_path:
+            # 返回当前默认输出目录，若不存在则回退到用户家目录
+            default_dir = config_manager.get('output.default_dir') or ''
+            if default_dir and os.path.isdir(os.path.abspath(os.path.expanduser(default_dir))):
+                target_path = default_dir
+            else:
+                target_path = os.path.expanduser('~')
+        
+        target_path = os.path.abspath(os.path.expanduser(target_path))
+        
+        if not os.path.isdir(target_path):
+            # 路径不存在时回退到用户家目录
+            target_path = os.path.expanduser('~')
+        
+        # 列出子目录（忽略隐藏目录和无权限目录）
+        dirs = []
+        try:
+            for entry in sorted(os.listdir(target_path)):
+                full = os.path.join(target_path, entry)
+                if os.path.isdir(full) and not entry.startswith('.'):
+                    dirs.append(entry)
+        except PermissionError:
+            pass
+        
+        parent = os.path.dirname(target_path)
+        
+        return jsonify(ResponseFormatter.success({
+            'current': target_path,
+            'parent': parent if parent != target_path else None,
+            'dirs': dirs
+        }))
+    except Exception as e:
+        log.error(f"浏览目录失败: {e}")
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"浏览目录失败: {str(e)}"))
+
+
+@config_bp.route('/validate_path', methods=['POST'])
+def validate_path():
+    """
+    验证路径是否可用（存在或可创建）。
+    Body: { "path": "/some/path" }
+    Returns: { "valid": true, "absolute_path": "/absolute/some/path", "exists": true }
+    """
+    try:
+        data = request.get_json(silent=True) or {}
+        path_str = (data.get('path') or '').strip()
+        should_create = data.get('create', False)
+        
+        if not path_str:
+            return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "路径不能为空"))
+        
+        abs_path = os.path.abspath(os.path.expanduser(path_str))
+        exists = os.path.isdir(abs_path)
+        
+        # 如果要求实际创建目录
+        if should_create and not exists:
+            try:
+                os.makedirs(abs_path, exist_ok=True)
+                return jsonify(ResponseFormatter.success({
+                    'valid': True,
+                    'absolute_path': abs_path,
+                    'exists': True,
+                    'created': True
+                }))
+            except (OSError, PermissionError) as e:
+                return jsonify(ResponseFormatter.error(
+                    ResponseCode.SERVER_ERROR, f"无法创建目录: {str(e)}"
+                ))
+        
+        # 仅验证模式：检查是否可创建
+        can_create = False
+        if not exists:
+            try:
+                os.makedirs(abs_path, exist_ok=True)
+                can_create = True
+                # 创建成功后如果原来不存在则删除（只验证，不实际创建）
+                os.rmdir(abs_path)
+            except (OSError, PermissionError):
+                can_create = False
+        
+        return jsonify(ResponseFormatter.success({
+            'valid': exists or can_create,
+            'absolute_path': abs_path,
+            'exists': exists
+        }))
+    except Exception as e:
+        log.error(f"验证路径失败: {e}")
+        return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"验证路径失败: {str(e)}"))
 
 
 def register_config_blueprint(app):

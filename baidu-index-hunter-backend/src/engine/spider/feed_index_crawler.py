@@ -288,11 +288,12 @@ class FeedIndexCrawler(BaseCrawler):
     def crawl(self, task_id=None, keywords=None, cities=None, date_ranges=None, days=None, 
               keywords_file=None, cities_file=None, date_ranges_file=None,
               year_range=None, resume=False, checkpoint_task_id=None, total_tasks=None, batch_size=5,
-              output_format=None, **kwargs):
+              output_format=None, output_dir=None, output_name=None, **kwargs):
         """爬取百度资讯指数任务"""
         try:
-            # 设置输出格式
+            # 设置输出格式和输出路径设置
             self._apply_output_format(output_format or kwargs.get('output_format'))
+            self._apply_output_settings(output_dir, output_name)
             
             # 从 kwargs 提取参数，防止 UnboundLocalError 并确保与基类一致
             resume = kwargs.get('resume', resume)
@@ -311,11 +312,7 @@ class FeedIndexCrawler(BaseCrawler):
                 self._prepare_initial_state()
 
             if not resume:
-                self.output_path = os.path.join(OUTPUT_DIR, 'feed_index', self.task_id)
-                os.makedirs(self.output_path, exist_ok=True)
-                self.checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoints/{self.task_type}_checkpoint_{self.task_id}.db")
-                os.makedirs(os.path.dirname(self.checkpoint_path), exist_ok=True)
-                self._init_progress_manager(self.checkpoint_path)
+                self._setup_output_paths('feed_index')
 
             # 2. 准备参数
             keywords = keywords or (self._load_keywords_from_file(keywords_file) if keywords_file else [])
