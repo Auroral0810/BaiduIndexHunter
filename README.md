@@ -80,8 +80,7 @@
   <span style="color: #888; font-size: 15px;">BaiduIndexHunter 2.0 系统整体架构图</span>
 </div>
 
-
-## 📸 系统界面模块化展示
+---
 
 
 ### 1️⃣ 首页
@@ -166,17 +165,30 @@
 
 ---
 
-## 一次完整分析流程
+## 一次完整采集流程
 
-| 步骤 | 环节 | 操作说明 |
-| :---: | :--- | :--- |
-| 1 | **环境部署** | 按照「快速开始」完成 MySQL/Redis 安装、数据库初始化、`.env` 配置、后端与前端依赖安装并启动服务。 |
-| 2 | **Cookie 准备** | 登录百度指数，从浏览器开发者工具复制 Cookie，在「Cookie 管理」页面添加并确保状态为可用。 |
-| 3 | **关键词与地域** | 在「数据采集」对应模块（如搜索指数、资讯指数）中，输入关键词（支持批量或文件上传）、选择地域（省/市）和日期范围。 |
-| 4 | **创建任务** | 设置输出格式（CSV/Excel/Parquet 等）、输出目录与文件名，点击「创建任务」提交。 |
-| 5 | **监控执行** | 在「任务列表」查看任务状态，在「实时日志」查看进度条、速度与 ETA；支持暂停/恢复、断点续爬。 |
-| 6 | **获取数据** | 任务完成后，在输出目录获取数据文件（或通过任务详情中的下载入口），数据已按选定格式导出。 |
-| 7 | **可视化分析** | 在「数据大屏」查看总览、关键词分析、地域分析等；也可将数据导入 Excel/Stata/Python 等进行深度分析。 |
+| 步骤 | 阶段名称 | 主要操作 | 参与组件 | 循环特性 |
+|------|----------|----------|----------|----------|
+| 1 | 用户配置 | 前端选择关键词、地区、日期范围、输出格式等参数 | DataCollection + SearchIndexTask/FeedIndexTask 等 | - |
+| 2 | 任务提交 | 用户点击创建任务，前端 POST /api/task/create | 任务组件 + request.js（鉴权） | - |
+| 3 | 接口接收 | 后端验证请求、解析参数 | TaskController + TaskService | - |
+| 4 | 参数处理 | 解析关键词列表、城市代码、日期范围，生成蜘蛛参数 | TaskService | - |
+| 5 | 任务入队 | 生成 task_id，写入 MySQL，加入优先级队列 | TaskScheduler + TaskRepository | - |
+| 6 | 响应返回 | 前端收到 task_id，展示「任务已创建」 | 前端 + WebSocket 订阅 | - |
+| 7 | 调度出队 | 后台调度循环检查队列，取出待执行任务 | TaskScheduler | - |
+| 8 | 爬虫实例化 | 根据 task_type 实例化对应爬虫（如 SearchIndexCrawler） | TaskExecutor | - |
+| 9 | 初始化与续爬 | 加载 SQLite 检查点（若有），生成子任务列表，跳过已完成项 | BaseCrawler + ProgressManager | - |
+| 10-N | **循环阶段** | **并发采集 + 进度上报** | **爬虫 + CookieRotator + WebSocket** | **多轮循环** |
+| 10.1 | 获取 Cookie | 从 Cookie 池按策略选取可用账号 | CookieRotator + CookieService | 每批/每子任务 |
+| 10.2 | 加密 Token | 生成 Cipher-Text 等请求头 | CipherGenerator + execjs | 每子任务 |
+| 10.3 | 请求解析 | 请求百度指数 API，解析 JSON 响应 | Processor（search_processor 等） | 每子任务 |
+| 10.4 | 数据缓冲 | 追加到内存缓冲，达到阈值时批量写入 CSV | BaseCrawler + StorageService | 每批 |
+| 10.5 | 检查点更新 | 标记已完成/失败，写入 SQLite 检查点 | ProgressManager | 每批 |
+| 10.6 | 进度推送 | 向前端推送进度条、速度、ETA | WebSocketService + Logs.vue | 每批 |
+| N+1 | 数据落盘 | 刷新缓冲，将剩余数据写入 CSV | StorageService | - |
+| N+2 | 格式转换 | 按配置将 CSV 转为 Excel/DTA/JSON/Parquet/SQLite | StorageService | - |
+| N+3 | 任务完成 | 更新任务状态、输出路径，推送完成事件 | TaskRepository + WebSocketService | - |
+| N+4 | 前端展示 | 任务列表显示完成，用户可下载输出文件 | TaskList + DirPicker | - |
 
 ---
 
