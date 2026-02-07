@@ -96,7 +96,7 @@ const props = defineProps({
   },
   apiBaseUrl: {
     type: String,
-    default: "http://127.0.0.1:5001/api",
+    default: "/api",
   },
 });
 

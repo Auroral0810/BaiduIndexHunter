@@ -1,9 +1,10 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import { apiBaseUrl } from '@/config/api'
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  baseURL: apiBaseUrl,
   timeout: 30000, // 请求超时时间
   headers: {
     'Content-Type': 'application/json'

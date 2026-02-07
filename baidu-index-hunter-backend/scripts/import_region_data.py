@@ -30,7 +30,7 @@ MYSQL_CONFIG = {
     'host': os.getenv('MYSQL_HOST', 'localhost'),
     'port': int(os.getenv('MYSQL_PORT', 3306)),
     'user': os.getenv('MYSQL_USER', 'root'),
-    'password': os.getenv('MYSQL_PASSWORD', '123456'),
+    'password': os.getenv('MYSQL_PASSWORD', ''),
     'db': os.getenv('MYSQL_DB', 'BaiduIndexHunter'),
 }
 

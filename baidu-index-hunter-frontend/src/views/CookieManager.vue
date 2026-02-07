@@ -24,7 +24,7 @@ import { Warning, View, Edit, Clock } from "@element-plus/icons-vue";
 
 const { copy, isSupported } = useClipboard();
 
-const API_BASE_URL = "http://127.0.0.1:5001/api";
+import { apiBaseUrl } from "@/config/api";
 
 // API连接状态
 const apiConnected = ref(false);
@@ -206,7 +206,7 @@ const refreshCookieStatus = async () => {
     await checkApiConnection();
 
     const response = await axios.get(
-      `${API_BASE_URL}/admin/cookie/pool-status`,
+      `${apiBaseUrl}/admin/cookie/pool-status`,
     );
     if (response.data.code === 10000) {
       const data = response.data.data;
@@ -231,7 +231,7 @@ const refreshCookieStatus = async () => {
 // 检查API连接状态
 const checkApiConnection = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/health`, {
+    const response = await axios.get(`${apiBaseUrl}/health`, {
       timeout: 3000,
     });
     apiConnected.value = response.status === 200;
@@ -247,7 +247,7 @@ const loadAvailableAccounts = async () => {
   accountsLoading.value = true;
   try {
     const response = await axios.get(
-      `${API_BASE_URL}/admin/cookie/available-accounts`,
+      `${apiBaseUrl}/admin/cookie/available-accounts`,
     );
     if (response.data.code === 10000) {
       availableAccounts.value = response.data.data.account_ids || [];
@@ -268,7 +268,7 @@ const loadBannedAccounts = async () => {
   bannedLoading.value = true;
   try {
     const response = await axios.get(
-      `${API_BASE_URL}/admin/cookie/banned-accounts`,
+      `${apiBaseUrl}/admin/cookie/banned-accounts`,
     );
     if (response.data.code === 10000) {
       // 正确解析临时封禁Cookie
@@ -307,7 +307,7 @@ const loadCookies = async () => {
       status: statusFilter.value || undefined,
     };
 
-    const response = await axios.get(`${API_BASE_URL}/admin/cookie/list`, {
+    const response = await axios.get(`${apiBaseUrl}/admin/cookie/list`, {
       params,
     });
     if (response.data.code === 10000) {
@@ -409,7 +409,7 @@ const editCookie = async (cookie: any) => {
 
     // 获取完整的Cookie信息
     const response = await axios.get(
-      `${API_BASE_URL}/admin/cookie/account-cookie/${cookie.account_id}`,
+      `${apiBaseUrl}/admin/cookie/account-cookie/${cookie.account_id}`,
     );
 
     if (response.data.code === 10000) {
@@ -624,13 +624,13 @@ const submitCookieForm = async () => {
       cookieData.temp_ban_until = cookieForm.temp_ban_until;
 
       response = await axios.put(
-        `${API_BASE_URL}/admin/cookie/update/${cookieForm.id}`,
+        `${apiBaseUrl}/admin/cookie/update/${cookieForm.id}`,
         cookieData,
       );
     } else {
       // 添加Cookie
       response = await axios.post(
-        `${API_BASE_URL}/admin/cookie/add`,
+        `${apiBaseUrl}/admin/cookie/add`,
         cookieData,
       );
     }
@@ -1004,7 +1004,7 @@ const deleteCookie = async (account_id: number) => {
     listLoading.value = true;
 
     const response = await axios.delete(
-      `${API_BASE_URL}/admin/cookie/delete/${account_id}`,
+      `${apiBaseUrl}/admin/cookie/delete/${account_id}`,
     );
     if (response.data.code === 10000) {
       ElMessage.success($t("views.cookiemanager.d4y7wo"));
@@ -1054,7 +1054,7 @@ const unbanCookie = async (id: number) => {
     listLoading.value = true;
 
     const response = await axios.post(
-      `${API_BASE_URL}/admin/cookie/unban/${id}`,
+      `${apiBaseUrl}/admin/cookie/unban/${id}`,
     );
     if (response.data.code === 10000) {
       ElMessage.success($t("views.cookiemanager.71bw8q"));
@@ -1077,7 +1077,7 @@ const syncToRedis = async () => {
     syncing.value = true;
 
     const response = await axios.post(
-      `${API_BASE_URL}/admin/cookie/sync-to-redis`,
+      `${apiBaseUrl}/admin/cookie/sync-to-redis`,
     );
     if (response.data.code === 10000) {
       ElMessage.success($t("views.cookiemanager.dn1070"));
@@ -1099,7 +1099,7 @@ const updateAbSr = async () => {
     updatingAbSr.value = true;
 
     const response = await axios.post(
-      `${API_BASE_URL}/admin/cookie/update-ab-sr`,
+      `${apiBaseUrl}/admin/cookie/update-ab-sr`,
     );
     if (response.data.code === 10000) {
       ElMessage.success(response.data.msg);
@@ -1124,7 +1124,7 @@ const testAccountAvailability = async (accountId: string) => {
     testResultDialogVisible.value = true;
 
     const response = await axios.post(
-      `${API_BASE_URL}/admin/cookie/test-account-availability/${accountId}`,
+      `${apiBaseUrl}/admin/cookie/test-account-availability/${accountId}`,
     );
     if (response.data.code === 10000) {
       testResult.value = response.data.data;
@@ -1149,7 +1149,7 @@ const testAllCookiesAvailability = async () => {
     batchTestResultDialogVisible.value = true;
 
     const response = await axios.post(
-      `${API_BASE_URL}/admin/cookie/test-availability`,
+      `${apiBaseUrl}/admin/cookie/test-availability`,
     );
     if (response.data.code === 10000) {
       batchTestResult.value = response.data.data;
@@ -1171,7 +1171,7 @@ const updateCookieStatus = async () => {
     updatingStatus.value = true;
 
     const response = await axios.post(
-      `${API_BASE_URL}/admin/cookie/update-status`,
+      `${apiBaseUrl}/admin/cookie/update-status`,
     );
     if (response.data.code === 10000) {
       const result = response.data.data?.updated_count;
@@ -1206,7 +1206,7 @@ const cleanupExpiredCookies = async () => {
     cleaningUp.value = true;
 
     const response = await axios.post(
-      `${API_BASE_URL}/admin/cookie/cleanup-expired`,
+      `${apiBaseUrl}/admin/cookie/cleanup-expired`,
     );
     if (response.data.code === 10000) {
       ElMessage.success(
@@ -1256,7 +1256,7 @@ const viewAccountDetail = async (accountId: string) => {
 
   try {
     const response = await axios.get(
-      `${API_BASE_URL}/admin/cookie/account-cookie/${accountId}`,
+      `${apiBaseUrl}/admin/cookie/account-cookie/${accountId}`,
     );
     if (response.data.code === 10000) {
       // 确保cookies数据正确解析
@@ -1310,7 +1310,7 @@ const submitTempBan = async () => {
 
     const durationSeconds = tempBanForm.duration_minutes * 60;
     const response = await axios.post(
-      `${API_BASE_URL}/admin/cookie/ban/temporary/${tempBanForm.account_id}`,
+      `${apiBaseUrl}/admin/cookie/ban/temporary/${tempBanForm.account_id}`,
       {
         duration_seconds: durationSeconds,
       },
@@ -1355,7 +1355,7 @@ const banAccountPermanently = async (accountId: string) => {
     accountsLoading.value = true;
 
     const response = await axios.post(
-      `${API_BASE_URL}/admin/cookie/ban/permanent/${accountId}`,
+      `${apiBaseUrl}/admin/cookie/ban/permanent/${accountId}`,
     );
     if (response.data.code === 10000) {
       ElMessage.success($t("views.cookiemanager.60b8ym", [accountId]));
@@ -1382,7 +1382,7 @@ const unbanAccount = async (accountId: string) => {
     bannedLoading.value = true;
 
     const response = await axios.post(
-      `${API_BASE_URL}/admin/cookie/unban/${accountId}`,
+      `${apiBaseUrl}/admin/cookie/unban/${accountId}`,
     );
     if (response.data.code === 10000) {
       ElMessage.success($t("views.cookiemanager.644stx", [accountId]));
@@ -1417,7 +1417,7 @@ const forceUnbanAccount = async (accountId: string) => {
     bannedLoading.value = true;
 
     const response = await axios.post(
-      `${API_BASE_URL}/admin/cookie/force-unban/${accountId}`,
+      `${apiBaseUrl}/admin/cookie/force-unban/${accountId}`,
     );
     if (response.data.code === 10000) {
       ElMessage.success($t("views.cookiemanager.e6tc1n", [accountId]));
@@ -1455,7 +1455,7 @@ const submitUpdateId = async () => {
     submitting.value = true;
 
     const response = await axios.put(
-      `${API_BASE_URL}/admin/cookie/update-account/${updateIdForm.old_account_id}`,
+      `${apiBaseUrl}/admin/cookie/update-account/${updateIdForm.old_account_id}`,
       {
         new_account_id: updateIdForm.new_account_id,
       },
@@ -1504,7 +1504,7 @@ const deleteAccount = async (accountId: string) => {
     accountsLoading.value = true;
 
     const response = await axios.delete(
-      `${API_BASE_URL}/admin/cookie/delete/${accountId}`,
+      `${apiBaseUrl}/admin/cookie/delete/${accountId}`,
     );
     if (response.data.code === 10000) {
       ElMessage.success($t("views.cookiemanager.f8957g", [accountId]));
@@ -1736,7 +1736,7 @@ const unbanSelectedTemp = async () => {
     let successCount = 0;
     for (const accountId of tempBannedSelection.value) {
       const response = await axios.post(
-        `${API_BASE_URL}/admin/cookie/unban/${accountId}`,
+        `${apiBaseUrl}/admin/cookie/unban/${accountId}`,
       );
       if (response.data.code === 10000) successCount++;
     }
@@ -1768,7 +1768,7 @@ const unbanAllTemp = async () => {
     let successCount = 0;
     for (const item of tempBannedAccounts.value) {
       const response = await axios.post(
-        `${API_BASE_URL}/admin/cookie/unban/${item.account_id}`,
+        `${apiBaseUrl}/admin/cookie/unban/${item.account_id}`,
       );
       if (response.data.code === 10000) successCount++;
     }
@@ -1795,7 +1795,7 @@ const unbanSelectedPerm = async () => {
     let successCount = 0;
     for (const accountId of permBannedSelection.value) {
       const response = await axios.post(
-        `${API_BASE_URL}/admin/cookie/force-unban/${accountId}`,
+        `${apiBaseUrl}/admin/cookie/force-unban/${accountId}`,
       );
       if (response.data.code === 10000) successCount++;
     }
@@ -1827,7 +1827,7 @@ const unbanAllPerm = async () => {
     let successCount = 0;
     for (const accountId of permBannedAccounts.value) {
       const response = await axios.post(
-        `${API_BASE_URL}/admin/cookie/force-unban/${accountId}`,
+        `${apiBaseUrl}/admin/cookie/force-unban/${accountId}`,
       );
       if (response.data.code === 10000) successCount++;
     }
@@ -1862,7 +1862,7 @@ const batchBanAll = async () => {
 
     // 获取所有可用账号ID
     const response = await axios.get(
-      `${API_BASE_URL}/admin/cookie/available-accounts`,
+      `${apiBaseUrl}/admin/cookie/available-accounts`,
     );
     if (response.data.code === 10000) {
       const accountIds = response.data.data.account_ids || [];
@@ -1878,7 +1878,7 @@ const batchBanAll = async () => {
       for (const accountId of accountIds) {
         try {
           const banResponse = await axios.post(
-            `${API_BASE_URL}/admin/cookie/ban/temporary/${accountId}`,
+            `${apiBaseUrl}/admin/cookie/ban/temporary/${accountId}`,
             {
               duration_seconds: 1800, // 默认30分钟
             },
@@ -1931,7 +1931,7 @@ const batchUnbanAll = async () => {
 
     // 获取所有临时封禁的账号
     const response = await axios.get(
-      `${API_BASE_URL}/admin/cookie/banned-accounts`,
+      `${apiBaseUrl}/admin/cookie/banned-accounts`,
     );
     if (response.data.code === 10000) {
       const tempBannedAccounts = response.data.data.temp_banned || [];
@@ -1947,7 +1947,7 @@ const batchUnbanAll = async () => {
       for (const account of tempBannedAccounts) {
         try {
           const unbanResponse = await axios.post(
-            `${API_BASE_URL}/admin/cookie/unban/${account.account_id}`,
+            `${apiBaseUrl}/admin/cookie/unban/${account.account_id}`,
           );
 
           if (unbanResponse.data.code === 10000) {
@@ -2007,7 +2007,7 @@ const submitBatchTempBan = async () => {
     for (const item of multipleSelection.value) {
       try {
         const response = await axios.post(
-          `${API_BASE_URL}/admin/cookie/ban/temporary/${item.account_id}`,
+          `${apiBaseUrl}/admin/cookie/ban/temporary/${item.account_id}`,
           {
             duration_seconds: durationSeconds,
           },
@@ -2073,7 +2073,7 @@ const batchPermBan = async () => {
     for (const item of multipleSelection.value) {
       try {
         const response = await axios.post(
-          `${API_BASE_URL}/admin/cookie/ban/permanent/${item.account_id}`,
+          `${apiBaseUrl}/admin/cookie/ban/permanent/${item.account_id}`,
         );
 
         if (response.data.code === 10000) {
@@ -2138,7 +2138,7 @@ const batchUnban = async () => {
         // 对于临时封禁的使用普通解封
         if (item.temp_ban_until) {
           const response = await axios.post(
-            `${API_BASE_URL}/admin/cookie/unban/${item.account_id}`,
+            `${apiBaseUrl}/admin/cookie/unban/${item.account_id}`,
           );
 
           if (response.data.code === 10000) {
@@ -2148,7 +2148,7 @@ const batchUnban = async () => {
         // 对于永久封禁的使用强制解封
         else if (item.is_permanently_banned) {
           const response = await axios.post(
-            `${API_BASE_URL}/admin/cookie/force-unban/${item.account_id}`,
+            `${apiBaseUrl}/admin/cookie/force-unban/${item.account_id}`,
           );
 
           if (response.data.code === 10000) {
@@ -2804,7 +2804,7 @@ const batchUnban = async () => {
         </div>
       </template>
 
-      <CookieUsageChart :api-base-url="API_BASE_URL" />
+      <CookieUsageChart :api-base-url="apiBaseUrl" />
     </el-card>
     <!-- 添加/编辑Cookie对话框 -->
     <el-dialog

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
+import { apiBaseUrl } from '@/config/api'
 
 export const useRegionStore = defineStore('region', {
   state: () => ({
@@ -9,7 +10,7 @@ export const useRegionStore = defineStore('region', {
     loading: false,
     error: null,
     initialized: false,
-    apiBaseUrl: 'http://127.0.0.1:5001/api'
+    apiBaseUrl,
   }),
   
   getters: {

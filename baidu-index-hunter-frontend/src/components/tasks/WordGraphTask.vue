@@ -471,7 +471,7 @@ import axios from "axios";
 import DirPicker from "../DirPicker.vue";
 import * as XLSX from "xlsx";
 
-const API_BASE_URL = "http://127.0.0.1:5001/api";
+import { apiBaseUrl } from "@/config/api";
 const router = useRouter();
 
 // Pinia store 用于缓存时间范围
@@ -628,7 +628,7 @@ const checkKeywords = async () => {
 
   try {
     const keywords = formData.keywords.map((k) => k.value);
-    const response = await axios.post(`${API_BASE_URL}/word-check/check`, {
+    const response = await axios.post(`${apiBaseUrl}/word-check/check`, {
       words: keywords,
     });
 
@@ -872,7 +872,7 @@ const submitTask = async () => {
       params.parameters.task_id = formData.task_id;
     }
 
-    const response = await axios.post(`${API_BASE_URL}/task/create`, params);
+    const response = await axios.post(`${apiBaseUrl}/task/create`, params);
 
     if (response.data.code === 10000) {
       taskId.value = response.data.data.taskId;

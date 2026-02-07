@@ -866,7 +866,7 @@ interface Task {
   [key: string]: any;
 }
 
-const API_BASE_URL = "http://127.0.0.1:5001/api";
+import { apiBaseUrl } from "@/config/api";
 const useMockData = ref(false);
 
 // 输出格式标签映射
@@ -1007,7 +1007,7 @@ const loadTasks = async () => {
       if (searchKeyword.value) params.keyword = searchKeyword.value;
       if (taskTypeFilter.value) params.task_type = taskTypeFilter.value;
       if (statusFilter.value) params.status = statusFilter.value;
-      const response = await axios.get(`${API_BASE_URL}/task/list`, { params });
+      const response = await axios.get(`${apiBaseUrl}/task/list`, { params });
       if (response.data.code === 10000) {
         const responseTasks = response.data.data.tasks || [];
         total.value = response.data.data.total || 0;
@@ -1093,7 +1093,7 @@ const viewTaskDetail = async (task: Task) => {
 const loadTaskDetail = async (taskId: string) => {
   if (!taskId) return;
   try {
-    const response = await axios.get(`${API_BASE_URL}/task/${taskId}`);
+    const response = await axios.get(`${apiBaseUrl}/task/${taskId}`);
     if (response.data.code === 10000 && selectedTask.value) {
       const taskData = response.data.data;
       // 确保 output_files 是数组
@@ -1148,7 +1148,7 @@ const restartTask = async (task: Task | null = null) => {
   } else {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/task/${targetTask.taskId}/resume`,
+        `${apiBaseUrl}/task/${targetTask.taskId}/resume`,
       );
       if (response.data.code === 10000) {
         ElMessage.success(
@@ -1193,7 +1193,7 @@ const cancelTask = async (task: Task | null = null) => {
   } else {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/task/${targetTask.taskId}/cancel`,
+        `${apiBaseUrl}/task/${targetTask.taskId}/cancel`,
       );
       if (response.data.code === 10000) {
         ElMessage.success(
@@ -1252,7 +1252,7 @@ const downloadSingleFile = async (filePath: string) => {
   try {
     const fileName = filePath.split("/").pop();
     // 使用后端下载接口
-    const downloadUrl = `${API_BASE_URL}/task/download?filePath=${encodeURIComponent(filePath)}`;
+    const downloadUrl = `${apiBaseUrl}/task/download?filePath=${encodeURIComponent(filePath)}`;
     const link = document.createElement("a");
     link.href = downloadUrl;
     link.setAttribute("download", fileName || "output.csv");
@@ -1276,7 +1276,7 @@ const downloadCheckpointFile = (checkpointPath: string) => {
   // 使用后端下载接口
   try {
     const fileName = checkpointPath.split("/").pop();
-    const downloadUrl = `${API_BASE_URL}/task/download?filePath=${encodeURIComponent(checkpointPath)}`;
+    const downloadUrl = `${apiBaseUrl}/task/download?filePath=${encodeURIComponent(checkpointPath)}`;
     const link = document.createElement("a");
     link.href = downloadUrl;
     link.setAttribute("download", fileName || "checkpoint.json");

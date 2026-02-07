@@ -358,8 +358,8 @@ const downloadLogs = () => {
 }
 
 const initSocket = () => {
-  const API_BASE = import.meta.env.VITE_API_URL || window.location.origin.replace(':5173', ':5001')
-  socket.value = io(API_BASE)
+  import { apiBase } from '@/config/api'
+  socket.value = io(apiBase)
   socket.value.on('connect', () => connected.value = true)
   socket.value.on('disconnect', () => connected.value = false)
   socket.value.on('system_log', (data) => {

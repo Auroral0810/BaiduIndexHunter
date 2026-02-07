@@ -113,7 +113,7 @@ const selectedSubDir = ref('')
 const showNewDir = ref(false)
 const newFolderName = ref('')
 
-const API_BASE = 'http://127.0.0.1:5001'
+import { apiBase } from '@/config/api'
 
 /** 打开浏览器对话框 */
 const openBrowser = async () => {
@@ -128,7 +128,7 @@ const openBrowser = async () => {
 const loadDir = async (path: string) => {
   loading.value = true
   try {
-    const res = await fetch(`${API_BASE}/api/config/browse_dir?path=${encodeURIComponent(path)}`)
+    const res = await fetch(`${apiBase}/api/config/browse_dir?path=${encodeURIComponent(path)}`)
     const data = await res.json()
     if (data.code === 10000 && data.data) {
       currentPath.value = data.data.current
@@ -162,7 +162,7 @@ const createFolder = async () => {
   if (!name) return
   const newPath = currentPath.value + '/' + name
   try {
-    const res = await fetch(`${API_BASE}/api/config/validate_path`, {
+    const res = await fetch(`${apiBase}/api/config/validate_path`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path: newPath, create: true })

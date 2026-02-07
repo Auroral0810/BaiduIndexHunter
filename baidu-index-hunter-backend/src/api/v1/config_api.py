@@ -197,10 +197,40 @@ def refresh_config():
         return jsonify(ResponseFormatter.error(ResponseCode.SERVER_ERROR, f"刷新配置缓存失败: {str(e)}"))
 
 
+def _get_allowed_roots():
+    """获取允许浏览/操作的根路径列表，防止路径遍历"""
+    roots = []
+    user_home = os.path.expanduser('~')
+    if user_home:
+        roots.append(os.path.realpath(user_home))
+    default_dir = config_manager.get('output.default_dir') or ''
+    if default_dir:
+        expanded = os.path.abspath(os.path.expanduser(default_dir))
+        if os.path.isdir(expanded):
+            roots.append(os.path.realpath(expanded))
+    if not roots:
+        roots.append(os.path.realpath(user_home or '/'))
+    return roots
+
+
+def _is_path_allowed(abs_path: str) -> bool:
+    """检查路径是否在允许的白名单根路径之下"""
+    try:
+        real = os.path.realpath(abs_path)
+        roots = _get_allowed_roots()
+        for root in roots:
+            if real == root or real.startswith(root + os.sep):
+                return True
+        return False
+    except (OSError, ValueError):
+        return False
+
+
 @config_bp.route('/browse_dir', methods=['GET'])
 def browse_directory():
     """
     浏览目录结构（用于前端选择输出目录）。
+    安全限制：仅允许浏览用户家目录及配置的默认输出目录及其子目录。
     Query params:
       - path: 要浏览的目录路径（为空则返回常用根路径）
     Returns:
@@ -224,6 +254,12 @@ def browse_directory():
         if not os.path.isdir(target_path):
             # 路径不存在时回退到用户家目录
             target_path = os.path.expanduser('~')
+            target_path = os.path.abspath(target_path)
+        
+        if not _is_path_allowed(target_path):
+            return jsonify(ResponseFormatter.error(
+                ResponseCode.PARAM_ERROR, "无权访问该路径，仅允许浏览用户目录及输出目录"
+            ))
         
         # 列出子目录（忽略隐藏目录和无权限目录）
         dirs = []
@@ -231,11 +267,15 @@ def browse_directory():
             for entry in sorted(os.listdir(target_path)):
                 full = os.path.join(target_path, entry)
                 if os.path.isdir(full) and not entry.startswith('.'):
-                    dirs.append(entry)
+                    full_real = os.path.realpath(full)
+                    if _is_path_allowed(full_real):
+                        dirs.append(entry)
         except PermissionError:
             pass
         
         parent = os.path.dirname(target_path)
+        if parent != target_path and not _is_path_allowed(parent):
+            parent = None
         
         return jsonify(ResponseFormatter.success({
             'current': target_path,
@@ -251,7 +291,8 @@ def browse_directory():
 def validate_path():
     """
     验证路径是否可用（存在或可创建）。
-    Body: { "path": "/some/path" }
+    安全限制：仅允许在用户家目录及配置的默认输出目录之下操作。
+    Body: { "path": "/some/path", "create": false }
     Returns: { "valid": true, "absolute_path": "/absolute/some/path", "exists": true }
     """
     try:
@@ -263,6 +304,13 @@ def validate_path():
             return jsonify(ResponseFormatter.error(ResponseCode.PARAM_ERROR, "路径不能为空"))
         
         abs_path = os.path.abspath(os.path.expanduser(path_str))
+        
+        # 安全检查：路径必须在允许的根路径之下
+        if not _is_path_allowed(abs_path):
+            return jsonify(ResponseFormatter.error(
+                ResponseCode.PARAM_ERROR, "无权操作该路径，仅允许在用户目录及输出目录下创建"
+            ))
+        
         exists = os.path.isdir(abs_path)
         
         # 如果要求实际创建目录

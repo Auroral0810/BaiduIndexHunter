@@ -13,12 +13,12 @@ useragent=ua.random#随机生成useragent
 env_path = Path(__file__).parent.parent.parent / 'config' / '.env'
 load_dotenv(dotenv_path=env_path)
 
-# 数据库配置
+# 数据库配置（生产环境必须通过环境变量 MYSQL_PASSWORD 设置密码，禁止使用默认值）
 MYSQL_CONFIG = {
     'host': os.getenv('MYSQL_HOST', 'localhost'),
     'port': int(os.getenv('MYSQL_PORT', 3306)),
     'user': os.getenv('MYSQL_USER', 'root'),
-    'password': os.getenv('MYSQL_PASSWORD', '123456'),
+    'password': os.getenv('MYSQL_PASSWORD', ''),  # 必须通过 .env 配置，无默认密码
     'db': os.getenv('MYSQL_DB', 'BaiduIndexHunter'),
 }
 
@@ -41,12 +41,12 @@ OSS_CONFIG = {
     'region': os.getenv('OSS_REGION'),
 }
 
-# API配置
+# API配置（生产环境必须通过环境变量 API_SECRET_KEY 设置密钥，禁止使用默认值）
 API_CONFIG = {
     'host': os.getenv('API_HOST', '0.0.0.0'),
     'port': int(os.getenv('API_PORT', 5001)),
     'debug': os.getenv('API_DEBUG', 'True').lower() == 'true',
-    'secret_key': os.getenv('API_SECRET_KEY', 'baidu_index_hunter_secret_key'),
+    'secret_key': os.getenv('API_SECRET_KEY', ''),  # 必须通过 .env 配置，无默认密钥
     'token_expire': int(os.getenv('API_TOKEN_EXPIRE', 86400)),  # 默认1天
     'cors_origins': os.getenv('API_CORS_ORIGINS', '*').split(','),
 }

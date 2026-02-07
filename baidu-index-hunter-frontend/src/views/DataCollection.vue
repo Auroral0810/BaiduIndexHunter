@@ -25,7 +25,7 @@ import {
 } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 const { t: $t } = useI18n()
-const API_BASE_URL = 'http://127.0.0.1:5001/api'
+import { apiBaseUrl } from '@/config/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -123,7 +123,7 @@ const handleTabChange = (tab) => {
 // 检查API健康状态
 const checkApiHealth = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/health`)
+    const response = await axios.get(`${apiBaseUrl}/health`)
     const prevStatus = apiStatus.value
     apiStatus.value = response.status === 200 && response.data.code === 10000
     
@@ -248,7 +248,7 @@ onMounted(() => {
         
             <div v-if="apiStatus" class="api-endpoint">
           <span>Endpoint: </span>
-          <code>{{ API_BASE_URL }}</code>
+          <code>{{ apiBaseUrl }}</code>
             </div>
       </div>
       <template #footer>
