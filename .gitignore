@@ -1,12 +1,42 @@
-# ==================== Python ====================
-# Byte-compiled / optimized / DLL files
+# ====================
+# BaiduIndexHunter 2.0 - Git Ignore Rules
+# ====================
+
+# ====================
+# System & General
+# ====================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+*.log
+*.tmp
+*.bak
+
+# ====================
+# IDE / Editor
+# ====================
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# ====================
+# Backend (Python/Flask)
+# ====================
+# Python cache
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
 
-# Distribution / packaging
-.Python
+# Environments
+venv/
+env/
+.venv/
+.env
+
+# Dependencies & Distribution
 build/
 develop-eggs/
 dist/
@@ -23,128 +53,55 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environment
-venv/
-env/
-ENV/
-.venv/
-
-# PyCharm
-.idea/
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# ==================== Node.js / Frontend ====================
-# Dependencies
-node_modules/
-jspm_packages/
-
-# Production builds
-dist/
-dist-ssr/
-build/
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-# Testing
-coverage/
-.nyc_output/
-
-# Misc
-.DS_Store
-*.local
-
-# ==================== Project Specific ====================
-# Backend outputs
-baidu-index-hunter-backend/output/
+# Application Specific
 baidu-index-hunter-backend/logs/
-baidu-index-hunter-backend/data/
-baidu-index-hunter-backend/*.pkl
-baidu-index-hunter-backend/*.csv
-baidu-index-hunter-backend/*.xlsx
-baidu-index-hunter-backend/*.json
+baidu-index-hunter-backend/output/
+baidu-index-hunter-backend/config/.env
+baidu-index-hunter-backend/.env
+!baidu-index-hunter-backend/config/.env.example
 
-# Checkpoints and progress files
-*.pkl
-*.checkpoint
-checkpoints/
-
-# Static data (if not needed in version control)
-static/data/
-
-# Database files
+# Database (SQLite)
 *.db
 *.sqlite
 *.sqlite3
 
-# ==================== IDE / Editor ====================
-# VSCode
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
+# Scrapy
+.scrapy/
 
-# IntelliJ IDEA
-.idea/
-*.iml
-*.iws
-*.ipr
+# ====================
+# Frontend (Vue/Vite)
+# ====================
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
 
-# Sublime Text
-*.sublime-project
-*.sublime-workspace
+# Production Build
+baidu-index-hunter-frontend/dist/
+baidu-index-hunter-frontend/dist-ssr/
 
-# Vim
-*.swp
-*.swo
-*~
+# Testing
+coverage/
 
-# ==================== OS ====================
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-._*
+# Vite
+*.local
+.npmrc
+yarn.lock
+package-lock.json
+# Note: package-lock.json is usually committed, but if you want to ignore it uncomment above
 
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-*.cab
-*.msi
-*.msm
-*.msp
-*.lnk
+# Local Env Files
+baidu-index-hunter-frontend/.env
+baidu-index-hunter-frontend/.env.*
+!baidu-index-hunter-frontend/.env.example
 
-# Linux
-*~
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# ==================== Others ====================
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# Temporary files
-*.tmp
-*.temp
-*.bak
-*.backup
-
-# Sensitive information (keep these commented if you need to track them)
-# credentials.json
-# config.json
-# secrets/
+# ====================
+# Clean Scripts
+# ====================
+clean_for_delivery.sh
