@@ -1965,4 +1965,16 @@ export default {
   "src-App-19c2993710803cda7-logs": "リアルタイムログ",
   "views.logs.copy_items": "{count} 個のログをコピーします",
   "views.logs.copied": "正常にコピーされました！",
+  "tasks.common.output_settings": "出力設定",
+  "tasks.common.output_format": "出力フォーマット",
+  "tasks.common.output_dir": "出力ディレクトリ",
+  "tasks.common.output_dir_placeholder":
+    "システムのデフォルトの出力ディレクトリを使用する場合は、空白のままにします。",
+  "tasks.common.output_dir_hint":
+    "このタスクの出力ディレクトリをカスタマイズします。グローバル構成のデフォルトのディレクトリを使用するには、空白のままにしておきます。",
+  "tasks.common.custom_filename": "カスタムファイル名",
+  "tasks.common.custom_filename_placeholder":
+    "デフォルトのファイル名を使用するには空白のままにします",
+  "tasks.common.custom_filename_hint":
+    "出力ファイル名のプレフィックス (「my_data」など) を設定します。デフォルトの形式を使用するには空白のままにします。",
 };

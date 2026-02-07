@@ -492,7 +492,7 @@ export default {
   "views.datacollection.j887qn": "API-Dienststatus",
   "views.datacollection.h2894t": "Aufgabentyp",
   "views.datacollection.14ux91": "Aktualisierungsstatus",
-  "views.datacollection.u24u75": "Schließen",
+  "views.datacollection.u24u75": "schließen",
   "views.datacollection.wt72k3": "Aktuelle Aufgaben:",
   "views.datacollection.6k50e9": "Fortschritt",
   "views.datacollection.qww0ij": "Läuft normal",
@@ -575,7 +575,7 @@ export default {
   "views.settings.42533h": "Abkühlzeit des Cookie-Verbots (Sekunden)",
   "views.settings.t8dliz": "Maximale Anzahl von Anwendungen pro Tag",
   "views.settings.9ue5fu": "Mindestanzahl verfügbarer Cookies",
-  "views.settings.j56utr": "Cookie-Rotationsrichtlinie",
+  "views.settings.j56utr": "Cookie-Rotationsstrategie",
   "dashboard.dashboard.2dwsg6": "Big-Data-Bildschirm",
   "dashboard.dashboard.327577": "Daten aktualisieren",
   "dashboard.dashboard.7iv3g2": "Gesamtzahl der Aufgaben",
@@ -599,7 +599,7 @@ export default {
   "dashboard.dashboard.2a174n": "Letzte 7 Tage",
   "dashboard.dashboard.zk61g6": "Letzte 30 Tage",
   "dashboard.dashboard.5o84wx": "Letzte 90 Tage",
-  "dashboard.dashboard.096ld1": "letzten sechs Monate",
+  "dashboard.dashboard.096ld1": "letzten sechs Monaten",
   "dashboard.dashboard.rvgg9y": "letztes Jahr",
   "dashboard.dashboard.o64878": "alle Zeit",
   "dashboard.dashboard.tt8075": "Benutzerdefinierter Zeitbereich",
@@ -2079,4 +2079,16 @@ export default {
   "src-App-19c2993710803cda7-logs": "Echtzeitprotokoll",
   "views.logs.copy_items": "{count} Protokolle kopieren",
   "views.logs.copied": "Erfolgreich kopiert!",
+  "tasks.common.output_settings": "Ausgabeeinstellungen",
+  "tasks.common.output_format": "Ausgabeformat",
+  "tasks.common.output_dir": "Ausgabeverzeichnis",
+  "tasks.common.output_dir_placeholder":
+    "Lassen Sie das Feld leer, um das Standardausgabeverzeichnis des Systems zu verwenden.",
+  "tasks.common.output_dir_hint":
+    "Passen Sie das Ausgabeverzeichnis dieser Aufgabe an. Lassen Sie es leer, um das Standardverzeichnis in der globalen Konfiguration zu verwenden",
+  "tasks.common.custom_filename": "Benutzerdefinierter Dateiname",
+  "tasks.common.custom_filename_placeholder":
+    "Lassen Sie das Feld leer, um den Standarddateinamen zu verwenden",
+  "tasks.common.custom_filename_hint":
+    "Legen Sie das Präfix für den Namen der Ausgabedatei fest (z. B. „my_data“) und lassen Sie es leer, um das Standardformat zu verwenden",
 };

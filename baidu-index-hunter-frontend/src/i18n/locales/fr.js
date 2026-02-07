@@ -726,7 +726,7 @@ export default {
   "tasks-TaskList-19c298d949224c78d-97": "niveau",
   "tasks-TaskList-19c298d949224c78d-98": "nouvelles",
   "tasks-TaskList-19c298d949224c78d-99": "Pas encore de journal des tâches",
-  "tasks-TaskList-19c298d949224c78d-100": "Fermer",
+  "tasks-TaskList-19c298d949224c78d-100": "fermer",
   "tasks-TaskList-19c298d949224c78d-101": "Réessayer la tâche",
   "tasks-TaskList-19c298d949224c78d-102": "Annuler la tâche",
   "tasks-TaskList-19c298d949224c78d-103": "Téléphone portable Xiaomi",
@@ -821,7 +821,7 @@ export default {
   "components-CookieUsageChart-19c298e1b08b4a7ef-21": "Identifiant du compte",
   "components-CookieUsageChart-19c298e1b08b4a7ef-22": "Nombre d'utilisations",
   "components-CookieUsageChart-19c298e1b08b4a7ef-23": "Taux d'utilisation",
-  "components-CookieUsageChart-19c298e1b08b4a7ef-24": "Fermer",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-24": "fermer",
   "components-CookieUsageChart-19c298e1b08b4a7ef-25": "Exporter des données",
   "components-CookieUsageChart-19c298e1b08b4a7ef-26":
     "Statistiques quotidiennes d'utilisation des cookies",
@@ -956,7 +956,7 @@ export default {
     "les mots-clés n'existent pas",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-46":
     "Mots-clés qui n'existent pas :",
-  "tasks-DemographicAttributesTask-19c298e1c74d5b997-47": "Fermer",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-47": "fermer",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-48":
     "Effacer les mots-clés inexistants",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-49": "Importé avec succès",
@@ -967,7 +967,7 @@ export default {
     "Mots clés invalides ou en double :",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-53": "...etc",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-54": "un",
-  "tasks-DemographicAttributesTask-19c298e1c74d5b997-55": "Fermer",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-55": "fermer",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-56": "Aperçu des missions",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-57":
     "Confirmation des paramètres de la tâche",
@@ -2081,4 +2081,16 @@ export default {
   "src-App-19c2993710803cda7-logs": "journal en temps réel",
   "views.logs.copy_items": "Copier {count} journaux",
   "views.logs.copied": "Copié avec succès !",
+  "tasks.common.output_settings": "Paramètres de sortie",
+  "tasks.common.output_format": "Format de sortie",
+  "tasks.common.output_dir": "Répertoire de sortie",
+  "tasks.common.output_dir_placeholder":
+    "Laissez vide pour utiliser le répertoire de sortie par défaut du système.",
+  "tasks.common.output_dir_hint":
+    "Personnalisez le répertoire de sortie de cette tâche, laissez-le vide pour utiliser le répertoire par défaut dans la configuration globale",
+  "tasks.common.custom_filename": "Nom de fichier personnalisé",
+  "tasks.common.custom_filename_placeholder":
+    "Laisser vide pour utiliser le nom de fichier par défaut",
+  "tasks.common.custom_filename_hint":
+    'Définissez le préfixe du nom du fichier de sortie (tel que "my_data"), laissez-le vide pour utiliser le format par défaut',
 };

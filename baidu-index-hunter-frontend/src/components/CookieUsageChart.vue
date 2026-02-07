@@ -911,19 +911,19 @@ watch(() => appStore.theme, () => {
     <div class="chart-header">
       <div class="chart-controls">
         <el-radio-group v-model="viewMode" size="small"
-          ><el-radio-button label="daily">{{
+          ><el-radio-button value="daily">{{
             $t("components-CookieUsageChart-19c298e1b08b4a7ef-1")
           }}</el-radio-button>
-          <el-radio-button label="account">{{
+          <el-radio-button value="account">{{
             $t("components-CookieUsageChart-19c298e1b08b4a7ef-2")
           }}</el-radio-button>
-          <el-radio-button label="line">{{
+          <el-radio-button value="line">{{
             $t("components-CookieUsageChart-19c298e1b08b4a7ef-3")
           }}</el-radio-button>
-          <el-radio-button label="pie">{{
+          <el-radio-button value="pie">{{
             $t("components-CookieUsageChart-19c298e1b08b4a7ef-4")
           }}</el-radio-button>
-          <el-radio-button label="heatmap">{{
+          <el-radio-button value="heatmap">{{
             $t("components-CookieUsageChart-19c298e1b08b4a7ef-5")
           }}</el-radio-button></el-radio-group
         >
@@ -931,10 +931,10 @@ watch(() => appStore.theme, () => {
           v-if="viewMode === 'daily'"
           v-model="chartType"
           size="small"
-          ><el-radio-button label="bar">{{
+          ><el-radio-button value="bar">{{
             $t("components-CookieUsageChart-19c298e1b08b4a7ef-6")
           }}</el-radio-button>
-          <el-radio-button label="line">{{
+          <el-radio-button value="line">{{
             $t("components-CookieUsageChart-19c298e1b08b4a7ef-7")
           }}</el-radio-button></el-radio-group
         >

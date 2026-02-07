@@ -17,19 +17,19 @@
         </div>
         <!-- 省份选择操作 -->
         <div class="province-actions">
-          <el-button type="text" size="small" @click="selectAllProvinces">{{
+          <el-button link size="small" @click="selectAllProvinces">{{
             $t("components-RegionCitySelector-19c298e1bc4e14bf9-2")
           }}</el-button>
-          <el-button type="text" size="small" @click="unselectAllProvinces">{{
+          <el-button link size="small" @click="unselectAllProvinces">{{
             $t("components-RegionCitySelector-19c298e1bc4e14bf9-3")
           }}</el-button>
         </div>
         <!-- 全选地级市按钮 -->
         <div class="province-actions">
-          <el-button type="text" size="small" @click="selectAllCities">{{
+          <el-button link size="small" @click="selectAllCities">{{
             $t("components-RegionCitySelector-19c298e1bc4e14bf9-4")
           }}</el-button>
-          <el-button type="text" size="small" @click="unselectAllCities">{{
+          <el-button link size="small" @click="unselectAllCities">{{
             $t("components-RegionCitySelector-19c298e1bc4e14bf9-5")
           }}</el-button>
         </div>
@@ -56,7 +56,7 @@
             <span class="province-name">{{ getCurrentProvinceName() }}</span>
             <div class="actions">
               <el-button
-                type="text"
+                link
                 size="small"
                 @click="selectAllCitiesInProvince"
                 >{{
@@ -64,7 +64,7 @@
                 }}</el-button
               >
               <el-button
-                type="text"
+                link
                 size="small"
                 @click="unselectAllCitiesInProvince"
                 >{{
@@ -101,7 +101,7 @@
         <span>{{
           $t("components-RegionCitySelector-19c298e1bc4e14bf9-9")
         }}</span>
-        <el-button type="text" size="small" @click="clearAllSelection">{{
+        <el-button link size="small" @click="clearAllSelection">{{
           $t("components-RegionCitySelector-19c298e1bc4e14bf9-10")
         }}</el-button>
       </div>
@@ -351,6 +351,8 @@ watch(
         result.every((val) => newVal.includes(val));
 
       if (isSame) return;
+
+      if (isUpdating.value) return;
 
       isUpdating.value = true;
 

@@ -1057,7 +1057,7 @@ export default {
     "Поддерживает форматы .xlsx, .csv, .txt, по одному коду города в строке.",
   "tasks-FeedIndexTask-19c298e1d0a206148-25":
     "Пропустить первую строку (строку заголовка)",
-  "tasks-FeedIndexTask-19c298e1d0a206148-26": "Установка времени",
+  "tasks-FeedIndexTask-19c298e1d0a206148-26": "Настройка времени",
   "tasks-FeedIndexTask-19c298e1d0a206148-27": "Источник данных",
   "tasks-FeedIndexTask-19c298e1d0a206148-28": "ПК+мобильный",
   "tasks-FeedIndexTask-19c298e1d0a206148-29": "двигаться",
@@ -1108,7 +1108,7 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-70": "ключевые слова не существуют",
   "tasks-FeedIndexTask-19c298e1d0a206148-71":
     "Ключевые слова, которых не существует:",
-  "tasks-FeedIndexTask-19c298e1d0a206148-72": "Закрыть",
+  "tasks-FeedIndexTask-19c298e1d0a206148-72": "закрыть",
   "tasks-FeedIndexTask-19c298e1d0a206148-73":
     "Удалить несуществующие ключевые слова",
   "tasks-FeedIndexTask-19c298e1d0a206148-74": "Импортирован успешно.",
@@ -1130,7 +1130,7 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-85": "город",
   "tasks-FeedIndexTask-19c298e1d0a206148-86": "...и т.д.",
   "tasks-FeedIndexTask-19c298e1d0a206148-87": "а",
-  "tasks-FeedIndexTask-19c298e1d0a206148-88": "Закрыть",
+  "tasks-FeedIndexTask-19c298e1d0a206148-88": "закрыть",
   "tasks-FeedIndexTask-19c298e1d0a206148-89": "Обзор миссии",
   "tasks-FeedIndexTask-19c298e1d0a206148-90": "Подтверждение параметра задачи",
   "tasks-FeedIndexTask-19c298e1d0a206148-91": "Тип задачи",
@@ -1278,7 +1278,7 @@ export default {
     "ключевые слова не существуют",
   "tasks-InterestProfileTask-19c298e1e7a81a799-46":
     "Ключевые слова, которых не существует:",
-  "tasks-InterestProfileTask-19c298e1e7a81a799-47": "Закрыть",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-47": "закрыть",
   "tasks-InterestProfileTask-19c298e1e7a81a799-48":
     "Удалить несуществующие ключевые слова",
   "tasks-InterestProfileTask-19c298e1e7a81a799-49": "Импортирован успешно.",
@@ -1289,7 +1289,7 @@ export default {
     "Недопустимые или повторяющиеся ключевые слова:",
   "tasks-InterestProfileTask-19c298e1e7a81a799-53": "...и т.д.",
   "tasks-InterestProfileTask-19c298e1e7a81a799-54": "а",
-  "tasks-InterestProfileTask-19c298e1e7a81a799-55": "Закрыть",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-55": "закрыть",
   "tasks-InterestProfileTask-19c298e1e7a81a799-56": "Обзор миссии",
   "tasks-InterestProfileTask-19c298e1e7a81a799-57":
     "Подтверждение параметра задачи",
@@ -2039,4 +2039,16 @@ export default {
   "src-App-19c2993710803cda7-logs": "журнал в реальном времени",
   "views.logs.copy_items": "Копировать журналы: {count}",
   "views.logs.copied": "Скопировано успешно!",
+  "tasks.common.output_settings": "Настройки вывода",
+  "tasks.common.output_format": "Выходной формат",
+  "tasks.common.output_dir": "Выходной каталог",
+  "tasks.common.output_dir_placeholder":
+    "Оставьте пустым, чтобы использовать системный каталог вывода по умолчанию.",
+  "tasks.common.output_dir_hint":
+    "Настройте выходной каталог этой задачи. Оставьте его пустым, чтобы использовать каталог по умолчанию в глобальной конфигурации.",
+  "tasks.common.custom_filename": "Пользовательское имя файла",
+  "tasks.common.custom_filename_placeholder":
+    "Оставьте поле пустым, чтобы использовать имя файла по умолчанию.",
+  "tasks.common.custom_filename_hint":
+    "Установите префикс имени выходного файла (например, «my_data»), оставьте его пустым, чтобы использовать формат по умолчанию.",
 };

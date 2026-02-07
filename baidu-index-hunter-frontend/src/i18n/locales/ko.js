@@ -1890,4 +1890,16 @@ export default {
   "src-App-19c2993710803cda7-logs": "실시간 로그",
   "views.logs.copy_items": "{count} 로그 복사",
   "views.logs.copied": "성공적으로 복사되었습니다!",
+  "tasks.common.output_settings": "출력 설정",
+  "tasks.common.output_format": "출력 형식",
+  "tasks.common.output_dir": "출력 디렉터리",
+  "tasks.common.output_dir_placeholder":
+    "시스템 기본 출력 디렉터리를 사용하려면 비워 두세요.",
+  "tasks.common.output_dir_hint":
+    "이 작업의 출력 디렉터리를 사용자 지정하고, 전역 구성에서 기본 디렉터리를 사용하려면 공백으로 남겨두세요.",
+  "tasks.common.custom_filename": "사용자 정의 파일 이름",
+  "tasks.common.custom_filename_placeholder":
+    "기본 파일 이름을 사용하려면 비워 두세요.",
+  "tasks.common.custom_filename_hint":
+    '출력 파일 이름 접두사(예: "my_data")를 설정하고 기본 형식을 사용하려면 비워 두세요.',
 };

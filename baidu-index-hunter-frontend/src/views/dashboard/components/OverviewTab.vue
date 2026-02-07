@@ -58,8 +58,8 @@
             <h3 class="panel-title">{{ $t('dashboard.dashboard.execution_trends') }}</h3>
             <div class="panel-actions">
               <el-radio-group v-model="trendMode" size="small" class="premium-radio">
-                <el-radio-button label="task">{{ $t('dashboard.dashboard.total_tasks') }}</el-radio-button>
-                <el-radio-button label="success">{{ $t('dashboard.dashboard.crawled_items') }}</el-radio-button>
+                <el-radio-button value="task">{{ $t('dashboard.dashboard.total_tasks') }}</el-radio-button>
+                <el-radio-button value="success">{{ $t('dashboard.dashboard.crawled_items') }}</el-radio-button>
               </el-radio-group>
             </div>
           </div>

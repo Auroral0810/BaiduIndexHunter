@@ -798,6 +798,18 @@ export default {
     "Failed to obtain cookie usage data:",
   "components-CookieUsageChart-19c298e1b08b4a7ef-41":
     "Failed to obtain cookie usage data, please check the network connection",
+  "tasks.common.output_settings": "Output settings",
+  "tasks.common.output_format": "Output format",
+  "tasks.common.output_dir": "Output directory",
+  "tasks.common.output_dir_placeholder":
+    "Leave blank to use the system default output directory.",
+  "tasks.common.output_dir_hint":
+    "Customize the output directory of this task, leave it blank to use the default directory in the global configuration",
+  "tasks.common.custom_filename": "Custom file name",
+  "tasks.common.custom_filename_placeholder":
+    "Leave blank to use default filename",
+  "tasks.common.custom_filename_hint":
+    'Set the output file name prefix (such as "my_data"), leave it blank to use the default format',
   "components-CookieUsageChart-19c298e1b08b4a7ef-42": "Others",
   "components-CookieUsageChart-19c298e1b08b4a7ef-43":
     "Cookie usage data synchronization successful",

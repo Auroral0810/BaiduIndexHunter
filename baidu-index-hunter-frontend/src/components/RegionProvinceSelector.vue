@@ -14,10 +14,10 @@
         </div>
         <!-- 省份操作按钮 -->
         <div class="province-actions">
-          <el-button type="text" size="small" @click="selectAllProvinces">
+          <el-button link size="small" @click="selectAllProvinces">
             {{ $t("components-RegionProvinceSelector-2") || "全选省份" }}
           </el-button>
-          <el-button type="text" size="small" @click="unselectAllProvinces">
+          <el-button link size="small" @click="unselectAllProvinces">
             {{ $t("components-RegionProvinceSelector-3") || "取消全选" }}
           </el-button>
         </div>
@@ -54,7 +54,7 @@
     <div class="selected-regions" v-if="hasSelection">
       <div class="selected-header">
         <span>{{ $t("components-RegionProvinceSelector-8") || "已选地区" }}（{{ selectionCount }}）</span>
-        <el-button type="text" size="small" @click="clearAllSelection">
+        <el-button link size="small" @click="clearAllSelection">
           {{ $t("components-RegionProvinceSelector-9") || "清空" }}
         </el-button>
       </div>
@@ -150,8 +150,17 @@ const generateFinalSelection = () => {
   // 添加选中的省份代码
   result.push(...selectedProvincesList.value);
 
-  emit("update:modelValue", result);
-  emit("change", result);
+  // Deep equality check
+  const currentVal = props.modelValue || [];
+  const isSame =
+    result.length === currentVal.length &&
+    result.every((val) => currentVal.includes(val)) &&
+    currentVal.every((val) => result.includes(val));
+
+  if (!isSame) {
+    emit("update:modelValue", result);
+    emit("change", result);
+  }
 };
 
 // 监听选中状态变化
@@ -168,6 +177,21 @@ watch(
   () => props.modelValue,
   (newVal) => {
     if (newVal && Array.isArray(newVal)) {
+      // Deep equality check
+      const currentSelected: string[] = [];
+      if (nationwideSelected.value) currentSelected.push("0");
+      Object.keys(provinceChecked).forEach((code) => {
+        if (provinceChecked[code]) currentSelected.push(code);
+      });
+
+      const isSame =
+        newVal.length === currentSelected.length &&
+        newVal.every((val) => currentSelected.includes(val)) &&
+        currentSelected.every((val) => newVal.includes(val));
+
+      if (isSame) return;
+
+      if (isUpdating.value) return;
       isUpdating.value = true;
 
       // 重置状态

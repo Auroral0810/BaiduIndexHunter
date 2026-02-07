@@ -1748,4 +1748,14 @@ export default {
   "src-App-19c2993710803cda7-logs": "實時日誌",
   "views.logs.copy_items": "複製 {count} 條日誌",
   "views.logs.copied": "已復製成功!",
+  "tasks.common.output_settings": "輸出設置",
+  "tasks.common.output_format": "輸出格式",
+  "tasks.common.output_dir": "輸出目錄",
+  "tasks.common.output_dir_placeholder": "留空則使用系統默認輸出目錄",
+  "tasks.common.output_dir_hint":
+    "自定義此任務的輸出目錄，留空使用全局配置中的默認目錄",
+  "tasks.common.custom_filename": "自定義文件名",
+  "tasks.common.custom_filename_placeholder": "留空則使用默認文件名",
+  "tasks.common.custom_filename_hint":
+    '設置輸出文件名前綴（如 "my_data"），留空則使用默認格式',
 };

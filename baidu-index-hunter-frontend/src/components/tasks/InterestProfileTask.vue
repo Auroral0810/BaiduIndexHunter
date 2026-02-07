@@ -132,11 +132,11 @@
         >
         <!-- 输出设置 -->
         <el-divider content-position="left">{{
-          $t("tasks-InterestProfileTask-19c298e1e7a81a799-20")
+          $t("tasks.common.output_settings")
         }}</el-divider>
 
         <el-form-item
-          :label="$t('tasks-InterestProfileTask-19c298e1e7a81a799-24')">
+          :label="$t('tasks.common.output_format')">
           <el-select v-model="formData.output_format" style="width: 200px">
             <el-option label="CSV (.csv)" value="csv" />
             <el-option label="Excel (.xlsx)" value="excel" />
@@ -146,16 +146,16 @@
             <el-option label="SQLite (.sqlite)" value="sql" />
           </el-select>
         </el-form-item>
-        <el-form-item label="输出目录">
+        <el-form-item :label="$t('tasks.common.output_dir')">
           <DirPicker
             v-model="formData.output_dir"
-            placeholder="留空则使用系统默认输出目录"
-            hint="自定义此任务的输出目录，留空使用全局配置中的默认目录"
+            :placeholder="$t('tasks.common.output_dir_placeholder')"
+            :hint="$t('tasks.common.output_dir_hint')"
           />
         </el-form-item>
-        <el-form-item label="自定义文件名">
-          <el-input v-model="formData.output_name" placeholder="留空则使用默认文件名" clearable />
-          <div style="font-size: 12px; color: #909399; margin-top: 4px;">设置输出文件名前缀（如 "my_data"），留空则使用默认格式</div>
+        <el-form-item :label="$t('tasks.common.custom_filename')">
+          <el-input v-model="formData.output_name" :placeholder="$t('tasks.common.custom_filename_placeholder')" clearable />
+          <div style="font-size: 12px; color: #909399; margin-top: 4px;">{{ $t('tasks.common.custom_filename_hint') }}</div>
         </el-form-item>
         <el-form-item
           :label="$t('tasks-InterestProfileTask-19c298e1e7a81a799-27')"
