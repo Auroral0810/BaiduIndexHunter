@@ -1,7 +1,6 @@
 <p align="center">
   <img src="static/github-header-banner-zh.png" alt="BaiduIndexHunter Banner" style="border:none;box-shadow:none;outline:none;width:100%;max-width:900px;" />
 </p>
-
 <p align="center">
   <a href="./README.md">中文文档</a> | <a href="./README_EN.md">English</a>
 </p>
@@ -45,7 +44,7 @@
 ## 📺 演示视频
 
 <p align="center">
-  <video src="static/github演示视频.mp4" controls autoplay muted loop width="95%" poster="static/首页-门面.png">
+  <video src="https://private-user-images.githubusercontent.com/140379943/546603232-70b973f0-141f-4dd8-a4ea-fa026048a263.mp4" controls autoplay muted loop width="95%" poster="static/首页-门面.png">
     您的浏览器不支持 HTML5 视频播放，请 <a href="static/github演示视频.mp4">点击此处下载</a> 观看。
   </video>
 </p>
@@ -56,110 +55,114 @@
 
 <div align="center">
 
-| 🏷️**核心能力**     | 📝**详细描述**                                                                                                                  |
-| :------------------------- | :------------------------------------------------------------------------------------------------------------------------------------ |
-| 🔍**六大模块全覆盖** | 深度集成**搜索指数**、**资讯指数**、**需求图谱**、**人群属性**、**兴趣分布**、**地域分布** 接口。 |
-| 📊**实时状态监控**   | 基于**WebSocket** 技术，秒级同步采集进度与系统日志，实时监控项目运行状态。                                                      |
-| ⚡**高效并发采集**   | 采用分布式消息队列设计，支持多任务同时运行，轻松应对海量关键词采集需求。                                                              |
-| 🍪**智能账号池**     | 内置账号状态自动巡检机，支持 Cookie**自动轮换**、封禁预警与用量可视化统计。                                                     |
-| 🔄**任务断点续存**   | 支持任务检查点（Checkpoint）机制，意外中断后可一键恢复，杜绝重复流量消耗。                                                            |
-| 📤**结构化数据导出** | 自动将采集结果清洗为**CSV / Excel / Parquet** 格式，并提供结构化数据库存储支持。                                                |
-| 🌐**多语言与国际化** | 完整支持**中/英 双语** 界面切换，适应多语言工作环境。                                                                           |
-| 🌙**深色模式支持**   | 适配现代 IDE 审美，支持**Dark Mode** 一键切换，保护长时间工作下的视觉疲劳。                                                     |
-
+| 核心能力             | 详细描述                                                                                                    |
+| :------------------- | :--------------------------------------------------------------------------------------------------------- |
+| 六大模块全覆盖       | 深度集成搜索指数、资讯指数、需求图谱、人群属性、兴趣分布、地域分布六大数据接口。                              |
+| 实时状态监控         | 基于 WebSocket 技术，秒级同步采集进度与系统日志，实时监控项目运行状态。                                       |
+| 高效并发采集         | 采用分布式消息队列设计，支持多任务同时运行，高效应对海量关键词采集场景。                                      |
+| 智能账号池           | 内置账号状态自动巡检机制，支持 Cookie 自动轮换，封禁预警和用量可视化统计。                                   |
+| 任务断点续存         | 支持任务检查点（Checkpoint）机制，意外中断后可一键恢复，杜绝重复流量消耗。                                    |
+| 结构化数据导出       | 采集结果自动清洗为 CSV / Excel / Parquet / dta / json 等六种主流数据结构，并支持结构化数据库存储。            |
+| 多语言与国际化       | 完整支持九种语言界面切换，满足多语种全球用户的需求。                                                        |
+| 深色模式支持         | 适配现代 IDE 审美，支持 Dark Mode 一键切换，保护长时间工作下的视觉体验。                                    |
+| 全面数据可视化支持   | 内置丰富的数据分析与可视化展示，助力数据洞察与业务决策。                                                    |
 </div>
 
 ---
 
 ## 🏗️ 系统架构
 
-### 核心处理逻辑
+### 整体架构图
 
-```mermaid
-flowchart TD
-    subgraph APP["应用层 (API & UI)"]
-        UI[Vue3 SPA] <--> API[Flask RESTful]
-        UI <--> WS[Socket.IO 实时推送]
-    end
+<div align="center">
+  <img src="static/整体架构图.png" alt="系统整体架构图" width="100%" style="border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.10); margin: 24px 0;" />
+  <br />
+  <span style="color: #888; font-size: 15px;">BaiduIndexHunter 2.0 系统整体架构图</span>
+</div>
 
-    subgraph SCHEDULER["任务调度中心"]
-        TASK_QUEUE[任务优先级队列]
-        WORKER_MANAGER[执行器管理]
-    end
 
-    subgraph ENGINE["采集引擎系统"]
-        DIRECTION_C[采集控制逻辑] --> CRAWLER[Spider 集群]
-        CRAWLER --> COOKIE_MANAGER[Cookie 动态获取/轮换]
-        COOKIE_MANAGER --> BAN_CHECK[封禁智能检测]
-    end
+## 📸 系统界面模块化展示
 
-    subgraph DATA["持久化层"]
-        RDS[(MySQL 8.0 业务数据)]
-        CACHE[(Redis 7.x 状态缓存)]
-        FS[本地存储 CSV/Excel]
-    end
 
-    API -- 下发任务 --> SCHEDULER
-    SCHEDULER -- 调度 --> ENGINE
-    ENGINE -- 持久化 --> DATA
-    ENGINE -- 指令反馈 --> API
-```
+### 1️⃣ 首页
 
-### 数据流转流程
+<div align="center">
+  <img src="static/首页-门面.png" width="47%" />
+  <img src="static/首页-流畅的操作体验.png" width="47%" />
+  <br />
+  <img src="static/首页-数据来源说明.png" width="47%" />
+  <img src="static/首页-为什么选择我们.png" width="47%" />
+</div>
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant User as 用户
-    participant Frontend as 系统前端
-    participant Backend as 后端服务
-    participant Queue as 调度队列
-    participant Engine as 采集引擎
-    participant Baidu as 百度 API
-
-    User->>Frontend: 配置参数并启动任务
-    Frontend->>Backend: 提交任务指令
-    Backend->>Queue: 任务实例化并压入队列
-    Queue->>Engine: 分发采集子任务
-
-    loop 自主采集阶段
-        Engine->>Engine: 校验 Cookie 有效性
-        Engine->>Baidu: 发起加密数据请求
-        Baidu-->>Engine: 返回原始数据包
-        Engine->>Engine: 数据清洗与反解
-        Engine-->>Frontend: WebSocket 推送实时进度
-    end
-
-    Engine->>Backend: 任务完成状态归档
-    Backend-->>User: 导出 CSV/Excel 数据文件
-```
+- 提供产品入口、数据来源、产品优势展示，以及引导性操作体验和导航。
 
 ---
 
-## 📸 界面展示
-
-### 🏛️ 首页控制台
+### 2️⃣ 数据采集页
 
 <div align="center">
-  <img src="static/首页-门面.png" width="48%" />
-  <img src="static/首页-流畅的操作体验.png" width="48%" />
+  <img src="static/数据采集-搜索指数.png" width="47%" />
+  <img src="static/数据采集-任务列表.png" width="47%" />
 </div>
 
-### 📊 数据大屏可视化
+- 支持批量关键词采集任务，展示任务列表、采集维度，实时采集进度与即时反馈。
+
+---
+
+### 3️⃣ Cookie 管理页
+
+<div align="center">
+  <img src="static/cookie管理.png" width="47%" />
+  <img src="static/cookie用量可视化.png" width="47%" />
+</div>
+
+- 支持账号与 Cookie 的导入、轮换、状态监控，提供用量统计及状态可视化。
+
+---
+
+### 4️⃣ 数据可视化页
 
 <div align="center">
   <img src="static/数据大屏-总览.png" width="100%" />
   <br />
-  <img src="static/数据大屏-关键词分析.png" width="48%" />
-  <img src="static/数据大屏-任务完成率.png" width="48%" />
+  <img src="static/数据大屏-关键词分析.png" width="47%" />
+  <img src="static/数据大屏-任务完成率.png" width="47%" />
 </div>
 
-### 🕷️ 任务与 Cookie 管理
+- 多维展示采集与分析结果，包含关键词分析、任务进展、趋势图等可视化面板。
+
+---
+
+### 5️⃣ 日志和配置页
 
 <div align="center">
-  <img src="static/数据采集-任务列表.png" width="48%" />
-  <img src="static/cookie管理.png" width="48%" />
+  <img src="static/系统配置.png" width="47%" />
+  <img src="static/实时日志.png" width="47%" />
 </div>
+
+- 系统配置修改、环境信息校验，采集与系统运行日志实时监控。
+
+---
+
+### 6️⃣ 主题与国际化
+
+<div align="center">
+  <img src="static/深色模式.png" width="47%" />
+  <img src="static/多语言国际化.png" width="47%" />
+</div>
+
+- 一键切换暗色/亮色主题，内置多语言界面，支持国际化无障碍体验。
+
+---
+
+### 7️⃣ 采集数据示例
+
+<div align="center">
+  <img src="static/年度数据示例.png" width="47%" />
+  <img src="static/日度数据示例.png" width="47%" />
+</div>
+
+- 展示年度、日度等不同粒度的数据样例，辅助理解采集与分析能力。
 
 ---
 
@@ -202,9 +205,48 @@ npm install && npm run dev
 
 ---
 
+## ⚠️ 免责声明
+
+**重要提醒：本项目仅供学习、学术研究和教育目的使用**
+
+1. **合规性声明**：
+
+   - 本项目中的所有代码、工具和功能均仅供学习、学术研究和教育目的使用。
+   - 严禁将本项目用于任何商业用途或盈利性活动。
+   - 严禁将本项目用于任何违法、违规或侵犯他人权益的行为。
+
+2. **爬虫功能免责**：
+
+   - 项目中的爬虫功能仅用于技术学习和研究目的。
+   - 使用者必须遵守目标网站的 robots.txt 协议和使用条款。
+   - 使用者必须遵守相关法律法规，不得进行恶意爬取或数据滥用。
+   - 因使用爬虫功能产生的任何法律后果由使用者自行承担。
+
+3. **数据使用免责**：
+
+   - 项目涉及的数据分析功能仅供学术研究使用。
+   - 严禁将分析结果用于商业决策或盈利目的。
+   - 使用者应确保所分析数据的合法性和合规性。
+
+4. **技术免责**：
+
+   - 本项目按“现状”提供，不提供任何明示或暗示的保证。
+   - 作者不对使用本项目造成的任何直接或间接损失承担责任。
+   - 使用者应自行评估项目的适用性和风险。
+
+5. **责任限制**：
+
+   - 使用者在使用本项目前应充分了解相关法律法规。
+   - 使用者应确保其使用行为符合当地法律法规要求。
+   - 因违反法律法规使用本项目而产生的任何后果由使用者自行承担。
+
+**请在使用本项目前仔细阅读并理解上述免责声明。使用本项目即表示您已同意并接受上述所有条款。**
+
+---
+
 ## 📄 许可证
 
-本项目采用 **EULA 非商业许可协议**。
+本项目采用 [**EULA 非商业许可协议**](LICENSE)。详细信息请参阅 LICENSE 文件。
 
 ---
 
@@ -212,8 +254,8 @@ npm install && npm run dev
 
 <table align="center">
   <tr>
-    <td align="center"><b>微信 (WeChat)</b></td>
-    <td align="center"><b>QQ (Group)</b></td>
+    <td align="center"><b>微信</b></td>
+    <td align="center"><b>QQ</b></td>
   </tr>
   <tr>
     <td align="center"><img src="static/wechat.jpg" width="180" /></td>
@@ -231,6 +273,18 @@ npm install && npm run dev
 
 ---
 
-<p align="center">
+## 📈 项目统计
+
+<a href="https://www.star-history.com/#Auroral0810/BaiduIndexHunter&type=date&legend=top-left">
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Auroral0810/BaiduIndexHunter&type=date&theme=dark&legend=top-left" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Auroral0810/BaiduIndexHunter&type=date&legend=top-left" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Auroral0810/BaiduIndexHunter&type=date&legend=top-left" style="vertical-align:middle;display:inline-block;" />
+  </picture>
+</a>
+
+![Alt](https://repobeats.axiom.co/api/embed/1f0334fb444a74a291d3eeb3bf381df5bf6619e3.svg "Repobeats analytics image")
+
+<p align="center" style="margin-top:2em;">
   <b>如果这个项目对你有帮助，请点击右上角给一个 ⭐ Star 支持一下！感谢！</b>
 </p>
