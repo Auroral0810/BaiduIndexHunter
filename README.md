@@ -1,32 +1,38 @@
 <div align="center">
-  <br />
-  <img src="baidu-index-hunter-frontend/src/assets/logo.svg" alt="BaiduIndexHunter Logo" width="100" />
-  <h1>🎯 BaiduIndexHunter 2.0</h1>
-  <p><h3>专业的百度指数采集与分析平台</h3></p>
-  <img src="baidu-index-hunter-frontend/src/assets/slogn_logo.jpg" alt="Slogan" width="85%" />
-  <br />
-  <br />
+  <div style="display: flex; justify-content: center; align-items: center; gap: 2.5rem; flex-wrap: wrap;">
+    <div style="display: flex; flex-direction: column; align-items: flex-start; min-width: 320px;">
+      <h1 style="margin-bottom: 0.5em;">
+        <img src="baidu-index-hunter-frontend/src/assets/logo.svg" alt="BaiduIndexHunter Logo" style="vertical-align: middle; height: 2em; margin-right: 0.5em;" />
+        BaiduIndexHunter
+      </h1>
+      <h3 style="margin-top:0;">专业的百度指数采集与分析平台</h3>
+    </div>
+    <div>
+      <img src="baidu-index-hunter-frontend/src/assets/slogn_logo.jpg" alt="Slogan" style="max-width:350px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.10);" />
+    </div>
+  </div>
 </div>
 
 <p align="center">
   <a href="./README.md">🇨🇳 简体中文</a> | <a href="./README_EN.md">🇺🇸 English</a>
 </p>
-
 <p align="center">
-  <img src="https://img.shields.io/badge/Python-3.11+-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
-  <img src="https://img.shields.io/badge/Vue.js-3.4-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white" alt="Vue.js" />
-  <img src="https://img.shields.io/badge/Flask-3.1-000000?style=for-the-badge&logo=flask&logoColor=white" alt="Flask" />
-  <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL" />
-  <img src="https://img.shields.io/badge/Redis-7.x-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
+  <!-- 技术栈、版本、License、PR、Fork、Watch、Star、Issue、Last Commit —— 所有徽章聚合到同一行 -->
+  <img src="https://img.shields.io/badge/Python-3.11%2B-blue?style=flat-square&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/Vue.js-3.4-4FC08D?style=flat-square&logo=vue.js&logoColor=white" alt="Vue.js" />
+  <img src="https://img.shields.io/badge/Flask-3.1-000000?style=flat-square&logo=flask&logoColor=white" alt="Flask" />
+  <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat-square&logo=mysql&logoColor=white" alt="MySQL" />
+  <img src="https://img.shields.io/badge/Redis-7.x-DC382D?style=flat-square&logo=redis&logoColor=white" alt="Redis" />
+  <img src="https://img.shields.io/badge/version-2.0.0-blue?style=flat-square" alt="Version" />
+  <img src="https://img.shields.io/github/license/Auroral0810/BaiduIndexHunter?style=flat-square" alt="License" />
+  <img src="https://img.shields.io/github/issues-pr/Auroral0810/BaiduIndexHunter?style=flat-square" alt="Pull Requests" />
+  <img src="https://img.shields.io/github/forks/Auroral0810/BaiduIndexHunter?style=flat-square" alt="GitHub Forks" />
+  <img src="https://img.shields.io/github/watchers/Auroral0810/BaiduIndexHunter?style=flat-square" alt="Watchers" />
+  <img src="https://img.shields.io/github/stars/Auroral0810/BaiduIndexHunter?style=flat-square" alt="GitHub Stars" />
+  <img src="https://img.shields.io/github/issues/Auroral0810/BaiduIndexHunter?style=flat-square" alt="Issues" />
+  <img src="https://img.shields.io/github/last-commit/Auroral0810/BaiduIndexHunter?style=flat-square" alt="Last Commit" />
 </p>
 
-<p align="center">
-  <img src="https://img.shields.io/github/stars/Auroral0810/BaiduIndexHunter?style=social" alt="GitHub Stars" />
-  <img src="https://img.shields.io/github/forks/Auroral0810/BaiduIndexHunter?style=social" alt="GitHub Forks" />
-  <img src="https://img.shields.io/github/issues/Auroral0810/BaiduIndexHunter" alt="Issues" />
-  <img src="https://img.shields.io/github/license/Auroral0810/BaiduIndexHunter" alt="License" />
-  <img src="https://img.shields.io/github/last-commit/Auroral0810/BaiduIndexHunter" alt="Last Commit" />
-</p>
 
 ---
 
