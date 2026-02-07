@@ -732,11 +732,11 @@ const importResults = reactive({
 const taskOverviewDialogVisible = ref(false);
 
 // 优先级标记
-const priorityMarks = {
+const priorityMarks = computed(() => ({
   1: t("tasks-RegionDistributionTask-19c298e201890d5db-130"),
   5: t("tasks-RegionDistributionTask-19c298e201890d5db-131"),
   10: t("tasks-RegionDistributionTask-19c298e201890d5db-132"),
-};
+}));
 
 // 关键词检查结果
 const keywordCheckResults = reactive<Record<string, boolean | null>>({});

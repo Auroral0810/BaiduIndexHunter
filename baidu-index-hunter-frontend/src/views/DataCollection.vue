@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElNotification } from 'element-plus'
 import axios from 'axios'
@@ -40,7 +40,7 @@ const currentRunningTask = ref(null)
 const showProgressPanel = ref(false)
 
 // 任务配置
-const tasks = [
+const tasks = computed(() => [
   { id: 'search_index', label: $t('views.datacollection.2ncis3'), icon: Search, desc: $t('views.datacollection.8d6dy1') },
   { id: 'feed_index', label: $t('views.datacollection.653q6s'), icon: Reading, desc: $t('views.datacollection.770h43') },
   { id: 'word_graph', label: $t('views.datacollection.k08266'), icon: Connection, desc: $t('views.datacollection.it27vl') },
@@ -48,7 +48,7 @@ const tasks = [
   { id: 'interest_profile', label: $t('views.datacollection.7l4pg4'), icon: Star, desc: $t('views.datacollection.i43k73') },
   { id: 'region_distribution', label: $t('views.datacollection.sciq8u'), icon: MapLocation, desc: $t('views.datacollection.41p6g7') },
   { id: 'task_list', label: $t('views.datacollection.718hqw'), icon: List, desc: $t('views.datacollection.6kxv6b') },
-]
+])
 
 // 处理 WebSocket 更新
 const handleWebSocketUpdate = (data) => {

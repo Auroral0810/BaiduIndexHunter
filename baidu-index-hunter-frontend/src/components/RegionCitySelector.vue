@@ -169,7 +169,7 @@
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { ref, reactive, computed, onMounted, watch } from "vue";
+import { ref, reactive, computed, onMounted, watch, nextTick } from "vue";
 
 const { t } = useI18n();
 import { useRegionStore } from "../store/region";
@@ -297,7 +297,7 @@ const clearProvinceAndCitySelection = () => {
 const generateFinalSelection = () => {
   if (isUpdating.value) return;
 
-  let result = [];
+  const result = [];
 
   // 如果选中了全国，添加全国代码，但不阻止添加其他省市
   if (nationwideSelected.value) {
@@ -306,14 +306,23 @@ const generateFinalSelection = () => {
 
   // 添加选中的省份代码
   const selectedProvinces = selectedProvincesList.value;
-  result = [...result, ...selectedProvinces];
+  result.push(...selectedProvinces);
 
   // 添加选中的城市代码
   const selectedCities = selectedCityCodesList.value;
-  result = [...result, ...selectedCities];
+  result.push(...selectedCities);
 
-  emit("update:modelValue", result);
-  emit("change", result);
+  // 深度比较，只有值真正改变时才触发更新
+  const currentVal = props.modelValue || [];
+  const isSame =
+    result.length === currentVal.length &&
+    result.every((val) => currentVal.includes(val)) &&
+    currentVal.every((val) => result.includes(val));
+
+  if (!isSame) {
+    emit("update:modelValue", result);
+    emit("change", result);
+  }
 };
 
 // 监听选中状态变化，更新v-model
@@ -330,10 +339,24 @@ watch(
   () => props.modelValue,
   (newVal) => {
     if (newVal && Array.isArray(newVal)) {
+      // 深度比较，如果外部传入的值和内部状态一致，则不更新
+      const result = [];
+      if (nationwideSelected.value) result.push("0");
+      result.push(...selectedProvincesList.value);
+      result.push(...selectedCityCodesList.value);
+
+      const isSame =
+        newVal.length === result.length &&
+        newVal.every((val) => result.includes(val)) &&
+        result.every((val) => newVal.includes(val));
+
+      if (isSame) return;
+
       isUpdating.value = true;
 
       // 重置所有选中状态
-      clearAllSelection();
+      clearProvinceAndCitySelection();
+      nationwideSelected.value = false; // 手动重置
 
       // 设置新的选中状态（允许同时选中全国和其他省市）
       newVal.forEach((code) => {
