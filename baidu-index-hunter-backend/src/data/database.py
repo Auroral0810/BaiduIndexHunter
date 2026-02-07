@@ -1,11 +1,15 @@
 """
 数据库连接配置模块 (SQLModel/SQLAlchemy)
+使用 SQLAlchemy QueuePool 连接池实现高效的数据库连接管理
 """
+import os
 from typing import Generator
 from sqlmodel import create_engine, Session, SQLModel
+from sqlalchemy.pool import QueuePool
 from contextlib import contextmanager
 
 from src.core.config import MYSQL_CONFIG
+from src.core.logger import log
 
 # 构建数据库连接 URL
 # 格式: mysql+pymysql://user:password@host:port/dbname?charset=utf8mb4
@@ -15,14 +19,42 @@ DATABASE_URL = (
     f"?charset={MYSQL_CONFIG.get('charset', 'utf8mb4')}"
 )
 
+# ============================================================
+# 连接池配置参数 (可通过环境变量覆盖)
+# ============================================================
+
+# pool_size: 连接池保持的固定连接数，默认 10
+POOL_SIZE = int(os.getenv('DB_POOL_SIZE', 10))
+
+# max_overflow: 超出 pool_size 后允许临时创建的额外连接数，默认 20
+# 总最大连接数 = pool_size + max_overflow = 30
+MAX_OVERFLOW = int(os.getenv('DB_MAX_OVERFLOW', 20))
+
+# pool_timeout: 等待获取连接的超时时间(秒)，默认 30 秒
+POOL_TIMEOUT = int(os.getenv('DB_POOL_TIMEOUT', 30))
+
+# pool_recycle: 连接回收时间(秒)，防止 MySQL 自动断开空闲连接
+# MySQL 默认 wait_timeout=28800(8小时)，这里设置为 1 小时以确保连接活跃
+POOL_RECYCLE = int(os.getenv('DB_POOL_RECYCLE', 3600))
+
+# pool_pre_ping: 每次获取连接前检测连接有效性，防止使用已断开的连接
+POOL_PRE_PING = os.getenv('DB_POOL_PRE_PING', 'true').lower() == 'true'
+
+# echo: 是否打印 SQL 语句（调试用）
+SQL_ECHO = os.getenv('DB_SQL_ECHO', 'false').lower() == 'true'
+
+# ============================================================
 # 创建数据库引擎
-# pool_recycle=3600: 每小时回收连接，防止 MySQL 自动断开
-# echo=False: 生产环境关闭 SQL 日志，调试时可开启
+# ============================================================
 engine = create_engine(
-    DATABASE_URL, 
-    echo=False, 
-    pool_recycle=3600,
-    pool_pre_ping=True  # 每次获取连接前 ping 一下，防止连接断开错误
+    DATABASE_URL,
+    echo=SQL_ECHO,
+    poolclass=QueuePool,          # 使用队列池，支持高并发
+    pool_size=POOL_SIZE,          # 连接池大小
+    max_overflow=MAX_OVERFLOW,    # 最大溢出连接数
+    pool_timeout=POOL_TIMEOUT,    # 获取连接超时
+    pool_recycle=POOL_RECYCLE,    # 连接回收时间
+    pool_pre_ping=POOL_PRE_PING,  # 连接有效性检测
 )
 
 def init_db():
