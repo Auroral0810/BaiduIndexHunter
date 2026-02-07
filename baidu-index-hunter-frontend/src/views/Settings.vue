@@ -80,7 +80,26 @@ const resetConfigs = async () => {
 }
 
 // 获取配置项类型
+// 需要下拉选择的配置项及其选项
+const selectOptions: Record<string, { label: string; value: string }[]> = {
+  'output.default_format': [
+    { label: 'CSV (.csv)', value: 'csv' },
+    { label: 'Excel (.xlsx)', value: 'excel' },
+    { label: 'JSON (.json)', value: 'json' },
+    { label: 'Stata (.dta)', value: 'dta' },
+    { label: 'Parquet (.parquet)', value: 'parquet' },
+    { label: 'SQLite (.sqlite)', value: 'sql' },
+  ],
+  'cookie.rotation_strategy': [
+    { label: 'round_robin', value: 'round_robin' },
+    { label: 'random', value: 'random' },
+    { label: 'least_used', value: 'least_used' },
+  ],
+}
+
 const getConfigType = (key: string, value: any) => {
+  // 检查是否有预定义的下拉选项
+  if (selectOptions[key]) return 'select'
   if (typeof value === 'boolean' || value === 'True' || value === 'False' || value === 'true' || value === 'false') return 'boolean'
   if (typeof value === 'number') {
     if (key.includes('interval') || key.includes('timeout')) return 'number'
@@ -233,6 +252,20 @@ onMounted(async () => {
                   />
                         <span class="switch-label">{{ configStore.configs[key] ? $t('views.settings.7p05v8') : $t('views.settings.5n3p7s') }}</span>
                       </div>
+                  
+                  <!-- 下拉选择类型 -->
+                  <el-select 
+                        v-else-if="getConfigType(String(key), value) === 'select'"
+                    v-model="configStore.configs[key]"
+                        class="full-width-input"
+                  >
+                    <el-option 
+                      v-for="opt in selectOptions[String(key)]" 
+                      :key="opt.value" 
+                      :label="opt.label" 
+                      :value="opt.value" 
+                    />
+                  </el-select>
                   
                   <!-- 数字类型 -->
                   <el-input-number 

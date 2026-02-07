@@ -159,9 +159,7 @@
               </div>
               <div v-if="scope.row.parameters.output_format">
                 <strong>{{ $t("tasks-TaskList-19c298d949224c78d-39") }}</strong>
-                {{
-                  scope.row.parameters.output_format === "csv" ? "CSV" : "Excel"
-                }}
+                {{ formatLabel(scope.row.parameters.output_format) }}
               </div>
             </div></template
           ></el-table-column
@@ -577,11 +575,7 @@
                   "
                   :label="$t('tasks-TaskList-19c298d949224c78d-82')"
                   :span="1"
-                  >{{
-                    selectedTask.parameters.output_format === "csv"
-                      ? "CSV"
-                      : "Excel"
-                  }}</el-descriptions-item
+                  >{{ formatLabel(selectedTask.parameters.output_format) }}</el-descriptions-item
                 ></el-descriptions
               >
             </div></el-card
@@ -853,6 +847,17 @@ interface Task {
 
 const API_BASE_URL = "http://127.0.0.1:5001/api";
 const useMockData = ref(false);
+
+// 输出格式标签映射
+const FORMAT_LABELS: Record<string, string> = {
+  csv: 'CSV (.csv)',
+  excel: 'Excel (.xlsx)',
+  json: 'JSON (.json)',
+  dta: 'Stata (.dta)',
+  parquet: 'Parquet (.parquet)',
+  sql: 'SQLite (.sqlite)',
+};
+const formatLabel = (fmt: string) => FORMAT_LABELS[fmt] || fmt.toUpperCase();
 
 // 模拟任务数据
 const mockTasks: Task[] = [

@@ -287,9 +287,13 @@ class FeedIndexCrawler(BaseCrawler):
     
     def crawl(self, task_id=None, keywords=None, cities=None, date_ranges=None, days=None, 
               keywords_file=None, cities_file=None, date_ranges_file=None,
-              year_range=None, resume=False, checkpoint_task_id=None, total_tasks=None, batch_size=5, **kwargs):
+              year_range=None, resume=False, checkpoint_task_id=None, total_tasks=None, batch_size=5,
+              output_format=None, **kwargs):
         """爬取百度资讯指数任务"""
         try:
+            # 设置输出格式
+            self._apply_output_format(output_format or kwargs.get('output_format'))
+            
             # 从 kwargs 提取参数，防止 UnboundLocalError 并确保与基类一致
             resume = kwargs.get('resume', resume)
             checkpoint_task_id = kwargs.get('checkpoint_task_id', checkpoint_task_id) or kwargs.get('task_id')

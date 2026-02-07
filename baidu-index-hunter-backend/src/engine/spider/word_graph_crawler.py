@@ -103,10 +103,12 @@ class WordGraphCrawler(BaseCrawler):
               datelists: Optional[List[str]] = None, 
               start_date: Optional[str] = None, 
               end_date: Optional[str] = None, 
-              **kwargs):
+              output_format=None, **kwargs):
         """
         执行爬取任务
         """
+        self._apply_output_format(output_format or kwargs.get('output_format'))
+        
         if isinstance(keywords, str):
             keywords = [keywords]
             

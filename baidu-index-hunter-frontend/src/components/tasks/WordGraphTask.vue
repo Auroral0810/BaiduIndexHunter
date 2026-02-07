@@ -168,16 +168,16 @@
         <el-divider content-position="left">{{
           $t("tasks-WordGraphTask-19c298e227e044aa6-30")
         }}</el-divider>
-        <el-form-item :label="$t('tasks-WordGraphTask-19c298e227e044aa6-31')"
-          ><el-radio-group v-model="formData.output_format"
-            ><el-radio label="csv">{{
-              $t("tasks-WordGraphTask-19c298e227e044aa6-32")
-            }}</el-radio>
-            <el-radio label="excel">{{
-              $t("tasks-WordGraphTask-19c298e227e044aa6-33")
-            }}</el-radio></el-radio-group
-          ></el-form-item
-        >
+        <el-form-item :label="$t('tasks-WordGraphTask-19c298e227e044aa6-31')">
+          <el-select v-model="formData.output_format" style="width: 200px">
+            <el-option label="CSV (.csv)" value="csv" />
+            <el-option label="Excel (.xlsx)" value="excel" />
+            <el-option label="JSON (.json)" value="json" />
+            <el-option label="Stata (.dta)" value="dta" />
+            <el-option label="Parquet (.parquet)" value="parquet" />
+            <el-option label="SQLite (.sqlite)" value="sql" />
+          </el-select>
+        </el-form-item>
         <!-- 任务设置 -->
         <el-divider content-position="left">{{
           $t("tasks-WordGraphTask-19c298e227e044aa6-34")

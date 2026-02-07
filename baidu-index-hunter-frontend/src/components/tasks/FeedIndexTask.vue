@@ -237,6 +237,18 @@
               show-icon
             /></div
         ></el-form-item>
+        <!-- 输出设置 -->
+        <el-divider content-position="left">输出设置</el-divider>
+        <el-form-item label="输出格式">
+          <el-select v-model="formData.output_format" style="width: 200px">
+            <el-option label="CSV (.csv)" value="csv" />
+            <el-option label="Excel (.xlsx)" value="excel" />
+            <el-option label="JSON (.json)" value="json" />
+            <el-option label="Stata (.dta)" value="dta" />
+            <el-option label="Parquet (.parquet)" value="parquet" />
+            <el-option label="SQLite (.sqlite)" value="sql" />
+          </el-select>
+        </el-form-item>
         <!-- 任务设置 -->
         <el-divider content-position="left">{{
           $t("tasks-FeedIndexTask-19c298e1d0a206148-54")
@@ -581,6 +593,7 @@ const formData = reactive({
   resume: false,
   taskId: "",
   priority: 5,
+  output_format: "csv",
 });
 
 // 城市数据
@@ -1087,6 +1100,7 @@ const submitTask = async () => {
         keywords: formData.keywords.map((k) => k.value),
         cities: citiesParam,
         resume: formData.resume,
+        output_format: formData.output_format,
       },
       priority: formData.priority,
     };

@@ -33,6 +33,7 @@ class BaseCrawler:
         self.checkpoint_path = None
         self.start_time = None
         self.output_files = []
+        self.output_format = 'csv'  # 最终输出格式（爬取时始终用 CSV，结束后转换）
         
         # 进度管理器 (SQLite-based, 替代 pkl)
         self.progress_manager: Optional[ProgressManager] = None
@@ -76,6 +77,20 @@ class BaseCrawler:
             self.cookie_ban_count += 1
         return self.cookie_rotator.report_cookie_status(account_id, is_valid, permanent)
 
+
+    def _apply_output_format(self, output_format=None, **kwargs):
+        """从参数或全局配置中读取并设置输出格式"""
+        if output_format and output_format in ('csv', 'excel', 'dta', 'json', 'parquet', 'sql'):
+            self.output_format = output_format
+        else:
+            # 从全局配置读取默认格式
+            try:
+                from src.services.config_service import config_manager
+                default_fmt = config_manager.get('output.default_format', 'csv')
+                if default_fmt in ('csv', 'excel', 'dta', 'json', 'parquet', 'sql'):
+                    self.output_format = default_fmt
+            except Exception:
+                self.output_format = 'csv'
 
     def _prepare_initial_state(self):
         """初始化进度监控变量（新任务开始前调用）"""
@@ -816,9 +831,36 @@ class BaseCrawler:
         """
         return []
 
+    def _convert_output_files(self):
+        """
+        将输出文件从 CSV 转换为用户指定的格式。
+        仅在 output_format != 'csv' 且任务有输出文件时执行。
+        """
+        if self.output_format == 'csv' or not self.output_files:
+            return
+        
+        log.info(f"[{self.task_type}] 正在将输出文件转换为 {self.output_format.upper()} 格式...")
+        converted_files = []
+        for file_path in self.output_files:
+            if file_path.endswith('.csv'):
+                # 根据文件名推断 SQL 表名
+                table_name = os.path.splitext(os.path.basename(file_path))[0]
+                new_path = storage_service.convert_csv_to_format(
+                    file_path, self.output_format, table_name=table_name
+                )
+                converted_files.append(new_path)
+            else:
+                converted_files.append(file_path)
+        
+        self.output_files = converted_files
+
     def _finalize_crawl(self, status: str, message: Optional[str] = None) -> bool:
         """爬取结束后的通用清理逻辑"""
         self._flush_buffer(force=True)
+        
+        # 格式转换（CSV → 用户指定格式）
+        if status in ('completed', 'failed'):
+            self._convert_output_files()
         
         # 结束覆盖式进度条（换行），然后用 log.info 输出最终汇总
         self._finish_progress_bar()

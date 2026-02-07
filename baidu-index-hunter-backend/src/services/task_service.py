@@ -120,14 +120,9 @@ class TaskService:
         if not parameters.get('datelists'):
             raise ValueError("缺少必要参数: datelists")
 
-        output_format = parameters.get('output_format', 'csv')
-        if output_format not in ['csv', 'excel']:
-            output_format = 'csv'
-
         spider_params = {
             'keywords': parameters['keywords'],
             'datelists': parameters['datelists'],
-            'output_format': output_format,
             'resume': resume
         }
         
@@ -140,14 +135,12 @@ class TaskService:
         if not parameters.get('keywords'):
             raise ValueError("缺少必要参数: keywords")
 
-        output_format = parameters.get('output_format', 'csv')
         batch_size = parameters.get('batch_size', 10)
         if not isinstance(batch_size, int) or batch_size <= 0:
             batch_size = 10
 
         spider_params = {
             'keywords': parameters['keywords'],
-            'output_format': output_format,
             'batch_size': batch_size,
             'resume': resume
         }
@@ -163,12 +156,9 @@ class TaskService:
         if not parameters.get('regions'):
             raise ValueError("缺少必要参数: regions")
 
-        output_format = parameters.get('output_format', 'csv')
-        
         spider_params = {
             'keywords': parameters['keywords'],
             'regions': parameters['regions'],
-            'output_format': output_format,
             'resume': resume
         }
         
@@ -186,8 +176,11 @@ class TaskService:
 
         return spider_params
 
+    # 支持的输出格式白名单
+    VALID_OUTPUT_FORMATS = ('csv', 'excel', 'dta', 'json', 'parquet', 'sql')
+
     def _add_common_spider_params(self, spider_params: Dict[str, Any], parameters: Dict[str, Any], skip_time: bool = False):
-        """添加通用爬虫参数"""
+        """添加通用爬虫参数（含 output_format）"""
         if 'kind' in parameters:
             spider_params['kind'] = parameters['kind']
         
@@ -200,6 +193,12 @@ class TaskService:
                 spider_params['days'] = parameters['days']
             elif 'date_ranges' in parameters:
                 spider_params['date_ranges'] = parameters['date_ranges']
+
+        # 统一提取 output_format（所有任务类型共享）
+        output_format = parameters.get('output_format', 'csv')
+        if output_format not in self.VALID_OUTPUT_FORMATS:
+            output_format = 'csv'
+        spider_params['output_format'] = output_format
 
     def _process_year_range(self, spider_params: Dict[str, Any], parameters: Dict[str, Any], keys: List[str] = ['year_range']):
         """处理年份范围参数"""

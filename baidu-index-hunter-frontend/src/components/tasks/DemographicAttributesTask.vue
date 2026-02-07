@@ -142,16 +142,16 @@
         }}</el-divider>
 
         <el-form-item
-          :label="$t('tasks-DemographicAttributesTask-19c298e1c74d5b997-24')"
-          ><el-radio-group v-model="formData.output_format"
-            ><el-radio label="csv">{{
-              $t("tasks-DemographicAttributesTask-19c298e1c74d5b997-25")
-            }}</el-radio>
-            <el-radio label="excel">{{
-              $t("tasks-DemographicAttributesTask-19c298e1c74d5b997-26")
-            }}</el-radio></el-radio-group
-          ></el-form-item
-        >
+          :label="$t('tasks-DemographicAttributesTask-19c298e1c74d5b997-24')">
+          <el-select v-model="formData.output_format" style="width: 200px">
+            <el-option label="CSV (.csv)" value="csv" />
+            <el-option label="Excel (.xlsx)" value="excel" />
+            <el-option label="JSON (.json)" value="json" />
+            <el-option label="Stata (.dta)" value="dta" />
+            <el-option label="Parquet (.parquet)" value="parquet" />
+            <el-option label="SQLite (.sqlite)" value="sql" />
+          </el-select>
+        </el-form-item>
         <el-form-item
           :label="$t('tasks-DemographicAttributesTask-19c298e1c74d5b997-27')"
           ><el-input-number

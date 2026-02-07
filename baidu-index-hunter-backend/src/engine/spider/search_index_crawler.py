@@ -244,7 +244,8 @@ class SearchIndexCrawler(BaseCrawler):
     
     def crawl(self, task_id=None, keywords=None, cities=None, date_ranges=None, days=None, 
               keywords_file=None, cities_file=None, date_ranges_file=None,
-              year_range=None, resume=False, checkpoint_task_id=None, total_tasks=None, batch_size=5, **kwargs):
+              year_range=None, resume=False, checkpoint_task_id=None, total_tasks=None, batch_size=5,
+              output_format=None, **kwargs):
         """
         爬取百度搜索指数数据
         
@@ -262,7 +263,11 @@ class SearchIndexCrawler(BaseCrawler):
             checkpoint_task_id (str): 要恢复的任务ID
             total_tasks (int): 总任务数（从task_executor传入）
             batch_size (int): 每批处理的关键词数量，默认为5，最大不超过5个
+            output_format (str): 输出格式 (csv/excel/dta/json/parquet/sql)
         """
+        # 设置输出格式
+        self._apply_output_format(output_format)
+        
         # 设置任务ID和检查点路径
         if resume and checkpoint_task_id:
             self.task_id = checkpoint_task_id

@@ -117,12 +117,15 @@ class InterestProfileCrawler(BaseCrawler):
             log.error(f"[{self.task_type}] Request Error: {e}")
             return None
 
-    def crawl(self, keywords: List[str], **kwargs):
+    def crawl(self, keywords: List[str], output_format=None, **kwargs):
         """
         执行爬取任务
         :param keywords: 关键词列表
+        :param output_format: 输出格式 (csv/excel/dta/json/parquet/sql)
         :param kwargs: 其他参数 (resume, task_id 等)
         """
+        self._apply_output_format(output_format or kwargs.get('output_format'))
+        
         # 1. 初始化任务
         if kwargs.get('resume') and (kwargs.get('task_id') or kwargs.get('checkpoint_task_id')):
             self.task_id = kwargs.get('task_id') or kwargs.get('checkpoint_task_id')
