@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="/Users/超级无敌巨重要的资料/BaiduIndexHunter2.0/static/github-header-banner-zh.png" alt="BaiduIndexHunter Banner" style="border:none;box-shadow:none;outline:none;width:100%;max-width:900px;" />
+  <img src="static/github-header-banner-zh.png" alt="BaiduIndexHunter Banner" style="border:none;box-shadow:none;outline:none;width:100%;max-width:900px;" />
 </p>
 
 <p align="center">
@@ -34,44 +34,21 @@
 > 4. 本项目源码及其衍生内容，请勿在未获授权情况下转载或发布于其他平台。
 
 ---
+## ⚡️ 项目概述
+
+**BaiduIndexHunter 2.0** 是一套面向百度指数数据的采集、存储与可视化平台，采用前后端分离架构，基于 **Flask + Vue 3 + Element Plus** 构建。系统支持**搜索指数**、**资讯指数**、**需求图谱**、**人群属性**、**兴趣分布**、**地域分布** 六大维度数据采集，集成任务调度、Cookie 轮换、断点续爬、实时进度推送与数据大屏等核心能力。
+
+项目面向学术研究、市场分析与舆情监测等场景，支持批量关键词与多地域采集、多格式导出（CSV / Excel / Parquet 等），并内置 API 鉴权、环境校验等安全机制，适用于单机或小规模团队部署使用。
+
+---
 
 ## 📺 演示视频
 
 <p align="center">
-  <video src="https://github.com/Auroral0810/BaiduIndexHunter/raw/main/static/github演示视频.mp4" controls autoplay muted loop width="95%" poster="static/首页-门面.png">
+  <video src="static/github演示视频.mp4" controls autoplay muted loop width="95%" poster="static/首页-门面.png">
     您的浏览器不支持 HTML5 视频播放，请 <a href="static/github演示视频.mp4">点击此处下载</a> 观看。
   </video>
 </p>
-
----
-
-## ⚠️ 免责声明
-
-> **本项目仅供学习交流使用，严禁用于任何商业用途。**
-> 使用者需遵守相关法律法规，因使用本项目而产生的任何法律责任由使用者自行承担。
-
----
-
-## 📖 目录
-
-- [项目简介](#-项目简介)
-- [功能特性](#-功能特性)
-- [系统架构](#-系统架构)
-- [技术栈](#-技术栈)
-- [界面展示](#-界面展示)
-- [快速开始](#-快速开始)
-- [使用示例](#-使用示例)
-- [环境要求](#-环境要求)
-- [联系作者](#-联系作者)
-
----
-
-## 🎯 项目简介
-
-**BaiduIndexHunter 2.0** 是一套工业级的百度指数全量采集解决方案。
-项目采用 **Flask + Vue3 + Element Plus** 构建，集成了分布式任务调度、实时状态推送、智能反爬池、数据可视化大屏等核心模块。
-
-✅ **核心价值**：解决手动记录指数数据低效、易错、难以长期追踪的痛点，为学术研究与职场数据分析赋能。
 
 ---
 
