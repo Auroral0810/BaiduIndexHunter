@@ -1,288 +1,486 @@
-# BaiduIndexHunter
+<div align="center">
+  <img src="baidu-index-hunter-frontend/src/assets/logo.svg" alt="BaiduIndexHunter Logo" width="150">
+  <h1>🎯 BaiduIndexHunter 2.0</h1>
+  <p><strong>专业的百度指数采集与分析平台</strong></p>
+  <img src="baidu-index-hunter-frontend/src/assets/slogn_logo.jpg" alt="Slogan" width="80%">
+</div>
 
-**BaiduIndexHunter** 是一个功能强大的百度指数爬虫工具集合，专注于收集百度指数的六大模块数据：**搜索指数**、**资讯指数**、**需求图谱**、**人群属性**、**兴趣分布** 和 **地域分布**。该项目采用模块化设计，支持多用户并发请求，提供实时任务状态更新和友好的用户体验。通过现代化的技术栈和高效的任务管理机制，BaiduIndexHunter 适用于个人研究、企业数据分析等多种场景。
+<p align="center">
+  <a href="./README.md">🇨🇳 简体中文</a> | <a href="./README_EN.md">🇺🇸 English</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.11+-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/Vue.js-3.4-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white" alt="Vue.js">
+  <img src="https://img.shields.io/badge/Flask-3.1-000000?style=for-the-badge&logo=flask&logoColor=white" alt="Flask">
+  <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL">
+  <img src="https://img.shields.io/badge/Redis-7.x-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/github/stars/Auroral0810/BaiduIndexHunter?style=social" alt="GitHub Stars">
+  <img src="https://img.shields.io/github/forks/Auroral0810/BaiduIndexHunter?style=social" alt="GitHub Forks">
+  <img src="https://img.shields.io/github/issues/Auroral0810/BaiduIndexHunter" alt="Issues">
+  <img src="https://img.shields.io/github/license/Auroral0810/BaiduIndexHunter" alt="License">
+  <img src="https://img.shields.io/github/last-commit/Auroral0810/BaiduIndexHunter" alt="Last Commit">
+</p>
+
+---
+
+## 📺 演示视频
+
+<p align="center">
+  <a href="static/github演示视频.mp4">
+    <img src="static/首页-门面.png" alt="点击观看演示视频" width="80%">
+  </a>
+</p>
+
+> 👆 点击上方图片观看完整演示视频
 
 ---
 
 ## ⚠️ 免责声明
 
-**本项目仅供学习交流使用,不可用于商业用途,因商业用途导致的一系列后果自行承担。**
+> **本项目仅供学习交流使用，严禁用于任何商业用途。**
+> 使用者需遵守相关法律法规，因使用本项目而产生的任何法律责任由使用者自行承担。
+> 请勿将本项目用于任何可能侵犯他人权益的行为。
 
 ---
 
-## 目录
+## 📖 目录
 
-- [项目概述](#项目概述)
-- [功能特性](#功能特性)
-- [界面展示](#界面展示)
-- [快速开始](#快速开始)
-- [爬虫模块](#爬虫模块)
-  - [1. 搜索指数爬虫](#1-搜索指数爬虫)
-  - [2. 资讯指数爬虫](#2-资讯指数爬虫)
-  - [3. 需求图谱爬虫](#3-需求图谱爬虫)
-  - [4. 人群属性爬虫](#4-人群属性爬虫)
-  - [5. 兴趣分布爬虫](#5-兴趣分布爬虫)
-  - [6. 地域分布爬虫](#6-地域分布爬虫)
-- [技术栈](#技术栈)
-- [安装与配置](#安装与配置)
-- [使用示例](#使用示例)
-- [数据输出格式](#数据输出格式)
-- [任务管理](#任务管理)
-- [贡献指南](#贡献指南)
-- [许可证](#许可证)
+- [项目简介](#-项目简介)
+- [功能特性](#-功能特性)
+- [系统架构](#-系统架构)
+- [技术栈](#-技术栈)
+- [界面展示](#-界面展示)
+- [快速开始](#-快速开始)
+- [使用示例](#-使用示例)
+- [爬虫模块](#-爬虫模块)
+- [环境要求](#-环境要求)
+- [贡献指南](#-贡献指南)
+- [许可证](#-许可证)
+- [联系作者](#-联系作者)
+- [Star 历史](#-star-历史)
 
 ---
 
-## 项目概述
+## 🎯 项目简介
 
-BaiduIndexHunter 通过模拟浏览器请求百度指数 API，获取各类指数数据，并采用 Cookie 轮换机制和反爬策略确保爬取稳定性。系统支持灵活的参数配置（如关键词、城市、日期范围等），并提供断点续爬、自动保存等功能。前后端分离的架构设计，使得任务管理和数据展示分离，提升了系统的可扩展性和用户体验。
+**BaiduIndexHunter 2.0** 是一个全功能的百度指数采集与分析系统，旨在帮助用户高效获取百度搜索、资讯、人群画像等核心数据。
 
----
+系统采用现代化的 **前后端分离架构**，支持：
 
-## 功能特性
+- 🚀 多用户并发任务
+- 📊 实时状态监控与数据可视化大屏
+- 🔐 强大的 Cookie 池管理
+- 🔄 断点续传与自动恢复
+- 🌍 多语言国际化支持
 
-- **多模块支持**：覆盖百度指数六大核心模块，满足多样化数据需求。
-- **并发任务处理**：支持多用户同时提交任务，通过任务队列高效调度。
-- **实时状态反馈**：通过 WebSocket 提供任务进度和状态的实时更新。
-- **断点续爬**：任务中断后可从检查点恢复，避免数据丢失。
-- **灵活输入**：支持关键词列表、文件导入、自定义日期范围等多种方式。
-- **数据可视化**：前端集成图表展示，便于分析爬取结果。
-- **反爬策略**：内置 Cookie 池、随机 User-Agent 和请求间隔控制，确保爬取稳定。
+无论是学术研究、市场分析还是竞品调研，BaiduIndexHunter 都能为您提供稳定可靠的数据支持。
 
 ---
 
-## 界面展示
+## ✨ 功能特性
 
-以下是 BaiduIndexHunter 的界面截图，展示了系统的核心功能和用户体验：
-
-- **首页**![首页](static/首页.png)
-- **Cookie 池管理**![Cookie 池管理](static/Cookie池管理.png)
-- **任务列表**![任务列表](static/任务列表.png)
-- **搜索指数采集**![搜索指数采集](static/搜索指数采集.png)
-- **需求图谱批量采集**![需求图谱批量采集](static/需求图谱批量采集.png)
-- **批量采集和关键词读取**![批量采集和关键词读取](static/批量采集和关键词读取.png)
-- **数据大屏**![数据大屏](static/数据大屏.png)
-- **系统配置界面**![系统配置界面](static/系统配置界面.png)
-- **Cookie 的 CRUD**![Cookie 的 CRUD](static/Cookie的Crud.png)
-- **使用流程**
-  ![使用流程](static/使用流程.png)
-
-这些截图展示了系统的操作界面、任务管理、数据采集和结果展示功能，帮助用户快速了解 BaiduIndexHunter 的使用方式。
-
----
-
-## 爬虫模块
-
-### 1. 搜索指数爬虫
-
-- **功能**：抓取百度搜索指数的日度、周度趋势及统计数据。
-- **API URL**：`https://index.baidu.com/api/SearchApi/index`
-- **爬取内容**：
-  - 日度/周度搜索指数（PC 端、移动端、总体）
-  - 统计数据（日均值、同比、环比等）
-- **文件路径**：`spider/search_index_crawler.py`
-
-### 2. 资讯指数爬虫
-
-- **功能**：获取百度资讯指数的趋势数据。
-- **API URL**：`https://index.baidu.com/api/FeedSearchApi/getFeedIndex`
-- **爬取内容**：
-  - 日度/周度资讯指数
-  - 整体统计数据
-- **文件路径**：`spider/feed_index_crawler.py`
-
-### 3. 需求图谱爬虫
-
-- **功能**：提取关键词的关联关系数据。
-- **API URL**：`https://index.baidu.com/api/WordGraph/multi`
-- **爬取内容**：
-  - 相关词及其搜索量、变化率、相关度
-- **文件路径**：`spider/word_graph_crawler.py`
-
-### 4. 人群属性爬虫
-
-- **功能**：获取人群属性分布数据（性别、年龄、学历等）。
-- **API URL**：`https://index.baidu.com/api/SocialApi/baseAttributes`
-- **爬取内容**：
-  - 性别比例、年龄分布、学历分布
-- **文件路径**：`spider/demographic_attributes_crawler.py`
-
-### 5. 兴趣分布爬虫
-
-- **功能**：提取人群兴趣画像数据。
-- **API URL**：`https://index.baidu.com/api/SocialApi/interest`
-- **爬取内容**：
-  - 兴趣类别及其比例
-- **文件路径**：`spider/interest_profile_crawler.py`
-
-### 6. 地域分布爬虫
-
-- **功能**：获取地域分布的搜索指数数据。
-- **API URL**：`https://index.baidu.com/api/SearchApi/region`
-- **爬取内容**：
-  - 各省市地区的搜索指数比例
-- **文件路径**：`spider/region_distribution_crawler.py`
+<table>
+  <tr>
+    <td align="center" width="25%">
+      <img src="https://img.icons8.com/color/48/000000/search--v1.png" width="40"><br>
+      <strong>六大模块覆盖</strong><br>
+      <sub>搜索指数、资讯指数、需求图谱<br>人群属性、兴趣分布、地域分布</sub>
+    </td>
+    <td align="center" width="25%">
+      <img src="https://img.icons8.com/color/48/000000/parallel-tasks.png" width="40"><br>
+      <strong>高效并发采集</strong><br>
+      <sub>分布式任务队列<br>多用户同时采集</sub>
+    </td>
+    <td align="center" width="25%">
+      <img src="https://img.icons8.com/color/48/000000/real-time.png" width="40"><br>
+      <strong>实时状态监控</strong><br>
+      <sub>WebSocket 实时推送<br>数据大屏可视化</sub>
+    </td>
+    <td align="center" width="25%">
+      <img src="https://img.icons8.com/color/48/000000/cookie.png" width="40"><br>
+      <strong>智能 Cookie 管理</strong><br>
+      <sub>自动轮换、封禁检测<br>用量统计可视化</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://img.icons8.com/color/48/000000/resume.png" width="40"><br>
+      <strong>断点续传</strong><br>
+      <sub>任务中断自动恢复<br>检查点持久化</sub>
+    </td>
+    <td align="center">
+      <img src="https://img.icons8.com/color/48/000000/export.png" width="40"><br>
+      <strong>灵活数据导出</strong><br>
+      <sub>CSV / Excel 格式<br>自动持久化存储</sub>
+    </td>
+    <td align="center">
+      <img src="https://img.icons8.com/color/48/000000/language.png" width="40"><br>
+      <strong>国际化多语言</strong><br>
+      <sub>中文 / 英文 界面切换</sub>
+    </td>
+    <td align="center">
+      <img src="https://img.icons8.com/color/48/000000/moon-satellite.png" width="40"><br>
+      <strong>深色模式</strong><br>
+      <sub>护眼深色主题<br>一键切换</sub>
+    </td>
+  </tr>
+</table>
 
 ---
 
-## 技术栈
+## 🏗️ 系统架构
 
-### 后端
+### 整体架构图
 
-- **FastAPI**：高性能 Web API 框架，支持异步处理。
-- **Celery**：分布式任务调度框架，用于任务管理。
-- **Redis**：任务队列和缓存，支持优先级管理和快速查询。
-- **MySQL**：关系型数据库，存储任务元数据和爬取结果。
-- **Python**：核心编程语言，版本 3.8+。
-- **aiohttp**：异步 HTTP 请求库，提升爬取效率。
-- **ThreadPoolExecutor**：多线程并发处理任务。
+```mermaid
+graph TB
+    subgraph Frontend["🎨 前端 (Vue.js 3)"]
+        UI[Element Plus UI]
+        Charts[ECharts 图表]
+        WS_Client[WebSocket 客户端]
+        Router[Vue Router]
+        Store[Pinia 状态管理]
+    end
 
-### 前端
+    subgraph Backend["⚙️ 后端 (Flask)"]
+        API[RESTful API]
+        WS_Server[Socket.IO 服务]
+        Scheduler[APScheduler 调度器]
+        CookiePool[Cookie 池管理]
+    end
 
-- **Vue.js**：轻量级前端框架，构建交互式界面。
-- **WebSocket**：实时通信，推送任务状态。
-- **Chart.js**：数据可视化库，展示指数趋势图。
+    subgraph Engine["🕷️ 爬虫引擎"]
+        SearchCrawler[搜索指数爬虫]
+        FeedCrawler[资讯指数爬虫]
+        RegionCrawler[地域分布爬虫]
+        DemoCrawler[人群属性爬虫]
+        GraphCrawler[需求图谱爬虫]
+    end
 
-### 部署与工具
+    subgraph Storage["💾 数据存储"]
+        MySQL[(MySQL 8.0)]
+        Redis[(Redis 7.x)]
+        FileSystem[文件系统<br>CSV/Excel]
+    end
 
-- **Docker**：容器化部署，确保环境一致性。
-- **Nginx**：反向代理和静态文件服务。
+    Frontend --> |HTTP/WebSocket| Backend
+    Backend --> Engine
+    Backend --> Storage
+    Engine --> |数据持久化| Storage
+    Engine --> |Cookie 轮换| CookiePool
+```
+
+### 爬虫任务流程图
+
+```mermaid
+sequenceDiagram
+    participant U as 用户
+    participant F as 前端
+    participant B as 后端 API
+    participant Q as 任务队列
+    participant C as 爬虫引擎
+    participant DB as 数据库
+
+    U->>F: 创建采集任务
+    F->>B: POST /api/v1/tasks
+    B->>DB: 保存任务信息
+    B->>Q: 加入任务队列
+    B-->>F: 返回任务 ID
+
+    loop 任务执行
+        Q->>C: 分发任务
+        C->>C: 获取 Cookie
+        C->>C: 请求百度 API
+        C->>DB: 保存采集数据
+        C-->>F: WebSocket 推送进度
+    end
+
+    C->>DB: 更新任务状态
+    C-->>F: 任务完成通知
+    F-->>U: 显示结果
+```
 
 ---
 
-## 安装与配置
+## 🛠️ 技术栈
+
+### 后端技术
+
+|                                                       技术                                                       | 版本  | 说明              |
+| :--------------------------------------------------------------------------------------------------------------: | :---: | :---------------- |
+|       ![Python](https://img.shields.io/badge/-Python-3776AB?style=flat-square&logo=python&logoColor=white)       | 3.11+ | 核心编程语言      |
+|        ![Flask](https://img.shields.io/badge/-Flask-000000?style=flat-square&logo=flask&logoColor=white)         | 3.1.2 | Web API 框架      |
+| ![SQLAlchemy](https://img.shields.io/badge/-SQLAlchemy-D71F00?style=flat-square&logo=sqlalchemy&logoColor=white) |  2.0  | ORM 框架 (连接池) |
+|        ![Redis](https://img.shields.io/badge/-Redis-DC382D?style=flat-square&logo=redis&logoColor=white)         |  7.x  | 缓存与消息队列    |
+|        ![MySQL](https://img.shields.io/badge/-MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)         |  8.0  | 关系型数据库      |
+|    ![Selenium](https://img.shields.io/badge/-Selenium-43B02A?style=flat-square&logo=selenium&logoColor=white)    |  4.x  | 浏览器自动化      |
+|  ![Socket.IO](https://img.shields.io/badge/-Socket.IO-010101?style=flat-square&logo=socket.io&logoColor=white)   |  5.x  | 实时通信          |
+
+### 前端技术
+
+|                                                        技术                                                         | 版本 | 说明                  |
+| :-----------------------------------------------------------------------------------------------------------------: | :--: | :-------------------- |
+|        ![Vue.js](https://img.shields.io/badge/-Vue.js-4FC08D?style=flat-square&logo=vue.js&logoColor=white)         | 3.4  | 前端框架 (组合式 API) |
+|           ![Vite](https://img.shields.io/badge/-Vite-646CFF?style=flat-square&logo=vite&logoColor=white)            | 5.1  | 构建工具              |
+| ![Element Plus](https://img.shields.io/badge/-Element%20Plus-409EFF?style=flat-square&logo=element&logoColor=white) | 2.4  | UI 组件库             |
+|          ![Pinia](https://img.shields.io/badge/-Pinia-F7D336?style=flat-square&logo=pinia&logoColor=black)          | 2.x  | 状态管理              |
+|   ![ECharts](https://img.shields.io/badge/-ECharts-AA344D?style=flat-square&logo=apache-echarts&logoColor=white)    | 5.6  | 数据可视化            |
+|          ![Axios](https://img.shields.io/badge/-Axios-5A29E4?style=flat-square&logo=axios&logoColor=white)          | 1.6  | HTTP 客户端           |
+
+---
+
+## 📸 界面展示
+
+### 🏠 首页
+
+<table>
+  <tr>
+    <td><img src="static/首页-门面.png" alt="首页门面"></td>
+    <td><img src="static/首页-为什么选择我们.png" alt="为什么选择我们"></td>
+  </tr>
+  <tr>
+    <td><img src="static/首页-数据来源说明.png" alt="数据来源说明"></td>
+    <td><img src="static/首页-流畅的操作体验.png" alt="流畅的操作体验"></td>
+  </tr>
+</table>
+
+### 📊 数据大屏
+
+<table>
+  <tr>
+    <td colspan="2"><img src="static/数据大屏-总览.png" alt="数据大屏总览" width="100%"></td>
+  </tr>
+  <tr>
+    <td><img src="static/数据大屏-任务完成率.png" alt="任务完成率"></td>
+    <td><img src="static/数据大屏-关键词分析.png" alt="关键词分析"></td>
+  </tr>
+</table>
+
+### 🕷️ 数据采集
+
+<table>
+  <tr>
+    <td><img src="static/数据采集-任务列表.png" alt="任务列表"></td>
+    <td><img src="static/数据采集-搜索指数.png" alt="搜索指数采集"></td>
+  </tr>
+</table>
+
+### 🍪 Cookie 管理
+
+<table>
+  <tr>
+    <td><img src="static/cookie管理.png" alt="Cookie 管理"></td>
+    <td><img src="static/cookie用量可视化.png" alt="Cookie 用量可视化"></td>
+  </tr>
+</table>
+
+### ⚙️ 系统设置
+
+<table>
+  <tr>
+    <td><img src="static/系统配置.png" alt="系统配置"></td>
+    <td><img src="static/多语言国际化.png" alt="多语言国际化"></td>
+  </tr>
+  <tr>
+    <td><img src="static/深色模式.png" alt="深色模式"></td>
+    <td><img src="static/实时日志.png" alt="实时日志"></td>
+  </tr>
+</table>
+
+### ℹ️ 关于页面
+
+<table>
+  <tr>
+    <td><img src="static/关于-总览.png" alt="关于总览"></td>
+    <td><img src="static/关于-项目愿景.png" alt="项目愿景"></td>
+  </tr>
+</table>
+
+---
+
+## 🚀 快速开始
 
 ### 1. 克隆仓库
 
 ```bash
-git clone https://github.com/yourusername/BaiduIndexHunter.git
+git clone https://github.com/Auroral0810/BaiduIndexHunter.git
 cd BaiduIndexHunter
 ```
 
-### 2. 安装依赖
+### 2. 后端配置
 
 ```bash
+cd baidu-index-hunter-backend
+
+# 创建虚拟环境
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# 安装依赖
 pip install -r requirements.txt
+
+# 配置环境变量
+cp config/.env.example config/.env
+# 编辑 config/.env 填写数据库等配置
+
+# 初始化数据库
+mysql -u root -p < scripts/BaiduIndexHunter.sql
+
+# 启动后端服务
+python app.py
 ```
 
-### 3. 配置环境变量
-
-在项目根目录创建 `.env` 文件，配置以下变量：
-
-```
-REDIS_URL=redis://localhost:6379/0
-MYSQL_HOST=localhost
-MYSQL_USER=root
-MYSQL_PASSWORD=yourpassword
-MYSQL_DB=baidu_index
-API_PORT=8000
-```
-
-### 4. 启动服务
-
-使用 Docker Compose 启动所有组件：
+### 3. 前端配置
 
 ```bash
-docker-compose up -d
+cd baidu-index-hunter-frontend
+
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+
+# 生产环境构建
+npm run build
+```
+
+### 4. 访问系统
+
+- 前端地址: `http://localhost:5173`
+- 后端 API: `http://localhost:5001`
+- API 文档: `http://localhost:5001/apidocs`
+
+---
+
+## 📈 使用示例
+
+### 数据输出示例
+
+#### 日度数据
+
+<img src="static/日度数据示例.png" alt="日度数据示例" width="100%">
+
+#### 年度数据
+
+<img src="static/年度数据示例.avif" alt="年度数据示例" width="100%">
+
+### 输出文件格式
+
+数据文件存储在 `output/` 目录下，按模块组织：
+
+```
+output/
+├── search_index/           # 搜索指数
+│   ├── {task_id}_daily.csv
+│   └── {task_id}_stats.csv
+├── feed_index/             # 资讯指数
+├── word_graph/             # 需求图谱
+├── demographic/            # 人群属性
+├── interest/               # 兴趣分布
+├── region/                 # 地域分布
+└── checkpoints/            # 断点文件
 ```
 
 ---
 
-## 使用示例
+## 🕷️ 爬虫模块
 
-### 1. 爬取搜索指数
-
-```python
-from spider.search_index_crawler import search_index_crawler
-
-# 基本用法：爬取最近30天数据
-keywords = ["电脑"]
-search_index_crawler.crawl(keywords=keywords)
-
-# 综合示例：指定城市和日期范围
-keywords = ["电脑", "手机"]
-cities = {0: "全国", 514: "北京"}
-date_ranges = [("2023-01-01", "2023-12-31")]
-search_index_crawler.crawl(keywords=keywords, cities=cities, date_ranges=date_ranges)
-```
-
-### 2. 恢复中断任务
-
-```python
-task_id = "20240101123456"
-search_index_crawler.resume_task(task_id)
-```
-
-### 3. 查看任务列表
-
-```python
-tasks = search_index_crawler.list_tasks()
-for task in tasks:
-    print(f"任务ID: {task['task_id']}, 进度: {task['progress']}%")
-```
-
-### 4. 从文件加载关键词
-
-```python
-search_index_crawler.crawl(
-    keywords_file="data/keywords.txt",
-    cities_file="data/cities.csv",
-    days=90
-)
-```
+|      模块       | 功能                        | API 端点                          |
+| :-------------: | :-------------------------- | :-------------------------------- |
+| 🔍 **搜索指数** | 日度/周度搜索趋势、统计数据 | `/api/SearchApi/index`            |
+| 📰 **资讯指数** | 日度/周度资讯趋势           | `/api/FeedSearchApi/getFeedIndex` |
+| 🗺️ **需求图谱** | 关键词关联关系              | `/api/WordGraph/multi`            |
+| 👥 **人群属性** | 性别、年龄、学历分布        | `/api/SocialApi/baseAttributes`   |
+| 💡 **兴趣分布** | 人群兴趣画像                | `/api/SocialApi/interest`         |
+| 📍 **地域分布** | 各省市搜索指数              | `/api/SearchApi/region`           |
 
 ---
 
-## 数据输出格式
+## 💻 环境要求
 
-数据文件存储在 `output/` 目录下，按模块和任务 ID 组织：
+|     软件     |                最低版本                 |   推荐版本    |
+| :----------: | :-------------------------------------: | :-----------: |
+| **操作系统** | Windows 10 / macOS 10.15 / Ubuntu 20.04 |  最新稳定版   |
+|  **Python**  |                 3.11.0                  |    3.11.13    |
+| **Node.js**  |                 18.0.0                  | 18.20.8 (LTS) |
+|  **MySQL**   |                  8.0.0                  |    8.0.36     |
+|  **Redis**   |                  7.0.0                  |     7.2.7     |
+|  **Chrome**  |                 最新版                  |    最新版     |
 
-- **搜索指数**：
-  - `output/search_index/{task_id}_daily_data.csv`：日度/周度数据
-  - `output/search_index/{task_id}_stats_data.csv`：统计数据
-- **资讯指数**：
-  - `output/feed_index/{task_id}_daily_data.csv`
-  - `output/feed_index/{task_id}_stats_data.csv`
-- **需求图谱**：
-  - `output/word_graph/{task_id}_word_graph.csv`
-- **人群属性**：
-  - `output/demographic_attributes/{task_id}_demographic_attributes.csv`
-- **兴趣分布**：
-  - `output/interest_profiles/{task_id}_interest_profiles.csv`
-- **地域分布**：
-  - `output/region_distributions/{task_id}_region_distributions.csv`
-
-检查点文件存储在 `output/checkpoints/{task_id}_checkpoint.pkl`，用于任务恢复。
+> ⚠️ **注意**: Python 必须使用 3.11.x 版本，暂不支持 3.12+
 
 ---
 
-## 任务管理
+## 🤝 贡献指南
 
-- **创建任务**：调用 `crawl()` 方法提交新任务。
-- **恢复任务**：通过 `resume_task(task_id)` 恢复中断任务。
-- **查看状态**：使用 `get_task_status(task_id)` 获取任务进度。
-- **任务列表**：调用 `list_tasks()` 查看所有任务状态。
+我们欢迎任何形式的贡献！请查阅 [CONTRIBUTING.md](CONTRIBUTING.md) 了解详情。
 
-任务 ID 格式为 `YYYYMMDDHHmmss`，自动生成。
+### 贡献流程
 
----
-
-## 贡献指南
-
-欢迎为 BaiduIndexHunter 贡献代码！请按照以下步骤操作：
-
-1. Fork 本仓库。
-2. 创建新分支：`git checkout -b feature/your-feature-name`。
-3. 提交更改：`git commit -m "Add your feature"`。
-4. 推送分支：`git push origin feature/your-feature-name`。
-5. 创建 Pull Request。
-
-详情请参考 [CONTRIBUTING.md](CONTRIBUTING.md)。
+1. 🍴 Fork 本仓库
+2. 🔨 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 📝 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 📤 推送分支 (`git push origin feature/AmazingFeature`)
+5. 🎉 创建 Pull Request
 
 ---
 
-## 许可证
+## 📄 许可证
 
-本项目采用 [MIT 许可证](LICENSE)，允许自由使用、修改和分发。
+本项目采用 **EULA 非商业许可协议**。
+
+- ✅ 允许个人学习和学术研究
+- ✅ 允许非商业目的的技术交流
+- ❌ 禁止任何商业用途
+
+详情请查阅 [LICENSE](LICENSE) 文件。
 
 ---
+
+## 📞 联系作者
+
+如有任何问题或建议，欢迎通过以下方式联系：
+
+<table>
+  <tr>
+    <td align="center">
+      <strong>📧 邮箱</strong><br>
+      <a href="mailto:15968588744@163.com">15968588744@163.com</a>
+    </td>
+    <td align="center">
+      <strong>💬 QQ</strong><br>
+      1957689514<br>
+      <img src="static/QQ.jpg" alt="QQ二维码" width="150">
+    </td>
+    <td align="center">
+      <strong>💚 微信</strong><br>
+      扫码添加<br>
+      <img src="static/wechat.jpg" alt="微信二维码" width="150">
+    </td>
+  </tr>
+</table>
+
+---
+
+## ⭐ Star 历史
+
+<p align="center">
+  <a href="https://star-history.com/#Auroral0810/BaiduIndexHunter&Date">
+    <img src="https://api.star-history.com/svg?repos=Auroral0810/BaiduIndexHunter&type=Date" alt="Star History Chart" width="70%">
+  </a>
+</p>
+
+---
+
+<p align="center">
+  <strong>如果这个项目对你有帮助，请给一个 ⭐ Star 支持一下！</strong>
+</p>
+
+<p align="center">
+  Made with ❤️ by <a href="https://github.com/Auroral0810">Auroral0810</a>
+</p>
