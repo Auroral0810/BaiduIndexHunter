@@ -1,22 +1,19 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import {
-  Lightning,
-  DataAnalysis,
-  User,
-  DocumentCopy,
-  TrendCharts,
-  Monitor,
-  Check,
   Cpu,
-  Connection
+  Connection,
+  TrendCharts
 } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
+import { Warning } from '@element-plus/icons-vue'
+
 const { t: $t } = useI18n()
 const version = ref('2.0.0')
 const releaseDate = ref('2026-02-04')
 
-const highlights = ref([
+// 使用 computed 确保语言切换时动态更新
+const highlights = computed(() => [
   {
     title: $t('views.about.y816mf'),
     desc: $t('views.about.1if70z'),
@@ -47,8 +44,8 @@ const techStack = [
   { name: 'Pandas', type: 'data' }
 ]
 
-// FAQ 数据
-const faqs = ref([
+// FAQ 数据（使用 computed 确保语言切换时动态更新）
+const faqs = computed(() => [
   {
     question: $t('views.about.94e3yr'),
     answer: $t('views.about.17zopd')
