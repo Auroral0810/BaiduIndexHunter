@@ -25,9 +25,12 @@ from src.api.schemas.cookie import (
 )
 from src.api.utils.validators import validate_json, validate_args
 from src.api.utils.swagger import create_swagger_spec
+from src.core.auth import auth_before_request
 
 # 创建蓝图
 admin_cookie_bp = Blueprint('admin_cookie', __name__, url_prefix='/api/admin/cookie')
+admin_cookie_bp.before_request(auth_before_request)
+
 
 def register_cookie_blueprint(app):
     """注册Cookie API蓝图"""

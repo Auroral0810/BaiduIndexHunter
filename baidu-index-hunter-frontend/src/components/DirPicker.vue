@@ -113,7 +113,7 @@ const selectedSubDir = ref('')
 const showNewDir = ref(false)
 const newFolderName = ref('')
 
-import { apiBase } from '@/config/api'
+import request from '@/utils/request'
 
 /** 打开浏览器对话框 */
 const openBrowser = async () => {
@@ -128,19 +128,20 @@ const openBrowser = async () => {
 const loadDir = async (path: string) => {
   loading.value = true
   try {
-    const res = await fetch(`${apiBase}/api/config/browse_dir?path=${encodeURIComponent(path)}`)
-    const data = await res.json()
-    if (data.code === 10000 && data.data) {
-      currentPath.value = data.data.current
-      inputPath.value = data.data.current
-      parentPath.value = data.data.parent
-      dirs.value = data.data.dirs
+    const res = await request.get('/config/browse_dir', { params: { path } })
+    // request 拦截器返回 response.data，即 { code, msg, data }
+    if (res && res.code === 10000 && res.data) {
+      currentPath.value = res.data.current
+      inputPath.value = res.data.current
+      parentPath.value = res.data.parent
+      dirs.value = res.data.dirs
       selectedSubDir.value = ''
     } else {
-      ElMessage.warning(data.msg || '无法访问该目录')
+      ElMessage.warning((res && res.msg) || '无法访问该目录')
     }
-  } catch {
-    ElMessage.error('浏览目录失败，请检查后端服务')
+  } catch (err) {
+    const msg = err?.response?.data?.msg || err?.message || '浏览目录失败'
+    ElMessage.error(msg)
   } finally {
     loading.value = false
   }
@@ -162,22 +163,18 @@ const createFolder = async () => {
   if (!name) return
   const newPath = currentPath.value + '/' + name
   try {
-    const res = await fetch(`${apiBase}/api/config/validate_path`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ path: newPath, create: true })
-    })
-    const data = await res.json()
-    if (data.code === 10000) {
+    const res = await request.post('/config/validate_path', { path: newPath, create: true })
+    if (res && res.code === 10000) {
       newFolderName.value = ''
       showNewDir.value = false
       await loadDir(currentPath.value)
       ElMessage.success(`文件夹 "${name}" 已创建`)
     } else {
-      ElMessage.error(data.msg || '创建失败')
+      ElMessage.error((res && res.msg) || '创建失败')
     }
-  } catch {
-    ElMessage.error('创建文件夹失败')
+  } catch (err) {
+    const msg = err?.response?.data?.msg || err?.message || '创建文件夹失败'
+    ElMessage.error(msg)
   }
 }
 

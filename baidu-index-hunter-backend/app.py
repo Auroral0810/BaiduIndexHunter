@@ -3,7 +3,17 @@
 """
 import os
 import sys
+from pathlib import Path
 from datetime import datetime
+
+# 加载 .env（必须在 validate_env 之前）
+from dotenv import load_dotenv
+_env_path = Path(__file__).resolve().parent / 'config' / '.env'
+load_dotenv(dotenv_path=_env_path)
+
+# 启动前校验必需的环境变量
+from src.core.env_validator import validate_env
+validate_env()
 
 from flask import Flask, jsonify
 from flask_cors import CORS
@@ -12,6 +22,7 @@ from flasgger import Swagger
 # 核心配置与工具导入 (必须置顶以确保日志格式统一)
 from src.core.logger import log, setup_unified_logger, setup_flask_request_logging
 from src.core.constants.respond import ResponseCode, ResponseFormatter
+from src.core.auth import require_api_key
 
 # 业务初始化与后台任务服务
 from src.services.app_init_service import init_app_data
@@ -45,7 +56,13 @@ def create_app():
     setup_flask_request_logging(app, unified_log)
     
     # 2. 安全与文档配置 (CORS, Swagger)
-    CORS(app, supports_credentials=True)
+    from src.core.config import API_CONFIG
+    cors_origins = API_CONFIG.get('cors_origins', ['*'])
+    if not cors_origins:
+        cors_origins = ['*']
+    CORS(app, origins=cors_origins, supports_credentials=True)
+    if '*' in cors_origins and not os.environ.get('FLASK_DEBUG', 'false').lower() == 'true':
+        log.warning('生产环境 CORS 使用 * 允许所有域名，建议在 .env 中设置 API_CORS_ORIGINS 为具体域名')
     setup_swagger(app)
 
     # 3. 业务数据初始化 (全局只执行一次)
@@ -114,7 +131,7 @@ def register_base_routes(app):
     def index():
         return jsonify(ResponseFormatter.success({
             "name": "百度指数爬虫API",
-            "version": "1.0.0",
+            "version": "2.0.0",
             "docs": "/api/docs/"
         }, "欢迎使用百度指数爬虫API"))
 
@@ -125,18 +142,21 @@ def register_base_routes(app):
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }, "API服务正常"))
 
-    # 管理专用路由 (快捷触发定时任务)
+    # 管理专用路由 (快捷触发定时任务，需鉴权)
     @app.route('/api/cookie/check')
+    @require_api_key
     def trigger_cookie_check():
         check_cookie_status()
         return jsonify(ResponseFormatter.success(None, "Cookie状态检查已异步触发"))
 
     @app.route('/api/cookie/update-ab-sr')
+    @require_api_key
     def trigger_ab_sr_update():
         update_ab_sr_cookies()
         return jsonify(ResponseFormatter.success(None, "ab_sr cookie更新已异步触发"))
 
     @app.route('/api/tasks/resume-paused')
+    @require_api_key
     def trigger_resume_paused():
         resume_paused_tasks()
         return jsonify(ResponseFormatter.success(None, "暂停任务恢复已异步触发"))

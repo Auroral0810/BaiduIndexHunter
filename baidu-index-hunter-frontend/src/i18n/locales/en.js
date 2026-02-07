@@ -1915,4 +1915,14 @@ export default {
   "src-App-19c2993710803cda7-logs": "real time log",
   "views.logs.copy_items": "Copy {count} logs",
   "views.logs.copied": "Copied successfully!",
+  "views.settings.api_connection_title": "API connection configuration",
+  "views.settings.api_connection_desc":
+    "Configure the communication key between the front-end and back-end services to ensure secure data transmission.",
+  "views.settings.api_config_status": "configuration status",
+  "views.settings.api_configured": "Connected",
+  "views.settings.api_not_configured": "Not connected",
+  "views.settings.api_tip":
+    "It is recommended to configure VITE_API_SECRET_KEY in the project root directory .env. Once configured, it will take effect permanently.",
+  "views.settings.api_input_placeholder": "Enter API key here (auto-save)",
+  "views.settings.api_key_saved": "API key saved",
 };

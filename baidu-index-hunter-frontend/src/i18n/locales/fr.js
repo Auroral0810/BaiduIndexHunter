@@ -500,7 +500,7 @@ export default {
   "views.datacollection.j887qn": "État du service API",
   "views.datacollection.h2894t": "Type de tâche",
   "views.datacollection.14ux91": "état d'actualisation",
-  "views.datacollection.u24u75": "Fermer",
+  "views.datacollection.u24u75": "fermer",
   "views.datacollection.wt72k3": "Tâches actuelles :",
   "views.datacollection.6k50e9": "Progrès",
   "views.datacollection.qww0ij": "Fonctionne normalement",
@@ -583,7 +583,7 @@ export default {
     "Temps de refroidissement de l'interdiction des cookies (secondes)",
   "views.settings.t8dliz": "Nombre maximum d'utilisations par jour",
   "views.settings.9ue5fu": "Nombre minimum de cookies disponibles",
-  "views.settings.j56utr": "Politique de rotation des cookies",
+  "views.settings.j56utr": "Stratégie de rotation des cookies",
   "dashboard.dashboard.2dwsg6": "Écran de mégadonnées",
   "dashboard.dashboard.327577": "Actualiser les données",
   "dashboard.dashboard.7iv3g2": "Nombre total de tâches",
@@ -615,7 +615,7 @@ export default {
   "dashboard.dashboard.778577": "date de début",
   "dashboard.dashboard.sq6620": "date de fin",
   "dashboard.dashboard.g1431k": "Statistiques globales",
-  "dashboard.dashboard.2c6u95": "statistiques",
+  "dashboard.dashboard.2c6u95": "Statistiques",
   "dashboard.dashboard.py2bk3": "Répartition des intérêts",
   "dashboard.dashboard.vx7j16":
     "Impossible d'obtenir des données sur grand écran",
@@ -726,7 +726,7 @@ export default {
   "tasks-TaskList-19c298d949224c78d-97": "niveau",
   "tasks-TaskList-19c298d949224c78d-98": "nouvelles",
   "tasks-TaskList-19c298d949224c78d-99": "Pas encore de journal des tâches",
-  "tasks-TaskList-19c298d949224c78d-100": "fermer",
+  "tasks-TaskList-19c298d949224c78d-100": "Fermer",
   "tasks-TaskList-19c298d949224c78d-101": "Réessayer la tâche",
   "tasks-TaskList-19c298d949224c78d-102": "Annuler la tâche",
   "tasks-TaskList-19c298d949224c78d-103": "Téléphone portable Xiaomi",
@@ -821,7 +821,7 @@ export default {
   "components-CookieUsageChart-19c298e1b08b4a7ef-21": "Identifiant du compte",
   "components-CookieUsageChart-19c298e1b08b4a7ef-22": "Nombre d'utilisations",
   "components-CookieUsageChart-19c298e1b08b4a7ef-23": "Taux d'utilisation",
-  "components-CookieUsageChart-19c298e1b08b4a7ef-24": "fermer",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-24": "Fermer",
   "components-CookieUsageChart-19c298e1b08b4a7ef-25": "Exporter des données",
   "components-CookieUsageChart-19c298e1b08b4a7ef-26":
     "Statistiques quotidiennes d'utilisation des cookies",
@@ -956,7 +956,7 @@ export default {
     "les mots-clés n'existent pas",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-46":
     "Mots-clés qui n'existent pas :",
-  "tasks-DemographicAttributesTask-19c298e1c74d5b997-47": "fermer",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-47": "Fermer",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-48":
     "Effacer les mots-clés inexistants",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-49": "Importé avec succès",
@@ -967,7 +967,7 @@ export default {
     "Mots clés invalides ou en double :",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-53": "...etc",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-54": "un",
-  "tasks-DemographicAttributesTask-19c298e1c74d5b997-55": "fermer",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-55": "Fermer",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-56": "Aperçu des missions",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-57":
     "Confirmation des paramètres de la tâche",
@@ -2093,4 +2093,15 @@ export default {
     "Laisser vide pour utiliser le nom de fichier par défaut",
   "tasks.common.custom_filename_hint":
     'Définissez le préfixe du nom du fichier de sortie (tel que "my_data"), laissez-le vide pour utiliser le format par défaut',
+  "views.settings.api_connection_title": "Configuration de la connexion API",
+  "views.settings.api_connection_desc":
+    "Configurez la clé de communication entre les services front-end et back-end pour garantir une transmission sécurisée des données.",
+  "views.settings.api_config_status": "état de configuration",
+  "views.settings.api_configured": "Connecté",
+  "views.settings.api_not_configured": "Non connecté",
+  "views.settings.api_tip":
+    "Il est recommandé de configurer VITE_API_SECRET_KEY dans le répertoire racine du projet .env. Une fois configuré, il prendra effet de manière permanente.",
+  "views.settings.api_input_placeholder":
+    "Entrez la clé API ici (enregistrement automatique)",
+  "views.settings.api_key_saved": "Clé API enregistrée",
 };

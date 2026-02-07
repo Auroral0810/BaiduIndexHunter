@@ -1977,4 +1977,15 @@ export default {
     "デフォルトのファイル名を使用するには空白のままにします",
   "tasks.common.custom_filename_hint":
     "出力ファイル名のプレフィックス (「my_data」など) を設定します。デフォルトの形式を使用するには空白のままにします。",
+  "views.settings.api_connection_title": "API接続設定",
+  "views.settings.api_connection_desc":
+    "フロントエンド サービスとバックエンド サービス間の通信キーを構成して、安全なデータ送信を確保します。",
+  "views.settings.api_config_status": "構成ステータス",
+  "views.settings.api_configured": "接続済み",
+  "views.settings.api_not_configured": "接続されていません",
+  "views.settings.api_tip":
+    "プロジェクトのルート ディレクトリ .env で VITE_API_SECRET_KEY を設定することをお勧めします。 一度設定すると、永続的に有効になります。",
+  "views.settings.api_input_placeholder":
+    "ここに API キーを入力します (自動保存)",
+  "views.settings.api_key_saved": "APIキーが保存されました",
 };

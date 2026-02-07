@@ -1758,4 +1758,14 @@ export default {
   "tasks.common.custom_filename_placeholder": "留空則使用默認文件名",
   "tasks.common.custom_filename_hint":
     '設置輸出文件名前綴（如 "my_data"），留空則使用默認格式',
+  "views.settings.api_connection_title": "API 連接配置",
+  "views.settings.api_connection_desc":
+    "配置前端與後端服務的通信密鑰，確保數據安全傳輸。",
+  "views.settings.api_config_status": "配置狀態",
+  "views.settings.api_configured": "已連接",
+  "views.settings.api_not_configured": "未連接",
+  "views.settings.api_tip":
+    "推薦在項目根目錄 .env 中配置 VITE_API_SECRET_KEY，一次配置永久生效。",
+  "views.settings.api_input_placeholder": "在此輸入 API 密鑰 (自動保存)",
+  "views.settings.api_key_saved": "API 密鑰已保存",
 };

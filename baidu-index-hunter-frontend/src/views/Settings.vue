@@ -2,8 +2,9 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useConfigStore } from '../store/config'
+import { getApiSecretKey, setApiSecretKey } from '../utils/request'
 import DirPicker from '../components/DirPicker.vue'
-import { List, Loading, Document, Files, Refresh, Check } from '@element-plus/icons-vue'
+import { List, Loading, Document, Files, Refresh, Check, Connection, Lock, InfoFilled } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 const { t: $t } = useI18n()
 // 使用配置存储
@@ -179,8 +180,19 @@ const getConfigDescription = (key: string) => {
   return descriptions[key] || $t('views.settings.8x81cv')
 }
 
+// API 密钥（本地存储，与后端 API_SECRET_KEY 一致）
+const apiSecretKey = ref('')
+const saveApiKey = async () => {
+  setApiSecretKey(apiSecretKey.value)
+  if (apiSecretKey.value) {
+    await configStore.fetchConfigs()
+  }
+  ElMessage.success($t('views.settings.api_key_saved'))
+}
+
 // 生命周期钩子
 onMounted(async () => {
+  apiSecretKey.value = getApiSecretKey() || ''
   await configStore.fetchConfigs()
 })
 </script>
@@ -192,6 +204,53 @@ onMounted(async () => {
       <h1 class="page-title">{{$t('views.settings.49a0cg')}}</h1>
       <p class="page-subtitle">{{$t('views.settings.6316r3')}}</p>
     </header>
+
+    <!-- API 连接 -->
+    <div class="api-auth-section">
+      <div class="api-auth-card">
+        <div class="api-card-content">
+          <div class="api-icon-wrapper">
+            <el-icon><Connection /></el-icon>
+          </div>
+          <div class="api-main-info">
+            <div class="api-header-row">
+              <h2 class="api-auth-title">{{ $t('views.settings.api_connection_title') }}</h2>
+              <el-tag 
+                :type="apiSecretKey ? 'success' : 'info'" 
+                effect="dark"
+                class="status-tag"
+                size="small"
+              >
+                {{ apiSecretKey ? $t('views.settings.api_configured') : $t('views.settings.api_not_configured') }}
+              </el-tag>
+            </div>
+            <p class="api-auth-desc">{{ $t('views.settings.api_connection_desc') }}</p>
+            
+            <div class="api-input-wrapper">
+              <el-input
+                v-model="apiSecretKey"
+                type="password"
+                show-password
+                :placeholder="$t('views.settings.api_input_placeholder')"
+                clearable
+                size="large"
+                class="api-key-input premium-input"
+                @blur="saveApiKey"
+              >
+                <template #prefix>
+                  <el-icon class="input-icon"><Lock /></el-icon>
+                </template>
+              </el-input>
+            </div>
+          </div>
+        </div>
+        
+        <div class="api-info-box">
+          <el-icon class="info-icon"><InfoFilled /></el-icon>
+          <span class="info-text">{{ $t('views.settings.api_tip') }}</span>
+        </div>
+      </div>
+    </div>
     
     <div class="settings-layout">
       <!-- 侧边导航 -->
@@ -358,25 +417,126 @@ onMounted(async () => {
 
 /* Header */
 .page-header {
-  margin-bottom: 40px;
-  text-align: center;
+  margin-bottom: 32px;
 }
 
 .page-title {
-  font-size: 2.5rem;
-  font-weight: 800;
+  font-size: 1.75rem;
+  font-weight: 700;
   color: var(--color-text-main);
-  margin-bottom: 12px;
-  background: linear-gradient(135deg, var(--color-primary) 0%, #8b5cf6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -1px;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
 }
 
 .page-subtitle {
+  font-size: 0.95rem;
+  color: var(--el-text-color-secondary);
+  line-height: 1.5;
+}
+
+.api-auth-section {
+  margin-bottom: 32px;
+}
+.api-auth-card {
+  padding: 0;
+  background: var(--color-bg-surface);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  overflow: hidden;
+  max-width: 800px;
+}
+
+.api-card-content {
+  padding: 24px;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.api-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(79, 70, 229, 0.2) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.api-main-info {
+  flex: 1;
+}
+
+.api-header-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.api-auth-title {
   font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text-main);
+  margin: 0;
+}
+
+.api-auth-desc {
+  font-size: 0.9rem;
   color: var(--color-text-secondary);
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.api-input-wrapper {
+  max-width: 100%;
+}
+
+.premium-input :deep(.el-input__wrapper) {
+  background-color: var(--color-bg-subtle);
+  box-shadow: none !important;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+  padding-left: 12px;
+}
+
+.premium-input :deep(.el-input__wrapper.is-focus) {
+  background-color: var(--color-bg-surface);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1) !important;
+}
+
+.input-icon {
+  font-size: 16px;
+  color: var(--color-text-tertiary);
+}
+
+.api-info-box {
+  background: var(--color-bg-subtle);
+  padding: 12px 24px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-icon {
+  color: var(--color-primary);
+  font-size: 16px;
+}
+
+.info-text {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+/* API Auth Section Old Styles Removed */
+.api-key-input {
+  width: 100%;
 }
 
 /* Layout */

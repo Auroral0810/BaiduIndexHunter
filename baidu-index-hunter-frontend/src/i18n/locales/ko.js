@@ -546,7 +546,7 @@ export default {
   "views.settings.42533h": "쿠키 금지 냉각 시간(초)",
   "views.settings.t8dliz": "일일 최대 사용 횟수",
   "views.settings.9ue5fu": "사용 가능한 최소 쿠키 수",
-  "views.settings.j56utr": "쿠키 순환 정책",
+  "views.settings.j56utr": "쿠키 순환 전략",
   "dashboard.dashboard.2dwsg6": "빅데이터 화면",
   "dashboard.dashboard.327577": "데이터 새로 고침",
   "dashboard.dashboard.7iv3g2": "총 작업 수",
@@ -1902,4 +1902,15 @@ export default {
     "기본 파일 이름을 사용하려면 비워 두세요.",
   "tasks.common.custom_filename_hint":
     '출력 파일 이름 접두사(예: "my_data")를 설정하고 기본 형식을 사용하려면 비워 두세요.',
+  "views.settings.api_connection_title": "API 연결 구성",
+  "views.settings.api_connection_desc":
+    "안전한 데이터 전송을 보장하기 위해 프런트엔드 서비스와 백엔드 서비스 간의 통신 키를 구성합니다.",
+  "views.settings.api_config_status": "구성 상태",
+  "views.settings.api_configured": "연결됨",
+  "views.settings.api_not_configured": "연결되지 않음",
+  "views.settings.api_tip":
+    "프로젝트 루트 디렉터리 .env에 VITE_API_SECRET_KEY를 구성하는 것이 좋습니다. 일단 구성하면 영구적으로 적용됩니다.",
+  "views.settings.api_input_placeholder":
+    "여기에 API 키를 입력하세요(자동 저장)",
+  "views.settings.api_key_saved": "API 키가 저장되었습니다",
 };

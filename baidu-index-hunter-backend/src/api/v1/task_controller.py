@@ -21,10 +21,12 @@ from src.api.schemas.task import (
 from src.api.utils.validators import validate_args, validate_json
 from src.api.utils.swagger import create_swagger_spec
 from src.services.task_service import task_service
-from src.scheduler.scheduler import task_scheduler # 用于启动调度器
+from src.scheduler.scheduler import task_scheduler  # 用于启动调度器
+from src.core.auth import auth_before_request
 
 # 创建蓝图
 task_blueprint = Blueprint('task', __name__, url_prefix='/api/task')
+task_blueprint.before_request(auth_before_request)
 
 
 # ============== Swagger 规范定义 ==============

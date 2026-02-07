@@ -446,7 +446,7 @@ export default {
     "¿Estás seguro de que deseas desbloquear todas las cuentas prohibidas temporalmente?",
   "views.cookiemanager.7vg03g": "Error de desbloqueo",
   "views.cookiemanager.18oe22":
-    "¿Estás seguro de que quieres desbloquear por la fuerza todas las cuentas prohibidas permanentemente?",
+    "¿Estás seguro de que deseas desbloquear por la fuerza todas las cuentas prohibidas permanentemente?",
   "views.cookiemanager.4w2y58":
     "¿Estás seguro de que deseas prohibir temporalmente todas las cuentas disponibles actualmente?",
   "views.cookiemanager.499fk9": "Toda prohibición confirmada",
@@ -491,7 +491,7 @@ export default {
   "views.datacollection.j887qn": "Estado del servicio API",
   "views.datacollection.h2894t": "Tipo de tarea",
   "views.datacollection.14ux91": "estado de actualización",
-  "views.datacollection.u24u75": "cerrar",
+  "views.datacollection.u24u75": "Cerrar",
   "views.datacollection.wt72k3": "Tareas actuales:",
   "views.datacollection.6k50e9": "Progreso",
   "views.datacollection.qww0ij": "Corriendo normalmente",
@@ -575,7 +575,7 @@ export default {
     "Tiempo de enfriamiento de la prohibición de cookies (segundos)",
   "views.settings.t8dliz": "Número máximo de usos por día",
   "views.settings.9ue5fu": "Número mínimo de cookies disponibles",
-  "views.settings.j56utr": "Estrategia de rotación de cookies",
+  "views.settings.j56utr": "Política de rotación de cookies",
   "dashboard.dashboard.2dwsg6": "Pantalla de datos grandes",
   "dashboard.dashboard.327577": "Actualizar datos",
   "dashboard.dashboard.7iv3g2": "Número total de tareas",
@@ -606,7 +606,7 @@ export default {
   "dashboard.dashboard.778577": "fecha de inicio",
   "dashboard.dashboard.sq6620": "fecha de finalización",
   "dashboard.dashboard.g1431k": "Estadísticas generales",
-  "dashboard.dashboard.2c6u95": "Estadísticas",
+  "dashboard.dashboard.2c6u95": "estadísticas",
   "dashboard.dashboard.py2bk3": "Distribución de intereses",
   "dashboard.dashboard.vx7j16":
     "No se pudieron obtener datos de pantalla grande",
@@ -716,7 +716,7 @@ export default {
   "tasks-TaskList-19c298d949224c78d-97": "nivel",
   "tasks-TaskList-19c298d949224c78d-98": "noticias",
   "tasks-TaskList-19c298d949224c78d-99": "Aún no hay registro de tareas",
-  "tasks-TaskList-19c298d949224c78d-100": "cerrar",
+  "tasks-TaskList-19c298d949224c78d-100": "Cerrar",
   "tasks-TaskList-19c298d949224c78d-101": "Reintentar tarea",
   "tasks-TaskList-19c298d949224c78d-102": "Cancelar tarea",
   "tasks-TaskList-19c298d949224c78d-103": "teléfono móvil xiaomi",
@@ -808,7 +808,7 @@ export default {
   "components-CookieUsageChart-19c298e1b08b4a7ef-21": "ID de cuenta",
   "components-CookieUsageChart-19c298e1b08b4a7ef-22": "Número de usos",
   "components-CookieUsageChart-19c298e1b08b4a7ef-23": "Proporción de uso",
-  "components-CookieUsageChart-19c298e1b08b4a7ef-24": "cerrar",
+  "components-CookieUsageChart-19c298e1b08b4a7ef-24": "Cerrar",
   "components-CookieUsageChart-19c298e1b08b4a7ef-25": "Exportar datos",
   "components-CookieUsageChart-19c298e1b08b4a7ef-26":
     "Estadísticas diarias de uso de cookies",
@@ -960,7 +960,7 @@ export default {
     "las palabras clave no existen",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-46":
     "Palabras clave que no existen:",
-  "tasks-DemographicAttributesTask-19c298e1c74d5b997-47": "cerrar",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-47": "Cerrar",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-48":
     "Borrar palabras clave inexistentes",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-49":
@@ -972,7 +972,7 @@ export default {
     "Palabras clave no válidas o duplicadas:",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-53": "...etc.",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-54": "un",
-  "tasks-DemographicAttributesTask-19c298e1c74d5b997-55": "cerrar",
+  "tasks-DemographicAttributesTask-19c298e1c74d5b997-55": "Cerrar",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-56":
     "Resumen de la misión",
   "tasks-DemographicAttributesTask-19c298e1c74d5b997-57":
@@ -1690,7 +1690,7 @@ export default {
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-70": "las palabras clave no existen",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-71":
     "Palabras clave que no existen:",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-72": "cerrar",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-72": "Cerrar",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-73":
     "Borrar palabras clave inexistentes",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-74": "Importado exitosamente",
@@ -1710,7 +1710,7 @@ export default {
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-85": "ciudad",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-86": "...etc.",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-87": "un",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-88": "cerrar",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-88": "Cerrar",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-89": "Resumen de la misión",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-90":
     "Confirmación de parámetros de tarea",
@@ -1766,12 +1766,12 @@ export default {
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-133":
     "¿Está seguro de que desea borrar todas las palabras clave?",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-134": "Consejos",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-135": "bien",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-135": "OK",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-136": "Cancelar",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-137":
     "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-138": "Consejos",
-  "tasks-SearchIndexTask-19c298e21d4fb2dcd-139": "bien",
+  "tasks-SearchIndexTask-19c298e21d4fb2dcd-139": "OK",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-140": "Cancelar",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-141": "despejado",
   "tasks-SearchIndexTask-19c298e21d4fb2dcd-142":
@@ -1858,7 +1858,7 @@ export default {
   "tasks-WordGraphTask-19c298e227e044aa6-49": "existen palabras clave",
   "tasks-WordGraphTask-19c298e227e044aa6-50": "las palabras clave no existen",
   "tasks-WordGraphTask-19c298e227e044aa6-51": "Palabras clave que no existen:",
-  "tasks-WordGraphTask-19c298e227e044aa6-52": "cerrar",
+  "tasks-WordGraphTask-19c298e227e044aa6-52": "Cerrar",
   "tasks-WordGraphTask-19c298e227e044aa6-53":
     "Borrar palabras clave inexistentes",
   "tasks-WordGraphTask-19c298e227e044aa6-54":
@@ -1871,7 +1871,7 @@ export default {
     "Palabras clave no válidas o duplicadas:",
   "tasks-WordGraphTask-19c298e227e044aa6-59": "...etc.",
   "tasks-WordGraphTask-19c298e227e044aa6-60": "un",
-  "tasks-WordGraphTask-19c298e227e044aa6-61": "cerrar",
+  "tasks-WordGraphTask-19c298e227e044aa6-61": "Cerrar",
   "tasks-WordGraphTask-19c298e227e044aa6-62": "Resumen de la misión",
   "tasks-WordGraphTask-19c298e227e044aa6-63":
     "Confirmación de parámetros de tarea",
@@ -1914,7 +1914,7 @@ export default {
   "tasks-WordGraphTask-19c298e227e044aa6-95":
     "¿Está seguro de que desea borrar todas las palabras clave?",
   "tasks-WordGraphTask-19c298e227e044aa6-96": "Consejos",
-  "tasks-WordGraphTask-19c298e227e044aa6-97": "bien",
+  "tasks-WordGraphTask-19c298e227e044aa6-97": "OK",
   "tasks-WordGraphTask-19c298e227e044aa6-98": "Cancelar",
   "tasks-WordGraphTask-19c298e227e044aa6-99":
     "No se encontraron palabras clave válidas en el archivo.",
@@ -1931,7 +1931,7 @@ export default {
   "tasks-WordGraphTask-19c298e227e044aa6-108":
     "¿Está seguro de que desea borrar todas las palabras clave no existentes?",
   "tasks-WordGraphTask-19c298e227e044aa6-109": "Consejos",
-  "tasks-WordGraphTask-19c298e227e044aa6-110": "bien",
+  "tasks-WordGraphTask-19c298e227e044aa6-110": "OK",
   "tasks-WordGraphTask-19c298e227e044aa6-111": "Cancelar",
   "tasks-WordGraphTask-19c298e227e044aa6-112": "despejado",
   "tasks-WordGraphTask-19c298e227e044aa6-113": "palabras clave que no existen",
@@ -2067,4 +2067,15 @@ export default {
     "Déjelo en blanco para usar el nombre de archivo predeterminado",
   "tasks.common.custom_filename_hint":
     'Establezca el prefijo del nombre del archivo de salida (como "mis_datos"), déjelo en blanco para usar el formato predeterminado',
+  "views.settings.api_connection_title": "Configuración de conexión API",
+  "views.settings.api_connection_desc":
+    "Configure la clave de comunicación entre los servicios de front-end y back-end para garantizar una transmisión de datos segura.",
+  "views.settings.api_config_status": "estado de configuración",
+  "views.settings.api_configured": "Conectado",
+  "views.settings.api_not_configured": "No conectado",
+  "views.settings.api_tip":
+    "Se recomienda configurar VITE_API_SECRET_KEY en el directorio raíz del proyecto .env. Una vez configurado, entrará en vigor de forma permanente.",
+  "views.settings.api_input_placeholder":
+    "Ingrese la clave API aquí (guardado automático)",
+  "views.settings.api_key_saved": "Clave API guardada",
 };

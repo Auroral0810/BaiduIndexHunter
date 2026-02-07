@@ -419,7 +419,7 @@ export default {
   "views.cookiemanager.188w8t": "Bestätigung der erzwungenen Entsperrung",
   "views.cookiemanager.e6tc1n": "Konto {0} wurde zwangsweise entsperrt",
   "views.cookiemanager.0frwfn":
-    "Die erzwungene Entsperrung ist fehlgeschlagen: {0}",
+    "Das erzwungene Entsperren ist fehlgeschlagen: {0}",
   "views.cookiemanager.ig1iw4": "Fehler beim erzwungenen Entsperren:",
   "views.cookiemanager.68b827":
     "Die Konto-ID wurde von {0} auf {1} aktualisiert.",
@@ -492,7 +492,7 @@ export default {
   "views.datacollection.j887qn": "API-Dienststatus",
   "views.datacollection.h2894t": "Aufgabentyp",
   "views.datacollection.14ux91": "Aktualisierungsstatus",
-  "views.datacollection.u24u75": "schließen",
+  "views.datacollection.u24u75": "Schließen",
   "views.datacollection.wt72k3": "Aktuelle Aufgaben:",
   "views.datacollection.6k50e9": "Fortschritt",
   "views.datacollection.qww0ij": "Läuft normal",
@@ -575,7 +575,7 @@ export default {
   "views.settings.42533h": "Abkühlzeit des Cookie-Verbots (Sekunden)",
   "views.settings.t8dliz": "Maximale Anzahl von Anwendungen pro Tag",
   "views.settings.9ue5fu": "Mindestanzahl verfügbarer Cookies",
-  "views.settings.j56utr": "Cookie-Rotationsstrategie",
+  "views.settings.j56utr": "Cookie-Rotationsrichtlinie",
   "dashboard.dashboard.2dwsg6": "Big-Data-Bildschirm",
   "dashboard.dashboard.327577": "Daten aktualisieren",
   "dashboard.dashboard.7iv3g2": "Gesamtzahl der Aufgaben",
@@ -599,7 +599,7 @@ export default {
   "dashboard.dashboard.2a174n": "Letzte 7 Tage",
   "dashboard.dashboard.zk61g6": "Letzte 30 Tage",
   "dashboard.dashboard.5o84wx": "Letzte 90 Tage",
-  "dashboard.dashboard.096ld1": "letzten sechs Monaten",
+  "dashboard.dashboard.096ld1": "letzten sechs Monate",
   "dashboard.dashboard.rvgg9y": "letztes Jahr",
   "dashboard.dashboard.o64878": "alle Zeit",
   "dashboard.dashboard.tt8075": "Benutzerdefinierter Zeitbereich",
@@ -1135,7 +1135,7 @@ export default {
     "Schlüsselwörter existieren nicht",
   "tasks-FeedIndexTask-19c298e1d0a206148-71":
     "Schlüsselwörter, die nicht existieren:",
-  "tasks-FeedIndexTask-19c298e1d0a206148-72": "Schließen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-72": "schließen",
   "tasks-FeedIndexTask-19c298e1d0a206148-73":
     "Löschen Sie nicht vorhandene Schlüsselwörter",
   "tasks-FeedIndexTask-19c298e1d0a206148-74": "Erfolgreich importiert",
@@ -1152,7 +1152,7 @@ export default {
   "tasks-FeedIndexTask-19c298e1d0a206148-85": "Stadt",
   "tasks-FeedIndexTask-19c298e1d0a206148-86": "...usw.",
   "tasks-FeedIndexTask-19c298e1d0a206148-87": "a",
-  "tasks-FeedIndexTask-19c298e1d0a206148-88": "Schließen",
+  "tasks-FeedIndexTask-19c298e1d0a206148-88": "schließen",
   "tasks-FeedIndexTask-19c298e1d0a206148-89": "Missionsübersicht",
   "tasks-FeedIndexTask-19c298e1d0a206148-90":
     "Bestätigung der Aufgabenparameter",
@@ -1309,7 +1309,7 @@ export default {
     "Schlüsselwörter existieren nicht",
   "tasks-InterestProfileTask-19c298e1e7a81a799-46":
     "Schlüsselwörter, die nicht existieren:",
-  "tasks-InterestProfileTask-19c298e1e7a81a799-47": "Schließen",
+  "tasks-InterestProfileTask-19c298e1e7a81a799-47": "schließen",
   "tasks-InterestProfileTask-19c298e1e7a81a799-48":
     "Löschen Sie nicht vorhandene Schlüsselwörter",
   "tasks-InterestProfileTask-19c298e1e7a81a799-49": "Erfolgreich importiert",
@@ -2091,4 +2091,15 @@ export default {
     "Lassen Sie das Feld leer, um den Standarddateinamen zu verwenden",
   "tasks.common.custom_filename_hint":
     "Legen Sie das Präfix für den Namen der Ausgabedatei fest (z. B. „my_data“) und lassen Sie es leer, um das Standardformat zu verwenden",
+  "views.settings.api_connection_title": "API-Verbindungskonfiguration",
+  "views.settings.api_connection_desc":
+    "Konfigurieren Sie den Kommunikationsschlüssel zwischen den Front-End- und Back-End-Diensten, um eine sichere Datenübertragung zu gewährleisten.",
+  "views.settings.api_config_status": "Konfigurationsstatus",
+  "views.settings.api_configured": "Verbunden",
+  "views.settings.api_not_configured": "Nicht verbunden",
+  "views.settings.api_tip":
+    "Es wird empfohlen, VITE_API_SECRET_KEY im Projektstammverzeichnis .env zu konfigurieren. Sobald es konfiguriert ist, wird es dauerhaft wirksam.",
+  "views.settings.api_input_placeholder":
+    "Geben Sie hier den API-Schlüssel ein (automatische Speicherung)",
+  "views.settings.api_key_saved": "API-Schlüssel gespeichert",
 };

@@ -1,5 +1,9 @@
+import os
 import pytest
 from loguru import logger
+
+# 跳过环境变量校验，便于测试运行
+os.environ['SKIP_ENV_VALIDATION'] = '1'
 
 @pytest.fixture(scope="session", autouse=True)
 def cleanup_logger():

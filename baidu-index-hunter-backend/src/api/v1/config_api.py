@@ -19,9 +19,11 @@ from src.api.schemas.config import (
 )
 from src.api.utils.validators import validate_json, validate_args
 from src.api.utils.swagger import create_swagger_spec
+from src.core.auth import auth_before_request
 
 # 创建蓝图
 config_bp = Blueprint('config', __name__, url_prefix='/api/config')
+config_bp.before_request(auth_before_request)
 
 
 # ============== Swagger 规范定义 ==============

@@ -191,6 +191,7 @@ import {
 } from '@element-plus/icons-vue'
 import { saveAs } from 'file-saver'
 import { ElMessage } from 'element-plus'
+import { apiBase } from '@/config/api'
 
 const { t: $t } = useI18n()
 
@@ -358,7 +359,6 @@ const downloadLogs = () => {
 }
 
 const initSocket = () => {
-  import { apiBase } from '@/config/api'
   socket.value = io(apiBase)
   socket.value.on('connect', () => connected.value = true)
   socket.value.on('disconnect', () => connected.value = false)
