@@ -103,7 +103,7 @@ def setup_swagger(app):
             "title": "百度指数爬虫API",
             "description": "百度指数爬虫后端API接口文档",
             "version": "2.0.0",
-            "contact": {"name": "API 支持", "email": "15968588744@163.com"}
+            "contact": {"name": "API 支持", "email": "15988888744@163.com"}
         },
         "securityDefinitions": {
             "Bearer": {

@@ -407,30 +407,6 @@ class BaseCrawler:
         self.cookie_usage_count += 1
         return account_id, cookie_dict
 
-    def _get_cipher_text(self, keyword: str) -> str:
-        """获取 Cipher-Text 参数 (通用)"""
-        encoded_keyword = keyword.replace(' ', '%20')
-        cipher_url = f'{BAIDU_INDEX_API["referer"]}#/trend/{encoded_keyword}?words={encoded_keyword}'
-        return cipher_text_generator.generate(cipher_url)
-
-    def _update_ab_sr_cookies(self) -> bool:
-        """更新所有账号的 ab_sr cookie (通用)"""
-        try:
-            from src.services.cookie_service import CookieManager
-            cookie_manager = CookieManager()
-            result = cookie_manager.update_ab_sr_for_all_accounts()
-            cookie_manager.close()
-            
-            if 'error' in result:
-                log.error(f"[{self.task_type}] 更新 ab_sr cookie 失败: {result['error']}")
-                return False
-            
-            self.cookie_rotator.reset_cache()
-            return True
-        except Exception as e:
-            log.error(f"[{self.task_type}] 更新 ab_sr cookie 时出错: {e}")
-            return False
-
     # --- 持久化与缓存 (Persistence & Caching) ---
 
     def _flush_buffer(self, force: bool = False):

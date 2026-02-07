@@ -352,26 +352,7 @@ class SearchIndexCrawler(BaseCrawler):
         theoretical_total_tasks = len(keywords) * len(self.city_dict) * len(date_ranges)
         # log.info(f"理论总任务数: {theoretical_total_tasks} (关键词: {len(keywords)}, 城市: {len(self.city_dict)}, 日期范围: {len(date_ranges)})")
         # 初始设置，后面会根据实际任务列表更新
-        self.total_tasks = theoretical_total_tasks
-        # # 计算总任务数
-        # if not resume:
-        #     # 如果没有从task_executor传入总任务数，则自行计算
-        #     if total_tasks is None:
-        #         # 计算理论上的总任务数，但实际执行时会根据all_tasks的长度重新设置
-        #         theoretical_total_tasks = len(keywords) * len(self.city_dict) * len(date_ranges)
-        #         # log.info(f"理论总任务数: {theoretical_total_tasks} (关键词: {len(keywords)}, 城市: {len(self.city_dict)}, 日期范围: {len(date_ranges)})")
-        #         # 初始设置，后面会根据实际任务列表更新
-        #         self.total_tasks = theoretical_total_tasks
-        #     else:
-        #         # 如果传入了总任务数，使用传入的值
-        #         self.total_tasks = total_tasks*len(date_ranges)
-        #         # log.info(f"使用传入的总任务数: {self.total_tasks}")
-        # else:
-        #     # 如果是恢复模式且传入了总任务数，检查是否需要更新总任务数
-        #     if total_tasks is not None and total_tasks > self.total_tasks:
-        #         log.info(f"更新总任务数: {self.total_tasks} -> {total_tasks}")
-        #         self.total_tasks = total_tasks
-            
+        self.total_tasks = theoretical_total_tasks            
         log.info(f"任务ID: {self.task_id}")
         log.info(f"总任务数: {self.total_tasks} (关键词: {len(keywords)}, 城市: {len(self.city_dict)}, 日期范围: {len(date_ranges)})")
         
