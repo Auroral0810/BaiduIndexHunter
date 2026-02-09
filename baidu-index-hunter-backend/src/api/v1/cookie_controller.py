@@ -3,6 +3,7 @@ Cookie管理控制器 - 提供Cookie管理的API接口
 """
 from flask import Blueprint, request, jsonify, g
 from typing import Dict
+from datetime import datetime, timedelta
 import traceback
 from flasgger import swag_from
 
@@ -224,10 +225,15 @@ def list_accounts():
 def add_cookie(validated_data: AddCookieRequest):
     """添加Cookie"""
     try:
+        # 将 expire_days（整数天数）转换为 expire_time（datetime）
+        expire_time = None
+        if validated_data.expire_days is not None:
+            expire_time = datetime.now() + timedelta(days=validated_data.expire_days)
+
         success = cookie_service.add_cookie(
             validated_data.account_id,
             validated_data.cookie_data,
-            validated_data.expire_days
+            expire_time
         )
         
         if success:
