@@ -1,9 +1,10 @@
 """
 搜索指数与趋势指数处理器
 """
+import json
+import time
 import pandas as pd
 import requests
-import json
 from datetime import datetime, timedelta
 from src.core.logger import log
 from src.core.config import BAIDU_INDEX_API
@@ -145,11 +146,27 @@ class SearchProcessor:
                 idx += 1
             
             # 2. 处理统计摘要 (从 generalRatio 获取)
-            # 注意: 如果 data 为空，我们可能需要根据 daily_data 手动计算摘要
-            ratio_data = data.get('data', {}).get('generalRatio', [{}])[0]
-            
+            # 注意: API 有时返回 all/wise/pc 为 int(0) 而非 dict，需安全解析
+            if not isinstance(data, dict):
+                return daily_data, {}
+            res_data = data.get('data') or {}
+            if not isinstance(res_data, dict):
+                return daily_data, {}
+            ratio_list = res_data.get('generalRatio') or []
+            if not ratio_list:
+                return daily_data, {}
+            ratio_data = ratio_list[0]
+            if not isinstance(ratio_data, dict):
+                return daily_data, {}
+
+            def _term_dict(terminal):
+                """安全获取终端数据，API 可能返回 int 而非 dict"""
+                v = ratio_data.get(terminal, {})
+                return v if isinstance(v, dict) else {}
+
             def get_val(terminal, key):
-                val = ratio_data.get(terminal, {}).get(key, 0)
+                term = _term_dict(terminal)
+                val = term.get(key, 0)
                 return val if val is not None else 0
 
             # 统计值计算需注意：如果是周度，总值计算可能需要调整？
@@ -163,14 +180,14 @@ class SearchProcessor:
                 '城市': city_name,
                 '时间范围': f"{start_date} 至 {end_date}",
                 '整体日均值': get_val('all', 'avg'),
-                '整体同比': ratio_data.get('all', {}).get('yoy', '-'),
-                '整体环比': ratio_data.get('all', {}).get('qoq', '-'),
+                '整体同比': _term_dict('all').get('yoy', '-'),
+                '整体环比': _term_dict('all').get('qoq', '-'),
                 '移动日均值': get_val('wise', 'avg'),
-                '移动同比': ratio_data.get('wise', {}).get('yoy', '-'),
-                '移动环比': ratio_data.get('wise', {}).get('qoq', '-'),
+                '移动同比': _term_dict('wise').get('yoy', '-'),
+                '移动环比': _term_dict('wise').get('qoq', '-'),
                 'PC日均值': get_val('pc', 'avg'),
-                'PC同比': ratio_data.get('pc', {}).get('yoy', '-'),
-                'PC环比': ratio_data.get('pc', {}).get('qoq', '-'),
+                'PC同比': _term_dict('pc').get('yoy', '-'),
+                'PC环比': _term_dict('pc').get('qoq', '-'),
                 '整体总值': get_val('all', 'avg') * expected_days,
                 '移动总值': get_val('wise', 'avg') * expected_days,
                 'PC总值': get_val('pc', 'avg') * expected_days,
@@ -203,31 +220,44 @@ class SearchProcessor:
         
         return ''.join(r)
 
-    def _get_key(self, uniqid, cookie):
-        """从百度接口获取解密密钥"""
+    def _get_key(self, uniqid, cookie, max_retries=3):
+        """从百度接口获取解密密钥，空响应时自动重试"""
         params = {'uniqid': uniqid}
         headers = {
             'Accept': 'application/json, text/plain, */*',
             'Referer': 'https://index.baidu.com/v2/main/index.html',
             'User-Agent': BAIDU_INDEX_API['user_agent'],
         }
-        try:
-            response = requests.get(
-                'https://index.baidu.com/Interface/ptbk', 
-                params=params, 
-                cookies=cookie, 
-                headers=headers,
-                timeout=10
-            )
-            if response.status_code == 200:
+        for attempt in range(max_retries):
+            try:
+                response = requests.get(
+                    'https://index.baidu.com/Interface/ptbk',
+                    params=params,
+                    cookies=cookie,
+                    headers=headers,
+                    timeout=10
+                )
+                if response.status_code != 200:
+                    log.error(f"获取解密密钥失败: {response.status_code}, {response.text[:200]}")
+                    continue
+                text = response.text.strip()
+                if not text:
+                    log.warning(f"ptbk返回空响应 (尝试 {attempt+1}/{max_retries})")
+                    if attempt < max_retries - 1:
+                        time.sleep(1)
+                    continue
                 res_json = response.json()
                 if res_json.get('status') == 0:
                     return res_json.get('data')
-            log.error(f"获取解密密钥失败: {response.status_code}, {response.text}")
-            return None
-        except Exception as e:
-            log.error(f"获取解密密钥异常: {e}")
-            return None
+                log.error(f"ptbk status异常: {res_json}")
+            except (ValueError, json.JSONDecodeError) as e:
+                log.warning(f"ptbk JSON解析失败 (尝试 {attempt+1}/{max_retries}): {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(1)
+            except Exception as e:
+                log.error(f"获取解密密钥异常: {e}")
+                return None
+        return None
 
     def process_multi_search_index_data(self, data, cookie, keywords, city_code, city_name, start_date, end_date):
         """

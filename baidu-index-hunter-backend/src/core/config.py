@@ -101,9 +101,9 @@ BAIDU_INDEX_API = {
 
 # 爬虫配置
 SPIDER_CONFIG = {
-    'min_interval': float(os.getenv('SPIDER_MIN_INTERVAL', 0.5)),  # 请求间隔最小秒数，降低到0.1秒
-    'max_interval': float(os.getenv('SPIDER_MAX_INTERVAL', 1)),  # 请求间隔最大秒数，降低到0.3秒
-    'default_interval': float(os.getenv('SPIDER_DEFAULT_INTERVAL', 0.6)),  # 默认请求间隔秒数，降低到0.2秒
+    'min_interval': float(os.getenv('SPIDER_MIN_INTERVAL', 0.3)),  # 请求间隔最小秒数，降低到0.1秒
+    'max_interval': float(os.getenv('SPIDER_MAX_INTERVAL', 0.6)),  # 请求间隔最大秒数，降低到0.3秒
+    'default_interval': float(os.getenv('SPIDER_DEFAULT_INTERVAL', 0.4)),  # 默认请求间隔秒数，降低到0.2秒
     'retry_times': int(os.getenv('SPIDER_RETRY_TIMES', 3)),  # 请求失败重试次数
     'timeout': int(os.getenv('SPIDER_TIMEOUT', 10)),     # 请求超时时间（秒），降低到10秒
     'max_workers': int(os.getenv('SPIDER_MAX_WORKERS', min(10, multiprocessing.cpu_count()*4))),  # 最大工作线程数，增加到20或CPU核心数的6倍

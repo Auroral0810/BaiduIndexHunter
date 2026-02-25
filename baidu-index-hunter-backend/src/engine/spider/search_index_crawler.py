@@ -21,6 +21,15 @@ class NoCookieAvailableError(Exception):
     """当没有可用Cookie时抛出的异常"""
     pass
 
+
+class SearchIndexAPIError(Exception):
+    """百度指数 API 返回错误（用于触发重试）"""
+    def __init__(self, status, message, data=None):
+        self.status = status
+        self.message = message
+        self.data = data
+        super().__init__(f"API错误 status={status}: {message}")
+
 class SearchIndexCrawler(BaseCrawler):
     """百度搜索指数爬虫类（并行版本）"""
     
@@ -65,64 +74,101 @@ class SearchIndexCrawler(BaseCrawler):
             return True
         return False
     
-    @retry(max_retries=3, delay=2)
-    def _get_search_index(self, area, keywords, start_date, end_date):
-        """获取搜索指数数据"""
-        # 使用rate_limiter来限制请求频率
-        rate_limiter.wait()
-        
-        # 构建word参数
+    def _build_word_param(self, keywords):
+        """
+        构建 word 参数。支持二词联查：'网上+融资' -> [{"name":"网上","wordType":1},{"name":"融资","wordType":1}]
+        单词：'在线' -> [{"name":"在线","wordType":1}]
+        """
         word_list = []
-        for keyword in keywords:
-            word_list.append([{"name": keyword, "wordType": 1}])
-        
-        # 将word_list转换为JSON字符串
-        word_param = json.dumps(word_list, ensure_ascii=False)
-        
-        # 构造参数
-        params = {
-            "area": area,
-            "word": word_param,
-            "startDate": start_date,
-            "endDate": end_date
-        }
-        
-        # 构造URL
-        encoded_word = urllib.parse.quote(params["word"])
-        url = f"{BAIDU_INDEX_API['search_url']}?area={params['area']}&word={encoded_word}&startDate={params['startDate']}&endDate={params['endDate']}"
-        
-        # 获取有效的Cookie
+        for kw in keywords:
+            if '+' in kw:
+                parts = [p.strip() for p in kw.split('+') if p.strip()]
+                word_list.append([{"name": p, "wordType": 1} for p in parts])
+            else:
+                word_list.append([{"name": kw.strip(), "wordType": 1}])
+        return json.dumps(word_list, ensure_ascii=False)
+
+    def _fetch_search_index_raw(self, area, keywords, start_date, end_date):
+        """内部方法：发起单次 API 请求，不包含重试逻辑"""
+        rate_limiter.wait()
+        word_param = self._build_word_param(keywords)
+        encoded_word = urllib.parse.quote(word_param)
+        url = f"{BAIDU_INDEX_API['search_url']}?area={area}&word={encoded_word}&startDate={start_date}&endDate={end_date}"
+
         account_id, cookie_dict = self._get_cookie_dict()
         if not cookie_dict:
             raise NoCookieAvailableError("所有Cookie均被锁定，无法继续爬取")
-            
-        # 获取Cipher-Text (使用第一个关键词)
+
         cipher_text = self._get_cipher_text(keywords[0])
         headers = self._get_common_headers(cipher_text)
-        
         response = requests.get(url, cookies=cookie_dict, headers=headers)
-        
+
         if response.status_code != 200:
-            log.error(f"请求失败: {response.status_code}")
-            return None
-            
-        data = response.json()
-        
-        # 检查响应状态
+            raise SearchIndexAPIError(response.status_code, f"HTTP {response.status_code}")
+
+        text = response.text.strip()
+        if not text:
+            raise SearchIndexAPIError(0, "API返回空响应")
+        try:
+            data = json.loads(text)
+        except (ValueError, json.JSONDecodeError) as e:
+            raise SearchIndexAPIError(0, f"API返回非JSON: {e}")
+
         status = data.get('status')
-        if status == 10001:  # 请求被锁定
+        if status == 10001:
             log.warning(f"Cookie被临时锁定: {account_id}")
             self._report_cookie_status(account_id, False)
-            return None
-        elif status == 10000:  # 未登录
+            raise SearchIndexAPIError(status, "Cookie被临时锁定", data)
+        elif status == 10000:
             log.warning(f"Cookie无效或已过期: {account_id}")
             self._report_cookie_status(account_id, False, permanent=True)
-            return None
+            raise SearchIndexAPIError(status, "Cookie无效或已过期", data)
         elif status != 0:
             log.error(f"请求失败: {data}")
-            return None
-            
+            raise SearchIndexAPIError(status, data.get('message', 'unknown'), data)
+
         return data, cookie_dict
+
+    @retry(max_retries=5, delay=2, exceptions=(SearchIndexAPIError,))
+    def _get_search_index(self, area, keywords, start_date, end_date):
+        """获取搜索指数数据。多关键词遇 10002 时自动回退为逐关键词请求，确保不丢数据"""
+        try:
+            return self._fetch_search_index_raw(area, keywords, start_date, end_date)
+        except SearchIndexAPIError as e:
+            # status 10002 (bad request) 且多关键词时：回退为逐关键词请求并合并结果
+            if e.status == 10002 and len(keywords) > 1:
+                log.warning(f"多关键词请求 10002，回退为逐关键词请求: {keywords}")
+                merged_user_indexes = []
+                merged_general_ratio = []
+                first_cookie = None
+                first_uniqid = None
+                for kw in keywords:
+                    try:
+                        single_data, cookie_dict = self._fetch_search_index_raw(area, [kw], start_date, end_date)
+                        first_cookie = first_cookie or cookie_dict
+                        res = single_data.get('data', {})
+                        uidx = res.get('userIndexes', [])
+                        grat = res.get('generalRatio', [])
+                        if uidx:
+                            merged_user_indexes.append(uidx[0])
+                        if grat:
+                            merged_general_ratio.append(grat[0])
+                        first_uniqid = first_uniqid or res.get('uniqid')
+                    except Exception as sub_e:
+                        log.error(f"逐关键词请求失败 [{kw}]: {sub_e}")
+                        raise SearchIndexAPIError(e.status, f"回退单关键词仍失败: {sub_e}", e.data)
+                if not merged_user_indexes or not first_cookie:
+                    raise
+                merged_data = {
+                    'status': 0,
+                    'data': {
+                        'userIndexes': merged_user_indexes,
+                        'generalRatio': merged_general_ratio,
+                        'uniqid': first_uniqid or ''
+                    }
+                }
+                return merged_data, first_cookie
+            raise
     
     def _process_search_index_data(self, data, cookie, keyword, city_code, city_name, start_date, end_date):
         """处理搜索指数数据 (单关键词)"""
@@ -370,8 +416,13 @@ class SearchIndexCrawler(BaseCrawler):
             # 准备所有任务
             all_tasks = []
             
-            # 强制限制batch_size最大为5
-            batch_size = min(batch_size, 5)
+            # 二词联查（含+）必须逐词请求，不能批量
+            has_compound = any('+' in kw for kw in keywords)
+            if has_compound:
+                batch_size = 1
+                log.info("检测到二词联查关键词，强制逐词请求")
+            else:
+                batch_size = min(batch_size, 5)
             log.info(f"批量处理关键词，每批次最多 {batch_size} 个关键词")
             
             # 按batch_size将关键词分组
